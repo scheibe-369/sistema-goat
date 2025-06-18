@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import LeadsKanban from "./pages/LeadsKanban";
 import Contracts from "./pages/Contracts";
 import Financial from "./pages/Financial";
+import Conversations from "./pages/Conversations";
+import Clients from "./pages/Clients";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,8 +27,8 @@ const App = () => (
             <Route path="/leads" element={<LeadsKanban />} />
             <Route path="/contracts" element={<Contracts />} />
             <Route path="/financial" element={<Financial />} />
-            <Route path="/conversations" element={<Dashboard />} />
-            <Route path="/clients" element={<Dashboard />} />
+            <Route path="/conversations" element={<Conversations />} />
+            <Route path="/clients" element={<Clients />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
