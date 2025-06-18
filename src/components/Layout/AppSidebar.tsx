@@ -77,7 +77,11 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 
-                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-white hover:bg-goat-purple/20 ${
+                        isActive 
+                          ? 'bg-goat-purple/30 text-white border border-goat-purple/50' 
+                          : 'hover:bg-goat-gray-800'
+                      }`}
                     >
                       <Link to={item.url}>
                         <item.icon className="w-5 h-5" />
@@ -95,7 +99,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-goat-gray-700 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="sidebar-item text-red-400 hover:bg-red-900/20">
+            <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-red-400 hover:bg-red-900/20">
               <LogOut className="w-5 h-5" />
               <span>Sair</span>
             </SidebarMenuButton>
