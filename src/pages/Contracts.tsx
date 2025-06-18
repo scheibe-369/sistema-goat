@@ -1,0 +1,222 @@
+
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+
+interface Contract {
+  id: string;
+  client: string;
+  type: string;
+  monthlyValue: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'inactive' | 'expiring';
+}
+
+const mockContracts: Contract[] = [
+  {
+    id: '1',
+    client: 'Tech Innovations',
+    type: 'Marketing Digital Completo',
+    monthlyValue: 5000,
+    startDate: '2024-01-01',
+    endDate: '2024-12-31',
+    status: 'active'
+  },
+  {
+    id: '2',
+    client: 'E-commerce Plus',
+    type: 'Gestão de Redes Sociais',
+    monthlyValue: 3000,
+    startDate: '2023-06-01',
+    endDate: '2024-06-30',
+    status: 'expiring'
+  },
+  {
+    id: '3',
+    client: 'Startup XYZ',
+    type: 'Consultoria Estratégica',
+    monthlyValue: 8000,
+    startDate: '2024-02-01',
+    endDate: '2025-01-31',
+    status: 'active'
+  },
+  {
+    id: '4',
+    client: 'Consultoria Pro',
+    type: 'Branding e Identidade',
+    monthlyValue: 4500,
+    startDate: '2023-01-01',
+    endDate: '2023-12-31',
+    status: 'inactive'
+  }
+];
+
+export default function Contracts() {
+  const getStatusBadge = (status: Contract['status']) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-600 text-white">Ativo</Badge>;
+      case 'expiring':
+        return <Badge className="bg-yellow-600 text-white">A vencer</Badge>;
+      case 'inactive':
+        return <Badge className="bg-gray-600 text-white">Inativo</Badge>;
+      default:
+        return <Badge variant="secondary">Desconhecido</Badge>;
+    }
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const getDaysUntilExpiration = (endDate: string) => {
+    const today = new Date();
+    const expDate = new Date(endDate);
+    const diffTime = expDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const activeContracts = mockContracts.filter(c => c.status === 'active');
+  const expiringContracts = mockContracts.filter(c => c.status === 'expiring');
+  const totalMonthlyRevenue = activeContracts.reduce((sum, contract) => sum + contract.monthlyValue, 0);
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Contratos</h1>
+          <p className="text-goat-gray-400">Gerencie contratos ativos e inativos</p>
+        </div>
+        <Button className="btn-primary">
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Contrato
+        </Button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-green-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{activeContracts.length}</p>
+              <p className="text-goat-gray-400 text-sm">Contratos Ativos</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-goat-purple" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{formatCurrency(totalMonthlyRevenue)}</p>
+              <p className="text-goat-gray-400 text-sm">Receita Mensal</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{expiringContracts.length}</p>
+              <p className="text-goat-gray-400 text-sm">A Vencer</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Expiring Contracts Alert */}
+      {expiringContracts.length > 0 && (
+        <Card className="bg-yellow-900/20 border-yellow-600 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <AlertTriangle className="w-6 h-6 text-yellow-400" />
+            <h3 className="text-lg font-semibold text-yellow-400">Contratos A Vencer</h3>
+          </div>
+          <div className="space-y-2">
+            {expiringContracts.map((contract) => (
+              <div key={contract.id} className="flex items-center justify-between p-3 bg-yellow-900/10 rounded-lg border border-yellow-800">
+                <div>
+                  <p className="text-white font-medium">{contract.client}</p>
+                  <p className="text-yellow-200 text-sm">{contract.type}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-yellow-400 font-semibold">
+                    {getDaysUntilExpiration(contract.endDate)} dias restantes
+                  </p>
+                  <p className="text-yellow-200 text-sm">Vence em {formatDate(contract.endDate)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Contracts List */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700">
+        <div className="p-6 border-b border-goat-gray-700">
+          <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
+        </div>
+
+        <div className="divide-y divide-goat-gray-700">
+          {mockContracts.map((contract) => (
+            <div key={contract.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h4 className="text-lg font-semibold text-white">{contract.client}</h4>
+                    {getStatusBadge(contract.status)}
+                  </div>
+                  <p className="text-goat-gray-400 mb-3">{contract.type}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-goat-purple" />
+                      <span className="text-goat-gray-400">Valor mensal:</span>
+                      <span className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-goat-purple" />
+                      <span className="text-goat-gray-400">Início:</span>
+                      <span className="text-white">{formatDate(contract.startDate)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-goat-purple" />
+                      <span className="text-goat-gray-400">Término:</span>
+                      <span className="text-white">{formatDate(contract.endDate)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 ml-6">
+                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
+                    Editar
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-red-400 border-red-800 hover:bg-red-900/20">
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}

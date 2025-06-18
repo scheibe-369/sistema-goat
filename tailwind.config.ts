@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,7 +26,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
+					DEFAULT: '#5315CB',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
@@ -61,6 +62,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// GOAT Brand Colors
+				goat: {
+					dark: '#080808',
+					purple: '#5315CB',
+					gray: {
+						100: '#f5f5f5',
+						200: '#e5e5e5',
+						300: '#d4d4d4',
+						400: '#a3a3a3',
+						500: '#737373',
+						600: '#525252',
+						700: '#404040',
+						800: '#262626',
+						900: '#171717'
+					}
 				}
 			},
 			borderRadius: {
@@ -84,11 +101,35 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'slide-in': {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
+					'100%': {
+						transform: 'translateX(0)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'slide-in': 'slide-in 0.3s ease-out'
+			},
+			backgroundImage: {
+				'gradient-goat': 'linear-gradient(135deg, #5315CB 0%, #8B5CF6 100%)',
+				'gradient-dark': 'linear-gradient(135deg, #080808 0%, #171717 100%)'
 			}
 		}
 	},
