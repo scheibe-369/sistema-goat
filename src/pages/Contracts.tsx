@@ -57,13 +57,13 @@ export default function Contracts() {
   const getStatusBadge = (status: Contract['status']) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-600 text-white">Ativo</Badge>;
+        return <Badge className="bg-green-600 text-white hover:bg-green-700">Ativo</Badge>;
       case 'expiring':
-        return <Badge className="bg-yellow-600 text-white">A vencer</Badge>;
+        return <Badge className="bg-yellow-600 text-white hover:bg-yellow-700">A vencer</Badge>;
       case 'inactive':
-        return <Badge className="bg-gray-600 text-white">Inativo</Badge>;
+        return <Badge className="bg-red-600 text-white hover:bg-red-700">Inativo</Badge>;
       default:
-        return <Badge variant="secondary">Desconhecido</Badge>;
+        return <Badge className="bg-goat-gray-600 text-white">Desconhecido</Badge>;
     }
   };
 
@@ -146,21 +146,21 @@ export default function Contracts() {
       {expiringContracts.length > 0 && (
         <Card className="bg-yellow-900/20 border-yellow-600 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-6 h-6 text-yellow-400" />
-            <h3 className="text-lg font-semibold text-yellow-400">Contratos A Vencer</h3>
+            <AlertTriangle className="w-6 h-6 text-white" />
+            <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
           </div>
           <div className="space-y-2">
             {expiringContracts.map((contract) => (
               <div key={contract.id} className="flex items-center justify-between p-3 bg-yellow-900/10 rounded-lg border border-yellow-800">
                 <div>
                   <p className="text-white font-medium">{contract.client}</p>
-                  <p className="text-yellow-200 text-sm">{contract.type}</p>
+                  <p className="text-white text-sm">{contract.type}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-yellow-400 font-semibold">
+                  <p className="text-white font-semibold">
                     {getDaysUntilExpiration(contract.endDate)} dias restantes
                   </p>
-                  <p className="text-yellow-200 text-sm">Vence em {formatDate(contract.endDate)}</p>
+                  <p className="text-white text-sm">Vence em {formatDate(contract.endDate)}</p>
                 </div>
               </div>
             ))}

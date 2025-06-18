@@ -114,11 +114,11 @@ export default function LeadsKanban() {
   const getGroupColor = (group: string) => {
     switch (group) {
       case 'Clientes GOAT':
-        return 'bg-goat-purple text-white';
+        return 'bg-goat-purple text-white hover:bg-purple-600';
       case 'Networking':
-        return 'bg-blue-600 text-white';
+        return 'bg-blue-600 text-white hover:bg-blue-700';
       default:
-        return 'bg-gray-600 text-white';
+        return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
     }
   };
 
@@ -139,13 +139,13 @@ export default function LeadsKanban() {
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
         <div className="flex items-center gap-4">
           <span className="text-white font-medium">Filtros:</span>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
             Todos os grupos
           </Button>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
             Clientes GOAT
           </Button>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
             Networking
           </Button>
         </div>
@@ -160,7 +160,7 @@ export default function LeadsKanban() {
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
                 <h3 className="font-semibold text-white">{stage.name}</h3>
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
                   {stage.leads.length}
                 </Badge>
               </div>
