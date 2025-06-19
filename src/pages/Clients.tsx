@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,13 +52,13 @@ export default function Clients() {
       case 'ativo':
         return 'bg-green-600 text-white hover:bg-green-700';
       case 'a vencer':
-        return 'bg-yellow-600 text-white hover:bg-yellow-700';
+        return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
       case 'vencido':
         return 'bg-red-600 text-white hover:bg-red-700';
       case 'premium':
         return 'bg-goat-purple text-white hover:bg-purple-600';
       case 'gold':
-        return 'bg-yellow-700 text-white hover:bg-yellow-800';
+        return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
       case 'standard':
         return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
       default:
@@ -68,9 +67,9 @@ export default function Clients() {
   };
 
   const toggleClientExpanded = (clientId: number) => {
-    setExpandedClients(prev => 
-      prev.includes(clientId) 
-        ? prev.filter(id => id !== clientId)
+    setExpandedClients((prev) =>
+      prev.includes(clientId)
+        ? prev.filter((id) => id !== clientId)
         : [...prev, clientId]
     );
   };
@@ -79,7 +78,7 @@ export default function Clients() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* ... keep existing code (header section) */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Clientes</h1>
@@ -91,25 +90,25 @@ export default function Clients() {
         </Button>
       </div>
 
-      {/* ... keep existing code (filters and search section) */}
+      {/* Filtros e Busca */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
-          <Input 
-            placeholder="Buscar clientes..." 
+          <Input
+            placeholder="Buscar clientes..."
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
-        <Button variant="outline" className="border-goat-gray-600 text-white hover:bg-goat-gray-800">
+        <Button variant="outline" className="btn-outline">
           <Filter className="w-4 h-4 mr-2" />
           Filtros
         </Button>
       </div>
 
-      {/* Cards reorganizados */}
+      {/* Cards Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Total de Clientes */}
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <Card className="card-dark p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-goat-purple" />
@@ -122,7 +121,7 @@ export default function Clients() {
         </Card>
 
         {/* Clientes Ativos */}
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <Card className="card-dark p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-green-400" />
@@ -135,10 +134,10 @@ export default function Clients() {
         </Card>
 
         {/* Contratos A Vencer */}
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <Card className="card-dark p-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-yellow-400" />
+            <div className="w-12 h-12 bg-goat-gray-600/20 rounded-lg flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-goat-purple" />
             </div>
             <div>
               <p className="text-2xl font-bold text-white">1</p>
@@ -148,7 +147,7 @@ export default function Clients() {
         </Card>
 
         {/* Clientes Inativos */}
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <Card className="card-dark p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
               <UserX className="w-6 h-6 text-red-400" />
@@ -162,7 +161,7 @@ export default function Clients() {
       </div>
 
       {/* Lista de Clientes */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700">
+      <Card className="card-dark">
         <div className="p-6 border-b border-goat-gray-700">
           <h3 className="text-lg font-semibold text-white">Lista de Clientes</h3>
         </div>
@@ -170,13 +169,13 @@ export default function Clients() {
         <div className="divide-y divide-goat-gray-700">
           {clients.map((client) => (
             <div key={client.id} className="hover:bg-goat-gray-900/50 transition-colors">
-              {/* Header sempre visível */}
-              <div 
+              {/* Header */}
+              <div
                 className="p-6 cursor-pointer flex items-center justify-between"
                 onClick={() => toggleClientExpanded(client.id)}
               >
                 <div className="flex items-center gap-4 flex-1">
-                  {/* Ícone de expansão */}
+                  {/* Expansão */}
                   <div className="flex-shrink-0">
                     {isClientExpanded(client.id) ? (
                       <ChevronDown className="w-5 h-5 text-goat-gray-400" />
@@ -185,7 +184,7 @@ export default function Clients() {
                     )}
                   </div>
 
-                  {/* Nome da empresa e tags */}
+                  {/* Empresa e Tags */}
                   <div className="flex items-center gap-3 flex-1">
                     <h4 className="text-lg font-semibold text-white">{client.company}</h4>
                     <div className="flex gap-2">
@@ -197,19 +196,19 @@ export default function Clients() {
                     </div>
                   </div>
 
-                  {/* Dia de pagamento */}
+                  {/* Pagamento */}
                   <div className="flex items-center gap-2 text-goat-gray-300">
                     <Calendar className="w-4 h-4 text-goat-purple" />
                     <span className="text-sm">Pagamento: dia {client.paymentDay}</span>
                   </div>
                 </div>
 
-                {/* Botões de ação sempre visíveis */}
+                {/* Ações */}
                 <div className="flex gap-2 ml-6">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="btn-outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Lógica de editar
@@ -217,10 +216,10 @@ export default function Clients() {
                   >
                     Editar
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-red-400 border-red-800 hover:bg-red-900/20"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="btn-outline-danger"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Lógica de excluir
@@ -231,11 +230,11 @@ export default function Clients() {
                 </div>
               </div>
 
-              {/* Detalhes expandidos */}
+              {/* Detalhes Expandidos */}
               {isClientExpanded(client.id) && (
                 <div className="px-6 pb-6 pt-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-9">
-                    {/* Coluna esquerda */}
+                    {/* Coluna Esquerda */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="w-5 h-5 flex items-center justify-center">
@@ -246,58 +245,28 @@ export default function Clients() {
                           <span className="text-white font-medium">{client.cnpj}</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Phone className="w-4 h-4 text-goat-purple" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-goat-gray-400 text-sm block">Responsável:</span>
-                          <span className="text-white font-medium">{client.responsible}</span>
-                        </div>
+                        <Phone className="w-4 h-4 text-goat-purple" />
+                        <span className="text-white font-medium">{client.phone}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Phone className="w-4 h-4 text-goat-purple" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-goat-gray-400 text-sm block">Telefone:</span>
-                          <span className="text-white font-medium">{client.phone}</span>
-                        </div>
+                        <Mail className="w-4 h-4 text-goat-purple" />
+                        <span className="text-white font-medium">{client.email}</span>
                       </div>
                     </div>
-                    
-                    {/* Coluna direita */}
+
+                    {/* Coluna Direita */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Mail className="w-4 h-4 text-goat-purple" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-goat-gray-400 text-sm block">Email:</span>
-                          <span className="text-white font-medium">{client.email}</span>
-                        </div>
+                        <Calendar className="w-4 h-4 text-goat-purple" />
+                        <span className="text-white font-medium">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Calendar className="w-4 h-4 text-goat-purple" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-goat-gray-400 text-sm block">Fim do contrato:</span>
-                          <span className="text-white font-medium">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-goat-purple" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-goat-gray-400 text-sm block">Localização:</span>
-                          <span className="text-white font-medium">{client.address}</span>
-                        </div>
+                        <MapPin className="w-4 h-4 text-goat-purple" />
+                        <span className="text-white font-medium">{client.address}</span>
                       </div>
                     </div>
                   </div>
