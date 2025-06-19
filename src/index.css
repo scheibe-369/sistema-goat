@@ -109,9 +109,10 @@
   }
 }
 
-/* =========================================
-   Patch: Remover tooltip amarela padrão Radix
-   ========================================= */
+/* ================================================
+✅ Patch: Remover tooltip amarela e animação Radix
+================================================ */
+
 [data-state='delayed-open'],
 [role='tooltip'],
 .radix-tooltip-content,
@@ -123,4 +124,35 @@
   font-size: 12px !important;
   padding: 6px 10px !important;
   border-radius: 6px !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Bloqueia qualquer keyframe de fade-in/out de tooltip Radix */
+@keyframes radix-fade-in {
+  from {
+    opacity: 1 !important;
+  }
+  to {
+    opacity: 1 !important;
+  }
+}
+
+@keyframes radix-fade-out {
+  from {
+    opacity: 1 !important;
+  }
+  to {
+    opacity: 1 !important;
+  }
+}
+
+/* Remove efeitos de transition e animation nos estados internos Radix */
+[data-state='open'],
+[data-state='closed'],
+[data-state='instant-open'] {
+  background-color: #000 !important;
+  color: #fff !important;
+  transition: none !important;
+  animation: none !important;
 }
