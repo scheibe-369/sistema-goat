@@ -52,18 +52,42 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className="!border-none !bg-transparent !backdrop-blur-none !shadow-none" 
+      className="!border-0 !bg-transparent !backdrop-blur-none !shadow-none !outline-none" 
       collapsible="icon"
       variant="floating"
+      style={{ 
+        background: 'transparent !important',
+        border: 'none !important',
+        boxShadow: 'none !important'
+      }}
     >
-      <SidebarHeader className="!p-0 !border-none !bg-transparent" />
+      <SidebarHeader className="!p-0 !border-0 !bg-transparent !shadow-none" />
 
-      <SidebarContent className="!px-0 !py-6 !border-none !bg-transparent !backdrop-blur-none">
-        <SidebarGroup className="!p-0 !bg-transparent !border-none">
+      <SidebarContent 
+        className="!px-0 !py-6 !border-0 !bg-transparent !backdrop-blur-none !shadow-none !outline-none"
+        style={{ 
+          background: 'transparent !important',
+          border: 'none !important',
+          boxShadow: 'none !important'
+        }}
+      >
+        <SidebarGroup 
+          className="!p-0 !bg-transparent !border-0 !shadow-none"
+          style={{ 
+            background: 'transparent !important',
+            border: 'none !important'
+          }}
+        >
           <SidebarGroupLabel className="hidden">
             Módulos
           </SidebarGroupLabel>
-          <SidebarGroupContent className="!bg-transparent !border-none">
+          <SidebarGroupContent 
+            className="!bg-transparent !border-0 !shadow-none"
+            style={{ 
+              background: 'transparent !important',
+              border: 'none !important'
+            }}
+          >
             <SidebarMenu className="!space-y-6 flex flex-col items-center">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.url;
@@ -73,7 +97,7 @@ export function AppSidebar() {
                       asChild 
                       isActive={isActive}
                       tooltip={item.title}
-                      className={`!flex !items-center !justify-center !w-14 !h-14 !rounded-full !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-none !p-0 ${
+                      className={`!flex !items-center !justify-center !w-14 !h-14 !rounded-full !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-0 !p-0 !outline-none ${
                         isActive 
                           ? '!bg-gradient-to-r !from-purple-600 !to-purple-700 !text-white !shadow-purple-500/25 hover:!shadow-purple-500/40' 
                           : '!bg-black/80 !text-white hover:!bg-purple-600/20 hover:!text-white hover:!scale-110'
@@ -94,15 +118,21 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="!p-0 !border-none !bg-transparent">
+      <SidebarFooter 
+        className="!p-0 !border-0 !bg-transparent !shadow-none"
+        style={{ 
+          background: 'transparent !important',
+          border: 'none !important'
+        }}
+      >
         <SidebarMenu className="!space-y-6 flex flex-col items-center">
           <SidebarMenuItem className="w-fit">
-            <SidebarTrigger className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-black/80 !text-white hover:!bg-purple-600/20 hover:!text-white !shadow-lg hover:!shadow-xl !transition-all !duration-300 !border-none hover:!scale-110" />
+            <SidebarTrigger className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-black/80 !text-white hover:!bg-purple-600/20 hover:!text-white !shadow-lg hover:!shadow-xl !transition-all !duration-300 !border-0 hover:!scale-110 !outline-none" />
           </SidebarMenuItem>
           <SidebarMenuItem className="w-fit">
             <SidebarMenuButton 
               tooltip="Sair"
-              className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-red-600/90 !text-white hover:!bg-red-700 !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-none hover:!scale-110 !p-0"
+              className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-red-600/90 !text-white hover:!bg-red-700 !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-0 hover:!scale-110 !p-0 !outline-none"
             >
               <LogOut className="w-6 h-6 text-white" />
               <span className="font-medium ml-4 group-data-[collapsible=icon]:hidden text-white">Sair</span>
