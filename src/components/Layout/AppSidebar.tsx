@@ -9,7 +9,6 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
