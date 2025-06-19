@@ -32,13 +32,13 @@ export function AppSidebar() {
           top: 16px;
           left: 16px;
           border-radius: 16px !important;
-          background-color: rgba(8, 8, 8, 0.9) !important;
-          backdrop-filter: blur(8px) !important;
-          box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.6) !important;
+          background-color: #070707 !important; /* Cor exata do fundo */
           padding-top: 12px !important;
           padding-bottom: 12px !important;
           width: auto !important;
           border: none !important;
+          box-shadow: none !important; /* Remove qualquer sombra extra */
+          backdrop-filter: none !important; /* Sem blur */
         }
       `}</style>
 
