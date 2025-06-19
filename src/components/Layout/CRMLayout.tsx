@@ -9,7 +9,7 @@ interface CRMLayoutProps {
 export function CRMLayout({ children }: CRMLayoutProps) {
   return (
     <div className="min-h-screen bg-goat-dark">
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false} open={false}>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
           <div className="flex-1 flex flex-col">

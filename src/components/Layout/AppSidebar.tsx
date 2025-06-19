@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -25,68 +26,58 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <div className="relative">
-      <style jsx>{`
-        [data-sidebar="sidebar"] {
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-        }
-      `}</style>
+    <Sidebar
+      className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
+      variant="floating"
+      collapsible="icon"
+    >
+      <SidebarHeader className="p-0 border-none bg-transparent" />
 
-      <Sidebar
-        className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
-        variant="floating"
-        collapsible="icon"
-      >
-        <SidebarHeader className="p-0 border-none bg-transparent" />
+      <SidebarContent className="px-0 py-0 border-none bg-transparent backdrop-blur-none py-4">
+        <SidebarGroup className="p-0 bg-transparent">
+          <SidebarGroupContent className="bg-transparent">
+            <SidebarMenu className="space-y-4 flex flex-col items-center">
+              {menuItems.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title} className="w-fit">
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
+                        w-12 h-12 rounded-full hover:scale-105
+                        ${
+                          isActive
+                            ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25"
+                            : "bg-black/90 text-white hover:bg-purple-600/20 hover:text-white"
+                        }`}
+                    >
+                      <Link to={item.url} className="flex items-center justify-center w-full h-full">
+                        <item.icon className="w-5 h-5 text-white" />
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-        <SidebarContent className="px-0 py-0 border-none bg-transparent backdrop-blur-none py-4">
-          <SidebarGroup className="p-0 bg-transparent">
-            <SidebarGroupContent className="bg-transparent">
-              <SidebarMenu className="space-y-4 flex flex-col items-center">
-                {menuItems.map((item) => {
-                  const isActive = location.pathname === item.url;
-                  return (
-                    <SidebarMenuItem key={item.title} className="w-fit">
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={item.title}
-                        className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
-                          w-12 h-12 rounded-full hover:scale-105
-                          ${
-                            isActive
-                              ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25"
-                              : "bg-black/90 text-white hover:bg-purple-600/20 hover:text-white"
-                          }`}
-                      >
-                        <Link to={item.url} className="flex items-center justify-center w-full h-full">
-                          <item.icon className="w-5 h-5 text-white" />
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-
-        <SidebarFooter className="p-0 border-none bg-transparent py-4">
-          <SidebarMenu className="space-y-4 flex flex-col items-center">
-            <SidebarMenuItem className="w-fit">
-              <SidebarMenuButton
-                tooltip="Sair"
-                className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
-                  w-12 h-12 rounded-full hover:scale-105`}
-              >
-                <LogOut className="w-5 h-5 text-white" />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-    </div>
+      <SidebarFooter className="p-0 border-none bg-transparent py-4">
+        <SidebarMenu className="space-y-4 flex flex-col items-center">
+          <SidebarMenuItem className="w-fit">
+            <SidebarMenuButton
+              tooltip="Sair"
+              className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
+                w-12 h-12 rounded-full hover:scale-105`}
+            >
+              <LogOut className="w-5 h-5 text-white" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }
