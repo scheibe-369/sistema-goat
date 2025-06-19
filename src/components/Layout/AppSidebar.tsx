@@ -12,9 +12,7 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Bell, Search, Settings } from "lucide-react";
+import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
@@ -60,71 +58,8 @@ export function AppSidebar() {
       variant="floating"
     >
       <SidebarHeader className="p-4 group-data-[collapsible=icon]:p-4 border-none">
-        {/* Logo and Toggle */}
         <div className="flex items-center justify-center gap-3 mb-6 group-data-[collapsible=icon]:mb-4">
           <SidebarTrigger className="text-goat-gray-400 hover:text-white hover:bg-goat-gray-800 rounded-lg p-2 transition-all duration-200" />
-          <div className="w-10 h-10 bg-gradient-goat rounded-xl flex items-center justify-center shadow-lg group-data-[collapsible=icon]:mx-auto">
-            <span className="text-white font-bold text-lg">G</span>
-          </div>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <h2 className="text-xl font-bold text-white">GOAT CRM</h2>
-            <p className="text-xs text-goat-gray-400">Sistema de Gestão</p>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative mb-6 group-data-[collapsible=icon]:hidden">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-500" />
-          <Input 
-            placeholder="Buscar clientes, leads..." 
-            className="pl-12 pr-4 py-2 w-full bg-goat-gray-800/50 border-goat-gray-600/50 text-white placeholder:text-goat-gray-500 rounded-xl focus:border-goat-purple focus:ring-1 focus:ring-goat-purple/50 transition-all duration-200"
-          />
-        </div>
-
-        {/* User Profile - Collapsed State */}
-        <div className="hidden group-data-[collapsible=icon]:flex flex-col items-center gap-2 mb-4">
-          <div className="relative">
-            <div className="w-10 h-10 bg-gradient-goat rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-semibold text-sm">A</span>
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-goat-gray-900"></div>
-          </div>
-        </div>
-
-        {/* User Profile - Expanded State */}
-        <div className="group-data-[collapsible=icon]:hidden">
-          <div className="flex items-center gap-3 p-4 bg-goat-gray-800/30 rounded-xl mb-6">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-goat rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-semibold text-sm">A</span>
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-goat-gray-900"></div>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-white">Administrador</p>
-              <p className="text-xs text-goat-gray-400">admin@goat.com</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-center gap-2 mb-4 group-data-[collapsible=icon]:flex-col">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="relative text-goat-gray-400 hover:text-white hover:bg-goat-gray-800 rounded-xl transition-all duration-200"
-          >
-            <Bell className="w-5 h-5" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-goat-gray-900"></div>
-          </Button>
-
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-goat-gray-400 hover:text-white hover:bg-goat-gray-800 rounded-xl transition-all duration-200"
-          >
-            <Settings className="w-5 h-5" />
-          </Button>
         </div>
       </SidebarHeader>
 
