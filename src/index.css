@@ -75,7 +75,7 @@
     box-shadow: 0 0 20px rgba(83, 21, 203, 0.3);
   }
 
-  /* Remove yellow focus outlines and replace com roxo */
+  /* Corrige focus visual para roxo */
   *:focus {
     outline: none;
   }
@@ -109,10 +109,11 @@
   }
 }
 
-/* ================================================
-✅ Patch: Remover tooltip amarela e animação Radix
-================================================ */
+/* =======================================================
+✅ PATCH FINAL: Corrige tooltip amarelo e flashes Radix
+======================================================= */
 
+/* Zera fundo, texto e bordas das tooltips Radix */
 [data-state='delayed-open'],
 [role='tooltip'],
 .radix-tooltip-content,
@@ -120,6 +121,7 @@
   background-color: #000 !important;
   color: #fff !important;
   border: none !important;
+  outline: none !important;
   box-shadow: none !important;
   font-size: 12px !important;
   padding: 6px 10px !important;
@@ -128,7 +130,19 @@
   animation: none !important;
 }
 
-/* Bloqueia qualquer keyframe de fade-in/out de tooltip Radix */
+/* Remove também qualquer borda/focus interna nas children da tooltip */
+[data-state='delayed-open'] *,
+[role='tooltip'] *,
+.radix-tooltip-content *,
+[data-radix-popper-content-wrapper] * {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Bloqueia as keyframes padrão Radix de fade e color change */
 @keyframes radix-fade-in {
   from {
     opacity: 1 !important;
@@ -147,12 +161,14 @@
   }
 }
 
-/* Remove efeitos de transition e animation nos estados internos Radix */
 [data-state='open'],
 [data-state='closed'],
 [data-state='instant-open'] {
   background-color: #000 !important;
   color: #fff !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
   transition: none !important;
   animation: none !important;
 }
