@@ -1,11 +1,13 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Building2, Phone, Mail, Calendar, MapPin, Filter } from "lucide-react";
+import { Plus, Search, Building2, Phone, Mail, Calendar, MapPin, Filter, ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 export default function Clients() {
+  const [expandedClients, setExpandedClients] = useState<number[]>([]);
+
   const clients = [
     {
       id: 1,
@@ -64,8 +66,19 @@ export default function Clients() {
     }
   };
 
+  const toggleClientExpanded = (clientId: number) => {
+    setExpandedClients(prev => 
+      prev.includes(clientId) 
+        ? prev.filter(id => id !== clientId)
+        : [...prev, clientId]
+    );
+  };
+
+  const isClientExpanded = (clientId: number) => expandedClients.includes(clientId);
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* ... keep existing code (header section) */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Clientes</h1>
@@ -77,7 +90,7 @@ export default function Clients() {
         </Button>
       </div>
 
-      {/* Filtros e Busca */}
+      {/* ... keep existing code (filters and search section) */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
@@ -92,7 +105,7 @@ export default function Clients() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* ... keep existing code (stats cards section) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
@@ -151,11 +164,24 @@ export default function Clients() {
 
         <div className="divide-y divide-goat-gray-700">
           {clients.map((client) => (
-            <div key={client.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {/* Company name and tags */}
-                  <div className="flex items-center gap-3 mb-4">
+            <div key={client.id} className="hover:bg-goat-gray-900/50 transition-colors">
+              {/* Header sempre visível */}
+              <div 
+                className="p-6 cursor-pointer flex items-center justify-between"
+                onClick={() => toggleClientExpanded(client.id)}
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  {/* Ícone de expansão */}
+                  <div className="flex-shrink-0">
+                    {isClientExpanded(client.id) ? (
+                      <ChevronDown className="w-5 h-5 text-goat-gray-400" />
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-goat-gray-400" />
+                    )}
+                  </div>
+
+                  {/* Nome da empresa e tags */}
+                  <div className="flex items-center gap-3 flex-1">
                     <h4 className="text-lg font-semibold text-white">{client.company}</h4>
                     <div className="flex gap-2">
                       {client.tags.map((tag, index) => (
@@ -165,11 +191,47 @@ export default function Clients() {
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Client details in organized grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left column */}
-                    <div className="space-y-3">
+
+                  {/* Dia de pagamento */}
+                  <div className="flex items-center gap-2 text-goat-gray-300">
+                    <Calendar className="w-4 h-4 text-goat-purple" />
+                    <span className="text-sm">Pagamento: dia {client.paymentDay}</span>
+                  </div>
+                </div>
+
+                {/* Botões de ação sempre visíveis */}
+                <div className="flex gap-2 ml-6">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Lógica de editar
+                    }}
+                  >
+                    Editar
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-red-400 border-red-800 hover:bg-red-900/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Lógica de excluir
+                    }}
+                  >
+                    Excluir
+                  </Button>
+                </div>
+              </div>
+
+              {/* Detalhes expandidos */}
+              {isClientExpanded(client.id) && (
+                <div className="px-6 pb-6 pt-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-9">
+                    {/* Coluna esquerda */}
+                    <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="w-5 h-5 flex items-center justify-center">
                           <Building2 className="w-4 h-4 text-goat-purple" />
@@ -201,8 +263,8 @@ export default function Clients() {
                       </div>
                     </div>
                     
-                    {/* Right column */}
-                    <div className="space-y-3">
+                    {/* Coluna direita */}
+                    <div className="space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="w-5 h-5 flex items-center justify-center">
                           <Mail className="w-4 h-4 text-goat-purple" />
@@ -234,31 +296,8 @@ export default function Clients() {
                       </div>
                     </div>
                   </div>
-
-                  {/* Payment day section */}
-                  <div className="mt-4 pt-4 border-t border-goat-gray-700">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-goat-purple" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-goat-gray-400 text-sm">Dia de pagamento: </span>
-                        <span className="text-white font-semibold">Todo dia {client.paymentDay}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-
-                {/* Action buttons */}
-                <div className="flex flex-col gap-2 ml-6">
-                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700 min-w-[80px]">
-                    Editar
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-red-400 border-red-800 hover:bg-red-900/20 min-w-[80px]">
-                    Excluir
-                  </Button>
-                </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
