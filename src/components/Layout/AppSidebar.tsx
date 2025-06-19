@@ -10,9 +10,8 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Menu } from "lucide-react";
+import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -25,11 +24,6 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleToggle = (state: string) => {
-    setIsExpanded(state === "offcanvas");
-  };
 
   return (
     <div className="relative">
@@ -45,20 +39,13 @@ export function AppSidebar() {
           border-radius: 16px !important;
           margin: 8px !important;
         }
-        /* Corrige qualquer tooltip amarelo padrão */
-        [data-tooltip] {
-          background-color: black !important;
-          color: white !important;
-          border: none !important;
-          box-shadow: none !important;
-        }
       `}</style>
 
       <Sidebar
         className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
         collapsible="icon"
         variant="floating"
-        onToggle={handleToggle}
+        defaultState="icon"
       >
         <SidebarHeader className="p-0 border-none bg-transparent" />
 
