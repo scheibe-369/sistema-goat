@@ -1,8 +1,9 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Building2, Phone, Mail, Calendar, MapPin, Filter, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Search, Building2, Phone, Mail, Calendar, MapPin, Filter, ChevronDown, ChevronRight, UserX } from "lucide-react";
 import { useState } from "react";
 
 export default function Clients() {
@@ -105,32 +106,9 @@ export default function Clients() {
         </Button>
       </div>
 
-      {/* ... keep existing code (stats cards section) */}
+      {/* Cards reorganizados */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">2</p>
-              <p className="text-goat-gray-400 text-sm">Clientes Ativos</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">1</p>
-              <p className="text-goat-gray-400 text-sm">Contratos A Vencer</p>
-            </div>
-          </div>
-        </Card>
-
+        {/* Total de Clientes */}
         <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
@@ -143,14 +121,41 @@ export default function Clients() {
           </div>
         </Card>
 
+        {/* Clientes Ativos */}
         <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <MapPin className="w-6 h-6 text-blue-400" />
+            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">3</p>
-              <p className="text-goat-gray-400 text-sm">Estados</p>
+              <p className="text-2xl font-bold text-white">2</p>
+              <p className="text-goat-gray-400 text-sm">Clientes Ativos</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Contratos A Vencer */}
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-yellow-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">1</p>
+              <p className="text-goat-gray-400 text-sm">Contratos A Vencer</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Clientes Inativos */}
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
+              <UserX className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">0</p>
+              <p className="text-goat-gray-400 text-sm">Clientes Inativos</p>
             </div>
           </div>
         </Card>
