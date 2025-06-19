@@ -38,6 +38,7 @@ export function AppSidebar() {
         className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
         variant="floating"
         collapsible="icon"
+        defaultState="icon"
       >
         <SidebarHeader className="p-0 border-none bg-transparent" />
 
@@ -52,7 +53,7 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        tooltip={item.title}
+                        tooltip={item.title} // Tooltip sempre ativo
                         className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
                           w-12 h-12 rounded-full hover:scale-105
                           ${
