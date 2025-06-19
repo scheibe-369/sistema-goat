@@ -41,11 +41,22 @@ export function AppSidebar() {
           backdrop-filter: none !important;
         }
 
-        /* Garantir que NENHUM estado quebre o formato circular dos botões */
+        /* Corrigir qualquer bug de borda quadrada em qualquer estado */
         [data-sidebar="sidebar"] button,
         [data-sidebar="sidebar"] button:hover,
         [data-sidebar="sidebar"] button:focus,
+        [data-sidebar="sidebar"] button:focus-visible,
         [data-sidebar="sidebar"] button:active {
+          border-radius: 9999px !important;
+          transition: all 0.2s ease;
+        }
+
+        /* Corrigir também links internos caso o SidebarMenuButton use <Link> internamente */
+        [data-sidebar="sidebar"] a,
+        [data-sidebar="sidebar"] a:hover,
+        [data-sidebar="sidebar"] a:focus,
+        [data-sidebar="sidebar"] a:focus-visible,
+        [data-sidebar="sidebar"] a:active {
           border-radius: 9999px !important;
         }
       `}</style>
