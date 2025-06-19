@@ -32,13 +32,21 @@ export function AppSidebar() {
           top: 16px;
           left: 16px;
           border-radius: 16px !important;
-          background-color: #080808 !important; /* Cor exata do fundo */
+          background-color: #080808 !important;
           padding-top: 12px !important;
           padding-bottom: 12px !important;
           width: auto !important;
           border: none !important;
-          box-shadow: none !important; /* Remove qualquer sombra extra */
-          backdrop-filter: none !important; /* Sem blur */
+          box-shadow: none !important;
+          backdrop-filter: none !important;
+        }
+
+        /* Garantir que NENHUM estado quebre o formato circular dos botões */
+        [data-sidebar="sidebar"] button,
+        [data-sidebar="sidebar"] button:hover,
+        [data-sidebar="sidebar"] button:focus,
+        [data-sidebar="sidebar"] button:active {
+          border-radius: 9999px !important;
         }
       `}</style>
 
