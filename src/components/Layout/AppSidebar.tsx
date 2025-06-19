@@ -46,12 +46,20 @@ export function AppSidebar() {
           border-radius: 16px !important;
           margin: 8px !important;
         }
-        /* Corrige qualquer tooltip amarelo padrão */
-        [data-tooltip] {
-          background-color: black !important;
-          color: white !important;
+      `}</style>
+
+      {/* GLOBAL PATCH - Remove o amarelo das tooltips Radix */}
+      <style jsx global>{`
+        .radix-tooltip-content,
+        [data-state='delayed-open'],
+        [role='tooltip'] {
+          background-color: #000 !important;
+          color: #fff !important;
           border: none !important;
           box-shadow: none !important;
+          font-size: 12px !important;
+          padding: 6px 10px !important;
+          border-radius: 6px !important;
         }
       `}</style>
 
