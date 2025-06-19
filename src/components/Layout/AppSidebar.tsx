@@ -21,7 +21,7 @@ const menuItems = [
     icon: Home,
   },
   {
-    title: "Kanban de Leads",
+    title: "Kanban",
     url: "/leads",
     icon: Kanban,
   },
@@ -98,7 +98,7 @@ export function AppSidebar() {
                           }`}
                       >
                         <Link to={item.url} className="flex items-center justify-center w-full h-full group-data-[collapsible=offcanvas]:justify-start">
-                          <item.icon className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3" />
+                          <item.icon className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3 flex-shrink-0" />
                           <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
                             {item.title}
                           </span>
@@ -127,7 +127,7 @@ export function AppSidebar() {
                   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
                   group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
               >
-                <LogOut className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3" />
+                <LogOut className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3 flex-shrink-0" />
                 <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
                   Sair
                 </span>
