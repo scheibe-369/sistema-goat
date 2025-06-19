@@ -67,9 +67,9 @@ export default function Clients() {
   };
 
   const toggleClientExpanded = (clientId: number) => {
-    setExpandedClients((prev) =>
+    setExpandedClients(prev =>
       prev.includes(clientId)
-        ? prev.filter((id) => id !== clientId)
+        ? prev.filter(id => id !== clientId)
         : [...prev, clientId]
     );
   };
@@ -78,7 +78,7 @@ export default function Clients() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
+      {/* Cabeçalho */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Clientes</h1>
@@ -90,7 +90,7 @@ export default function Clients() {
         </Button>
       </div>
 
-      {/* Filtros e Busca */}
+      {/* Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
@@ -99,16 +99,15 @@ export default function Clients() {
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
-        <Button variant="outline" className="btn-outline">
+        <Button variant="outline" className="border-goat-gray-600 text-white hover:bg-goat-gray-800">
           <Filter className="w-4 h-4 mr-2" />
           Filtros
         </Button>
       </div>
 
-      {/* Cards Resumo */}
+      {/* Cards de Status */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total de Clientes */}
-        <Card className="card-dark p-6">
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-goat-purple" />
@@ -120,8 +119,7 @@ export default function Clients() {
           </div>
         </Card>
 
-        {/* Clientes Ativos */}
-        <Card className="card-dark p-6">
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-green-400" />
@@ -133,10 +131,9 @@ export default function Clients() {
           </div>
         </Card>
 
-        {/* Contratos A Vencer */}
-        <Card className="card-dark p-6">
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-goat-gray-600/20 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-goat-gray-700 rounded-lg flex items-center justify-center">
               <Calendar className="w-6 h-6 text-goat-purple" />
             </div>
             <div>
@@ -146,8 +143,7 @@ export default function Clients() {
           </div>
         </Card>
 
-        {/* Clientes Inativos */}
-        <Card className="card-dark p-6">
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
               <UserX className="w-6 h-6 text-red-400" />
@@ -161,7 +157,7 @@ export default function Clients() {
       </div>
 
       {/* Lista de Clientes */}
-      <Card className="card-dark">
+      <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700">
           <h3 className="text-lg font-semibold text-white">Lista de Clientes</h3>
         </div>
@@ -169,13 +165,11 @@ export default function Clients() {
         <div className="divide-y divide-goat-gray-700">
           {clients.map((client) => (
             <div key={client.id} className="hover:bg-goat-gray-900/50 transition-colors">
-              {/* Header */}
               <div
                 className="p-6 cursor-pointer flex items-center justify-between"
                 onClick={() => toggleClientExpanded(client.id)}
               >
                 <div className="flex items-center gap-4 flex-1">
-                  {/* Expansão */}
                   <div className="flex-shrink-0">
                     {isClientExpanded(client.id) ? (
                       <ChevronDown className="w-5 h-5 text-goat-gray-400" />
@@ -184,7 +178,6 @@ export default function Clients() {
                     )}
                   </div>
 
-                  {/* Empresa e Tags */}
                   <div className="flex items-center gap-3 flex-1">
                     <h4 className="text-lg font-semibold text-white">{client.company}</h4>
                     <div className="flex gap-2">
@@ -196,22 +189,19 @@ export default function Clients() {
                     </div>
                   </div>
 
-                  {/* Pagamento */}
                   <div className="flex items-center gap-2 text-goat-gray-300">
                     <Calendar className="w-4 h-4 text-goat-purple" />
                     <span className="text-sm">Pagamento: dia {client.paymentDay}</span>
                   </div>
                 </div>
 
-                {/* Ações */}
                 <div className="flex gap-2 ml-6">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="btn-outline"
+                    className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Lógica de editar
                     }}
                   >
                     Editar
@@ -219,10 +209,9 @@ export default function Clients() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="btn-outline-danger"
+                    className="text-red-400 border-red-800 hover:bg-red-900/20"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Lógica de excluir
                     }}
                   >
                     Excluir
@@ -230,16 +219,12 @@ export default function Clients() {
                 </div>
               </div>
 
-              {/* Detalhes Expandidos */}
               {isClientExpanded(client.id) && (
                 <div className="px-6 pb-6 pt-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-9">
-                    {/* Coluna Esquerda */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Building2 className="w-4 h-4 text-goat-purple" />
-                        </div>
+                        <Building2 className="w-4 h-4 text-goat-purple" />
                         <div className="flex-1">
                           <span className="text-goat-gray-400 text-sm block">CNPJ:</span>
                           <span className="text-white font-medium">{client.cnpj}</span>
@@ -248,25 +233,44 @@ export default function Clients() {
 
                       <div className="flex items-center gap-3">
                         <Phone className="w-4 h-4 text-goat-purple" />
-                        <span className="text-white font-medium">{client.phone}</span>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Responsável:</span>
+                          <span className="text-white font-medium">{client.responsible}</span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Mail className="w-4 h-4 text-goat-purple" />
-                        <span className="text-white font-medium">{client.email}</span>
+                        <Phone className="w-4 h-4 text-goat-purple" />
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Telefone:</span>
+                          <span className="text-white font-medium">{client.phone}</span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Coluna Direita */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
+                        <Mail className="w-4 h-4 text-goat-purple" />
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Email:</span>
+                          <span className="text-white font-medium">{client.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
                         <Calendar className="w-4 h-4 text-goat-purple" />
-                        <span className="text-white font-medium">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Fim do contrato:</span>
+                          <span className="text-white font-medium">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <MapPin className="w-4 h-4 text-goat-purple" />
-                        <span className="text-white font-medium">{client.address}</span>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Localização:</span>
+                          <span className="text-white font-medium">{client.address}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
