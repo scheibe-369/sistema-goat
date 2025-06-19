@@ -9,9 +9,11 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
+import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -24,6 +26,11 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleToggle = (state: string) => {
+    setIsExpanded(state === "offcanvas");
+  };
 
   return (
     <div className="relative">
@@ -39,13 +46,20 @@ export function AppSidebar() {
           border-radius: 16px !important;
           margin: 8px !important;
         }
+        /* Corrige qualquer tooltip amarelo padrão */
+        [data-tooltip] {
+          background-color: black !important;
+          color: white !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
       `}</style>
 
       <Sidebar
         className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
         collapsible="icon"
         variant="floating"
-        defaultState="icon" // Sempre carregar reduzido
+        onToggle={handleToggle}
       >
         <SidebarHeader className="p-0 border-none bg-transparent" />
 
@@ -91,6 +105,28 @@ export function AppSidebar() {
 
         <SidebarFooter className="p-0 border-none bg-transparent group-data-[collapsible=icon]:py-4">
           <SidebarMenu className="space-y-4 flex flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=offcanvas]:items-start group-data-[collapsible=offcanvas]:px-2">
+
+            {/* Botão Expandir/Reduzir */}
+            <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
+              <SidebarMenuButton
+                asChild
+                tooltip={isExpanded ? "Reduzir" : "Expandir"}
+                className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-black/90 text-white hover:bg-purple-600/20 hover:text-white
+                  group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
+                  group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
+              >
+                <SidebarTrigger
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="flex items-center justify-center w-full h-full bg-transparent border-none shadow-none p-0 group-data-[collapsible=offcanvas]:justify-start"
+                >
+                  <Menu className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3 flex-shrink-0" />
+                  <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
+                    Reduzir
+                  </span>
+                </SidebarTrigger>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
             {/* Botão Sair */}
             <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
               <SidebarMenuButton
@@ -105,6 +141,7 @@ export function AppSidebar() {
                 </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
