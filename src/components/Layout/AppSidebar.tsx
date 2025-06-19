@@ -3,7 +3,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -33,25 +32,17 @@ export function AppSidebar() {
           border: none !important;
           box-shadow: none !important;
         }
-        /* Forçar a sidebar a sempre ficar no modo reduzido */
-        [data-sidebar="sidebar"] {
-          --sidebar-state: icon !important;
-        }
       `}</style>
 
       <Sidebar
         className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
-        collapsible="icon"
         variant="floating"
+        collapsible="icon"
       >
         <SidebarHeader className="p-0 border-none bg-transparent" />
 
-        <SidebarContent className="px-0 py-0 border-none bg-transparent backdrop-blur-none group-data-[collapsible=icon]:py-4">
+        <SidebarContent className="px-0 py-0 border-none bg-transparent backdrop-blur-none py-4">
           <SidebarGroup className="p-0 bg-transparent">
-            <SidebarGroupLabel className="hidden px-4 py-2 text-white/60 font-medium">
-              Módulos
-            </SidebarGroupLabel>
-
             <SidebarGroupContent className="bg-transparent">
               <SidebarMenu className="space-y-4 flex flex-col items-center">
                 {menuItems.map((item) => {
@@ -61,7 +52,7 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        tooltip={item.title} // Tooltip sempre ativo
+                        tooltip={item.title}
                         className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
                           w-12 h-12 rounded-full hover:scale-105
                           ${
@@ -82,9 +73,8 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-0 border-none bg-transparent group-data-[collapsible=icon]:py-4">
+        <SidebarFooter className="p-0 border-none bg-transparent py-4">
           <SidebarMenu className="space-y-4 flex flex-col items-center">
-            {/* Botão Sair */}
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
                 tooltip="Sair"
