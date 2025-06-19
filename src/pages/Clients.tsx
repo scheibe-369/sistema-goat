@@ -154,7 +154,8 @@ export default function Clients() {
             <div key={client.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
+                  {/* Company name and tags */}
+                  <div className="flex items-center gap-3 mb-4">
                     <h4 className="text-lg font-semibold text-white">{client.company}</h4>
                     <div className="flex gap-2">
                       {client.tags.map((tag, index) => (
@@ -165,60 +166,95 @@ export default function Clients() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">CNPJ:</span>
-                        <span className="text-white">{client.cnpj}</span>
+                  {/* Client details in organized grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left column */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <Building2 className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">CNPJ:</span>
+                          <span className="text-white font-medium">{client.cnpj}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Responsável:</span>
-                        <span className="text-white">{client.responsible}</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <Phone className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Responsável:</span>
+                          <span className="text-white font-medium">{client.responsible}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <Phone className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Telefone:</span>
+                          <span className="text-white font-medium">{client.phone}</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Telefone:</span>
-                        <span className="text-white">{client.phone}</span>
+                    {/* Right column */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Email:</span>
+                          <span className="text-white font-medium">{client.email}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Email:</span>
-                        <span className="text-white">{client.email}</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <Calendar className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Fim do contrato:</span>
+                          <span className="text-white font-medium">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Fim do contrato:</span>
-                        <span className="text-white">{new Date(client.contractEnd).toLocaleDateString('pt-BR')}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Localização:</span>
-                        <span className="text-white">{client.address}</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-goat-purple" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-goat-gray-400 text-sm block">Localização:</span>
+                          <span className="text-white font-medium">{client.address}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-goat-gray-700">
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-goat-gray-400">Dia de pagamento:</span>
-                      <span className="text-white font-medium">Todo dia {client.paymentDay}</span>
+                  {/* Payment day section */}
+                  <div className="mt-4 pt-4 border-t border-goat-gray-700">
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-goat-purple" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-goat-gray-400 text-sm">Dia de pagamento: </span>
+                        <span className="text-white font-semibold">Todo dia {client.paymentDay}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 ml-6">
-                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
+                {/* Action buttons */}
+                <div className="flex flex-col gap-2 ml-6">
+                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700 min-w-[80px]">
                     Editar
                   </Button>
-                  <Button variant="outline" size="sm" className="text-red-400 border-red-800 hover:bg-red-900/20">
+                  <Button variant="outline" size="sm" className="text-red-400 border-red-800 hover:bg-red-900/20 min-w-[80px]">
                     Excluir
                   </Button>
                 </div>
