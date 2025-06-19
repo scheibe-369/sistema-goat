@@ -77,7 +77,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 !text-white hover:!text-white focus:!text-white active:!text-white [&_*]:!text-white [&:hover_*]:!text-white [&:focus_*]:!text-white [&:active_*]:!text-white ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg !text-white hover:!text-white focus:!text-white active:!text-white [&_*]:!text-white [&:hover_*]:!text-white [&:focus_*]:!text-white [&:active_*]:!text-white ${
                         isActive 
                           ? 'bg-goat-purple/30 !text-white hover:bg-goat-purple/30 focus:bg-goat-purple/30 active:bg-goat-purple/30' 
                           : 'hover:bg-goat-purple/10'
@@ -99,7 +99,7 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-goat-gray-700 p-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 !text-red-400 hover:bg-red-900/20 hover:!text-red-400 focus:!text-red-400 active:!text-red-400 [&_*]:!text-red-400 [&:hover_*]:!text-red-400 [&:focus_*]:!text-red-400 [&:active_*]:!text-red-400">
+            <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 rounded-lg !text-red-400 hover:bg-red-900/20 hover:!text-red-400 focus:!text-red-400 active:!text-red-400 [&_*]:!text-red-400 [&:hover_*]:!text-red-400 [&:focus_*]:!text-red-400 [&:active_*]:!text-red-400">
               <LogOut className="w-5 h-5 !text-red-400 hover:!text-red-400 focus:!text-red-400 active:!text-red-400" />
               <span className="!text-red-400 hover:!text-red-400 focus:!text-red-400 active:!text-red-400">Sair</span>
             </SidebarMenuButton>
