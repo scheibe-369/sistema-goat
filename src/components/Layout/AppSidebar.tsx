@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -25,6 +26,11 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <div className="relative">
@@ -46,6 +52,7 @@ export function AppSidebar() {
         className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
         collapsible="icon"
         variant="floating"
+        onToggle={toggleSidebar}
       >
         <SidebarHeader className="p-0 border-none bg-transparent" />
 
@@ -96,15 +103,15 @@ export function AppSidebar() {
             <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
               <SidebarMenuButton
                 asChild
-                tooltip={location.state === "icon" ? "Expandir" : "Reduzir"}
+                tooltip={isExpanded ? "Reduzir" : "Expandir"}
                 className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-black/90 text-white hover:bg-purple-600/20 hover:text-white
                   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
                   group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
               >
-                <SidebarTrigger className="flex items-center justify-center w-full h-full bg-transparent border-none shadow-none p-0 group-data-[collapsible=offcanvas]:justify-start">
+                <SidebarTrigger className="flex items-center justify-center w-full h-full bg-transparent border-none shadow-none p-0 group-data-[collapsible=offcanvas]:justify-start" onClick={toggleSidebar}>
                   <Menu className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3 flex-shrink-0" />
                   <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
-                    Reduzir
+                    {isExpanded ? "Reduzir" : "Expandir"}
                   </span>
                 </SidebarTrigger>
               </SidebarMenuButton>
