@@ -38,7 +38,12 @@ export function AppSidebar() {
           padding-top: 12px !important;
           padding-bottom: 12px !important;
           width: auto !important;
-          border: none !important;
+          max-width: fit-content !important;
+          min-width: fit-content !important;
+        }
+
+        [data-sidebar="sidebar"] > div {
+          width: auto !important;
         }
       `}</style>
 
