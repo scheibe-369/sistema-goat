@@ -1,14 +1,45 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Building2, Phone, Mail, Calendar, MapPin, Filter, ChevronDown, ChevronRight, UserX } from "lucide-react";
 import { useState } from "react";
+import { NewClientModal } from "@/components/Clients/NewClientModal";
+import { EditClientModal } from "@/components/Clients/EditClientModal";
+import { ClientFilters } from "@/components/Clients/ClientFilters";
+import { DeleteClientDialog } from "@/components/Clients/DeleteClientDialog";
+
+interface Client {
+  id: number;
+  company: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  email: string;
+  contractEnd: string;
+  paymentDay: number;
+  tags: string[];
+  address: string;
+  plan?: string;
+  startDate?: string;
+}
 
 export default function Clients() {
   const [expandedClients, setExpandedClients] = useState<number[]>([]);
+  const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState({
+    status: [] as string[],
+    plan: [] as string[],
+    contractPeriod: { start: "", end: "" },
+    location: ""
+  });
 
-  const clients = [
+  const [clients, setClients] = useState<Client[]>([
     {
       id: 1,
       company: "Tech Solutions LTDA",
@@ -20,6 +51,8 @@ export default function Clients() {
       paymentDay: 15,
       tags: ["Ativo", "Premium"],
       address: "São Paulo, SP",
+      plan: "Premium",
+      startDate: "2024-01-01"
     },
     {
       id: 2,
@@ -32,6 +65,8 @@ export default function Clients() {
       paymentDay: 5,
       tags: ["A vencer", "Gold"],
       address: "Rio de Janeiro, RJ",
+      plan: "Gold",
+      startDate: "2023-08-15"
     },
     {
       id: 3,
@@ -44,8 +79,10 @@ export default function Clients() {
       paymentDay: 10,
       tags: ["Ativo", "Standard"],
       address: "Belo Horizonte, MG",
+      plan: "Standard",
+      startDate: "2024-02-01"
     },
-  ];
+  ]);
 
   const getTagColor = (tag: string) => {
     switch (tag.toLowerCase()) {
@@ -74,6 +111,55 @@ export default function Clients() {
 
   const isClientExpanded = (clientId: number) => expandedClients.includes(clientId);
 
+  const handleNewClient = (clientData: Omit<Client, 'id'>) => {
+    const newClient = {
+      ...clientData,
+      id: Math.max(...clients.map(c => c.id)) + 1
+    };
+    setClients([...clients, newClient]);
+    setIsNewClientModalOpen(false);
+  };
+
+  const handleEditClient = (clientData: Omit<Client, 'id'>) => {
+    if (editingClient) {
+      setClients(clients.map(client => 
+        client.id === editingClient.id 
+          ? { ...clientData, id: editingClient.id }
+          : client
+      ));
+      setEditingClient(null);
+    }
+  };
+
+  const handleDeleteClient = (clientId: number) => {
+    setClients(clients.filter(client => client.id !== clientId));
+    setDeletingClient(null);
+  };
+
+  const filteredClients = clients.filter(client => {
+    // Search term filter
+    const matchesSearch = client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         client.responsible.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Status filter
+    const matchesStatus = activeFilters.status.length === 0 || 
+                         client.tags.some(tag => activeFilters.status.includes(tag));
+
+    // Plan filter
+    const matchesPlan = activeFilters.plan.length === 0 || 
+                       (client.plan && activeFilters.plan.includes(client.plan));
+
+    // Location filter
+    const matchesLocation = !activeFilters.location || 
+                           client.address.toLowerCase().includes(activeFilters.location.toLowerCase());
+
+    // Contract period filter
+    const matchesPeriod = (!activeFilters.contractPeriod.start || client.contractEnd >= activeFilters.contractPeriod.start) &&
+                         (!activeFilters.contractPeriod.end || client.contractEnd <= activeFilters.contractPeriod.end);
+
+    return matchesSearch && matchesStatus && matchesPlan && matchesLocation && matchesPeriod;
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -82,7 +168,10 @@ export default function Clients() {
           <h1 className="text-3xl font-bold text-white mb-2">Clientes</h1>
           <p className="text-goat-gray-400">Gerencie seu cadastro de clientes</p>
         </div>
-        <Button className="btn-primary">
+        <Button 
+          className="btn-primary"
+          onClick={() => setIsNewClientModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Novo Cliente
         </Button>
@@ -95,9 +184,14 @@ export default function Clients() {
           <Input
             placeholder="Buscar clientes..."
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button className="btn-primary flex items-center gap-2">
+        <Button 
+          className="btn-primary flex items-center gap-2"
+          onClick={() => setIsFiltersOpen(true)}
+        >
           <Filter className="w-4 h-4" />
           Filtros
         </Button>
@@ -111,7 +205,7 @@ export default function Clients() {
               <Building2 className="w-6 h-6 text-goat-purple" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">3</p>
+              <p className="text-2xl font-bold text-white">{clients.length}</p>
               <p className="text-goat-gray-400 text-sm">Total de Clientes</p>
             </div>
           </div>
@@ -123,7 +217,9 @@ export default function Clients() {
               <Building2 className="w-6 h-6 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">2</p>
+              <p className="text-2xl font-bold text-white">
+                {clients.filter(c => c.tags.includes("Ativo")).length}
+              </p>
               <p className="text-goat-gray-400 text-sm">Clientes Ativos</p>
             </div>
           </div>
@@ -135,7 +231,9 @@ export default function Clients() {
               <Calendar className="w-6 h-6 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">1</p>
+              <p className="text-2xl font-bold text-white">
+                {clients.filter(c => c.tags.includes("A vencer")).length}
+              </p>
               <p className="text-goat-gray-400 text-sm">Contratos A Vencer</p>
             </div>
           </div>
@@ -147,7 +245,9 @@ export default function Clients() {
               <UserX className="w-6 h-6 text-red-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">0</p>
+              <p className="text-2xl font-bold text-white">
+                {clients.filter(c => c.tags.includes("Vencido")).length}
+              </p>
               <p className="text-goat-gray-400 text-sm">Clientes Inativos</p>
             </div>
           </div>
@@ -161,7 +261,7 @@ export default function Clients() {
         </div>
 
         <div className="divide-y divide-goat-gray-700">
-          {clients.map((client) => (
+          {filteredClients.map((client) => (
             <div key={client.id} className="hover:bg-goat-gray-900/50 transition-colors">
               <div
                 className="p-6 cursor-pointer flex items-center justify-between"
@@ -197,14 +297,20 @@ export default function Clients() {
                   <Button
                     size="sm"
                     className="btn-primary"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingClient(client);
+                    }}
                   >
                     Editar
                   </Button>
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white border-none transition-all duration-200"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeletingClient(client);
+                    }}
                   >
                     Excluir
                   </Button>
@@ -274,6 +380,34 @@ export default function Clients() {
           ))}
         </div>
       </Card>
+
+      {/* Modals e Componentes */}
+      <NewClientModal 
+        isOpen={isNewClientModalOpen}
+        onClose={() => setIsNewClientModalOpen(false)}
+        onSave={handleNewClient}
+      />
+
+      <EditClientModal 
+        isOpen={!!editingClient}
+        client={editingClient}
+        onClose={() => setEditingClient(null)}
+        onSave={handleEditClient}
+      />
+
+      <ClientFilters
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+        filters={activeFilters}
+        onFiltersChange={setActiveFilters}
+      />
+
+      <DeleteClientDialog
+        isOpen={!!deletingClient}
+        client={deletingClient}
+        onClose={() => setDeletingClient(null)}
+        onConfirm={() => deletingClient && handleDeleteClient(deletingClient.id)}
+      />
     </div>
   );
 }
