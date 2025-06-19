@@ -15,36 +15,12 @@ import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut, Menu 
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Kanban",
-    url: "/leads",
-    icon: Kanban,
-  },
-  {
-    title: "Contratos",
-    url: "/contracts",
-    icon: FileText,
-  },
-  {
-    title: "Financeiro",
-    url: "/financial",
-    icon: DollarSign,
-  },
-  {
-    title: "Conversas",
-    url: "/conversations",
-    icon: MessageSquare,
-  },
-  {
-    title: "Clientes",
-    url: "/clients",
-    icon: Users,
-  },
+  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Kanban", url: "/leads", icon: Kanban },
+  { title: "Contratos", url: "/contracts", icon: FileText },
+  { title: "Financeiro", url: "/financial", icon: DollarSign },
+  { title: "Conversas", url: "/conversations", icon: MessageSquare },
+  { title: "Clientes", url: "/clients", icon: Users },
 ];
 
 export function AppSidebar() {
@@ -65,9 +41,9 @@ export function AppSidebar() {
           margin: 8px !important;
         }
       `}</style>
-      
-      <Sidebar 
-        className="!border-none !bg-transparent !backdrop-blur-none !shadow-none" 
+
+      <Sidebar
+        className="!border-none !bg-transparent !backdrop-blur-none !shadow-none"
         collapsible="icon"
         variant="floating"
       >
@@ -78,22 +54,23 @@ export function AppSidebar() {
             <SidebarGroupLabel className="hidden group-data-[collapsible=offcanvas]:block px-4 py-2 text-white/60 font-medium">
               Módulos
             </SidebarGroupLabel>
+
             <SidebarGroupContent className="bg-transparent">
               <SidebarMenu className="space-y-4 flex flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=offcanvas]:items-start group-data-[collapsible=offcanvas]:px-2">
                 {menuItems.map((item) => {
                   const isActive = location.pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title} className="w-fit group-data-[collapsible=offcanvas]:w-full">
-                      <SidebarMenuButton 
-                        asChild 
+                      <SidebarMenuButton
+                        asChild
                         isActive={isActive}
                         tooltip={item.title}
                         className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
                           group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full
                           group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3
                           ${
-                            isActive 
-                              ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25' 
+                            isActive
+                              ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25'
                               : 'bg-black/90 text-white hover:bg-purple-600/20 hover:text-white group-data-[collapsible=icon]:hover:scale-105'
                           }`}
                       >
@@ -114,10 +91,12 @@ export function AppSidebar() {
 
         <SidebarFooter className="p-0 border-none bg-transparent group-data-[collapsible=icon]:py-4">
           <SidebarMenu className="space-y-4 flex flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=offcanvas]:items-start group-data-[collapsible=offcanvas]:px-2">
+
+            {/* Botão de Expandir/Reduzir */}
             <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 asChild
-                tooltip="Expandir"
+                tooltip="Reduzir"
                 className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-black/90 text-white hover:bg-purple-600/20 hover:text-white
                   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
                   group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
@@ -130,8 +109,10 @@ export function AppSidebar() {
                 </SidebarTrigger>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
+            {/* Botão de Sair */}
             <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 tooltip="Sair"
                 className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
                   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
@@ -143,6 +124,7 @@ export function AppSidebar() {
                 </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
