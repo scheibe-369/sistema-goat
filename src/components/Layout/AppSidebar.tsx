@@ -33,19 +33,9 @@ export function AppSidebar() {
           border: none !important;
           box-shadow: none !important;
         }
-        [data-sidebar="sidebar"] {
-          background: transparent !important;
-        }
-        /* Mantém o sidebar sempre em modo icônico (reduzido) */
+        /* Forçar a sidebar a sempre ficar no modo reduzido */
         [data-sidebar="sidebar"] {
           --sidebar-state: icon !important;
-        }
-        /* Corrige tooltip Radix */
-        [data-tooltip] {
-          background-color: black !important;
-          color: white !important;
-          border: none !important;
-          box-shadow: none !important;
         }
       `}</style>
 
@@ -71,9 +61,9 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        tooltip={item.title}
-                        className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
-                          justify-center w-12 h-12 rounded-full hover:scale-105
+                        tooltip={item.title} // Tooltip sempre ativo
+                        className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
+                          w-12 h-12 rounded-full hover:scale-105
                           ${
                             isActive
                               ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25"
@@ -98,8 +88,8 @@ export function AppSidebar() {
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
                 tooltip="Sair"
-                className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
-                  justify-center w-12 h-12 rounded-full hover:scale-105`}
+                className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
+                  w-12 h-12 rounded-full hover:scale-105`}
               >
                 <LogOut className="w-5 h-5 text-white" />
               </SidebarMenuButton>
