@@ -32,7 +32,7 @@ export function AppSidebar() {
           top: 16px;
           left: 16px;
           border-radius: 16px !important;
-          background-color: #070707 !important; /* Cor exata do fundo */
+          background-color: #080808 !important; /* Cor exata do fundo */
           padding-top: 12px !important;
           padding-bottom: 12px !important;
           width: auto !important;
