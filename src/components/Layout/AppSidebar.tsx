@@ -51,95 +51,91 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar 
-      className="!border-0 !bg-transparent !backdrop-blur-none !shadow-none !outline-none" 
-      collapsible="icon"
-      variant="floating"
-      style={{ 
-        background: 'transparent !important',
-        border: 'none !important',
-        boxShadow: 'none !important'
-      }}
-    >
-      <SidebarHeader className="!p-0 !border-0 !bg-transparent !shadow-none" />
-
-      <SidebarContent 
-        className="!px-0 !py-6 !border-0 !bg-transparent !backdrop-blur-none !shadow-none !outline-none"
-        style={{ 
-          background: 'transparent !important',
-          border: 'none !important',
-          boxShadow: 'none !important'
-        }}
+    <div className="relative">
+      <style jsx>{`
+        [data-sidebar="sidebar"] {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+        [data-sidebar="sidebar"][data-state="expanded"] {
+          background: rgba(0, 0, 0, 0.8) !important;
+          backdrop-filter: blur(10px) !important;
+          border-radius: 16px !important;
+          margin: 8px !important;
+        }
+      `}</style>
+      
+      <Sidebar 
+        className="!border-none !bg-transparent !backdrop-blur-none !shadow-none" 
+        collapsible="icon"
+        variant="floating"
       >
-        <SidebarGroup 
-          className="!p-0 !bg-transparent !border-0 !shadow-none"
-          style={{ 
-            background: 'transparent !important',
-            border: 'none !important'
-          }}
-        >
-          <SidebarGroupLabel className="hidden">
-            Módulos
-          </SidebarGroupLabel>
-          <SidebarGroupContent 
-            className="!bg-transparent !border-0 !shadow-none"
-            style={{ 
-              background: 'transparent !important',
-              border: 'none !important'
-            }}
-          >
-            <SidebarMenu className="!space-y-6 flex flex-col items-center">
-              {menuItems.map((item) => {
-                const isActive = location.pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title} className="w-fit">
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={isActive}
-                      tooltip={item.title}
-                      className={`!flex !items-center !justify-center !w-14 !h-14 !rounded-full !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-0 !p-0 !outline-none ${
-                        isActive 
-                          ? '!bg-gradient-to-r !from-purple-600 !to-purple-700 !text-white !shadow-purple-500/25 hover:!shadow-purple-500/40' 
-                          : '!bg-black/80 !text-white hover:!bg-purple-600/20 hover:!text-white hover:!scale-110'
-                      }`}
-                    >
-                      <Link to={item.url} className="flex items-center justify-center w-full h-full">
-                        <item.icon className="w-6 h-6 text-white" />
-                        <span className="font-medium ml-4 group-data-[collapsible=icon]:hidden text-white">
-                          {item.title}
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+        <SidebarHeader className="p-0 border-none bg-transparent" />
 
-      <SidebarFooter 
-        className="!p-0 !border-0 !bg-transparent !shadow-none"
-        style={{ 
-          background: 'transparent !important',
-          border: 'none !important'
-        }}
-      >
-        <SidebarMenu className="!space-y-6 flex flex-col items-center">
-          <SidebarMenuItem className="w-fit">
-            <SidebarTrigger className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-black/80 !text-white hover:!bg-purple-600/20 hover:!text-white !shadow-lg hover:!shadow-xl !transition-all !duration-300 !border-0 hover:!scale-110 !outline-none" />
-          </SidebarMenuItem>
-          <SidebarMenuItem className="w-fit">
-            <SidebarMenuButton 
-              tooltip="Sair"
-              className="!flex !items-center !justify-center !w-14 !h-14 !rounded-full !bg-red-600/90 !text-white hover:!bg-red-700 !transition-all !duration-300 !shadow-lg hover:!shadow-xl !border-0 hover:!scale-110 !p-0 !outline-none"
-            >
-              <LogOut className="w-6 h-6 text-white" />
-              <span className="font-medium ml-4 group-data-[collapsible=icon]:hidden text-white">Sair</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+        <SidebarContent className="px-0 py-0 border-none bg-transparent backdrop-blur-none group-data-[collapsible=icon]:py-4">
+          <SidebarGroup className="p-0 bg-transparent">
+            <SidebarGroupLabel className="hidden group-data-[collapsible=offcanvas]:block px-4 py-2 text-white/60 font-medium">
+              Módulos
+            </SidebarGroupLabel>
+            <SidebarGroupContent className="bg-transparent">
+              <SidebarMenu className="space-y-4 flex flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=offcanvas]:items-start group-data-[collapsible=offcanvas]:px-2">
+                {menuItems.map((item) => {
+                  const isActive = location.pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title} className="w-fit group-data-[collapsible=offcanvas]:w-full">
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive}
+                        tooltip={item.title}
+                        className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
+                          group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full
+                          group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3
+                          ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25' 
+                              : 'bg-black/80 text-white hover:bg-purple-600/20 hover:text-white group-data-[collapsible=icon]:hover:scale-105'
+                          }`}
+                      >
+                        <Link to={item.url} className="flex items-center justify-center w-full h-full group-data-[collapsible=offcanvas]:justify-start">
+                          <item.icon className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3" />
+                          <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
+                            {item.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter className="p-0 border-none bg-transparent group-data-[collapsible=icon]:py-4">
+          <SidebarMenu className="space-y-4 flex flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=offcanvas]:items-start group-data-[collapsible=offcanvas]:px-2">
+            <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
+              <SidebarTrigger className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-black/80 text-white hover:bg-purple-600/20 hover:text-white
+                group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
+                group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`} 
+              />
+            </SidebarMenuItem>
+            <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
+              <SidebarMenuButton 
+                tooltip="Sair"
+                className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
+                  group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
+                  group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
+              >
+                <LogOut className="w-5 h-5 text-white group-data-[collapsible=offcanvas]:mr-3" />
+                <span className="font-medium group-data-[collapsible=icon]:hidden group-data-[collapsible=offcanvas]:block text-white">
+                  Sair
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+    </div>
   );
 }
