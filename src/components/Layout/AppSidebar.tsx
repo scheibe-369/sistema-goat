@@ -51,22 +51,22 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-r border-goat-gray-700">
-      <SidebarHeader className="border-b border-goat-gray-700 p-6">
-        <div className="flex items-center gap-3">
+    <Sidebar className="border-r border-goat-gray-700" collapsible="icon">
+      <SidebarHeader className="border-b border-goat-gray-700 p-6 group-data-[collapsible=icon]:p-2">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <div className="w-8 h-8 bg-gradient-goat rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">G</span>
           </div>
-          <div>
+          <div className="group-data-[collapsible=icon]:hidden">
             <h2 className="text-lg font-bold text-white">GOAT CRM</h2>
             <p className="text-xs text-goat-gray-400">Sistema de Gestão</p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-4 py-6">
+      <SidebarContent className="px-4 py-6 group-data-[collapsible=icon]:px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-goat-gray-400 uppercase text-xs font-semibold tracking-wide mb-4">
+          <SidebarGroupLabel className="text-goat-gray-400 uppercase text-xs font-semibold tracking-wide mb-4 group-data-[collapsible=icon]:hidden">
             Módulos
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -77,6 +77,8 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton 
                       asChild 
+                      isActive={isActive}
+                      tooltip={item.title}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg !text-white hover:!text-white focus:!text-white active:!text-white [&_*]:!text-white [&:hover_*]:!text-white [&:focus_*]:!text-white [&:active_*]:!text-white [&:not(:focus-visible)]:outline-none [&:not(:focus-visible)]:ring-0 focus-visible:outline-none focus-visible:ring-0 ${
                         isActive 
                           ? 'bg-goat-purple/30 !text-white hover:bg-goat-purple/30 focus:bg-goat-purple/30 active:bg-goat-purple/30' 
@@ -85,7 +87,7 @@ export function AppSidebar() {
                     >
                       <Link to={item.url} className="flex items-center gap-3 !text-white hover:!text-white focus:!text-white active:!text-white outline-none">
                         <item.icon className="w-5 h-5 !text-white hover:!text-white focus:!text-white active:!text-white" />
-                        <span className="font-medium !text-white hover:!text-white focus:!text-white active:!text-white">{item.title}</span>
+                        <span className="font-medium !text-white hover:!text-white focus:!text-white active:!text-white group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -96,12 +98,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-goat-gray-700 p-4">
+      <SidebarFooter className="border-t border-goat-gray-700 p-4 group-data-[collapsible=icon]:p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="flex items-center gap-3 px-3 py-2 rounded-lg !text-red-400 hover:bg-red-900/20 hover:!text-red-400 focus:!text-red-400 active:!text-red-400 [&_*]:!text-red-400 [&:hover_*]:!text-red-400 [&:focus_*]:!text-red-400 [&:active_*]:!text-red-400 focus:bg-red-900/20 active:bg-red-900/20 outline-none ring-0">
+            <SidebarMenuButton 
+              tooltip="Sair"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg !text-red-400 hover:bg-red-900/20 hover:!text-red-400 focus:!text-red-400 active:!text-red-400 [&_*]:!text-red-400 [&:hover_*]:!text-red-400 [&:focus_*]:!text-red-400 [&:active_*]:!text-red-400 focus:bg-red-900/20 active:bg-red-900/20 outline-none ring-0"
+            >
               <LogOut className="w-5 h-5 !text-red-400 hover:!text-red-400 focus:!text-red-400 active:!text-red-400" />
-              <span className="!text-red-400 hover:!text-red-400 focus:!text-red-400 active:!text-red-400">Sair</span>
+              <span className="!text-red-400 hover:!text-red-400 focus:!text-red-400 active:!text-red-400 group-data-[collapsible=icon]:hidden">Sair</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
