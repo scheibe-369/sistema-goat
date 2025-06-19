@@ -96,7 +96,7 @@ export function AppSidebar() {
             <SidebarMenuItem className="w-fit group-data-[collapsible=offcanvas]:w-full">
               <SidebarMenuButton
                 asChild
-                tooltip="Reduzir"
+                tooltip={location.state === "icon" ? "Expandir" : "Reduzir"}
                 className={`flex items-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-black/90 text-white hover:bg-purple-600/20 hover:text-white
                   group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:hover:scale-105
                   group-data-[collapsible=offcanvas]:justify-start group-data-[collapsible=offcanvas]:w-full group-data-[collapsible=offcanvas]:h-11 group-data-[collapsible=offcanvas]:rounded-lg group-data-[collapsible=offcanvas]:px-3`}
