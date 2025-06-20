@@ -41,7 +41,7 @@ export function NewClientModal({
     contractEnd: "",
     startDate: "",
     paymentDay: 1,
-    monthlyValue: "",
+    monthlyValue: "0,00", // Valor inicial já formatado
     address: "",
     tags: ["Ativo"],
   });
@@ -73,7 +73,7 @@ export function NewClientModal({
       contractEnd: "",
       startDate: "",
       paymentDay: 1,
-      monthlyValue: "",
+      monthlyValue: "0,00", // Reset para valor formatado
       address: "",
       tags: ["Ativo"],
     });
@@ -83,6 +83,33 @@ export function NewClientModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Função para formatar valor quando o campo perde o foco
+  const handleMonthlyValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    if (value === '' || value === '0' || value === '0,') {
+      handleChange("monthlyValue", "0,00");
+      return;
+    }
+    
+    // Se não tem vírgula, adiciona ,00
+    if (!value.includes(',')) {
+      value = value + ',00';
+    } else {
+      // Se tem vírgula mas nenhum dígito depois, adiciona 00
+      const parts = value.split(',');
+      if (!parts[1] || parts[1] === '') {
+        value = parts[0] + ',00';
+      } else if (parts[1].length === 1) {
+        // Se tem vírgula mas só um dígito depois, adiciona um zero
+        value = parts[0] + ',' + parts[1] + '0';
+      }
+    }
+    
+    handleChange("monthlyValue", value);
+  };
+
+  // Função para lidar com mudanças no input de valor
   const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
@@ -341,6 +368,7 @@ export function NewClientModal({
                       type="text"
                       value={formData.monthlyValue}
                       onChange={handleMonthlyValueChange}
+                      onBlur={handleMonthlyValueBlur}
                       className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="0,00"
                     />
