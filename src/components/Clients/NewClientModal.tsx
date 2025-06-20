@@ -40,7 +40,7 @@ export function NewClientModal({
     plan: "Vendas",
     contractEnd: "",
     startDate: "",
-    paymentDay: 1,
+    paymentDay: "1",
     monthlyValue: "0,00", // Valor inicial já formatado
     address: "",
     tags: ["Ativo"],
@@ -72,7 +72,7 @@ export function NewClientModal({
       plan: "Vendas",
       contractEnd: "",
       startDate: "",
-      paymentDay: 1,
+      paymentDay: "1",
       monthlyValue: "0,00", // Reset para valor formatado
       address: "",
       tags: ["Ativo"],
@@ -130,7 +130,25 @@ export function NewClientModal({
     handleChange("monthlyValue", value);
   };
 
-  const handleAddCustomPlan = () => {
+  // Função para lidar com mudanças no dia de pagamento
+  const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // Remove caracteres não numéricos
+    value = value.replace(/\D/g, '');
+    
+    // Converte para número para validação
+    const numValue = parseInt(value);
+    
+    // Limita entre 1 e 31
+    if (numValue > 31) {
+      value = '31';
+    } else if (numValue < 1 && value !== '') {
+      value = '1';
+    }
+    
+    handleChange("paymentDay", value);
+  };
     if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
       setCustomPlans((prev) => [...prev, newPlanName.trim()]);
       setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
@@ -204,6 +222,26 @@ export function NewClientModal({
                 .custom-scrollbar {
                   scrollbar-width: thin;
                   scrollbar-color: #5315CB #404040;
+                }
+                
+                /* Sobrescrever estilos do Select dropdown */
+                [data-radix-popper-content-wrapper] [role="listbox"] {
+                  background-color: #374151 !important;
+                  border-color: #4B5563 !important;
+                }
+                
+                [data-radix-popper-content-wrapper] [role="option"] {
+                  background-color: transparent !important;
+                  color: white !important;
+                }
+                
+                [data-radix-popper-content-wrapper] [role="option"]:hover,
+                [data-radix-popper-content-wrapper] [role="option"][data-highlighted] {
+                  background-color: #4B5563 !important;
+                }
+                
+                [data-radix-popper-content-wrapper] [role="option"][data-state="checked"] {
+                  background-color: #4B5563 !important;
                 }
               `}
             </style>
@@ -373,14 +411,11 @@ export function NewClientModal({
                     <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
                     <Input
                       id="paymentDay"
-                      type="number"
-                      min="1"
-                      max="31"
+                      type="text"
                       value={formData.paymentDay}
-                      onChange={(e) =>
-                        handleChange("paymentDay", parseInt(e.target.value))
-                      }
+                      onChange={handlePaymentDayChange}
                       className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="1-31"
                     />
                   </div>
 
