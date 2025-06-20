@@ -149,6 +149,8 @@ export function NewClientModal({
     
     handleChange("paymentDay", value);
   };
+
+  const handleAddCustomPlan = () => {
     if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
       setCustomPlans((prev) => [...prev, newPlanName.trim()]);
       setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
