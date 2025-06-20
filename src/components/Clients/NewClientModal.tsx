@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check } from "lucide-react";
 
 interface NewClientModalProps {
   isOpen: boolean;
@@ -204,12 +204,31 @@ export function NewClientModal({
                 scrollbar-width: thin;
                 scrollbar-color: #5315CB #404040;
               }
-              /* Força a cor de fundo dos selects */
+              /* Estilos customizados para Select */
               [data-radix-select-trigger] {
-                background-color: #404040 !important;
+                background-color: #4B5563 !important;
               }
-              .select-trigger-override {
-                background-color: #404040 !important;
+              [data-radix-select-content] {
+                background-color: #4B5563 !important;
+                border-color: #6B7280 !important;
+              }
+              [data-radix-select-item] {
+                color: white !important;
+              }
+              [data-radix-select-item][data-highlighted] {
+                background-color: #374151 !important;
+                color: white !important;
+              }
+              [data-radix-select-item][data-state="checked"] {
+                background-color: #374151 !important;
+                color: white !important;
+              }
+              [data-radix-select-item][data-state="checked"] [data-radix-select-item-indicator] {
+                color: white !important;
+              }
+              /* Remove o fundo amarelo do item selecionado */
+              [data-radix-select-viewport] [data-radix-select-item][data-state="checked"] {
+                background-color: #374151 !important;
               }
             `}</style>
             
@@ -328,15 +347,15 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
-                        <SelectValue placeholder="Selecione um plano" className="text-white" />
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
+                        <SelectValue placeholder="Selecione um plano" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
                         {allPlans.map((plan) => (
                           <SelectItem
                             key={plan}
                             value={plan}
-                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 cursor-pointer"
                           >
                             <div className="flex items-center justify-between w-full">
                               <span className="text-white">{plan}</span>
@@ -397,13 +416,37 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
-                        <SelectValue placeholder="Selecione o status" className="text-white" />
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
+                        <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Ativo</SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">A vencer</SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Vencido</SelectItem>
+                        <SelectItem 
+                          value="Ativo" 
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            {formData.tags[0] === "Ativo" && <Check className="w-4 h-4 text-white" />}
+                            <span className="text-white">Ativo</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem 
+                          value="A vencer" 
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            {formData.tags[0] === "A vencer" && <Check className="w-4 h-4 text-white" />}
+                            <span className="text-white">A vencer</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem 
+                          value="Vencido" 
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            {formData.tags[0] === "Vencido" && <Check className="w-4 h-4 text-white" />}
+                            <span className="text-white">Vencido</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
