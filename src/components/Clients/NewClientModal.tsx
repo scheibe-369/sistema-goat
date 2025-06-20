@@ -204,31 +204,57 @@ export function NewClientModal({
                 scrollbar-width: thin;
                 scrollbar-color: #5315CB #404040;
               }
-              /* Estilos customizados para Select */
-              [data-radix-select-trigger] {
-                background-color: #4B5563 !important;
-              }
+              
+              /* Estilos forçados para Select - Radix UI */
               [data-radix-select-content] {
                 background-color: #4B5563 !important;
-                border-color: #6B7280 !important;
+                border: 1px solid #6B7280 !important;
+                border-radius: 8px !important;
               }
+              
+              [data-radix-select-viewport] {
+                background-color: #4B5563 !important;
+              }
+              
               [data-radix-select-item] {
+                background-color: transparent !important;
                 color: white !important;
+                padding: 8px 12px !important;
+                cursor: pointer !important;
+                border-radius: 4px !important;
+                margin: 2px !important;
               }
+              
+              [data-radix-select-item]:hover,
               [data-radix-select-item][data-highlighted] {
                 background-color: #374151 !important;
                 color: white !important;
+                outline: none !important;
               }
+              
               [data-radix-select-item][data-state="checked"] {
                 background-color: #374151 !important;
                 color: white !important;
               }
-              [data-radix-select-item][data-state="checked"] [data-radix-select-item-indicator] {
+              
+              [data-radix-select-item-indicator] {
                 color: white !important;
               }
-              /* Remove o fundo amarelo do item selecionado */
-              [data-radix-select-viewport] [data-radix-select-item][data-state="checked"] {
-                background-color: #374151 !important;
+              
+              [data-radix-select-item-indicator] svg {
+                color: white !important;
+                fill: white !important;
+              }
+              
+              /* Remove qualquer fundo amarelo/colorido */
+              [data-radix-select-item][data-state="checked"]::before,
+              [data-radix-select-item][data-highlighted]::before {
+                display: none !important;
+              }
+              
+              /* Força cor branca no texto selecionado */
+              [data-radix-select-item][data-state="checked"] span {
+                color: white !important;
               }
             `}</style>
             
