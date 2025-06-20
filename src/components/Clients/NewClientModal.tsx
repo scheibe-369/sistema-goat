@@ -228,8 +228,8 @@ export function NewClientModal({
                 
                 /* Sobrescrever estilos do Select dropdown */
                 [data-radix-popper-content-wrapper] [role="listbox"] {
-                  background-color: #374151 !important;
-                  border-color: #4B5563 !important;
+                  background-color: #404040 !important;
+                  border-color: #404040 !important;
                 }
                 
                 [data-radix-popper-content-wrapper] [role="option"] {
@@ -239,11 +239,11 @@ export function NewClientModal({
                 
                 [data-radix-popper-content-wrapper] [role="option"]:hover,
                 [data-radix-popper-content-wrapper] [role="option"][data-highlighted] {
-                  background-color: #4B5563 !important;
+                  background-color: #404040 !important;
                 }
                 
                 [data-radix-popper-content-wrapper] [role="option"][data-state="checked"] {
-                  background-color: #4B5563 !important;
+                  background-color: #404040 !important;
                 }
               `}
             </style>
