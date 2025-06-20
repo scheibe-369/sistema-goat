@@ -80,7 +80,7 @@ export function NewClientModal({ isOpen, onClose, onSave }: NewClientModalProps)
     <Dialog open={isOpen} onOpenChange={onClose}>
       {/* Custom backdrop with blur */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40" />
       )}
       
       <DialogContent className="bg-goat-gray-900 border-goat-gray-600 text-white max-w-4xl max-h-[90vh] animate-scale-in duration-300 shadow-2xl z-50 custom-scrollbar">
