@@ -54,9 +54,6 @@ export function NewClientModal({
     "Vendas",
     "Branding", 
     "Automação",
-    "Premium",
-    "Gold",
-    "Standard",
   ];
   const allPlans = [...defaultPlans, ...customPlans];
 
@@ -274,7 +271,7 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 hover:bg-goat-gray-600 transition-colors">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
                         <SelectValue placeholder="Selecione um plano" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
@@ -343,7 +340,7 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 hover:bg-goat-gray-600 transition-colors">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
                         <SelectValue placeholder="Selecione o status" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
