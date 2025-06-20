@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +27,7 @@ export function AppSidebar() {
 
   return (
     <div className="relative">
-      <style jsx>{`
+      <style>{`
         [data-sidebar="sidebar"] {
           position: fixed !important;
           top: 16px;
