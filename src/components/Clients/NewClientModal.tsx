@@ -83,6 +83,26 @@ export function NewClientModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // Remove tudo que não é número ou vírgula
+    value = value.replace(/[^\d,]/g, '');
+    
+    // Garante apenas uma vírgula
+    const parts = value.split(',');
+    if (parts.length > 2) {
+      value = parts[0] + ',' + parts.slice(1).join('');
+    }
+    
+    // Limita a 2 dígitos após a vírgula
+    if (parts[1] && parts[1].length > 2) {
+      value = parts[0] + ',' + parts[1].substring(0, 2);
+    }
+    
+    handleChange("monthlyValue", value);
+  };
+
   const handleAddCustomPlan = () => {
     if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
       setCustomPlans((prev) => [...prev, newPlanName.trim()]);
@@ -159,10 +179,10 @@ export function NewClientModal({
               }
               /* Força a cor de fundo dos selects */
               [data-radix-select-trigger] {
-                background-color: #374151 !important;
+                background-color: #4B5563 !important;
               }
               .select-trigger-override {
-                background-color: #374151 !important;
+                background-color: #4B5563 !important;
               }
             `}</style>
             
@@ -281,7 +301,7 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#374151 !important' }}>
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
                         <SelectValue placeholder="Selecione um plano" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
@@ -318,10 +338,9 @@ export function NewClientModal({
                     <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
                     <Input
                       id="monthlyValue"
-                      type="number"
-                      step="0.01"
+                      type="text"
                       value={formData.monthlyValue}
-                      onChange={(e) => handleChange("monthlyValue", e.target.value)}
+                      onChange={handleMonthlyValueChange}
                       className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="0,00"
                     />
@@ -350,7 +369,7 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#374151 !important' }}>
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
                         <SelectValue placeholder="Selecione o status" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
