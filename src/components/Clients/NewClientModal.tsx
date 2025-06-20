@@ -163,7 +163,7 @@ export function NewClientModal({
                 width: 8px;
               }
               .custom-scrollbar::-webkit-scrollbar-track {
-                background: #374151;
+                background: #404040;
                 border-radius: 4px;
               }
               .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -175,14 +175,14 @@ export function NewClientModal({
               }
               .custom-scrollbar {
                 scrollbar-width: thin;
-                scrollbar-color: #5315CB #374151;
+                scrollbar-color: #5315CB #404040;
               }
               /* Força a cor de fundo dos selects */
               [data-radix-select-trigger] {
-                background-color: #4B5563 !important;
+                background-color: #404040 !important;
               }
               .select-trigger-override {
-                background-color: #4B5563 !important;
+                background-color: #404040 !important;
               }
             `}</style>
             
