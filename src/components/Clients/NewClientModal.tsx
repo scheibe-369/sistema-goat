@@ -185,33 +185,28 @@ export function NewClientModal({
 
           {/* Content with Custom Scrollbar */}
           <div className="overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
-            <style>{`
-              .custom-scrollbar::-webkit-scrollbar {
-                width: 8px;
-              }
-              .custom-scrollbar::-webkit-scrollbar-track {
-                background: #404040;
-                border-radius: 4px;
-              }
-              .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: #5315CB;
-                border-radius: 4px;
-              }
-              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #6B21D3;
-              }
-              .custom-scrollbar {
-                scrollbar-width: thin;
-                scrollbar-color: #5315CB #404040;
-              }
-              /* Força a cor de fundo dos selects */
-              [data-radix-select-trigger] {
-                background-color: #404040 !important;
-              }
-              .select-trigger-override {
-                background-color: #404040 !important;
-              }
-            `}</style>
+            <style>
+              {`
+                .custom-scrollbar::-webkit-scrollbar {
+                  width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                  background: #404040;
+                  border-radius: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                  background: #5315CB;
+                  border-radius: 4px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                  background: #6B21D3;
+                }
+                .custom-scrollbar {
+                  scrollbar-width: thin;
+                  scrollbar-color: #5315CB #404040;
+                }
+              `}
+            </style>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Informações Básicas */}
@@ -328,7 +323,7 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
                         <SelectValue placeholder="Selecione um plano" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
@@ -336,7 +331,7 @@ export function NewClientModal({
                           <SelectItem
                             key={plan}
                             value={plan}
-                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600"
                           >
                             <div className="flex items-center justify-between w-full">
                               <span className="text-white">{plan}</span>
@@ -397,13 +392,13 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#4B5563 !important' }}>
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
                         <SelectValue placeholder="Selecione o status" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Ativo</SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">A vencer</SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Vencido</SelectItem>
+                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">Ativo</SelectItem>
+                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">A vencer</SelectItem>
+                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">Vencido</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
