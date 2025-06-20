@@ -182,3 +182,25 @@
   transition: none !important;
   animation: none !important;
 }
+
+/* ===============================
+✅ Corrige Radix Select (Dropdown de Status e Plano)
+=============================== */
+[data-radix-select-content-wrapper],
+[data-state="open"] > div[data-radix-popper-content-wrapper],
+.SelectContent,
+.SelectItem,
+[role="option"] {
+  background-color: rgb(38, 38, 38) !important; /* bg-goat-gray-700 */
+  color: white !important;
+}
+
+[data-state="checked"] svg,
+[data-state="checked"] {
+  color: white !important;
+}
+
+.SelectItem:hover,
+[role="option"]:hover {
+  background-color: rgb(31, 31, 31) !important; /* hover um pouco mais escuro */
+}
