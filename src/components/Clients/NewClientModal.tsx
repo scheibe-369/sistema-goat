@@ -11,14 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ChevronDown } from "lucide-react";
 
 interface NewClientModalProps {
   isOpen: boolean;
@@ -225,26 +224,6 @@ export function NewClientModal({
                   scrollbar-width: thin;
                   scrollbar-color: #5315CB #404040;
                 }
-                
-                /* Sobrescrever estilos do Select dropdown */
-                [data-radix-popper-content-wrapper] [role="listbox"] {
-                  background-color: #404040 !important;
-                  border-color: #404040 !important;
-                }
-                
-                [data-radix-popper-content-wrapper] [role="option"] {
-                  background-color: transparent !important;
-                  color: white !important;
-                }
-                
-                [data-radix-popper-content-wrapper] [role="option"]:hover,
-                [data-radix-popper-content-wrapper] [role="option"][data-highlighted] {
-                  background-color: #404040 !important;
-                }
-                
-                [data-radix-popper-content-wrapper] [role="option"][data-state="checked"] {
-                  background-color: #404040 !important;
-                }
               `}
             </style>
             
@@ -359,22 +338,25 @@ export function NewClientModal({
                       </div>
                     )}
 
-                    <Select
-                      value={formData.plan}
-                      onValueChange={(value) => handleChange("plan", value)}
-                    >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 [&>span]:text-white">
-                        <SelectValue placeholder="Selecione um plano" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-goat-gray-800 border-goat-gray-700 z-[60]">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600 focus:border-goat-purple focus:ring-goat-purple/20"
+                        >
+                          {formData.plan}
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full bg-goat-gray-700 border-goat-gray-600 text-white z-[60]">
                         {allPlans.map((plan) => (
-                          <SelectItem
+                          <DropdownMenuItem
                             key={plan}
-                            value={plan}
-                            className="text-white hover:bg-goat-gray-700 focus:bg-goat-gray-700 cursor-pointer data-[highlighted]:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700 [&>span]:text-white"
+                            onClick={() => handleChange("plan", plan)}
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
                           >
                             <div className="flex items-center justify-between w-full">
-                              <span className="text-white">{plan}</span>
+                              <span>{plan}</span>
                               {customPlans.includes(plan) && (
                                 <Button
                                   type="button"
@@ -384,16 +366,16 @@ export function NewClientModal({
                                     e.stopPropagation();
                                     handleRemoveCustomPlan(plan);
                                   }}
-                                  className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2 min-h-5 min-w-5"
+                                  className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2"
                                 >
                                   <X className="w-3 h-3" />
                                 </Button>
                               )}
                             </div>
-                          </SelectItem>
+                          </DropdownMenuItem>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <div className="space-y-2">
@@ -423,27 +405,37 @@ export function NewClientModal({
 
                   <div className="space-y-2">
                     <Label className="text-white">Status</Label>
-                    <Select
-                      value={formData.tags[0]}
-                      onValueChange={(value) =>
-                        handleChange("tags", [value, formData.plan])
-                      }
-                    >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 [&>span]:text-white">
-                        <SelectValue placeholder="Selecione o status" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-goat-gray-800 border-goat-gray-700 z-[60]">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-700 focus:bg-goat-gray-700 cursor-pointer data-[highlighted]:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700 [&>span]:text-white">
-                          <span className="text-white">Ativo</span>
-                        </SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-700 focus:bg-goat-gray-700 cursor-pointer data-[highlighted]:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700 [&>span]:text-white">
-                          <span className="text-white">A vencer</span>
-                        </SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-700 focus:bg-goat-gray-700 cursor-pointer data-[highlighted]:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700 [&>span]:text-white">
-                          <span className="text-white">Vencido</span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600 focus:border-goat-purple focus:ring-goat-purple/20"
+                        >
+                          {formData.tags[0]}
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full bg-goat-gray-700 border-goat-gray-600 text-white z-[60]">
+                        <DropdownMenuItem
+                          onClick={() => handleChange("tags", ["Ativo", formData.plan])}
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                        >
+                          Ativo
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleChange("tags", ["A vencer", formData.plan])}
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                        >
+                          A vencer
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleChange("tags", ["Vencido", formData.plan])}
+                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                        >
+                          Vencido
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>
