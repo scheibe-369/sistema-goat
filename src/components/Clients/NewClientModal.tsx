@@ -104,9 +104,9 @@ export function NewClientModal({
 
   return (
     <>
-      {/* Custom Overlay */}
+      {/* Custom Overlay with blur */}
       <div 
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 animate-fade-in"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
       
@@ -138,24 +138,25 @@ export function NewClientModal({
           </div>
 
           {/* Content with Custom Scrollbar */}
-          <div className="overflow-y-auto max-h-[calc(90vh-140px)]" style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#5315CB #2A2A2A'
-          }}>
-            <style jsx>{`
-              div::-webkit-scrollbar {
+          <div className="overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
+            <style>{`
+              .custom-scrollbar::-webkit-scrollbar {
                 width: 8px;
               }
-              div::-webkit-scrollbar-track {
-                background: #2A2A2A;
+              .custom-scrollbar::-webkit-scrollbar-track {
+                background: #374151;
                 border-radius: 4px;
               }
-              div::-webkit-scrollbar-thumb {
+              .custom-scrollbar::-webkit-scrollbar-thumb {
                 background: #5315CB;
                 border-radius: 4px;
               }
-              div::-webkit-scrollbar-thumb:hover {
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: #6B21D3;
+              }
+              .custom-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: #5315CB #374151;
               }
             `}</style>
             
