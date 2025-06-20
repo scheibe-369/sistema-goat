@@ -285,10 +285,7 @@ export function NewClientModal({
                             className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
                           >
                             <div className="flex items-center justify-between w-full">
-                              <span className="text-white flex items-center gap-2">
-                                {formData.plan === plan && <span className="text-white">✓</span>}
-                                {plan}
-                              </span>
+                              <span className="text-white">{plan}</span>
                               {customPlans.includes(plan) && (
                                 <Button
                                   type="button"
@@ -350,24 +347,9 @@ export function NewClientModal({
                         <SelectValue placeholder="Selecione o status" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">
-                          <span className="flex items-center gap-2">
-                            {formData.tags[0] === "Ativo" && <span className="text-white">✓</span>}
-                            Ativo
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">
-                          <span className="flex items-center gap-2">
-                            {formData.tags[0] === "A vencer" && <span className="text-white">✓</span>}
-                            A vencer
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">
-                          <span className="flex items-center gap-2">
-                            {formData.tags[0] === "Vencido" && <span className="text-white">✓</span>}
-                            Vencido
-                          </span>
-                        </SelectItem>
+                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Ativo</SelectItem>
+                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">A vencer</SelectItem>
+                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Vencido</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
