@@ -54,6 +54,9 @@ export function NewClientModal({
     "Vendas",
     "Branding", 
     "Automação",
+    "Premium",
+    "Gold",
+    "Standard",
   ];
   const allPlans = [...defaultPlans, ...customPlans];
 
@@ -153,6 +156,13 @@ export function NewClientModal({
               .custom-scrollbar {
                 scrollbar-width: thin;
                 scrollbar-color: #5315CB #374151;
+              }
+              /* Força a cor de fundo dos selects */
+              [data-radix-select-trigger] {
+                background-color: #374151 !important;
+              }
+              .select-trigger-override {
+                background-color: #374151 !important;
               }
             `}</style>
             
@@ -271,7 +281,7 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#374151 !important' }}>
                         <SelectValue placeholder="Selecione um plano" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
@@ -340,7 +350,7 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 select-trigger-override" style={{ backgroundColor: '#374151 !important' }}>
                         <SelectValue placeholder="Selecione o status" className="text-white" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
