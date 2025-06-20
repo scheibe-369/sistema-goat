@@ -137,8 +137,28 @@ export function NewClientModal({
             </Button>
           </div>
 
-          {/* Content */}
-          <div className="overflow-y-auto max-h-[calc(90vh-140px)] scrollbar-thin scrollbar-track-goat-gray-800 scrollbar-thumb-goat-gray-600">
+          {/* Content with Custom Scrollbar */}
+          <div className="overflow-y-auto max-h-[calc(90vh-140px)]" style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#5315CB #2A2A2A'
+          }}>
+            <style jsx>{`
+              div::-webkit-scrollbar {
+                width: 8px;
+              }
+              div::-webkit-scrollbar-track {
+                background: #2A2A2A;
+                border-radius: 4px;
+              }
+              div::-webkit-scrollbar-thumb {
+                background: #5315CB;
+                border-radius: 4px;
+              }
+              div::-webkit-scrollbar-thumb:hover {
+                background: #6B21D3;
+              }
+            `}</style>
+            
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Informações Básicas */}
               <div className="space-y-6">
@@ -148,7 +168,7 @@ export function NewClientModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="company" className="text-goat-gray-300">Nome da Empresa *</Label>
+                    <Label htmlFor="company" className="text-white">Nome da Empresa *</Label>
                     <Input
                       id="company"
                       value={formData.company}
@@ -160,7 +180,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="cnpj" className="text-goat-gray-300">CNPJ *</Label>
+                    <Label htmlFor="cnpj" className="text-white">CNPJ *</Label>
                     <Input
                       id="cnpj"
                       value={formData.cnpj}
@@ -172,7 +192,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="responsible" className="text-goat-gray-300">Responsável *</Label>
+                    <Label htmlFor="responsible" className="text-white">Responsável *</Label>
                     <Input
                       id="responsible"
                       value={formData.responsible}
@@ -184,7 +204,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-goat-gray-300">Telefone *</Label>
+                    <Label htmlFor="phone" className="text-white">Telefone *</Label>
                     <Input
                       id="phone"
                       value={formData.phone}
@@ -196,7 +216,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="email" className="text-goat-gray-300">E-mail *</Label>
+                    <Label htmlFor="email" className="text-white">E-mail *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -218,7 +238,7 @@ export function NewClientModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="flex justify-between text-goat-gray-300">
+                    <Label className="flex justify-between text-white">
                       Plano
                       <Button
                         type="button"
@@ -254,23 +274,24 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple hover:bg-goat-gray-600 transition-colors">
                         <SelectValue placeholder="Selecione um plano" />
                       </SelectTrigger>
-                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
                         {allPlans.map((plan) => (
                           <SelectItem
                             key={plan}
                             value={plan}
-                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600"
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
                           >
                             <div className="flex items-center justify-between w-full">
-                              <span>{plan}</span>
+                              <span className="text-white">{plan}</span>
                               {customPlans.includes(plan) && (
                                 <Button
                                   type="button"
                                   size="sm"
                                   onClick={(e) => {
+                                    e.preventDefault();
                                     e.stopPropagation();
                                     handleRemoveCustomPlan(plan);
                                   }}
@@ -287,7 +308,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="monthlyValue" className="text-goat-gray-300">Valor Mensal (R$)</Label>
+                    <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
                     <Input
                       id="monthlyValue"
                       type="number"
@@ -300,7 +321,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="paymentDay" className="text-goat-gray-300">Dia de Pagamento</Label>
+                    <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
                     <Input
                       id="paymentDay"
                       type="number"
@@ -315,20 +336,20 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-goat-gray-300">Status</Label>
+                    <Label className="text-white">Status</Label>
                     <Select
                       value={formData.tags[0]}
                       onValueChange={(value) =>
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple">
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple hover:bg-goat-gray-600 transition-colors">
                         <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
-                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">Ativo</SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">A vencer</SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">Vencido</SelectItem>
+                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
+                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Ativo</SelectItem>
+                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">A vencer</SelectItem>
+                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer">Vencido</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -343,7 +364,7 @@ export function NewClientModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="startDate" className="text-goat-gray-300">Data de Início</Label>
+                    <Label htmlFor="startDate" className="text-white">Data de Início</Label>
                     <Input
                       id="startDate"
                       type="date"
@@ -354,7 +375,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="contractEnd" className="text-goat-gray-300">Fim do Contrato</Label>
+                    <Label htmlFor="contractEnd" className="text-white">Fim do Contrato</Label>
                     <Input
                       id="contractEnd"
                       type="date"
@@ -365,7 +386,7 @@ export function NewClientModal({
                   </div>
 
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address" className="text-goat-gray-300">Endereço</Label>
+                    <Label htmlFor="address" className="text-white">Endereço</Label>
                     <Textarea
                       id="address"
                       value={formData.address}
