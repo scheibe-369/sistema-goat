@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -174,7 +173,7 @@ export function NewClientModal({
                       id="company"
                       value={formData.company}
                       onChange={(e) => handleChange("company", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="Ex: Tech Solutions LTDA"
                       required
                     />
@@ -186,7 +185,7 @@ export function NewClientModal({
                       id="cnpj"
                       value={formData.cnpj}
                       onChange={(e) => handleChange("cnpj", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="00.000.000/0000-00"
                       required
                     />
@@ -198,7 +197,7 @@ export function NewClientModal({
                       id="responsible"
                       value={formData.responsible}
                       onChange={(e) => handleChange("responsible", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="Nome do responsável"
                       required
                     />
@@ -210,7 +209,7 @@ export function NewClientModal({
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="(11) 99999-9999"
                       required
                     />
@@ -223,7 +222,7 @@ export function NewClientModal({
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="cliente@empresa.com"
                       required
                     />
@@ -257,7 +256,7 @@ export function NewClientModal({
                           value={newPlanName}
                           onChange={(e) => setNewPlanName(e.target.value)}
                           placeholder="Nome do novo plano"
-                          className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple"
+                          className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
                           onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
                         />
                         <Button
@@ -316,7 +315,7 @@ export function NewClientModal({
                       step="0.01"
                       value={formData.monthlyValue}
                       onChange={(e) => handleChange("monthlyValue", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       placeholder="0,00"
                     />
                   </div>
@@ -392,7 +391,7 @@ export function NewClientModal({
                       id="address"
                       value={formData.address}
                       onChange={(e) => handleChange("address", e.target.value)}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white resize-none focus:border-goat-purple focus:ring-goat-purple/20"
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white resize-none focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                       rows={3}
                       placeholder="Endereço completo do cliente"
                     />
@@ -412,7 +411,7 @@ export function NewClientModal({
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="flex-1 h-12 text-lg border-goat-gray-600 text-white hover:bg-goat-gray-700"
+                  className="flex-1 h-12 text-lg border-red-600 text-red-400 bg-red-600/10 hover:bg-red-600/20 hover:border-red-500 hover:text-red-300 transition-all duration-200"
                 >
                   Cancelar
                 </Button>
