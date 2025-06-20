@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -323,15 +324,15 @@ export function NewClientModal({
                       value={formData.plan}
                       onValueChange={(value) => handleChange("plan", value)}
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
-                        <SelectValue placeholder="Selecione um plano" className="text-white" />
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 [&>span]:text-white">
+                        <SelectValue placeholder="Selecione um plano" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
                         {allPlans.map((plan) => (
                           <SelectItem
                             key={plan}
                             value={plan}
-                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600"
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 [&>span]:text-white"
                           >
                             <div className="flex items-center justify-between w-full">
                               <span className="text-white">{plan}</span>
@@ -344,7 +345,7 @@ export function NewClientModal({
                                     e.stopPropagation();
                                     handleRemoveCustomPlan(plan);
                                   }}
-                                  className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2"
+                                  className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2 min-h-5 min-w-5"
                                 >
                                   <X className="w-3 h-3" />
                                 </Button>
@@ -392,13 +393,19 @@ export function NewClientModal({
                         handleChange("tags", [value, formData.plan])
                       }
                     >
-                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20">
-                        <SelectValue placeholder="Selecione o status" className="text-white" />
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 [&>span]:text-white">
+                        <SelectValue placeholder="Selecione o status" />
                       </SelectTrigger>
                       <SelectContent className="bg-goat-gray-700 border-goat-gray-600 z-[60]">
-                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">Ativo</SelectItem>
-                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">A vencer</SelectItem>
-                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600">Vencido</SelectItem>
+                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 [&>span]:text-white">
+                          <span className="text-white">Ativo</span>
+                        </SelectItem>
+                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 [&>span]:text-white">
+                          <span className="text-white">A vencer</span>
+                        </SelectItem>
+                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer data-[highlighted]:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 [&>span]:text-white">
+                          <span className="text-white">Vencido</span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
