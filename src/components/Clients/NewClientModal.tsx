@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -52,7 +53,7 @@ export function NewClientModal({
 
   const defaultPlans = [
     "Vendas",
-    "Branding",
+    "Branding", 
     "Automação",
     "Premium",
     "Gold",
@@ -99,266 +100,305 @@ export function NewClientModal({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* Overlay com blur sobre a tela de clientes */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-all" />
-      )}
-
-      <DialogContent className="bg-goat-gray-900 border-goat-gray-600 text-white max-w-4xl max-h-[90vh] animate-scale-in duration-300 shadow-2xl z-50 custom-scrollbar">
-        <DialogHeader className="relative border-b border-goat-gray-700 pb-4">
-          <DialogTitle className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <div className="w-10 h-10 bg-goat-purple rounded-lg flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" />
-            </div>
-            Novo Cliente
-          </DialogTitle>
-          <p className="text-goat-gray-400">Preencha os dados do novo cliente</p>
-        </DialogHeader>
-
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] custom-scrollbar">
-          <form onSubmit={handleSubmit} className="space-y-8 relative p-1">
-            {/* Informações Básicas */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
-                Informações Básicas
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="company">Nome da Empresa *</Label>
-                  <Input
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) => handleChange("company", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    placeholder="Ex: Tech Solutions LTDA"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cnpj">CNPJ *</Label>
-                  <Input
-                    id="cnpj"
-                    value={formData.cnpj}
-                    onChange={(e) => handleChange("cnpj", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    placeholder="00.000.000/0000-00"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="responsible">Responsável *</Label>
-                  <Input
-                    id="responsible"
-                    value={formData.responsible}
-                    onChange={(e) => handleChange("responsible", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone *</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">E-mail *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    required
-                  />
-                </div>
+    <>
+      {/* Custom Overlay */}
+      <div 
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 animate-fade-in"
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-scale-in">
+        <div 
+          className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] border border-goat-gray-700"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-goat-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-goat-purple rounded-lg flex items-center justify-center">
+                <Plus className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Novo Cliente</h2>
+                <p className="text-goat-gray-400 text-sm">Preencha os dados do novo cliente</p>
               </div>
             </div>
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="icon"
+              className="text-goat-gray-400 hover:text-white hover:bg-goat-gray-700 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
 
-            {/* Plano e Valores */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
-                Plano e Valores
-              </h3>
+          {/* Content */}
+          <div className="overflow-y-auto max-h-[calc(90vh-140px)] scrollbar-thin scrollbar-track-goat-gray-800 scrollbar-thumb-goat-gray-600">
+            <form onSubmit={handleSubmit} className="p-6 space-y-8">
+              {/* Informações Básicas */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                  Informações Básicas
+                </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="flex justify-between">
-                    Plano
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="bg-goat-purple/20 hover:bg-goat-purple/30 text-goat-purple border-goat-purple/50 h-6 px-2 text-xs"
-                      onClick={() => setShowAddPlan(!showAddPlan)}
-                    >
-                      <Plus className="w-3 h-3 mr-1" /> Novo
-                    </Button>
-                  </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="company" className="text-goat-gray-300">Nome da Empresa *</Label>
+                    <Input
+                      id="company"
+                      value={formData.company}
+                      onChange={(e) => handleChange("company", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="Ex: Tech Solutions LTDA"
+                      required
+                    />
+                  </div>
 
-                  {showAddPlan && (
-                    <div className="flex gap-2 mb-2">
-                      <Input
-                        value={newPlanName}
-                        onChange={(e) => setNewPlanName(e.target.value)}
-                        placeholder="Nome do novo plano"
-                        className="bg-goat-gray-800 border-goat-gray-600 text-white text-sm"
-                        onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
-                      />
+                  <div className="space-y-2">
+                    <Label htmlFor="cnpj" className="text-goat-gray-300">CNPJ *</Label>
+                    <Input
+                      id="cnpj"
+                      value={formData.cnpj}
+                      onChange={(e) => handleChange("cnpj", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="00.000.000/0000-00"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="responsible" className="text-goat-gray-300">Responsável *</Label>
+                    <Input
+                      id="responsible"
+                      value={formData.responsible}
+                      onChange={(e) => handleChange("responsible", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="Nome do responsável"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-goat-gray-300">Telefone *</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => handleChange("phone", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="(11) 99999-9999"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="email" className="text-goat-gray-300">E-mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange("email", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="cliente@empresa.com"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Plano e Valores */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                  Plano e Valores
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="flex justify-between text-goat-gray-300">
+                      Plano
                       <Button
                         type="button"
                         size="sm"
-                        onClick={handleAddCustomPlan}
-                        className="bg-goat-purple hover:bg-goat-purple/80 px-3"
+                        className="bg-goat-purple/20 hover:bg-goat-purple/30 text-goat-purple border-goat-purple/50 h-6 px-2 text-xs"
+                        onClick={() => setShowAddPlan(!showAddPlan)}
                       >
-                        +
+                        <Plus className="w-3 h-3 mr-1" /> Novo
                       </Button>
-                    </div>
-                  )}
+                    </Label>
 
-                  <Select
-                    value={formData.plan}
-                    onValueChange={(value) => handleChange("plan", value)}
-                  >
-                    <SelectTrigger className="bg-goat-gray-800 border-goat-gray-600 text-white">
-                      <SelectValue placeholder="Selecione um plano" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-goat-gray-800 border-goat-gray-600">
-                      {allPlans.map((plan) => (
-                        <SelectItem
-                          key={plan}
-                          value={plan}
-                          className="text-white hover:bg-goat-gray-700"
+                    {showAddPlan && (
+                      <div className="flex gap-2 mb-2">
+                        <Input
+                          value={newPlanName}
+                          onChange={(e) => setNewPlanName(e.target.value)}
+                          placeholder="Nome do novo plano"
+                          className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple"
+                          onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handleAddCustomPlan}
+                          className="bg-goat-purple hover:bg-goat-purple/80 px-3"
                         >
-                          {plan}
-                          {customPlans.includes(plan) && " (Personalizado)"}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                          +
+                        </Button>
+                      </div>
+                    )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="monthlyValue">Valor Mensal (R$)</Label>
-                  <Input
-                    id="monthlyValue"
-                    type="number"
-                    step="0.01"
-                    value={formData.monthlyValue}
-                    onChange={(e) => handleChange("monthlyValue", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                    placeholder="0,00"
-                  />
-                </div>
+                    <Select
+                      value={formData.plan}
+                      onValueChange={(value) => handleChange("plan", value)}
+                    >
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple">
+                        <SelectValue placeholder="Selecione um plano" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                        {allPlans.map((plan) => (
+                          <SelectItem
+                            key={plan}
+                            value={plan}
+                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600"
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span>{plan}</span>
+                              {customPlans.includes(plan) && (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveCustomPlan(plan);
+                                  }}
+                                  className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2"
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="paymentDay">Dia de Pagamento</Label>
-                  <Input
-                    id="paymentDay"
-                    type="number"
-                    min="1"
-                    max="31"
-                    value={formData.paymentDay}
-                    onChange={(e) =>
-                      handleChange("paymentDay", parseInt(e.target.value))
-                    }
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="monthlyValue" className="text-goat-gray-300">Valor Mensal (R$)</Label>
+                    <Input
+                      id="monthlyValue"
+                      type="number"
+                      step="0.01"
+                      value={formData.monthlyValue}
+                      onChange={(e) => handleChange("monthlyValue", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                      placeholder="0,00"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select
-                    value={formData.tags[0]}
-                    onValueChange={(value) =>
-                      handleChange("tags", [value, formData.plan])
-                    }
-                  >
-                    <SelectTrigger className="bg-goat-gray-800 border-goat-gray-600 text-white">
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-goat-gray-800 border-goat-gray-600">
-                      <SelectItem value="Ativo">Ativo</SelectItem>
-                      <SelectItem value="A vencer">A vencer</SelectItem>
-                      <SelectItem value="Vencido">Vencido</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="paymentDay" className="text-goat-gray-300">Dia de Pagamento</Label>
+                    <Input
+                      id="paymentDay"
+                      type="number"
+                      min="1"
+                      max="31"
+                      value={formData.paymentDay}
+                      onChange={(e) =>
+                        handleChange("paymentDay", parseInt(e.target.value))
+                      }
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                    />
+                  </div>
 
-            {/* Datas e Localização */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
-                Datas e Localização
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Data de Início</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => handleChange("startDate", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contractEnd">Fim do Contrato</Label>
-                  <Input
-                    id="contractEnd"
-                    type="date"
-                    value={formData.contractEnd}
-                    onChange={(e) => handleChange("contractEnd", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white"
-                  />
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="address">Endereço</Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => handleChange("address", e.target.value)}
-                    className="bg-goat-gray-800 border-goat-gray-600 text-white resize-none"
-                    rows={3}
-                    placeholder="Endereço completo do cliente"
-                  />
+                  <div className="space-y-2">
+                    <Label className="text-goat-gray-300">Status</Label>
+                    <Select
+                      value={formData.tags[0]}
+                      onValueChange={(value) =>
+                        handleChange("tags", [value, formData.plan])
+                      }
+                    >
+                      <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple">
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                        <SelectItem value="Ativo" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">Ativo</SelectItem>
+                        <SelectItem value="A vencer" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">A vencer</SelectItem>
+                        <SelectItem value="Vencido" className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600">Vencido</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex gap-4 pt-6 border-t border-goat-gray-700 sticky bottom-0 bg-goat-gray-900 pb-2">
-              <Button
-                type="submit"
-                className="btn-primary flex-1 h-12 text-lg font-semibold"
-              >
-                Salvar Cliente
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 h-12 text-lg border-goat-gray-600 text-white hover:bg-goat-gray-700"
-              >
-                Cancelar
-              </Button>
-            </div>
-          </form>
+              {/* Datas e Localização */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                  Datas e Localização
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate" className="text-goat-gray-300">Data de Início</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate}
+                      onChange={(e) => handleChange("startDate", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="contractEnd" className="text-goat-gray-300">Fim do Contrato</Label>
+                    <Input
+                      id="contractEnd"
+                      type="date"
+                      value={formData.contractEnd}
+                      onChange={(e) => handleChange("contractEnd", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="address" className="text-goat-gray-300">Endereço</Label>
+                    <Textarea
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => handleChange("address", e.target.value)}
+                      className="bg-goat-gray-700 border-goat-gray-600 text-white resize-none focus:border-goat-purple focus:ring-goat-purple/20"
+                      rows={3}
+                      placeholder="Endereço completo do cliente"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div className="flex gap-4 pt-6 border-t border-goat-gray-700">
+                <Button
+                  type="submit"
+                  className="btn-primary flex-1 h-12 text-lg font-semibold"
+                >
+                  Salvar Cliente
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 h-12 text-lg border-goat-gray-600 text-white hover:bg-goat-gray-700"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 }
