@@ -167,9 +167,9 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
 
   return (
     <>
-      {/* Custom Overlay with blur */}
+      {/* Custom Overlay with blur only */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
+        className="fixed inset-0 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
       
