@@ -229,18 +229,27 @@ export function NewClientModal({
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                position: relative !important;
+                left: 0 !important;
+                right: auto !important;
+                margin: 4px 0 0 0 !important;
+                transform: none !important;
               }
               
-              /* Força alinhamento correto do dropdown */
+              /* Força posicionamento absoluto correto */
               [data-radix-dropdown-menu-content] {
-                transform: translateX(0) !important;
-                left: var(--radix-dropdown-menu-trigger-left) !important;
+                position: absolute !important;
+                top: calc(100% + 4px) !important;
+                left: 0 !important;
+                right: auto !important;
+                transform: none !important;
+                margin: 0 !important;
               }
               
-              /* Alinhamento específico para conteúdo do dropdown */
-              .dropdown-content[data-radix-dropdown-menu-content] {
-                margin-left: 0 !important;
-                transform: translateX(0) translateY(4px) !important;
+              /* Seletor mais específico para sobrescrever estilos inline */
+              div[data-radix-dropdown-menu-content][data-state="open"] {
+                left: 0 !important;
+                transform: translateX(0px) translateY(0px) !important;
               }
               
               .dropdown-item {
@@ -384,7 +393,7 @@ export function NewClientModal({
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="dropdown-content" align="start" sideOffset={4} alignOffset={0}>
+                      <DropdownMenuContent className="dropdown-content">
                         {allPlans.map((plan) => (
                           <DropdownMenuItem
                             key={plan}
@@ -451,7 +460,7 @@ export function NewClientModal({
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="dropdown-content" align="start" sideOffset={4} alignOffset={0}>
+                      <DropdownMenuContent className="dropdown-content">
                         <DropdownMenuItem
                           onClick={() => handleChange("tags", ["Ativo", formData.plan])}
                           className="dropdown-item cursor-pointer"
