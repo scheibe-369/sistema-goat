@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export function DeleteClientDialog({
   onConfirm 
 }: DeleteClientDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmationText, setConfirmationText] = useState("");
 
   const handleConfirm = async () => {
     setIsDeleting(true);
@@ -40,8 +42,16 @@ export function DeleteClientDialog({
       await onConfirm();
     } finally {
       setIsDeleting(false);
+      setConfirmationText("");
     }
   };
+
+  const handleClose = () => {
+    setConfirmationText("");
+    onClose();
+  };
+
+  const isConfirmEnabled = confirmationText === 'EXCLUIR' && !isDeleting;
 
   if (!isOpen || !client) return null;
 
@@ -50,7 +60,7 @@ export function DeleteClientDialog({
       {/* Custom Overlay with blur */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
-        onClick={onClose}
+        onClick={handleClose}
       />
       
       {/* Modal Container */}
@@ -97,7 +107,7 @@ export function DeleteClientDialog({
               </div>
             </div>
             <Button
-              onClick={onClose}
+              onClick={handleClose}
               variant="ghost"
               size="icon"
               className="text-goat-gray-400 hover:text-white hover:bg-goat-gray-700 rounded-lg"
@@ -193,13 +203,9 @@ export function DeleteClientDialog({
                 <input
                   type="text"
                   placeholder="Digite EXCLUIR para confirmar"
+                  value={confirmationText}
+                  onChange={(e) => setConfirmationText(e.target.value)}
                   className="w-full px-4 py-3 bg-goat-gray-700 border border-goat-gray-600 rounded-lg text-white placeholder:text-goat-gray-400 focus:border-red-500 focus:ring-red-500/20 focus:outline-none transition-colors"
-                  onChange={(e) => {
-                    const button = document.getElementById('confirm-delete-btn') as HTMLButtonElement;
-                    if (button) {
-                      button.disabled = e.target.value !== 'EXCLUIR' || isDeleting;
-                    }
-                  }}
                 />
               </div>
             </div>
@@ -208,16 +214,15 @@ export function DeleteClientDialog({
           {/* Footer */}
           <div className="flex gap-4 p-6 border-t border-goat-gray-700">
             <Button
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 h-12 text-lg font-semibold bg-goat-gray-700 hover:bg-goat-gray-600 text-white border-0 transition-colors duration-200"
               disabled={isDeleting}
             >
               Cancelar
             </Button>
             <Button
-              id="confirm-delete-btn"
               onClick={handleConfirm}
-              disabled={true}
+              disabled={!isConfirmEnabled}
               className="flex-1 h-12 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isDeleting ? (
