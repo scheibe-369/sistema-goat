@@ -229,6 +229,8 @@ export function NewClientModal({
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                transform: translateX(0) !important;
+                left: 0 !important;
               }
               
               .dropdown-item {
@@ -372,7 +374,7 @@ export function NewClientModal({
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="dropdown-content" align="start">
+                      <DropdownMenuContent className="dropdown-content" align="start" sideOffset={4} alignOffset={0}>
                         {allPlans.map((plan) => (
                           <DropdownMenuItem
                             key={plan}
@@ -439,7 +441,7 @@ export function NewClientModal({
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="dropdown-content" align="start">
+                      <DropdownMenuContent className="dropdown-content" align="start" sideOffset={4} alignOffset={0}>
                         <DropdownMenuItem
                           onClick={() => handleChange("tags", ["Ativo", formData.plan])}
                           className="dropdown-item cursor-pointer"
