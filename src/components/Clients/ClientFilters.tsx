@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
 
           {/* Content with Custom Scrollbar */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <style jsx>{`
+            <style>{`
               .custom-scrollbar::-webkit-scrollbar {
                 width: 8px;
               }

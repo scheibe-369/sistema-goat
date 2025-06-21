@@ -192,7 +192,7 @@ export function NewClientModal({
 
           {/* Content with Custom Scrollbar */}
           <div className="overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
-            <style jsx>{`
+            <style>{`
               .custom-scrollbar::-webkit-scrollbar {
                 width: 8px;
               }
