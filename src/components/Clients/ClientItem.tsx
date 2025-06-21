@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Phone, Mail, Calendar, MapPin, ChevronDown, ChevronRight } from "lucide-react";
@@ -91,7 +90,7 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
           </Button>
           <Button
             size="sm"
-            className="bg-red-600 hover:bg-red-700 text-white border-none transition-all duration-200"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 border-none"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
