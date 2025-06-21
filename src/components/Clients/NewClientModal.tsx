@@ -229,8 +229,18 @@ export function NewClientModal({
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+              }
+              
+              /* Força alinhamento correto do dropdown */
+              [data-radix-dropdown-menu-content] {
                 transform: translateX(0) !important;
-                left: 0 !important;
+                left: var(--radix-dropdown-menu-trigger-left) !important;
+              }
+              
+              /* Alinhamento específico para conteúdo do dropdown */
+              .dropdown-content[data-radix-dropdown-menu-content] {
+                margin-left: 0 !important;
+                transform: translateX(0) translateY(4px) !important;
               }
               
               .dropdown-item {
