@@ -40,7 +40,7 @@ export function NewClientModal({
     contractEnd: "",
     startDate: "",
     paymentDay: "1",
-    monthlyValue: "0,00", // Valor inicial já formatado
+    monthlyValue: "0,00",
     address: "",
     tags: ["Ativo"],
   });
@@ -72,7 +72,7 @@ export function NewClientModal({
       contractEnd: "",
       startDate: "",
       paymentDay: "1",
-      monthlyValue: "0,00", // Reset para valor formatado
+      monthlyValue: "0,00",
       address: "",
       tags: ["Ativo"],
     });
@@ -82,7 +82,6 @@ export function NewClientModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Função para formatar valor quando o campo perde o foco
   const handleMonthlyValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
@@ -91,16 +90,13 @@ export function NewClientModal({
       return;
     }
     
-    // Se não tem vírgula, adiciona ,00
     if (!value.includes(',')) {
       value = value + ',00';
     } else {
-      // Se tem vírgula mas nenhum dígito depois, adiciona 00
       const parts = value.split(',');
       if (!parts[1] || parts[1] === '') {
         value = parts[0] + ',00';
       } else if (parts[1].length === 1) {
-        // Se tem vírgula mas só um dígito depois, adiciona um zero
         value = parts[0] + ',' + parts[1] + '0';
       }
     }
@@ -108,20 +104,16 @@ export function NewClientModal({
     handleChange("monthlyValue", value);
   };
 
-  // Função para lidar com mudanças no input de valor
   const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    // Remove tudo que não é número ou vírgula
     value = value.replace(/[^\d,]/g, '');
     
-    // Garante apenas uma vírgula
     const parts = value.split(',');
     if (parts.length > 2) {
       value = parts[0] + ',' + parts.slice(1).join('');
     }
     
-    // Limita a 2 dígitos após a vírgula
     if (parts[1] && parts[1].length > 2) {
       value = parts[0] + ',' + parts[1].substring(0, 2);
     }
@@ -129,17 +121,13 @@ export function NewClientModal({
     handleChange("monthlyValue", value);
   };
 
-  // Função para lidar com mudanças no dia de pagamento
   const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    // Remove caracteres não numéricos
     value = value.replace(/\D/g, '');
     
-    // Converte para número para validação
     const numValue = parseInt(value);
     
-    // Limita entre 1 e 31
     if (numValue > 31) {
       value = '31';
     } else if (numValue < 1 && value !== '') {
@@ -204,28 +192,53 @@ export function NewClientModal({
 
           {/* Content with Custom Scrollbar */}
           <div className="overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
-            <style>
-              {`
-                .custom-scrollbar::-webkit-scrollbar {
-                  width: 8px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                  background: #404040;
-                  border-radius: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                  background: #5315CB;
-                  border-radius: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                  background: #6B21D3;
-                }
-                .custom-scrollbar {
-                  scrollbar-width: thin;
-                  scrollbar-color: #5315CB #404040;
-                }
-              `}
-            </style>
+            <style jsx>{`
+              .custom-scrollbar::-webkit-scrollbar {
+                width: 8px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-track {
+                background: #404040;
+                border-radius: 4px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #5315CB;
+                border-radius: 4px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #6B21D3;
+              }
+              .custom-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: #5315CB #404040;
+              }
+              
+              /* Estilos customizados para dropdowns */
+              .dropdown-trigger {
+                background-color: #404040 !important;
+                border-color: #525252 !important;
+                color: white !important;
+              }
+              
+              .dropdown-trigger:hover {
+                background-color: #525252 !important;
+              }
+              
+              .dropdown-content {
+                background-color: #404040 !important;
+                border-color: #525252 !important;
+                min-width: var(--radix-dropdown-menu-trigger-width) !important;
+                width: var(--radix-dropdown-menu-trigger-width) !important;
+              }
+              
+              .dropdown-item {
+                color: white !important;
+                background-color: transparent !important;
+              }
+              
+              .dropdown-item:hover {
+                background-color: #525252 !important;
+              }
+            `}</style>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-8">
               {/* Informações Básicas */}
@@ -342,18 +355,18 @@ export function NewClientModal({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600 focus:border-goat-purple focus:ring-goat-purple/20"
+                          className="dropdown-trigger w-full justify-between"
                         >
                           {formData.plan}
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full bg-goat-gray-700 border-goat-gray-600 text-white z-[60]">
+                      <DropdownMenuContent className="dropdown-content" align="start">
                         {allPlans.map((plan) => (
                           <DropdownMenuItem
                             key={plan}
                             onClick={() => handleChange("plan", plan)}
-                            className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                            className="dropdown-item cursor-pointer"
                           >
                             <div className="flex items-center justify-between w-full">
                               <span>{plan}</span>
@@ -409,28 +422,28 @@ export function NewClientModal({
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600 focus:border-goat-purple focus:ring-goat-purple/20"
+                          className="dropdown-trigger w-full justify-between"
                         >
                           {formData.tags[0]}
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full bg-goat-gray-700 border-goat-gray-600 text-white z-[60]">
+                      <DropdownMenuContent className="dropdown-content" align="start">
                         <DropdownMenuItem
                           onClick={() => handleChange("tags", ["Ativo", formData.plan])}
-                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                          className="dropdown-item cursor-pointer"
                         >
                           Ativo
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleChange("tags", ["A vencer", formData.plan])}
-                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                          className="dropdown-item cursor-pointer"
                         >
                           A vencer
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleChange("tags", ["Vencido", formData.plan])}
-                          className="text-white hover:bg-goat-gray-600 focus:bg-goat-gray-600 cursor-pointer"
+                          className="dropdown-item cursor-pointer"
                         >
                           Vencido
                         </DropdownMenuItem>
