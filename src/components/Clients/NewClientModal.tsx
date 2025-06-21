@@ -228,6 +228,7 @@ export function NewClientModal({
                 border-color: #525252 !important;
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
               }
               
               .dropdown-item {
@@ -237,6 +238,16 @@ export function NewClientModal({
               
               .dropdown-item:hover {
                 background-color: #525252 !important;
+              }
+              
+              /* Remove o overlay preto do Radix UI */
+              [data-radix-popper-content-wrapper] {
+                background: transparent !important;
+              }
+              
+              /* Remove overlay adicional se existir */
+              .radix-dropdown-overlay {
+                display: none !important;
               }
             `}</style>
             
