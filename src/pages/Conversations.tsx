@@ -247,7 +247,7 @@ export default function Conversations() {
                 <div className="text-center">
                   <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">Selecione uma conversa</h3>
-                  <p className="text-goat-gray-400">Escolhaa uma conversa da lista para começar a conversar</p>
+                  <p className="text-goat-gray-400">Escolha uma conversa da lista para começar a conversar</p>
                 </div>
               </div>
             )}
