@@ -89,6 +89,7 @@ export default function Contracts() {
 
   const activeContracts = mockContracts.filter(c => c.status === 'active');
   const expiringContracts = mockContracts.filter(c => c.status === 'expiring');
+  const inactiveContracts = mockContracts.filter(c => c.status === 'inactive');
   const totalMonthlyRevenue = activeContracts.reduce((sum, contract) => sum + contract.monthlyValue, 0);
 
   return (
@@ -111,24 +112,24 @@ export default function Contracts() {
 
         <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-goat-purple" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalMonthlyRevenue)}</p>
-              <p className="text-goat-gray-400 text-sm">Receita Mensal</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-6 h-6 text-yellow-400" />
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{expiringContracts.length}</p>
               <p className="text-goat-gray-400 text-sm">A Vencer</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{inactiveContracts.length}</p>
+              <p className="text-goat-gray-400 text-sm">Inativos</p>
             </div>
           </div>
         </Card>
