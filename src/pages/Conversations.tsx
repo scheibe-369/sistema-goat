@@ -79,7 +79,7 @@ export default function Conversations() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
-          <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
+          <p className="text-goat-gray-400">Central de mensagens via Evolution APII</p>
         </div>
         <Button 
           onClick={handleNewConversation}
