@@ -2,7 +2,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 
 interface Contract {
   id: string;
@@ -92,16 +93,7 @@ export default function Contracts() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Contratos</h1>
-          <p className="text-goat-gray-400">Gerencie contratos ativos e inativos</p>
-        </div>
-        <Button className="btn-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Contrato
-        </Button>
-      </div>
+      <ContractsHeader />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -172,6 +164,7 @@ export default function Contracts() {
       <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700">
           <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
+          <p className="text-goat-gray-400 text-sm mt-1">Contratos são criados automaticamente a partir dos clientes</p>
         </div>
 
         <div className="divide-y divide-goat-gray-700">
