@@ -104,7 +104,7 @@ export default function Contracts() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">{activeContracts.length}</p>
-              <p className="text-goat-gray-400 text-sm">Contratos Ativos</p>
+              <p className="text-goat-gray-400 text-sm">Contratos Ativossssssssssssss</p>
             </div>
           </div>
         </Card>
