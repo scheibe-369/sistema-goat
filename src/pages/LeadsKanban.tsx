@@ -2,8 +2,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Phone, Mail, Calendar, MoreVertical } from "lucide-react";
+import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
+import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 
 interface Lead {
   id: string;
@@ -16,12 +19,23 @@ interface Lead {
   value?: string;
 }
 
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
+
 interface Stage {
   id: string;
   name: string;
   color: string;
   leads: Lead[];
 }
+
+const defaultTags: Tag[] = [
+  { id: '1', name: 'Clientes GOAT', color: 'bg-purple-600' },
+  { id: '2', name: 'Networking', color: 'bg-blue-600' },
+];
 
 const mockStages: Stage[] = [
   {
@@ -110,16 +124,38 @@ const mockStages: Stage[] = [
 
 export default function LeadsKanban() {
   const [stages, setStages] = useState(mockStages);
+  const [tags, setTags] = useState<Tag[]>(defaultTags);
+  const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
+  const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const getGroupColor = (group: string) => {
-    switch (group) {
-      case 'Clientes GOAT':
-        return 'bg-goat-purple text-white hover:bg-purple-600';
-      case 'Networking':
-        return 'bg-blue-600 text-white hover:bg-blue-700';
-      default:
-        return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
+    const tag = tags.find(t => t.name === group);
+    if (tag) {
+      return `${tag.color} text-white hover:${tag.color}`;
     }
+    return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
+  };
+
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsEditLeadModalOpen(true);
+  };
+
+  const handleUpdateLead = (updatedLead: Lead) => {
+    setStages(prev => prev.map(stage => ({
+      ...stage,
+      leads: stage.leads.map(lead => 
+        lead.id === updatedLead.id ? updatedLead : lead
+      )
+    })));
+  };
+
+  const handleDeleteLead = (leadId: string) => {
+    setStages(prev => prev.map(stage => ({
+      ...stage,
+      leads: stage.leads.filter(lead => lead.id !== leadId)
+    })));
   };
 
   return (
@@ -129,10 +165,20 @@ export default function LeadsKanban() {
           <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
           <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
         </div>
-        <Button className="btn-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Lead
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsTagsModalOpen(true)}
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Gerenciar Tags
+          </Button>
+          <Button className="btn-primary">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Lead
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -142,12 +188,17 @@ export default function LeadsKanban() {
           <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
             Todos os grupos
           </Button>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
-            Clientes GOAT
-          </Button>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
-            Networking
-          </Button>
+          {tags.map((tag) => (
+            <Button 
+              key={tag.id}
+              variant="outline" 
+              size="sm" 
+              className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+            >
+              <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
+              {tag.name}
+            </Button>
+          ))}
         </div>
       </Card>
 
@@ -172,50 +223,76 @@ export default function LeadsKanban() {
             {/* Lead Cards */}
             <div className="space-y-3">
               {stage.leads.map((lead) => (
-                <Card key={lead.id} className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200">
-                  <div className="space-y-3">
-                    {/* Lead Header */}
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
-                        <p className="text-goat-gray-400 text-xs">{lead.company}</p>
-                      </div>
-                      <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white h-6 w-6">
-                        <MoreVertical className="w-3 h-3" />
-                      </Button>
-                    </div>
+                <ContextMenu key={lead.id}>
+                  <ContextMenuTrigger>
+                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200">
+                      <div className="space-y-3">
+                        {/* Lead Header */}
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
+                            <p className="text-goat-gray-400 text-xs">{lead.company}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-goat-gray-400 hover:text-white h-6 w-6"
+                            onClick={() => handleEditLead(lead)}
+                          >
+                            <MoreVertical className="w-3 h-3" />
+                          </Button>
+                        </div>
 
-                    {/* Group Badge */}
-                    <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                      {lead.group}
-                    </Badge>
+                        {/* Group Badge */}
+                        <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
+                          {lead.group}
+                        </Badge>
 
-                    {/* Lead Value */}
-                    {lead.value && (
-                      <div className="text-goat-purple font-semibold text-sm">
-                        {lead.value}
-                      </div>
-                    )}
+                        {/* Lead Value */}
+                        {lead.value && (
+                          <div className="text-goat-purple font-semibold text-sm">
+                            {lead.value}
+                          </div>
+                        )}
 
-                    {/* Contact Info */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                        <Phone className="w-3 h-3" />
-                        <span>{lead.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                        <Mail className="w-3 h-3" />
-                        <span>{lead.email}</span>
-                      </div>
-                    </div>
+                        {/* Contact Info */}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                            <Phone className="w-3 h-3" />
+                            <span>{lead.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                            <Mail className="w-3 h-3" />
+                            <span>{lead.email}</span>
+                          </div>
+                        </div>
 
-                    {/* Last Update */}
-                    <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                      <Calendar className="w-3 h-3" />
-                      <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
-                    </div>
-                  </div>
-                </Card>
+                        {/* Last Update */}
+                        <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                          <Calendar className="w-3 h-3" />
+                          <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  </ContextMenuTrigger>
+                  
+                  <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                    <ContextMenuItem 
+                      onClick={() => handleEditLead(lead)}
+                      className="text-white hover:bg-goat-gray-700"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar Lead
+                    </ContextMenuItem>
+                    <ContextMenuItem 
+                      onClick={() => handleDeleteLead(lead.id)}
+                      className="text-red-400 hover:bg-goat-gray-700"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Excluir Lead
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               ))}
 
               {/* Empty State */}
@@ -228,6 +305,22 @@ export default function LeadsKanban() {
           </div>
         ))}
       </div>
+
+      {/* Modals */}
+      <TagsManagementModal
+        open={isTagsModalOpen}
+        onOpenChange={setIsTagsModalOpen}
+        tags={tags}
+        onUpdateTags={setTags}
+      />
+
+      <EditLeadModal
+        open={isEditLeadModalOpen}
+        onOpenChange={setIsEditLeadModalOpen}
+        lead={selectedLead}
+        tags={tags}
+        onUpdateLead={handleUpdateLead}
+      />
     </div>
   );
 }
