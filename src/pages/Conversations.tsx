@@ -53,10 +53,7 @@ export default function Conversations() {
       tag: "Lead",
       direction: "inbound",
       stage: "Sem atendimento",
-      messages: [
-        { id: 1, text: "Olá, gostaria de saber mais sobre os serviços", time: "10:30", sender: "client" },
-        { id: 2, text: "Olá! Claro, vou te explicar sobre nossos serviços.", time: "10:32", sender: "user" }
-      ]
+      messages: []
     },
     {
       id: 2,
@@ -68,11 +65,7 @@ export default function Conversations() {
       tag: "Cliente",
       direction: "outbound",
       stage: "Em atendimento",
-      messages: [
-        { id: 1, text: "Boa tarde! Como está o projeto?", time: "09:10", sender: "user" },
-        { id: 2, text: "Está indo muito bem! Já temos os primeiros resultados.", time: "09:12", sender: "client" },
-        { id: 3, text: "Perfeito, vamos agendar a reunião", time: "09:15", sender: "client" }
-      ]
+      messages: []
     },
     {
       id: 3,
@@ -84,9 +77,7 @@ export default function Conversations() {
       tag: "Lead",
       direction: "inbound",
       stage: "Reunião agendada",
-      messages: [
-        { id: 1, text: "Quando podemos conversar sobre o projeto?", time: "Ontem", sender: "client" }
-      ]
+      messages: []
     }
   ]);
 
@@ -103,114 +94,10 @@ export default function Conversations() {
       stage: "Sem atendimento",
       messages: []
     };
-    
+
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
     setIsNewConversationModalOpen(false);
-  };
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const handleSendMessage = () => {
-    if (newMessage.trim() && selectedConversation) {
-      const currentTime = getCurrentTime();
-      const newMsg: Message = {
-        id: selectedConversation.messages.length + 1,
-        text: newMessage.trim(),
-        time: currentTime,
-        sender: "user"
-      };
-
-      // Atualizar a conversa com a nova mensagem
-      setConversations(prev => prev.map(conv => 
-        conv.id === selectedConversation.id 
-          ? { 
-              ...conv, 
-              lastMessage: newMessage.trim(), 
-              time: currentTime,
-              messages: [...conv.messages, newMsg]
-            }
-          : conv
-      ));
-
-      // Atualizar a conversa selecionada
-      setSelectedConversation(prev => prev ? {
-        ...prev,
-        lastMessage: newMessage.trim(),
-        time: currentTime,
-        messages: [...prev.messages, newMsg]
-      } : null);
-      
-      setNewMessage("");
-      
-      toast({
-        title: "Mensagem enviada",
-        description: "Sua mensagem foi enviada com sucesso",
-      });
-
-      // Simular resposta automática do cliente após 2-5 segundos
-      setTimeout(() => {
-        simulateClientResponse(selectedConversation.id);
-      }, Math.random() * 3000 + 2000);
-    }
-  };
-
-  const simulateClientResponse = (conversationId: number) => {
-    const responses = [
-      "Obrigado pela informação!",
-      "Entendi, vou analisar isso.",
-      "Perfeito, faz sentido.",
-      "Isso resolve minha dúvida.",
-      "Ótimo, vamos prosseguir então.",
-      "Combinado!",
-      "Vou avaliar as opções e te retorno.",
-      "Excelente, muito obrigado!"
-    ];
-
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    const currentTime = getCurrentTime();
-
-    setConversations(prev => prev.map(conv => {
-      if (conv.id === conversationId) {
-        const newMsg: Message = {
-          id: conv.messages.length + 1,
-          text: randomResponse,
-          time: currentTime,
-          sender: "client"
-        };
-        
-        return {
-          ...conv,
-          lastMessage: randomResponse,
-          time: currentTime,
-          messages: [...conv.messages, newMsg],
-          unread: selectedConversation?.id === conversationId ? 0 : conv.unread + 1
-        };
-      }
-      return conv;
-    }));
-
-    // Se a conversa atual está selecionada, atualizar ela também
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation(prev => {
-        if (!prev) return null;
-        const newMsg: Message = {
-          id: prev.messages.length + 1,
-          text: randomResponse,
-          time: currentTime,
-          sender: "client"
-        };
-        return {
-          ...prev,
-          lastMessage: randomResponse,
-          time: currentTime,
-          messages: [...prev.messages, newMsg]
-        };
-      });
-    }
   };
 
   const handleFiltersChange = (newFilters: { stages: string[], tags: string[], direction: string[], client: string }) => {
@@ -220,20 +107,20 @@ export default function Conversations() {
   const filteredConversations = conversations.filter(conversation => {
     const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          conversation.phone.includes(searchTerm);
-    
+
     const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
-    
+
     const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage);
-    
+
     const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
-    
+
     const directionMap: { [key: string]: string } = {
       "Entrada": "inbound",
       "Saída": "outbound"
     };
     const matchesDirection = filters.direction.length === 0 || 
                            filters.direction.some(dir => directionMap[dir] === conversation.direction);
-    
+
     return matchesSearch && matchesClient && matchesStages && matchesTags && matchesDirection;
   });
 
@@ -282,15 +169,14 @@ export default function Conversations() {
         </Button>
       </div>
 
+      {/* Lista de Conversas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lista de Conversas */}
         <div className="lg:col-span-1">
           <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
             </div>
-            
             <div className="space-y-3 max-h-[600px] overflow-y-auto">
               {filteredConversations.map((conversation) => (
                 <div 
@@ -362,38 +248,22 @@ export default function Conversations() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Mensagens */}
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-                  {selectedConversation.messages.map((message) => (
-                    <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
-                        message.sender === "user" 
-                          ? "bg-goat-purple text-white" 
-                          : "bg-goat-gray-700 text-white"
-                      }`}>
-                        <p className="text-sm">{message.text}</p>
-                        <span className={`text-xs ${
-                          message.sender === "user" ? "text-purple-200" : "text-goat-gray-400"
-                        }`}>
-                          {message.time}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  {/* Aqui viriam as mensagens */}
                 </div>
-                
+
                 {/* Input de envio */}
                 <div className="flex gap-2">
                   <Input 
                     placeholder="Digite sua mensagem..." 
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onKeyPress={(e) => e.key === 'Enter' && {}}
                     className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
                   />
                   <Button 
-                    onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
                     className="btn-primary"
                   >
