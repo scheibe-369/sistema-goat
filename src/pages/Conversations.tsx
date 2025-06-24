@@ -7,6 +7,7 @@ import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucid
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
+import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 
 interface Message {
   id: number;
@@ -33,6 +34,7 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -182,7 +184,7 @@ export default function Conversations() {
   return (
     <div className="space-y-6 animate-fade-in">
       
-      <ConversationsHeader onNewConversation={handleNewConversation} />
+      <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -292,6 +294,13 @@ export default function Conversations() {
         onClose={() => setIsFiltersOpen(false)}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+      />
+
+      {/* Modal de Nova Conversa */}
+      <NewConversationModal
+        isOpen={isNewConversationModalOpen}
+        onClose={() => setIsNewConversationModalOpen(false)}
+        onNewConversation={handleNewConversation}
       />
 
     </div>
