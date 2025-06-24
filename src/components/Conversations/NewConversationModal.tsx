@@ -7,7 +7,6 @@ import { useState } from "react";
 import { Plus, Phone, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// As props continuam as mesmas: ele é um componente controlado
 interface NewConversationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -46,23 +45,24 @@ export function NewConversationModal({
     });
   };
 
-  // Esta linha é a chave para o controle externo funcionar
   if (!isOpen) return null;
 
-  // A estrutura de divs abaixo é uma cópia da estrutura do seu NewClientModal
   return (
     <>
-      {/* Overlay customizado com blur, que sabemos que funciona */}
-      <div 
+      {/* ====================================================== */}
+      {/* TESTE: A DIV DO OVERLAY FOI TEMPORARIAMENTE COMENTADA */}
+      {/* ====================================================== */}
+      {/* <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
+      */}
       
       {/* Container do Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-scale-in">
         <div 
           className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-goat-gray-700"
-          onClick={(e) => e.stopPropagation()} // Impede que o modal feche ao clicar dentro dele
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-goat-gray-700">
@@ -117,7 +117,7 @@ export function NewConversationModal({
                 <Button
                   type="button"
                   onClick={onClose}
-                  className="btn-outline" // Usando a classe que você já tem para botões secundários
+                  className="btn-outline"
                 >
                   Cancelar
                 </Button>
