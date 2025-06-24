@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -263,7 +262,7 @@ export default function Conversations() {
         <Button 
           onClick={() => setIsFiltersOpen(true)}
           variant="outline" 
-          className={`btn-outline ${hasActiveFilters ? 'border-goat-purple text-goat-purple' : ''}`}
+          className="btn-outline"
         >
           <Filter className="w-4 h-4" />
           Filtros
@@ -388,7 +387,7 @@ export default function Conversations() {
                   <Button 
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
-                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
@@ -417,3 +416,4 @@ export default function Conversations() {
     </div>
   );
 }
+
