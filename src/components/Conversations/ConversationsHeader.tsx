@@ -82,8 +82,13 @@ export default function Conversations() {
           <p className="text-goat-gray-400">Gerencie suas conversas e atendimentos</p>
         </div>
         <Button 
-          className="btn-primary"
+          className="btn-primary bg-goat-purple hover:bg-purple-600 text-white border-0"
           onClick={handleNewConversation}
+          style={{
+            backgroundColor: '#8B5CF6',
+            color: 'white',
+            border: 'none'
+          }}
         >
           <Plus className="w-4 h-4 mr-2" />
           Nova Conversa
