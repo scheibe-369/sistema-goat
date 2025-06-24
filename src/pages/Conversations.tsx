@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react";
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, Plus } from "lucide-react";
+import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,6 +33,7 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -80,6 +81,25 @@ export default function Conversations() {
     }
   ]);
 
+  const handleNewConversation = (client: string, phone: string) => {
+    const newConversation: Conversation = {
+      id: conversations.length + 1,
+      client,
+      phone,
+      lastMessage: "Conversa iniciada",
+      time: "Agora",
+      unread: 0,
+      tag: "Lead",
+      direction: "outbound",
+      stage: "Sem atendimento",
+      messages: []
+    };
+
+    setConversations(prev => [newConversation, ...prev]);
+    setSelectedConversation(newConversation);
+    setIsNewConversationModalOpen(false);
+  };
+
   const handleFiltersChange = (newFilters: { stages: string[], tags: string[], direction: string[], client: string }) => {
     setFilters(newFilters);
   };
@@ -114,6 +134,13 @@ export default function Conversations() {
           <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
           <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
+        <Button 
+          onClick={() => setIsNewConversationModalOpen(true)}
+          className="btn-primary"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nova Conversa
+        </Button>
       </div>
 
       {/* Busca e Filtros */}
@@ -257,7 +284,13 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* Modal de Filtros */}
+      {/* Modais */}
+      <NewConversationModal 
+        isOpen={isNewConversationModalOpen}
+        onClose={() => setIsNewConversationModalOpen(false)}
+        onNewConversation={handleNewConversation} 
+      />
+
       <ConversationSidebarFilters
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
