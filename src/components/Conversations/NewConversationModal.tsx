@@ -1,10 +1,9 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, MessageSquarePlus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface NewConversationModalProps {
   onNewConversation: (client: string, phone: string) => void;
@@ -25,62 +24,65 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
     }
   };
 
+  const handleClose = () => {
+    setClient("");
+    setPhone("");
+    setIsOpen(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          className="bg-goat-purple hover:bg-purple-600 text-white border-0"
-          style={{
-            backgroundColor: '#5315CB',
-            color: 'white',
-            border: 'none'
-          }}
-        >
+        <Button className="btn-primary">
           <Plus className="w-4 h-4 mr-2" />
           Nova Conversa
         </Button>
       </DialogTrigger>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <MessageSquarePlus className="w-5 h-5 text-goat-purple" />
-            Nova Conversa
-          </DialogTitle>
+          <DialogTitle className="text-white">Nova Conversa</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="client">Nome do Cliente</Label>
+            <Label htmlFor="client" className="text-white">
+              Nome do Cliente
+            </Label>
             <Input
               id="client"
               value={client}
               onChange={(e) => setClient(e.target.value)}
               placeholder="Digite o nome do cliente"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
+            <Label htmlFor="phone" className="text-white">
+              Telefone
+            </Label>
             <Input
               id="phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Digite o telefone (ex: +55 11 99999-9999)"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
               required
             />
           </div>
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" className="btn-primary flex-1">
-              Criar Conversa
-            </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setIsOpen(false)}
-              className="flex-1 border-goat-gray-600 text-white hover:bg-goat-gray-700"
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="btn-outline"
             >
               Cancelar
+            </Button>
+            <Button
+              type="submit"
+              className="btn-primary"
+            >
+              Iniciar Conversa
             </Button>
           </div>
         </form>
@@ -88,3 +90,4 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
     </Dialog>
   );
 }
+
