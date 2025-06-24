@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,13 @@ import { MessageSquare, Search, Send, Phone, MessageCircle } from "lucide-react"
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationFilters } from "@/components/Conversations/ConversationFilters";
 import { useToast } from "@/hooks/use-toast";
+
+interface Message {
+  id: number;
+  text: string;
+  time: string;
+  sender: "user" | "client";
+}
 
 interface Conversation {
   id: number;
@@ -17,6 +25,7 @@ interface Conversation {
   unread: number;
   tag: string;
   direction: "inbound" | "outbound";
+  messages: Message[];
 }
 
 export default function Conversations() {
@@ -35,7 +44,11 @@ export default function Conversations() {
       time: "10:30",
       unread: 2,
       tag: "Lead",
-      direction: "inbound"
+      direction: "inbound",
+      messages: [
+        { id: 1, text: "Olá, gostaria de saber mais sobre os serviços", time: "10:30", sender: "client" },
+        { id: 2, text: "Olá! Claro, vou te explicar sobre nossos serviços.", time: "10:32", sender: "user" }
+      ]
     },
     {
       id: 2,
@@ -45,7 +58,12 @@ export default function Conversations() {
       time: "09:15",
       unread: 0,
       tag: "Cliente",
-      direction: "outbound"
+      direction: "outbound",
+      messages: [
+        { id: 1, text: "Boa tarde! Como está o projeto?", time: "09:10", sender: "user" },
+        { id: 2, text: "Está indo muito bem! Já temos os primeiros resultados.", time: "09:12", sender: "client" },
+        { id: 3, text: "Perfeito, vamos agendar a reunião", time: "09:15", sender: "client" }
+      ]
     },
     {
       id: 3,
@@ -55,7 +73,10 @@ export default function Conversations() {
       time: "Ontem",
       unread: 1,
       tag: "Lead",
-      direction: "inbound"
+      direction: "inbound",
+      messages: [
+        { id: 1, text: "Quando podemos conversar sobre o projeto?", time: "Ontem", sender: "client" }
+      ]
     }
   ]);
 
@@ -68,29 +89,114 @@ export default function Conversations() {
       time: "Agora",
       unread: 0,
       tag: "Lead",
-      direction: "outbound"
+      direction: "outbound",
+      messages: []
     };
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
   };
 
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedConversation) {
-      console.log("Enviando mensagem:", newMessage);
-      
+      const currentTime = getCurrentTime();
+      const newMsg: Message = {
+        id: selectedConversation.messages.length + 1,
+        text: newMessage.trim(),
+        time: currentTime,
+        sender: "user"
+      };
+
       // Atualizar a conversa com a nova mensagem
       setConversations(prev => prev.map(conv => 
         conv.id === selectedConversation.id 
-          ? { ...conv, lastMessage: newMessage, time: "Agora" }
+          ? { 
+              ...conv, 
+              lastMessage: newMessage.trim(), 
+              time: currentTime,
+              messages: [...conv.messages, newMsg]
+            }
           : conv
       ));
+
+      // Atualizar a conversa selecionada
+      setSelectedConversation(prev => prev ? {
+        ...prev,
+        lastMessage: newMessage.trim(),
+        time: currentTime,
+        messages: [...prev.messages, newMsg]
+      } : null);
       
       setNewMessage("");
       
       toast({
         title: "Mensagem enviada",
         description: "Sua mensagem foi enviada com sucesso",
+      });
+
+      // Simular resposta automática do cliente após 2-5 segundos
+      setTimeout(() => {
+        simulateClientResponse(selectedConversation.id);
+      }, Math.random() * 3000 + 2000);
+    }
+  };
+
+  const simulateClientResponse = (conversationId: number) => {
+    const responses = [
+      "Obrigado pela informação!",
+      "Entendi, vou analisar isso.",
+      "Perfeito, faz sentido.",
+      "Isso resolve minha dúvida.",
+      "Ótimo, vamos prosseguir então.",
+      "Combinado!",
+      "Vou avaliar as opções e te retorno.",
+      "Excelente, muito obrigado!"
+    ];
+
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    const currentTime = getCurrentTime();
+
+    setConversations(prev => prev.map(conv => {
+      if (conv.id === conversationId) {
+        const newMsg: Message = {
+          id: conv.messages.length + 1,
+          text: randomResponse,
+          time: currentTime,
+          sender: "client"
+        };
+        
+        return {
+          ...conv,
+          lastMessage: randomResponse,
+          time: currentTime,
+          messages: [...conv.messages, newMsg],
+          unread: selectedConversation?.id === conversationId ? 0 : conv.unread + 1
+        };
+      }
+      return conv;
+    }));
+
+    // Se a conversa atual está selecionada, atualizar ela também
+    if (selectedConversation?.id === conversationId) {
+      setSelectedConversation(prev => {
+        if (!prev) return null;
+        const newMsg: Message = {
+          id: prev.messages.length + 1,
+          text: randomResponse,
+          time: currentTime,
+          sender: "client"
+        };
+        return {
+          ...prev,
+          lastMessage: randomResponse,
+          time: currentTime,
+          messages: [...prev.messages, newMsg]
+        };
       });
     }
   };
@@ -218,18 +324,22 @@ export default function Conversations() {
                 
                 {/* Mensagens */}
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-                  <div className="flex justify-start">
-                    <div className="bg-goat-gray-700 p-3 rounded-lg max-w-xs lg:max-w-md">
-                      <p className="text-white text-sm">{selectedConversation.lastMessage}</p>
-                      <span className="text-goat-gray-400 text-xs">{selectedConversation.time}</span>
+                  {selectedConversation.messages.map((message) => (
+                    <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
+                        message.sender === "user" 
+                          ? "bg-goat-purple text-white" 
+                          : "bg-goat-gray-700 text-white"
+                      }`}>
+                        <p className="text-sm">{message.text}</p>
+                        <span className={`text-xs ${
+                          message.sender === "user" ? "text-purple-200" : "text-goat-gray-400"
+                        }`}>
+                          {message.time}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <div className="bg-goat-purple p-3 rounded-lg max-w-xs lg:max-w-md">
-                      <p className="text-white text-sm">Olá! Claro, vou te explicar sobre nossos serviços.</p>
-                      <span className="text-purple-200 text-xs">10:32</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
                 
                 {/* Input de envio */}
