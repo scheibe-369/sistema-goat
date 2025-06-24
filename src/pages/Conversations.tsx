@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, PlusCircle } from "lucide-react";
+// Removendo o PlusCircle que não será mais usado no botão separado
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
@@ -33,7 +34,8 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
+  // Removendo o estado do modal que causou o problema
+  // const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false); 
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -106,7 +108,8 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
-    setIsNewConversationModalOpen(false);
+    // Removendo a linha que fechava o modal, pois o próprio componente já faz isso
+    // setIsNewConversationModalOpen(false); 
   };
 
   const getCurrentTime = () => {
@@ -124,7 +127,6 @@ export default function Conversations() {
         sender: "user"
       };
 
-      // Atualizar a conversa com a nova mensagem
       setConversations(prev => prev.map(conv => 
         conv.id === selectedConversation.id 
           ? { 
@@ -136,7 +138,6 @@ export default function Conversations() {
           : conv
       ));
 
-      // Atualizar a conversa selecionada
       setSelectedConversation(prev => prev ? {
         ...prev,
         lastMessage: newMessage.trim(),
@@ -151,7 +152,6 @@ export default function Conversations() {
         description: "Sua mensagem foi enviada com sucesso",
       });
 
-      // Simular resposta automática do cliente após 2-5 segundos
       setTimeout(() => {
         simulateClientResponse(selectedConversation.id);
       }, Math.random() * 3000 + 2000);
@@ -193,7 +193,6 @@ export default function Conversations() {
       return conv;
     }));
 
-    // Se a conversa atual está selecionada, atualizar ela também
     if (selectedConversation?.id === conversationId) {
       setSelectedConversation(prev => {
         if (!prev) return null;
@@ -237,38 +236,34 @@ export default function Conversations() {
       {/* Header com botão de nova conversa */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">Conversas WhatsApp</h1>
-          <p className="text-gray-400">Central de mensagens via Evolution API</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
+          <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
-        <Button 
-          onClick={() => setIsNewConversationModalOpen(true)}
-          className="btn-primary"
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Nova Conversa
-        </Button>
+        {/* CORREÇÃO: Voltando a usar o componente como ele era originalmente */}
+        <NewConversationModal onNewConversation={handleNewConversation} />
       </div>
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
           <Input 
             placeholder="Buscar conversas..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-400 focus:ring-purple-500 focus:border-purple-500"
+            // CORREÇÃO: Restaurando as classes originais para a cor correta
+            className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
         <Button 
           onClick={() => setIsFiltersOpen(true)}
-          variant="outline"
-          className="btn-secondary"
+          // CORREÇÃO: Restaurando a classe original para a cor correta do botão
+          className="btn-primary"
         >
           <Filter className="w-4 h-4 mr-2" />
           Filtros
           {hasActiveFilters && (
-            <Badge className="ml-2 bg-purple-500 text-white">
+            <Badge className="ml-2 bg-white text-goat-purple text-xs">
               {filters.stages.length + filters.tags.length + (filters.client ? 1 : 0)}
             </Badge>
           )}
@@ -356,7 +351,6 @@ export default function Conversations() {
                   </div>
                 </div>
                 
-                {/* Mensagens */}
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                   {selectedConversation.messages.map((message) => (
                     <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
@@ -376,7 +370,6 @@ export default function Conversations() {
                   ))}
                 </div>
                 
-                {/* Input de envio */}
                 <div className="flex gap-2">
                   <Input 
                     placeholder="Digite sua mensagem..." 
@@ -415,12 +408,7 @@ export default function Conversations() {
         onFiltersChange={handleFiltersChange}
       />
 
-      {/* Modal de Nova Conversa */}
-      <NewConversationModal
-        isOpen={isNewConversationModalOpen}
-        onClose={() => setIsNewConversationModalOpen(false)}
-        onNewConversation={handleNewConversation}
-      />
+      {/* Removendo o Modal daqui, pois ele já é renderizado pelo NewConversationModal no cabeçalho */}
     </div>
   );
 }
