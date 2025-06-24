@@ -38,7 +38,6 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
   ];
 
   const tagOptions = ["Lead", "Cliente", "Prospect"];
-  const directionOptions = ["Entrada", "Saída"];
 
   const handleStageChange = (stage: string, checked: boolean) => {
     setLocalFilters(prev => ({
@@ -55,15 +54,6 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
       tags: checked 
         ? [...prev.tags, tag]
         : prev.tags.filter(t => t !== tag)
-    }));
-  };
-
-  const handleDirectionChange = (direction: string, checked: boolean) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      direction: checked 
-        ? [...prev.direction, direction]
-        : prev.direction.filter(d => d !== direction)
     }));
   };
 
@@ -233,32 +223,6 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
                         className="text-white cursor-pointer hover:text-goat-purple transition-colors"
                       >
                         {tag}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Direção */}
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
-                  Direção
-                </h3>
-                
-                <div className="space-y-3">
-                  {directionOptions.map((direction) => (
-                    <div key={direction} className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`direction-${direction}`}
-                        checked={localFilters.direction.includes(direction)}
-                        onCheckedChange={(checked) => handleDirectionChange(direction, checked as boolean)}
-                        className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
-                      />
-                      <Label 
-                        htmlFor={`direction-${direction}`} 
-                        className="text-white cursor-pointer hover:text-goat-purple transition-colors"
-                      >
-                        {direction}
                       </Label>
                     </div>
                   ))}
