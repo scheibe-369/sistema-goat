@@ -3,7 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, Filter, Plus, MessageCircle } from "lucide-react";
+import { MessageSquare, Search, Send, Phone, MessageCircle } from "lucide-react";
+import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
+import { ConversationFilters } from "@/components/Conversations/ConversationFilters";
+import { useToast } from "@/hooks/use-toast";
 
 interface Conversation {
   id: number;
@@ -18,9 +21,10 @@ interface Conversation {
 
 export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const [filters, setFilters] = useState({ tags: [] as string[], direction: [] as string[] });
+  const { toast } = useToast();
 
   const [conversations, setConversations] = useState<Conversation[]>([
     {
@@ -55,23 +59,61 @@ export default function Conversations() {
     }
   ]);
 
-  const handleNewConversation = () => {
-    // Lógica para iniciar nova conversa
-    console.log("Nova conversa");
+  const handleNewConversation = (client: string, phone: string) => {
+    const newConversation: Conversation = {
+      id: conversations.length + 1,
+      client,
+      phone,
+      lastMessage: "Conversa iniciada",
+      time: "Agora",
+      unread: 0,
+      tag: "Lead",
+      direction: "outbound"
+    };
+    
+    setConversations(prev => [newConversation, ...prev]);
+    setSelectedConversation(newConversation);
   };
 
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedConversation) {
-      // Lógica para enviar mensagem
       console.log("Enviando mensagem:", newMessage);
+      
+      // Atualizar a conversa com a nova mensagem
+      setConversations(prev => prev.map(conv => 
+        conv.id === selectedConversation.id 
+          ? { ...conv, lastMessage: newMessage, time: "Agora" }
+          : conv
+      ));
+      
       setNewMessage("");
+      
+      toast({
+        title: "Mensagem enviada",
+        description: "Sua mensagem foi enviada com sucesso",
+      });
     }
   };
 
-  const filteredConversations = conversations.filter(conversation => 
-    conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conversation.phone.includes(searchTerm)
-  );
+  const handleFiltersChange = (newFilters: { tags: string[], direction: string[] }) => {
+    setFilters(newFilters);
+  };
+
+  const filteredConversations = conversations.filter(conversation => {
+    const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         conversation.phone.includes(searchTerm);
+    
+    const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
+    
+    const directionMap: { [key: string]: string } = {
+      "Entrada": "inbound",
+      "Saída": "outbound"
+    };
+    const matchesDirection = filters.direction.length === 0 || 
+                           filters.direction.some(dir => directionMap[dir] === conversation.direction);
+    
+    return matchesSearch && matchesTags && matchesDirection;
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -81,20 +123,7 @@ export default function Conversations() {
           <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
           <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
-        <Button 
-          onClick={handleNewConversation}
-          className="bg-goat-purple hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap"
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            minWidth: 'auto',
-            width: 'auto'
-          }}
-        >
-          <Plus className="w-4 h-4" />
-          Nova Conversa
-        </Button>
+        <NewConversationModal onNewConversation={handleNewConversation} />
       </div>
 
       {/* Busca e Filtros */}
@@ -108,21 +137,7 @@ export default function Conversations() {
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
-        <Button 
-          variant="outline" 
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className="border-goat-gray-600 text-white hover:bg-goat-gray-800"
-          style={{ 
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            minWidth: 'auto',
-            width: 'auto'
-          }}
-        >
-          <Filter className="w-4 h-4" />
-          Filtros
-        </Button>
+        <ConversationFilters onFiltersChange={handleFiltersChange} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -229,14 +244,7 @@ export default function Conversations() {
                   <Button 
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
-                    className="bg-goat-purple hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed px-4"
-                    style={{ 
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minWidth: '44px',
-                      width: 'auto'
-                    }}
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
