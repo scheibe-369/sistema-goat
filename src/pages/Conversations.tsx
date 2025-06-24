@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react";
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, PlusCircle } from "lucide-react";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -105,6 +106,7 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
+    setIsNewConversationModalOpen(false);
   };
 
   const getCurrentTime = () => {
@@ -217,7 +219,7 @@ export default function Conversations() {
 
   const filteredConversations = conversations.filter(conversation => {
     const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         conversation.phone.includes(searchTerm);
+                          conversation.phone.includes(searchTerm);
     
     const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
     
@@ -235,31 +237,38 @@ export default function Conversations() {
       {/* Header com botão de nova conversa */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
-          <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
+          <h1 className="text-3xl font-bold text-white mb-1">Conversas WhatsApp</h1>
+          <p className="text-gray-400">Central de mensagens via Evolution API</p>
         </div>
-        <NewConversationModal onNewConversation={handleNewConversation} />
+        <Button 
+          onClick={() => setIsNewConversationModalOpen(true)}
+          className="btn-primary"
+        >
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Nova Conversa
+        </Button>
       </div>
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input 
             placeholder="Buscar conversas..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
+            className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-400 focus:ring-purple-500 focus:border-purple-500"
           />
         </div>
         <Button 
           onClick={() => setIsFiltersOpen(true)}
-          className="btn-primary"
+          variant="outline"
+          className="btn-secondary"
         >
-          <Filter className="w-4 h-4" />
+          <Filter className="w-4 h-4 mr-2" />
           Filtros
           {hasActiveFilters && (
-            <Badge className="ml-2 bg-white text-goat-purple text-xs">
+            <Badge className="ml-2 bg-purple-500 text-white">
               {filters.stages.length + filters.tags.length + (filters.client ? 1 : 0)}
             </Badge>
           )}
@@ -404,6 +413,13 @@ export default function Conversations() {
         onClose={() => setIsFiltersOpen(false)}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+      />
+
+      {/* Modal de Nova Conversa */}
+      <NewConversationModal
+        isOpen={isNewConversationModalOpen}
+        onClose={() => setIsNewConversationModalOpen(false)}
+        onNewConversation={handleNewConversation}
       />
     </div>
   );
