@@ -1,9 +1,9 @@
-// Começando com a versão mais completa do seu código e aplicando a correção final.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+// Re-importando o PlusCircle
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, PlusCircle } from "lucide-react"; 
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
@@ -34,8 +34,6 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  // SOLUÇÃO: Adicionando o estado para controlar o modal
-  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -108,8 +106,6 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
-    // SOLUÇÃO: Fechar o modal após a criação da conversa
-    setIsNewConversationModalOpen(false);
   };
 
   const getCurrentTime = () => {
@@ -129,11 +125,21 @@ export default function Conversations() {
 
       setConversations(prev => prev.map(conv => 
         conv.id === selectedConversation.id 
-          ? { ...conv, lastMessage: newMessage.trim(), time: currentTime, messages: [...conv.messages, newMsg] }
+          ? { 
+              ...conv, 
+              lastMessage: newMessage.trim(), 
+              time: currentTime,
+              messages: [...conv.messages, newMsg]
+            }
           : conv
       ));
 
-      setSelectedConversation(prev => prev ? { ...prev, lastMessage: newMessage.trim(), time: currentTime, messages: [...prev.messages, newMsg] } : null);
+      setSelectedConversation(prev => prev ? {
+        ...prev,
+        lastMessage: newMessage.trim(),
+        time: currentTime,
+        messages: [...prev.messages, newMsg]
+      } : null);
       
       setNewMessage("");
       
@@ -149,14 +155,36 @@ export default function Conversations() {
   };
 
   const simulateClientResponse = (conversationId: number) => {
-    const responses = ["Obrigado pela informação!", "Entendi, vou analisar isso.", "Perfeito, faz sentido."];
+    const responses = [
+      "Obrigado pela informação!",
+      "Entendi, vou analisar isso.",
+      "Perfeito, faz sentido.",
+      "Isso resolve minha dúvida.",
+      "Ótimo, vamos prosseguir então.",
+      "Combinado!",
+      "Vou avaliar as opções e te retorno.",
+      "Excelente, muito obrigado!"
+    ];
+
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
     const currentTime = getCurrentTime();
 
     setConversations(prev => prev.map(conv => {
       if (conv.id === conversationId) {
-        const newMsg: Message = { id: conv.messages.length + 1, text: randomResponse, time: currentTime, sender: "client" };
-        return { ...conv, lastMessage: randomResponse, time: currentTime, messages: [...conv.messages, newMsg], unread: selectedConversation?.id === conversationId ? 0 : conv.unread + 1 };
+        const newMsg: Message = {
+          id: conv.messages.length + 1,
+          text: randomResponse,
+          time: currentTime,
+          sender: "client"
+        };
+        
+        return {
+          ...conv,
+          lastMessage: randomResponse,
+          time: currentTime,
+          messages: [...conv.messages, newMsg],
+          unread: selectedConversation?.id === conversationId ? 0 : conv.unread + 1
+        };
       }
       return conv;
     }));
@@ -164,8 +192,18 @@ export default function Conversations() {
     if (selectedConversation?.id === conversationId) {
       setSelectedConversation(prev => {
         if (!prev) return null;
-        const newMsg: Message = { id: prev.messages.length + 1, text: randomResponse, time: currentTime, sender: "client" };
-        return { ...prev, lastMessage: randomResponse, time: currentTime, messages: [...prev.messages, newMsg] };
+        const newMsg: Message = {
+          id: prev.messages.length + 1,
+          text: randomResponse,
+          time: currentTime,
+          sender: "client"
+        };
+        return {
+          ...prev,
+          lastMessage: randomResponse,
+          time: currentTime,
+          messages: [...prev.messages, newMsg]
+        };
       });
     }
   };
@@ -175,10 +213,15 @@ export default function Conversations() {
   };
 
   const filteredConversations = conversations.filter(conversation => {
-    const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) || conversation.phone.includes(searchTerm);
+    const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          conversation.phone.includes(searchTerm);
+    
     const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
+    
     const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage);
+    
     const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
+    
     return matchesSearch && matchesClient && matchesStages && matchesTags;
   });
 
@@ -193,14 +236,13 @@ export default function Conversations() {
           <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
         
-        {/* SOLUÇÃO: Usando um botão estilizado que controla a abertura do modal */}
-        <Button 
-          className="btn-primary"
-          onClick={() => setIsNewConversationModalOpen(true)}
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Nova Conversa
-        </Button>
+        {/* CORREÇÃO FINAL: Passando o botão estilizado como filho do modal */}
+        <NewConversationModal onNewConversation={handleNewConversation}>
+          <Button className="btn-primary">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Nova Conversa
+          </Button>
+        </NewConversationModal>
       </div>
 
       {/* Busca e Filtros */}
@@ -229,33 +271,62 @@ export default function Conversations() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lista de Conversas (sem alterações) */}
+        {/* Lista de Conversas */}
         <div className="lg:col-span-1">
           <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
             </div>
+            
             <div className="space-y-3 max-h-[600px] overflow-y-auto">
               {filteredConversations.map((conversation) => (
-                <div key={conversation.id} onClick={() => setSelectedConversation(conversation)} className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedConversation?.id === conversation.id ? 'bg-goat-purple/20 border-goat-purple/50' : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'}`}>
+                <div 
+                  key={conversation.id}
+                  onClick={() => setSelectedConversation(conversation)}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    selectedConversation?.id === conversation.id
+                      ? 'bg-goat-purple/20 border-goat-purple/50'
+                      : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'
+                  }`}
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1 min-w-0">
                       <h4 className="text-white font-medium text-sm truncate">{conversation.client}</h4>
-                      <p className="text-goat-gray-400 text-xs flex items-center gap-1"><Phone className="w-3 h-3 flex-shrink-0" /> {conversation.phone}</p>
+                      <p className="text-goat-gray-400 text-xs flex items-center gap-1">
+                        <Phone className="w-3 h-3 flex-shrink-0" />
+                        {conversation.phone}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                      <Badge variant={conversation.tag === "Cliente" ? "default" : "secondary"} className={`text-xs ${conversation.tag === "Cliente" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-goat-gray-300"}`}>{conversation.tag}</Badge>
-                      {conversation.unread > 0 && (<Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">{conversation.unread}</Badge>)}
+                      <Badge 
+                        variant={conversation.tag === "Cliente" ? "default" : "secondary"}
+                        className={`text-xs ${
+                          conversation.tag === "Cliente" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-goat-gray-300"
+                        }`}
+                      >
+                        {conversation.tag}
+                      </Badge>
+                      {conversation.unread > 0 && (
+                        <Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
+                          {conversation.unread}
+                        </Badge>
+                      )}
                     </div>
                   </div>
-                  <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">{conversation.lastMessage}</p>
+                  <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">
+                    {conversation.lastMessage}
+                  </p>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
-                      <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">{conversation.stage}</Badge>
+                      <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">
+                        {conversation.stage}
+                      </Badge>
                     </div>
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"}`} />
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"
+                    }`} />
                   </div>
                 </div>
               ))}
@@ -263,33 +334,57 @@ export default function Conversations() {
           </Card>
         </div>
 
-        {/* Chat (sem alterações) */}
+        {/* Chat */}
         <div className="lg:col-span-2">
           <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 h-[600px] flex flex-col">
             {selectedConversation ? (
               <>
                 <div className="border-b border-goat-gray-700 pb-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-goat-purple rounded-full flex items-center justify-center"><MessageCircle className="w-5 h-5 text-white" /></div>
+                    <div className="w-10 h-10 bg-goat-purple rounded-full flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white">{selectedConversation.client}</h3>
                       <p className="text-goat-gray-400 text-sm">{selectedConversation.phone}</p>
                     </div>
                   </div>
                 </div>
+                
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                   {selectedConversation.messages.map((message) => (
                     <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${message.sender === "user" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-white"}`}>
+                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
+                        message.sender === "user" 
+                          ? "bg-goat-purple text-white" 
+                          : "bg-goat-gray-700 text-white"
+                      }`}>
                         <p className="text-sm">{message.text}</p>
-                        <span className={`text-xs ${message.sender === "user" ? "text-purple-200" : "text-goat-gray-400"}`}>{message.time}</span>
+                        <span className={`text-xs ${
+                          message.sender === "user" ? "text-purple-200" : "text-goat-gray-400"
+                        }`}>
+                          {message.time}
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
+                
                 <div className="flex gap-2">
-                  <Input placeholder="Digite sua mensagem..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400" />
-                  <Button onClick={handleSendMessage} disabled={!newMessage.trim()} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"><Send className="w-4 h-4" /></Button>
+                  <Input 
+                    placeholder="Digite sua mensagem..." 
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
+                  />
+                  <Button 
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim()}
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
               </>
             ) : (
@@ -305,18 +400,12 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* SOLUÇÃO: Colocando os modais no final do código, controlados por estado */}
+      {/* Filtro Lateral */}
       <ConversationSidebarFilters
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
         filters={filters}
         onFiltersChange={handleFiltersChange}
-      />
-
-      <NewConversationModal
-        isOpen={isNewConversationModalOpen}
-        onClose={() => setIsNewConversationModalOpen(false)}
-        onNewConversation={handleNewConversation}
       />
     </div>
   );
