@@ -106,6 +106,7 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
+    setIsNewConversationModalOpen(false);
   };
 
   const getCurrentTime = () => {
@@ -417,7 +418,7 @@ export default function Conversations() {
       <NewConversationModal 
         isOpen={isNewConversationModalOpen}
         onClose={() => setIsNewConversationModalOpen(false)}
-        onSave={handleNewConversation} 
+        onNewConversation={handleNewConversation} 
       />
 
       <ConversationSidebarFilters
