@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -262,13 +261,12 @@ export default function Conversations() {
         </div>
         <Button 
           onClick={() => setIsFiltersOpen(true)}
-          variant="outline" 
-          className={`btn-outline ${hasActiveFilters ? 'border-goat-purple text-goat-purple' : ''}`}
+          className="btn-primary"
         >
           <Filter className="w-4 h-4" />
           Filtros
           {hasActiveFilters && (
-            <Badge className="ml-2 bg-goat-purple text-white text-xs">
+            <Badge className="ml-2 bg-white text-goat-purple text-xs">
               {filters.stages.length + filters.tags.length + filters.direction.length + (filters.client ? 1 : 0)}
             </Badge>
           )}
