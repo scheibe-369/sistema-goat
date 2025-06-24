@@ -28,7 +28,14 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="btn-primary">
+        <Button 
+          className="bg-goat-purple hover:bg-purple-600 text-white border-0"
+          style={{
+            backgroundColor: '#5315CB',
+            color: 'white',
+            border: 'none'
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nova Conversa
         </Button>
