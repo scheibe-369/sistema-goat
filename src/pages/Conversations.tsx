@@ -4,9 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, MessageCircle } from "lucide-react";
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
-import { ConversationFilters } from "@/components/Conversations/ConversationFilters";
+import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -25,6 +25,7 @@ interface Conversation {
   unread: number;
   tag: string;
   direction: "inbound" | "outbound";
+  stage: string;
   messages: Message[];
 }
 
@@ -32,7 +33,13 @@ export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const [filters, setFilters] = useState({ tags: [] as string[], direction: [] as string[] });
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({ 
+    stages: [] as string[], 
+    tags: [] as string[], 
+    direction: [] as string[],
+    client: ""
+  });
   const { toast } = useToast();
 
   const [conversations, setConversations] = useState<Conversation[]>([
@@ -45,6 +52,7 @@ export default function Conversations() {
       unread: 2,
       tag: "Lead",
       direction: "inbound",
+      stage: "Sem atendimento",
       messages: [
         { id: 1, text: "Olá, gostaria de saber mais sobre os serviços", time: "10:30", sender: "client" },
         { id: 2, text: "Olá! Claro, vou te explicar sobre nossos serviços.", time: "10:32", sender: "user" }
@@ -59,6 +67,7 @@ export default function Conversations() {
       unread: 0,
       tag: "Cliente",
       direction: "outbound",
+      stage: "Em atendimento",
       messages: [
         { id: 1, text: "Boa tarde! Como está o projeto?", time: "09:10", sender: "user" },
         { id: 2, text: "Está indo muito bem! Já temos os primeiros resultados.", time: "09:12", sender: "client" },
@@ -74,6 +83,7 @@ export default function Conversations() {
       unread: 1,
       tag: "Lead",
       direction: "inbound",
+      stage: "Reunião agendada",
       messages: [
         { id: 1, text: "Quando podemos conversar sobre o projeto?", time: "Ontem", sender: "client" }
       ]
@@ -90,6 +100,7 @@ export default function Conversations() {
       unread: 0,
       tag: "Lead",
       direction: "outbound",
+      stage: "Sem atendimento",
       messages: []
     };
     
@@ -201,13 +212,17 @@ export default function Conversations() {
     }
   };
 
-  const handleFiltersChange = (newFilters: { tags: string[], direction: string[] }) => {
+  const handleFiltersChange = (newFilters: { stages: string[], tags: string[], direction: string[], client: string }) => {
     setFilters(newFilters);
   };
 
   const filteredConversations = conversations.filter(conversation => {
     const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          conversation.phone.includes(searchTerm);
+    
+    const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
+    
+    const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage);
     
     const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
     
@@ -218,8 +233,10 @@ export default function Conversations() {
     const matchesDirection = filters.direction.length === 0 || 
                            filters.direction.some(dir => directionMap[dir] === conversation.direction);
     
-    return matchesSearch && matchesTags && matchesDirection;
+    return matchesSearch && matchesClient && matchesStages && matchesTags && matchesDirection;
   });
+
+  const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -243,7 +260,19 @@ export default function Conversations() {
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
-        <ConversationFilters onFiltersChange={handleFiltersChange} />
+        <Button 
+          onClick={() => setIsFiltersOpen(true)}
+          variant="outline" 
+          className={`btn-outline ${hasActiveFilters ? 'border-goat-purple text-goat-purple' : ''}`}
+        >
+          <Filter className="w-4 h-4" />
+          Filtros
+          {hasActiveFilters && (
+            <Badge className="ml-2 bg-goat-purple text-white text-xs">
+              {filters.stages.length + filters.tags.length + filters.direction.length + (filters.client ? 1 : 0)}
+            </Badge>
+          )}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -294,7 +323,12 @@ export default function Conversations() {
                     {conversation.lastMessage}
                   </p>
                   <div className="flex justify-between items-center">
-                    <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
+                      <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">
+                        {conversation.stage}
+                      </Badge>
+                    </div>
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                       conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"
                     }`} />
@@ -372,6 +406,14 @@ export default function Conversations() {
           </Card>
         </div>
       </div>
+
+      {/* Filtro Lateral */}
+      <ConversationSidebarFilters
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+      />
     </div>
   );
 }
