@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react";
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, Plus } from "lucide-react";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -105,6 +106,7 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
+    setIsNewConversationModalOpen(false);
   };
 
   const getCurrentTime = () => {
@@ -239,13 +241,19 @@ export default function Conversations() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header com botão de nova conversa */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
           <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
-        <NewConversationModal onNewConversation={handleNewConversation} />
+        <Button 
+          onClick={() => setIsNewConversationModalOpen(true)}
+          className="btn-primary"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Nova conversa
+        </Button>
       </div>
 
       {/* Busca e Filtros */}
@@ -264,7 +272,7 @@ export default function Conversations() {
           variant="outline" 
           className="btn-outline"
         >
-          <Filter className="w-4 h-4" />
+          <Filter className="w-4 h-4 mr-2" />
           Filtros
           {hasActiveFilters && (
             <Badge className="ml-2 bg-goat-purple text-white text-xs">
@@ -406,7 +414,13 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* Filtro Lateral */}
+      {/* Modais */}
+      <NewConversationModal 
+        isOpen={isNewConversationModalOpen}
+        onClose={() => setIsNewConversationModalOpen(false)}
+        onNewConversation={handleNewConversation} 
+      />
+
       <ConversationSidebarFilters
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
@@ -416,4 +430,3 @@ export default function Conversations() {
     </div>
   );
 }
-
