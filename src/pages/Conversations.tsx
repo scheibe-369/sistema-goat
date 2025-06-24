@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-// Removendo o PlusCircle que não será mais usado no botão separado
-import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
+// Re-importando o PlusCircle
+import { MessageSquare, Search, Send, Phone, MessageCircle, Filter, PlusCircle } from "lucide-react"; 
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
@@ -34,8 +34,6 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  // Removendo o estado do modal que causou o problema
-  // const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false); 
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -108,8 +106,6 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
-    // Removendo a linha que fechava o modal, pois o próprio componente já faz isso
-    // setIsNewConversationModalOpen(false); 
   };
 
   const getCurrentTime = () => {
@@ -239,8 +235,14 @@ export default function Conversations() {
           <h1 className="text-3xl font-bold text-white mb-2">Conversas WhatsApp</h1>
           <p className="text-goat-gray-400">Central de mensagens via Evolution API</p>
         </div>
-        {/* CORREÇÃO: Voltando a usar o componente como ele era originalmente */}
-        <NewConversationModal onNewConversation={handleNewConversation} />
+        
+        {/* CORREÇÃO FINAL: Passando o botão estilizado como filho do modal */}
+        <NewConversationModal onNewConversation={handleNewConversation}>
+          <Button className="btn-primary">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Nova Conversa
+          </Button>
+        </NewConversationModal>
       </div>
 
       {/* Busca e Filtros */}
@@ -251,13 +253,11 @@ export default function Conversations() {
             placeholder="Buscar conversas..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            // CORREÇÃO: Restaurando as classes originais para a cor correta
             className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
           />
         </div>
         <Button 
           onClick={() => setIsFiltersOpen(true)}
-          // CORREÇÃO: Restaurando a classe original para a cor correta do botão
           className="btn-primary"
         >
           <Filter className="w-4 h-4 mr-2" />
@@ -407,8 +407,6 @@ export default function Conversations() {
         filters={filters}
         onFiltersChange={handleFiltersChange}
       />
-
-      {/* Removendo o Modal daqui, pois ele já é renderizado pelo NewConversationModal no cabeçalho */}
     </div>
   );
 }
