@@ -1,9 +1,9 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Phone, Mail, Calendar, MoreVertical, Filter } from "lucide-react";
+import { Plus, Phone, Mail, Calendar, MoreVertical } from "lucide-react";
 import { useState } from "react";
-import { LeadFilters } from "@/components/Leads/LeadFilters";
 
 interface Lead {
   id: string;
@@ -110,12 +110,6 @@ const mockStages: Stage[] = [
 
 export default function LeadsKanban() {
   const [stages, setStages] = useState(mockStages);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    stages: [] as string[],
-    groups: [] as string[],
-    companyName: ""
-  });
 
   const getGroupColor = (group: string) => {
     switch (group) {
@@ -128,23 +122,6 @@ export default function LeadsKanban() {
     }
   };
 
-  const handleFiltersChange = (newFilters: { stages: string[], groups: string[], companyName: string }) => {
-    setFilters(newFilters);
-  };
-
-  const filteredStages = stages.map(stage => ({
-    ...stage,
-    leads: stage.leads.filter(lead => {
-      const matchesStage = filters.stages.length === 0 || filters.stages.includes(stage.name);
-      const matchesGroup = filters.groups.length === 0 || filters.groups.includes(lead.group);
-      const matchesCompany = filters.companyName === "" || 
-                           lead.company.toLowerCase().includes(filters.companyName.toLowerCase()) ||
-                           lead.name.toLowerCase().includes(filters.companyName.toLowerCase());
-      
-      return matchesStage && matchesGroup && matchesCompany;
-    })
-  }));
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -152,29 +129,31 @@ export default function LeadsKanban() {
           <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
           <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
         </div>
+        <Button className="btn-primary">
+          <Plus className="w-4 h-4 mr-2" />
+          Novo Lead
+        </Button>
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
         <div className="flex items-center gap-4">
-          <Button 
-            onClick={() => setIsFiltersOpen(true)}
-            className="btn-outline flex items-center gap-2"
-          >
-            <Filter className="w-4 h-4" />
-            Filtros
-            {(filters.stages.length > 0 || filters.groups.length > 0 || filters.companyName) && (
-              <Badge className="ml-2 bg-goat-purple text-white text-xs">
-                {filters.stages.length + filters.groups.length + (filters.companyName ? 1 : 0)}
-              </Badge>
-            )}
+          <span className="text-white font-medium">Filtros:</span>
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
+            Todos os grupos
           </Button>
-          <Button className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Lead
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
+            Clientes GOAT
+          </Button>
+          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
+            Networking
           </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Kanban Board */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[600px]">
-        {filteredStages.map((stage) => (
+        {stages.map((stage) => (
           <div key={stage.id} className="space-y-4">
             {/* Stage Header */}
             <div className="flex items-center justify-between">
@@ -242,26 +221,13 @@ export default function LeadsKanban() {
               {/* Empty State */}
               {stage.leads.length === 0 && (
                 <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
-                  <p className="text-goat-gray-400 text-sm">
-                    {filters.stages.length > 0 || filters.groups.length > 0 || filters.companyName 
-                      ? "Nenhum lead encontrado com os filtros aplicados" 
-                      : "Arraste leads para cá"
-                    }
-                  </p>
+                  <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
                 </div>
               )}
             </div>
           </div>
         ))}
       </div>
-
-      {/* Lead Filters Component */}
-      <LeadFilters
-        isOpen={isFiltersOpen}
-        onClose={() => setIsFiltersOpen(false)}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-      />
     </div>
   );
 }
