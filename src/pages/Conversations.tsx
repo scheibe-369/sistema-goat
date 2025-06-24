@@ -4,11 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
-import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { useToast } from "@/hooks/use-toast";
-
-// Importando o novo componente de cabeçalho
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 
 interface Message {
@@ -36,7 +33,6 @@ export default function Conversations() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
   const [filters, setFilters] = useState({ 
     stages: [] as string[], 
     tags: [] as string[], 
@@ -109,7 +105,6 @@ export default function Conversations() {
     
     setConversations(prev => [newConversation, ...prev]);
     setSelectedConversation(newConversation);
-    setIsNewConversationModalOpen(false);
   };
 
   const getCurrentTime = () => {
@@ -187,7 +182,7 @@ export default function Conversations() {
   return (
     <div className="space-y-6 animate-fade-in">
       
-      <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
+      <ConversationsHeader onNewConversation={handleNewConversation} />
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -291,7 +286,7 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* Modais */}
+      {/* Modal de Filtros */}
       <ConversationSidebarFilters
         isOpen={isFiltersOpen}
         onClose={() => setIsFiltersOpen(false)}
@@ -299,11 +294,6 @@ export default function Conversations() {
         onFiltersChange={handleFiltersChange}
       />
 
-      <NewConversationModal
-        isOpen={isNewConversationModalOpen}
-        onClose={() => setIsNewConversationModalOpen(false)}
-        onNewConversation={handleNewConversation}
-      />
     </div>
   );
 }
