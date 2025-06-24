@@ -1,18 +1,31 @@
+"use client"; // Manter esta diretiva
 
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Phone } from "lucide-react";
+import { useState } from "react";
+import { Phone, X } from "lucide-react"; // Adicionado X para o botão de fechar
 import { useToast } from "@/hooks/use-toast";
 
+// 1. As props agora são iguais às do NewClientModal
 interface NewConversationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
   onNewConversation: (client: string, phone: string) => void;
 }
 
-export function NewConversationModal({ onNewConversation }: NewConversationModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function NewConversationModal({ 
+  isOpen, 
+  onClose, 
+  onNewConversation 
+}: NewConversationModalProps) {
+  // 2. REMOVIDO o estado de 'isOpen'. Ele agora vem de fora.
   const [client, setClient] = useState("");
   const [phone, setPhone] = useState("");
   const { toast } = useToast();
@@ -32,7 +45,8 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
     onNewConversation(client.trim(), phone.trim());
     setClient("");
     setPhone("");
-    setIsOpen(false);
+    // 3. Em vez de setar o estado interno, chamamos a função 'onClose' que veio de fora.
+    onClose(); 
     
     toast({
       title: "Conversa iniciada",
@@ -40,19 +54,24 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
     });
   };
 
+  // O Dialog agora é controlado pelas props isOpen e onOpenChange (que chama onClose)
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="btn-primary">
-          <Plus className="w-4 h-4" />
-          Nova Conversa
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      {/* 4. REMOVIDO o <DialogTrigger>. O modal não cria mais seu próprio botão. */}
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Nova Conversa</DialogTitle>
+           {/* Botão de fechar (X) para consistência, opcional mas recomendado */}
+           <Button
+            onClick={onClose}
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 text-goat-gray-400 hover:text-white hover:bg-goat-gray-700 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div>
             <Label htmlFor="client" className="text-white">Nome do Cliente</Label>
             <Input
@@ -76,11 +95,12 @@ export function NewConversationModal({ onNewConversation }: NewConversationModal
               />
             </div>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2 justify-end pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={() => setIsOpen(false)}
+              // 5. O botão Cancelar agora também chama a função 'onClose'.
+              onClick={onClose}
               className="btn-outline"
             >
               Cancelar
