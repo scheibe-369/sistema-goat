@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -271,9 +270,6 @@ export default function Financial() {
                       Marcar como Pago
                     </Button>
                   )}
-                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
-                    Editar
-                  </Button>
                 </div>
               </div>
             </div>
