@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// O ícone 'Edit' foi removido da importação pois não é mais usado
+// O ícone 'Edit' não é mais necessário
 import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react"; 
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
@@ -219,14 +219,7 @@ export default function Contracts() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-6">
-                  <Button
-                    size="sm"
-                    onClick={() => setEditingContract(contract)}
-                    className="bg-goat-purple text-white hover:bg-purple-600 transition-all duration-200"
-                  >
-                    {/* Ícone de edição removido */}
-                    Editar
-                  </Button>
+                  {/* Botão de Editar foi removido daqui */}
                   <Button
                     size="sm"
                     onClick={() => setDeletingContract(contract)}
