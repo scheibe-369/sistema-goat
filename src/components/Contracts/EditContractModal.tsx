@@ -30,7 +30,7 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
     monthlyValue: 0,
     startDate: '',
     endDate: '',
-    status: 'active' as const
+    status: 'active' as Contract['status']
   });
 
   useEffect(() => {
