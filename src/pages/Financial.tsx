@@ -140,6 +140,7 @@ const initialExpenses = [
 export default function Financial() {
   const [transactions] = useState<Transaction[]>(mockTransactions);
   const [expenses, setExpenses] = useState(initialExpenses);
+  const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>(mockFinancialEntries);
 
   const handleAddExpense = (newExpense: any) => {
     setExpenses(prev => [...prev, newExpense]);
@@ -157,6 +158,20 @@ export default function Financial() {
 
   const handleDeleteExpense = (expenseId: number) => {
     setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+  };
+
+  const handleTogglePaymentStatus = (entryId: string) => {
+    setFinancialEntries(prev => 
+      prev.map(entry => 
+        entry.id === entryId 
+          ? { 
+              ...entry, 
+              status: entry.status === 'pending' ? 'paid' : 'pending',
+              paymentDate: entry.status === 'pending' ? new Date().toISOString().split('T')[0] : undefined
+            }
+          : entry
+      )
+    );
   };
 
   const getStatusBadge = (status: FinancialEntry['status']) => {
@@ -189,9 +204,9 @@ export default function Financial() {
     return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   };
 
-  const paidEntries = mockFinancialEntries.filter(e => e.status === 'paid');
-  const pendingEntries = mockFinancialEntries.filter(e => e.status === 'pending');
-  const overdueEntries = mockFinancialEntries.filter(e => e.status === 'overdue');
+  const paidEntries = financialEntries.filter(e => e.status === 'paid');
+  const pendingEntries = financialEntries.filter(e => e.status === 'pending');
+  const overdueEntries = financialEntries.filter(e => e.status === 'overdue');
 
   const totalPaid = paidEntries.reduce((sum, entry) => sum + entry.monthlyValue, 0);
   const totalPending = pendingEntries.reduce((sum, entry) => sum + entry.monthlyValue, 0);
@@ -257,7 +272,7 @@ export default function Financial() {
         </div>
 
         <div className="divide-y divide-goat-gray-700">
-          {mockFinancialEntries.map((entry) => (
+          {financialEntries.map((entry) => (
             <div key={entry.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -287,9 +302,13 @@ export default function Financial() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-6">
-                  {entry.status === 'pending' && (
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                      Marcar como Pago
+                  {(entry.status === 'pending' || entry.status === 'paid') && (
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700 text-white w-32"
+                      onClick={() => handleTogglePaymentStatus(entry.id)}
+                    >
+                      {entry.status === 'paid' ? 'Pago' : 'Marcar como Pago'}
                     </Button>
                   )}
                 </div>
