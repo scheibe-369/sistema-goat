@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 
@@ -155,6 +155,10 @@ export default function Financial() {
     );
   };
 
+  const handleDeleteExpense = (expenseId: number) => {
+    setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
+  };
+
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
       case 'paid':
@@ -295,7 +299,7 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card - 5 Column Layout */}
+      {/* Despesas Card - 6 Column Layout */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -308,7 +312,7 @@ export default function Financial() {
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-              <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+              <div className="flex-1 grid grid-cols-6 gap-4 items-center">
                 {/* Coluna 1: Descrição */}
                 <div>
                   <p className="text-white font-medium">{expense.description}</p>
@@ -352,6 +356,18 @@ export default function Financial() {
                   >
                     <Check className="w-4 h-4 mr-1" />
                     {expense.status === 'Pago' ? 'Pago' : 'Confirmar'}
+                  </Button>
+                </div>
+
+                {/* Coluna 6: Botão de Excluir */}
+                <div className="flex justify-center">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-600 text-red-400 hover:bg-red-900/20"
+                    onClick={() => handleDeleteExpense(expense.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
