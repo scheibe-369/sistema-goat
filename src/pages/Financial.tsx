@@ -347,19 +347,17 @@ export default function Financial() {
                 <div className="flex justify-center gap-2">
                   <Button
                     size="sm"
-                    className='bg-green-600 hover:bg-green-700 text-white'
+                    className='bg-green-600 hover:bg-green-700 text-white w-20'
                     onClick={() => handleToggleExpenseStatus(expense.id)}
                   >
-                    <Check className="w-4 h-4 mr-1" />
                     {expense.status === 'Pago' ? 'Pago' : 'Confirmar'}
                   </Button>
                   
                   <Button
                     size="sm"
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white w-20"
                     onClick={() => handleDeleteExpense(expense.id)}
                   >
-                    <Trash2 className="w-4 h-4 mr-1" />
                     Excluir
                   </Button>
                 </div>
