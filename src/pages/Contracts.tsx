@@ -2,13 +2,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, DollarSign, AlertTriangle, Edit, Trash2 } from "lucide-react";
+import { FileText, Calendar, DollarSign, AlertTriangle, Edit } from "lucide-react"; // Trash2 foi removido
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
-
-// A importação do Tooltip não é mais necessária, vamos remover
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Contract {
   id: string;
@@ -220,25 +217,21 @@ export default function Contracts() {
                   </div>
                 </div>
 
-                {/* ================================================================ */}
-                {/* ✅ BOTÕES CORRIGIDOS PARA O ESTILO SÓLIDO COM TEXTO             */}
-                {/* ================================================================ */}
                 <div className="flex items-center gap-2 ml-6">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => setEditingContract(contract)}
                     className="bg-goat-purple text-white hover:bg-purple-600 transition-all duration-200"
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => setDeletingContract(contract)}
                     className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Excluir
+                    Cancelar
                   </Button>
                 </div>
               </div>
