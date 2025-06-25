@@ -271,37 +271,38 @@ export default function Financial() {
           </div>
         </div>
 
-        <div className="divide-y divide-goat-gray-700">
+        <div className="space-y-3 p-6">
           {financialEntries.map((entry) => (
-            <div key={entry.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-lg font-semibold text-white">{entry.client}</h4>
+            <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+              <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                {/* Coluna 1: Cliente e Status */}
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h4 className="text-white font-medium">{entry.client}</h4>
                     {getStatusBadge(entry.status)}
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-goat-gray-400">Valor:</span>
-                      <p className="text-white font-semibold">{formatCurrency(entry.monthlyValue)}</p>
-                    </div>
-                    <div>
-                      <span className="text-goat-gray-400">Referência:</span>
-                      <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
-                    </div>
-                    <div>
-                      <span className="text-goat-gray-400">Data de Pagamento:</span>
-                      <p className="text-white">{entry.paymentDate ? formatDate(entry.paymentDate) : '-'}</p>
-                    </div>
-                    <div>
-                      <span className="text-goat-gray-400">Observações:</span>
-                      <p className="text-white">{entry.observations || '-'}</p>
-                    </div>
-                  </div>
+                </div>
+                
+                {/* Coluna 2: Valor */}
+                <div className="text-center">
+                  <p className="text-goat-gray-400 text-sm">Valor</p>
+                  <p className="text-white font-semibold">{formatCurrency(entry.monthlyValue)}</p>
+                </div>
+                
+                {/* Coluna 3: Referência */}
+                <div className="text-center">
+                  <p className="text-goat-gray-400 text-sm">Referência</p>
+                  <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
+                </div>
+                
+                {/* Coluna 4: Data de Pagamento */}
+                <div className="text-center">
+                  <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
+                  <p className="text-white">{entry.paymentDate ? formatDate(entry.paymentDate) : '-'}</p>
                 </div>
 
-                <div className="flex items-center gap-2 ml-6">
+                {/* Coluna 5: Botão de Ação */}
+                <div className="flex justify-center">
                   {(entry.status === 'pending' || entry.status === 'paid') && (
                     <Button 
                       size="sm" 
