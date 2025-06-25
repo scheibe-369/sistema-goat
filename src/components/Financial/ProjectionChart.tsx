@@ -74,43 +74,47 @@ export function ProjectionChart({ contracts }: ProjectionChartProps) {
   const averageMonthly = totalProjection / 12;
 
   return (
-    <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <TrendingUp className="w-5 h-5 text-goat-purple" />
-        <h3 className="text-lg font-semibold text-white">Projeção de Faturamento Anual</h3>
+    <Card className="bg-white border border-gray-200 p-8">
+      <div className="mb-8">
+        <h3 className="text-xl font-medium text-gray-900 mb-2">Projeção de Faturamento</h3>
+        <p className="text-gray-500 text-sm">Próximos 12 meses</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-          <p className="text-goat-gray-400 text-sm">Projeção Total (12 meses)</p>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalProjection)}</p>
+      <div className="grid grid-cols-3 gap-8 mb-8">
+        <div>
+          <p className="text-gray-500 text-sm mb-1">Total Anual</p>
+          <p className="text-2xl font-semibold text-gray-900">{formatCurrency(totalProjection)}</p>
         </div>
-        <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-          <p className="text-goat-gray-400 text-sm">Média Mensal</p>
-          <p className="text-2xl font-bold text-white">{formatCurrency(averageMonthly)}</p>
+        <div>
+          <p className="text-gray-500 text-sm mb-1">Média Mensal</p>
+          <p className="text-2xl font-semibold text-gray-900">{formatCurrency(averageMonthly)}</p>
         </div>
-        <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-          <p className="text-goat-gray-400 text-sm">Contratos Ativos</p>
-          <p className="text-2xl font-bold text-white">{contracts.length}</p>
+        <div>
+          <p className="text-gray-500 text-sm mb-1">Contratos</p>
+          <p className="text-2xl font-semibold text-gray-900">{contracts.length}</p>
         </div>
       </div>
 
-      <div className="h-80">
+      <div className="h-80 mb-8">
         <ChartContainer config={chartConfig}>
           <BarChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
             <XAxis 
               dataKey="month" 
-              stroke="#9CA3AF"
-              fontSize={12}
+              stroke="#6b7280"
+              fontSize={11}
               angle={-45}
               textAnchor="end"
               height={60}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis 
-              stroke="#9CA3AF"
-              fontSize={12}
+              stroke="#6b7280"
+              fontSize={11}
               tickFormatter={formatCurrency}
+              axisLine={false}
+              tickLine={false}
             />
             <ChartTooltip
               content={
@@ -125,23 +129,23 @@ export function ProjectionChart({ contracts }: ProjectionChartProps) {
             <Bar 
               dataKey="value" 
               fill="#8b5cf6"
-              radius={[4, 4, 0, 0]}
+              radius={[2, 2, 0, 0]}
             />
           </BarChart>
         </ChartContainer>
       </div>
 
-      <div className="mt-6 pt-4 border-t border-goat-gray-700">
-        <h4 className="text-white font-medium mb-3">Contratos Considerados na Projeção:</h4>
+      <div>
+        <h4 className="text-sm font-medium text-gray-900 mb-4">Contratos Ativos</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {contracts.map((contract, index) => (
-            <div key={index} className="p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700">
-              <p className="text-white font-medium text-sm">{contract.clientName}</p>
-              <p className="text-goat-gray-400 text-xs">
-                {formatCurrency(contract.monthlyValue)}/mês • {contract.duration} meses
+            <div key={index} className="p-4 rounded-lg border border-gray-100 bg-gray-50/50">
+              <p className="font-medium text-gray-900 text-sm mb-1">{contract.clientName}</p>
+              <p className="text-gray-600 text-xs mb-1">
+                {formatCurrency(contract.monthlyValue)}/mês
               </p>
-              <p className="text-goat-gray-400 text-xs">
-                Início: {new Date(contract.startMonth + '-01').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+              <p className="text-gray-500 text-xs">
+                {contract.duration} meses • Início: {new Date(contract.startMonth + '-01').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
               </p>
             </div>
           ))}
