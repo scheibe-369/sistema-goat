@@ -74,83 +74,89 @@ export function ProjectionChart({ contracts }: ProjectionChartProps) {
   const averageMonthly = totalProjection / 12;
 
   return (
-    <Card className="bg-white border border-gray-200 p-8">
-      <div className="mb-8">
-        <h3 className="text-xl font-medium text-gray-900 mb-2">Projeção de Faturamento</h3>
-        <p className="text-gray-500 text-sm">Próximos 12 meses</p>
-      </div>
-      
-      <div className="grid grid-cols-3 gap-8 mb-8">
-        <div>
-          <p className="text-gray-500 text-sm mb-1">Total Anual</p>
-          <p className="text-2xl font-semibold text-gray-900">{formatCurrency(totalProjection)}</p>
+    <div className="space-y-6">
+      {/* Card principal com KPIs e gráfico */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <TrendingUp className="w-5 h-5 text-goat-purple" />
+          <h3 className="text-xl font-semibold text-white">Projeção de Faturamento</h3>
         </div>
-        <div>
-          <p className="text-gray-500 text-sm mb-1">Média Mensal</p>
-          <p className="text-2xl font-semibold text-gray-900">{formatCurrency(averageMonthly)}</p>
-        </div>
-        <div>
-          <p className="text-gray-500 text-sm mb-1">Contratos</p>
-          <p className="text-2xl font-semibold text-gray-900">{contracts.length}</p>
-        </div>
-      </div>
 
-      <div className="h-80 mb-8">
-        <ChartContainer config={chartConfig}>
-          <BarChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-            <XAxis 
-              dataKey="month" 
-              stroke="#6b7280"
-              fontSize={11}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis 
-              stroke="#6b7280"
-              fontSize={11}
-              tickFormatter={formatCurrency}
-              axisLine={false}
-              tickLine={false}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  formatter={(value, name) => [
-                    formatCurrency(Number(value)),
-                    "Faturamento"
-                  ]}
-                />
-              }
-            />
-            <Bar 
-              dataKey="value" 
-              fill="#8b5cf6"
-              radius={[2, 2, 0, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
-      </div>
+        {/* KPIs em linha */}
+        <div className="grid grid-cols-3 gap-6 mb-8">
+          <div className="text-center">
+            <p className="text-goat-gray-400 text-sm mb-2">Total Anual</p>
+            <p className="text-2xl font-bold text-white">{formatCurrency(totalProjection)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-goat-gray-400 text-sm mb-2">Média Mensal</p>
+            <p className="text-2xl font-bold text-white">{formatCurrency(averageMonthly)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-goat-gray-400 text-sm mb-2">Contratos Ativos</p>
+            <p className="text-2xl font-bold text-white">{contracts.length}</p>
+          </div>
+        </div>
 
-      <div>
-        <h4 className="text-sm font-medium text-gray-900 mb-4">Contratos Ativos</h4>
+        {/* Gráfico */}
+        <div className="h-80">
+          <ChartContainer config={chartConfig}>
+            <BarChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis 
+                dataKey="month" 
+                stroke="#9CA3AF"
+                fontSize={11}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis 
+                stroke="#9CA3AF"
+                fontSize={11}
+                tickFormatter={formatCurrency}
+                axisLine={false}
+                tickLine={false}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => [
+                      formatCurrency(Number(value)),
+                      "Faturamento"
+                    ]}
+                  />
+                }
+              />
+              <Bar 
+                dataKey="value" 
+                fill="#8b5cf6"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
+        </div>
+      </Card>
+
+      {/* Card separado para contratos */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <h4 className="text-lg font-semibold text-white mb-4">Contratos Ativos</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {contracts.map((contract, index) => (
-            <div key={index} className="p-4 rounded-lg border border-gray-100 bg-gray-50/50">
-              <p className="font-medium text-gray-900 text-sm mb-1">{contract.clientName}</p>
-              <p className="text-gray-600 text-xs mb-1">
+            <div key={index} className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+              <p className="font-semibold text-white mb-1">{contract.clientName}</p>
+              <p className="text-goat-gray-300 text-sm mb-1">
                 {formatCurrency(contract.monthlyValue)}/mês
               </p>
-              <p className="text-gray-500 text-xs">
+              <p className="text-goat-gray-400 text-xs">
                 {contract.duration} meses • Início: {new Date(contract.startMonth + '-01').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
               </p>
             </div>
           ))}
         </div>
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }
