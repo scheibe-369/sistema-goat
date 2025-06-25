@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// O ícone 'Plus' foi removido das importações pois o botão que o usava foi removido
-import { DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 import { ProjectionChart } from "@/components/Financial/ProjectionChart";
@@ -195,13 +194,34 @@ export default function Financial() {
   };
 
   const handleToggleExpenseStatus = (expenseId: number) => {
-    setExpenses(prev => 
-      prev.map(expense => 
-        expense.id === expenseId 
-          ? { ...expense, status: expense.status === 'Pago' ? 'Pendente' : 'Pago' }
-          : expense
-      )
-    );
+    const expenseToUpdate = expenses.find(e => e.id === expenseId);
+    if (!expenseToUpdate) return;
+
+    // Se a despesa NÃO é recorrente e está sendo marcada como 'Paga'
+    if (expenseToUpdate.isRecurring === false && expenseToUpdate.status === 'Pendente') {
+      
+      // Primeiro, atualiza o status para 'Pago' para dar um feedback visual
+      setExpenses(prev =>
+        prev.map(exp =>
+          exp.id === expenseId ? { ...exp, status: 'Pago' } : exp
+        )
+      );
+
+      // Depois de um curto atraso, remove o item da lista
+      setTimeout(() => {
+        setExpenses(prev => prev.filter(exp => exp.id !== expenseId));
+      }, 800);
+
+    } else {
+      // Para despesas recorrentes ou para desfazer um pagamento, apenas alterna o status
+      setExpenses(prev =>
+        prev.map(expense =>
+          expense.id === expenseId
+            ? { ...expense, status: expense.status === 'Pago' ? 'Pendente' : 'Pago' }
+            : expense
+        )
+      );
+    }
   };
 
   const handleDeleteExpense = (expenseId: number) => {
@@ -413,7 +433,7 @@ export default function Financial() {
                     className='bg-green-600 hover:bg-green-700 text-white w-20'
                     onClick={() => handleToggleExpenseStatus(expense.id)}
                   >
-                    {expense.status === 'Pago' ? 'Pago' : 'Confirmar'}
+                    {expense.status === 'Pago' ? 'Pago' : 'Pagar'}
                   </Button>
                   
                   <Button
