@@ -1,8 +1,10 @@
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown } from "lucide-react";
+import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 
 interface FinancialEntry {
   id: string;
@@ -12,6 +14,16 @@ interface FinancialEntry {
   referenceMonth: string;
   paymentDate?: string;
   observations?: string;
+}
+
+interface Transaction {
+  id: number;
+  description: string;
+  value: number;
+  type: 'receita' | 'despesa';
+  category: string;
+  date: string;
+  status: string;
 }
 
 const mockFinancialEntries: FinancialEntry[] = [
@@ -55,7 +67,75 @@ const mockFinancialEntries: FinancialEntry[] = [
   }
 ];
 
+const mockTransactions: Transaction[] = [
+  {
+    id: 1,
+    description: 'Pagamento Tech Innovations',
+    value: 5000,
+    type: 'receita',
+    category: 'Serviços',
+    date: '2024-01-05',
+    status: 'Confirmado'
+  },
+  {
+    id: 2,
+    description: 'Pagamento Startup XYZ',
+    value: 8000,
+    type: 'receita',
+    category: 'Serviços',
+    date: '2024-01-10',
+    status: 'Confirmado'
+  },
+  {
+    id: 3,
+    description: 'Aluguel escritório',
+    value: 2500,
+    type: 'despesa',
+    category: 'Infraestrutura',
+    date: '2024-01-01',
+    status: 'Pago'
+  },
+  {
+    id: 4,
+    description: 'Software e ferramentas',
+    value: 800,
+    type: 'despesa',
+    category: 'Tecnologia',
+    date: '2024-01-15',
+    status: 'Pago'
+  }
+];
+
+const mockExpenses = [
+  {
+    id: 1,
+    description: 'Aluguel escritório',
+    value: 2500,
+    category: 'Infraestrutura',
+    date: '2024-01-01',
+    status: 'Pago'
+  },
+  {
+    id: 2,
+    description: 'Software e ferramentas',
+    value: 800,
+    category: 'Tecnologia',
+    date: '2024-01-15',
+    status: 'Pago'
+  },
+  {
+    id: 3,
+    description: 'Marketing digital',
+    value: 1200,
+    category: 'Marketing',
+    date: '2024-01-20',
+    status: 'Pendente'
+  }
+];
+
 export default function Financial() {
+  const [transactions] = useState<Transaction[]>(mockTransactions);
+
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
       case 'paid':
@@ -107,56 +187,8 @@ export default function Financial() {
         </Button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalPaid)}</p>
-              <p className="text-goat-gray-400 text-sm">Faturado no Mês</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalPending)}</p>
-              <p className="text-goat-gray-400 text-sm">Em Aberto</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-red-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalOverdue)}</p>
-              <p className="text-goat-gray-400 text-sm">Em Atraso</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-goat-purple" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(totalPaid + totalPending + totalOverdue)}</p>
-              <p className="text-goat-gray-400 text-sm">Total do Mês</p>
-            </div>
-          </div>
-        </Card>
-      </div>
+      {/* Financial KPIs */}
+      <FinancialKPIs transactions={transactions} />
 
       {/* Overdue Alerts */}
       {overdueEntries.length > 0 && (
@@ -246,6 +278,45 @@ export default function Financial() {
               </div>
             </div>
           ))}
+        </div>
+      </Card>
+
+      {/* Despesas Card */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingDown className="w-5 h-5 text-red-400" />
+          <h3 className="text-lg font-semibold text-white">Despesas do Mês</h3>
+        </div>
+        
+        <div className="space-y-3">
+          {mockExpenses.map((expense) => (
+            <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+              <div className="flex-1">
+                <p className="text-white font-medium">{expense.description}</p>
+                <p className="text-goat-gray-400 text-sm">{expense.category} • {formatDate(expense.date)}</p>
+              </div>
+              <div className="text-right flex items-center gap-3">
+                <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
+                <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
+                  {expense.status}
+                </Badge>
+              </div>
+            </div>
+          ))}
+          
+          <div className="pt-3 border-t border-goat-gray-700">
+            <div className="flex items-center justify-between">
+              <p className="text-goat-gray-400">Total de Despesas:</p>
+              <p className="text-red-400 font-bold text-xl">
+                {formatCurrency(mockExpenses.reduce((sum, expense) => sum + expense.value, 0))}
+              </p>
+            </div>
+          </div>
+          
+          <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Despesa
+          </Button>
         </div>
       </Card>
 
