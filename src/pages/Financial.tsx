@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
+import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 
 interface FinancialEntry {
   id: string;
@@ -134,6 +135,52 @@ const initialExpenses = [
     date: '2024-01-20',
     status: 'Pendente',
     isRecurring: false
+  }
+];
+
+// Dados de exemplo para contratos com duração específica
+const contractProjections = [
+  {
+    clientName: 'Tech Innovations',
+    monthlyValue: 5000,
+    duration: 12,
+    startMonth: '2024-01'
+  },
+  {
+    clientName: 'E-commerce Plus',
+    monthlyValue: 3000,
+    duration: 6,
+    startMonth: '2024-02'
+  },
+  {
+    clientName: 'Startup XYZ',
+    monthlyValue: 8000,
+    duration: 18,
+    startMonth: '2024-01'
+  },
+  {
+    clientName: 'Consultoria Pro',
+    monthlyValue: 4500,
+    duration: 8,
+    startMonth: '2024-03'
+  },
+  {
+    clientName: 'Marketing Digital',
+    monthlyValue: 6000,
+    duration: 12,
+    startMonth: '2024-01'
+  },
+  {
+    clientName: 'Novo Cliente A',
+    monthlyValue: 2500,
+    duration: 4,
+    startMonth: '2024-04'
+  },
+  {
+    clientName: 'Novo Cliente B',
+    monthlyValue: 7000,
+    duration: 10,
+    startMonth: '2024-05'
   }
 ];
 
@@ -394,30 +441,8 @@ export default function Financial() {
         </div>
       </Card>
 
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-goat-purple" />
-          <h3 className="text-lg font-semibold text-white">Projeção de Faturamento</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-            <p className="text-goat-gray-400 text-sm">Fevereiro 2024</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(26500)}</p>
-            <p className="text-green-400 text-sm">+5% vs mês anterior</p>
-          </div>
-          <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-            <p className="text-goat-gray-400 text-sm">Março 2024</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(28000)}</p>
-            <p className="text-green-400 text-sm">+6% vs mês anterior</p>
-          </div>
-          <div className="p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-            <p className="text-goat-gray-400 text-sm">Abril 2024</p>
-            <p className="text-2xl font-bold text-white">{formatCurrency(29500)}</p>
-            <p className="text-green-400 text-sm">+5% vs mês anterior</p>
-          </div>
-        </div>
-      </Card>
+      {/* Substitui o card de Projeção de Faturamento existente pelo novo gráfico */}
+      <ProjectionChart contracts={contractProjections} />
     </div>
   );
 }
