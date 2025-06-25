@@ -24,7 +24,7 @@ const mockContracts: Contract[] = [
     type: 'Marketing Digital Completo',
     monthlyValue: 5000,
     startDate: '2024-01-01',
-    endDate: '2024-12-31',
+    endDate: '2026-12-31',
     status: 'active'
   },
   {
