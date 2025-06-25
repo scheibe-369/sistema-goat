@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card } from "@/components/ui/card";
@@ -74,8 +73,12 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
         const month = date.getMonth() + 1;
         const key = `${year}-${String(month).padStart(2, '0')}`;
         
+        // Alteração para formatar apenas o nome do mês
+        const monthName = date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+        const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        
         chartData.push({
-          name: date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).replace('.', ''), // Ex: jul/25
+          name: capitalizedMonth, // Ex: Jun, Jul, Ago...
           Projeção: monthlyProjections[key] || 0,
         });
       }
