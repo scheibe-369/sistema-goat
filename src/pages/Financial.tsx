@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 
@@ -145,6 +145,16 @@ export default function Financial() {
     setExpenses(prev => [...prev, newExpense]);
   };
 
+  const handleToggleExpenseStatus = (expenseId: number) => {
+    setExpenses(prev => 
+      prev.map(expense => 
+        expense.id === expenseId 
+          ? { ...expense, status: expense.status === 'Pago' ? 'Pendente' : 'Pago' }
+          : expense
+      )
+    );
+  };
+
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
       case 'paid':
@@ -285,7 +295,7 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card - Updated Layout */}
+      {/* Despesas Card - 5 Column Layout */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -298,7 +308,7 @@ export default function Financial() {
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-              <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+              <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                 {/* Coluna 1: Descrição */}
                 <div>
                   <p className="text-white font-medium">{expense.description}</p>
@@ -322,11 +332,27 @@ export default function Financial() {
                 </div>
                 
                 {/* Coluna 4: Valor e Status */}
-                <div className="text-right">
+                <div className="text-center">
                   <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
                   <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
                     {expense.status}
                   </Badge>
+                </div>
+
+                {/* Coluna 5: Botão de Confirmação */}
+                <div className="flex justify-center">
+                  <Button
+                    size="sm"
+                    variant={expense.status === 'Pago' ? 'outline' : 'default'}
+                    className={expense.status === 'Pago' 
+                      ? 'border-green-600 text-green-400 hover:bg-green-900/20' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                    }
+                    onClick={() => handleToggleExpenseStatus(expense.id)}
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    {expense.status === 'Pago' ? 'Pago' : 'Confirmar'}
+                  </Button>
                 </div>
               </div>
             </div>
