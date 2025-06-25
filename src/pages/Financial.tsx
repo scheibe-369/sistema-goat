@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
+// O ícone 'Plus' foi removido das importações pois o botão que o usava foi removido
+import { DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat, Check, Trash2 } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 import { ProjectionChart } from "@/components/Financial/ProjectionChart";
@@ -266,10 +267,7 @@ export default function Financial() {
           <h1 className="text-3xl font-bold text-white mb-2">Financeiro</h1>
           <p className="text-goat-gray-400">Controle de faturamento e recebimentos</p>
         </div>
-        <Button className="btn-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Lançamento
-        </Button>
+        {/* O BOTÃO FOI REMOVIDO DESTA ÁREA */}
       </div>
 
       {/* Financial KPIs */}
