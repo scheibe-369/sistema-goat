@@ -299,7 +299,7 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card - 6 Column Layout */}
+      {/* Despesas Card - 5 Column Layout */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -312,7 +312,7 @@ export default function Financial() {
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-              <div className="flex-1 grid grid-cols-6 gap-4 items-center">
+              <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                 {/* Coluna 1: Descrição */}
                 <div>
                   <p className="text-white font-medium">{expense.description}</p>
@@ -343,8 +343,8 @@ export default function Financial() {
                   </Badge>
                 </div>
 
-                {/* Coluna 5: Botão de Confirmação - Verde */}
-                <div className="flex justify-center">
+                {/* Coluna 5: Botões de Ação (Confirmar e Excluir lado a lado) */}
+                <div className="flex justify-center gap-2">
                   <Button
                     size="sm"
                     className='bg-green-600 hover:bg-green-700 text-white'
@@ -353,10 +353,7 @@ export default function Financial() {
                     <Check className="w-4 h-4 mr-1" />
                     {expense.status === 'Pago' ? 'Pago' : 'Confirmar'}
                   </Button>
-                </div>
-
-                {/* Coluna 6: Botão de Excluir - Vermelho */}
-                <div className="flex justify-center">
+                  
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white"
