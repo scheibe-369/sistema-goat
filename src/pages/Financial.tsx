@@ -343,15 +343,11 @@ export default function Financial() {
                   </Badge>
                 </div>
 
-                {/* Coluna 5: Botão de Confirmação */}
+                {/* Coluna 5: Botão de Confirmação - Verde */}
                 <div className="flex justify-center">
                   <Button
                     size="sm"
-                    variant={expense.status === 'Pago' ? 'outline' : 'default'}
-                    className={expense.status === 'Pago' 
-                      ? 'border-green-600 text-green-400 hover:bg-green-900/20' 
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                    }
+                    className='bg-green-600 hover:bg-green-700 text-white'
                     onClick={() => handleToggleExpenseStatus(expense.id)}
                   >
                     <Check className="w-4 h-4 mr-1" />
@@ -359,15 +355,15 @@ export default function Financial() {
                   </Button>
                 </div>
 
-                {/* Coluna 6: Botão de Excluir */}
+                {/* Coluna 6: Botão de Excluir - Vermelho */}
                 <div className="flex justify-center">
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="border-red-600 text-red-400 hover:bg-red-900/20"
+                    className="bg-red-600 hover:bg-red-700 text-white"
                     onClick={() => handleDeleteExpense(expense.id)}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Excluir
                   </Button>
                 </div>
               </div>
