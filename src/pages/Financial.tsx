@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
+import { ExpenseModal } from "@/components/Financial/ExpenseModal";
+import { RecurringExpenseModal } from "@/components/Financial/RecurringExpenseModal";
 
 interface FinancialEntry {
   id: string;
@@ -105,14 +107,16 @@ const mockTransactions: Transaction[] = [
   }
 ];
 
-const mockExpenses = [
+const initialExpenses = [
   {
     id: 1,
     description: 'Aluguel escritório',
     value: 2500,
     category: 'Infraestrutura',
     date: '2024-01-01',
-    status: 'Pago'
+    status: 'Pago',
+    isRecurring: true,
+    recurrence: 'monthly'
   },
   {
     id: 2,
@@ -120,7 +124,8 @@ const mockExpenses = [
     value: 800,
     category: 'Tecnologia',
     date: '2024-01-15',
-    status: 'Pago'
+    status: 'Pago',
+    isRecurring: false
   },
   {
     id: 3,
@@ -128,12 +133,18 @@ const mockExpenses = [
     value: 1200,
     category: 'Marketing',
     date: '2024-01-20',
-    status: 'Pendente'
+    status: 'Pendente',
+    isRecurring: false
   }
 ];
 
 export default function Financial() {
   const [transactions] = useState<Transaction[]>(mockTransactions);
+  const [expenses, setExpenses] = useState(initialExpenses);
+
+  const handleAddExpense = (newExpense: any) => {
+    setExpenses(prev => [...prev, newExpense]);
+  };
 
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
@@ -189,7 +200,6 @@ export default function Financial() {
       {/* Financial KPIs */}
       <FinancialKPIs transactions={transactions} />
 
-      {/* Overdue Alerts */}
       {overdueEntries.length > 0 && (
         <Card className="bg-red-900/20 border-red-600 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -218,7 +228,6 @@ export default function Financial() {
         </Card>
       )}
 
-      {/* Financial Entries List */}
       <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700">
           <div className="flex items-center justify-between">
@@ -277,18 +286,32 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card */}
+      {/* Despesas Card - Updated */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingDown className="w-5 h-5 text-red-400" />
-          <h3 className="text-lg font-semibold text-white">Despesas do Mês</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingDown className="w-5 h-5 text-red-400" />
+            <h3 className="text-lg font-semibold text-white">Despesas do Mês</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <RecurringExpenseModal onAddExpense={handleAddExpense} />
+            <ExpenseModal onAddExpense={handleAddExpense} />
+          </div>
         </div>
         
         <div className="space-y-3">
-          {mockExpenses.map((expense) => (
+          {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1">
-                <p className="text-white font-medium">{expense.description}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-medium">{expense.description}</p>
+                  {expense.isRecurring && (
+                    <Badge className="bg-orange-600 text-white text-xs">
+                      <Repeat className="w-3 h-3 mr-1" />
+                      Recorrente
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-goat-gray-400 text-sm">{expense.category} • {formatDate(expense.date)}</p>
               </div>
               <div className="text-right flex items-center gap-3">
@@ -304,19 +327,13 @@ export default function Financial() {
             <div className="flex items-center justify-between">
               <p className="text-goat-gray-400">Total de Despesas:</p>
               <p className="text-red-400 font-bold text-xl">
-                {formatCurrency(mockExpenses.reduce((sum, expense) => sum + expense.value, 0))}
+                {formatCurrency(expenses.reduce((sum, expense) => sum + expense.value, 0))}
               </p>
             </div>
           </div>
-          
-          <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Despesa
-          </Button>
         </div>
       </Card>
 
-      {/* Revenue Projection */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-goat-purple" />
