@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// O ícone 'Edit' não é mais necessário
 import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react"; 
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
@@ -107,9 +106,11 @@ export default function Contracts() {
     }
   };
 
-  const handleDeleteContract = (contractId: string) => {
-    setContracts(contracts.filter(contract => contract.id !== contractId));
-    setDeletingContract(null);
+  const handleConfirmCancel = () => {
+    if (deletingContract) {
+      setContracts(contracts.filter(contract => contract.id !== deletingContract.id));
+      setDeletingContract(null);
+    }
   };
 
   const activeContracts = contracts.filter(c => c.status === 'active');
@@ -217,9 +218,7 @@ export default function Contracts() {
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-2 ml-6">
-                  {/* Botão de Editar foi removido daqui */}
                   <Button
                     size="sm"
                     onClick={() => setDeletingContract(contract)}
@@ -245,7 +244,7 @@ export default function Contracts() {
         isOpen={!!deletingContract}
         contract={deletingContract}
         onClose={() => setDeletingContract(null)}
-        onConfirm={() => deletingContract && handleDeleteContract(deletingContract.id)}
+        onConfirm={handleConfirmCancel}
       />
     </div>
   );
