@@ -225,7 +225,7 @@ export default function Contracts() {
                     variant="outline" 
                     size="sm" 
                     onClick={() => setEditingContract(contract)}
-                    className="text-goat-purple border-goat-purple hover:bg-goat-purple hover:text-white transition-colors"
+                    className="bg-goat-purple text-white border-goat-purple hover:bg-goat-purple/80 transition-colors"
                   >
                     <Edit className="w-4 h-4 mr-1" />
                     Editar
@@ -234,7 +234,7 @@ export default function Contracts() {
                     variant="outline" 
                     size="sm" 
                     onClick={() => setDeletingContract(contract)}
-                    className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                    className="bg-red-600 text-white border-red-600 hover:bg-red-700 transition-colors"
                   >
                     <Trash2 className="w-4 h-4 mr-1" />
                     Excluir
