@@ -285,7 +285,7 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card - Updated */}
+      {/* Despesas Card - Updated Layout */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -298,9 +298,21 @@ export default function Financial() {
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
+              <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                {/* Coluna 1: Descrição */}
+                <div>
                   <p className="text-white font-medium">{expense.description}</p>
+                  <p className="text-goat-gray-400 text-sm">{expense.category}</p>
+                </div>
+                
+                {/* Coluna 2: Data */}
+                <div>
+                  <p className="text-goat-gray-400 text-sm">Data</p>
+                  <p className="text-white text-sm">{formatDate(expense.date)}</p>
+                </div>
+                
+                {/* Coluna 3: Tag Recorrente (centralizada) */}
+                <div className="flex justify-center">
                   {expense.isRecurring && (
                     <Badge className="bg-orange-600 text-white text-xs">
                       <Repeat className="w-3 h-3 mr-1" />
@@ -308,13 +320,14 @@ export default function Financial() {
                     </Badge>
                   )}
                 </div>
-                <p className="text-goat-gray-400 text-sm">{expense.category} • {formatDate(expense.date)}</p>
-              </div>
-              <div className="text-right flex items-center gap-3">
-                <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
-                <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
-                  {expense.status}
-                </Badge>
+                
+                {/* Coluna 4: Valor e Status */}
+                <div className="text-right">
+                  <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
+                  <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
+                    {expense.status}
+                  </Badge>
+                </div>
               </div>
             </div>
           ))}
