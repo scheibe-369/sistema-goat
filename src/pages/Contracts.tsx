@@ -1,9 +1,12 @@
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { FileText, Calendar, DollarSign, AlertTriangle, Edit, Trash2 } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
+import { EditContractModal } from "@/components/Contracts/EditContractModal";
+import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
 
 interface Contract {
   id: string;
@@ -55,6 +58,10 @@ const mockContracts: Contract[] = [
 ];
 
 export default function Contracts() {
+  const [contracts, setContracts] = useState<Contract[]>(mockContracts);
+  const [editingContract, setEditingContract] = useState<Contract | null>(null);
+  const [deletingContract, setDeletingContract] = useState<Contract | null>(null);
+
   const getStatusBadge = (status: Contract['status']) => {
     switch (status) {
       case 'active':
@@ -87,10 +94,25 @@ export default function Contracts() {
     return diffDays;
   };
 
-  const activeContracts = mockContracts.filter(c => c.status === 'active');
-  const expiringContracts = mockContracts.filter(c => c.status === 'expiring');
-  const inactiveContracts = mockContracts.filter(c => c.status === 'inactive');
-  const totalMonthlyRevenue = activeContracts.reduce((sum, contract) => sum + contract.monthlyValue, 0);
+  const handleEditContract = (contractData: Omit<Contract, 'id'>) => {
+    if (editingContract) {
+      setContracts(contracts.map(contract => 
+        contract.id === editingContract.id 
+          ? { ...contractData, id: editingContract.id }
+          : contract
+      ));
+      setEditingContract(null);
+    }
+  };
+
+  const handleDeleteContract = (contractId: string) => {
+    setContracts(contracts.filter(contract => contract.id !== contractId));
+    setDeletingContract(null);
+  };
+
+  const activeContracts = contracts.filter(c => c.status === 'active');
+  const expiringContracts = contracts.filter(c => c.status === 'expiring');
+  const inactiveContracts = contracts.filter(c => c.status === 'inactive');
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -169,7 +191,7 @@ export default function Contracts() {
         </div>
 
         <div className="divide-y divide-goat-gray-700">
-          {mockContracts.map((contract) => (
+          {contracts.map((contract) => (
             <div key={contract.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -199,11 +221,23 @@ export default function Contracts() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-6">
-                  <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setEditingContract(contract)}
+                    className="text-goat-purple border-goat-purple hover:bg-goat-purple hover:text-white transition-colors"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
                     Editar
                   </Button>
-                  <Button variant="outline" size="sm" className="text-red-400 border-red-800 hover:bg-red-900/20">
-                    Cancelar
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setDeletingContract(contract)}
+                    className="text-red-400 border-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Excluir
                   </Button>
                 </div>
               </div>
@@ -211,6 +245,21 @@ export default function Contracts() {
           ))}
         </div>
       </Card>
+
+      {/* Modals */}
+      <EditContractModal 
+        isOpen={!!editingContract}
+        contract={editingContract}
+        onClose={() => setEditingContract(null)}
+        onSave={handleEditContract}
+      />
+
+      <DeleteContractDialog
+        isOpen={!!deletingContract}
+        contract={deletingContract}
+        onClose={() => setDeletingContract(null)}
+        onConfirm={() => deletingContract && handleDeleteContract(deletingContract.id)}
+      />
     </div>
   );
 }
