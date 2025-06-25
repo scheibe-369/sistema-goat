@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, DollarSign, TrendingUp, AlertCircle, Calendar, TrendingDown, Repeat } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
-import { RecurringExpenseModal } from "@/components/Financial/RecurringExpenseModal";
 
 interface FinancialEntry {
   id: string;
@@ -293,10 +292,7 @@ export default function Financial() {
             <TrendingDown className="w-5 h-5 text-red-400" />
             <h3 className="text-lg font-semibold text-white">Despesas do Mês</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <RecurringExpenseModal onAddExpense={handleAddExpense} />
-            <ExpenseModal onAddExpense={handleAddExpense} />
-          </div>
+          <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
         
         <div className="space-y-3">

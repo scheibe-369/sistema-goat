@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus } from "lucide-react";
 
 interface ExpenseModalProps {
@@ -17,7 +18,9 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     description: '',
     value: '',
     category: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    isRecurring: false,
+    recurrence: 'monthly'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -30,7 +33,8 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       category: formData.category,
       date: formData.date,
       status: 'Pendente',
-      isRecurring: false
+      isRecurring: formData.isRecurring,
+      recurrence: formData.isRecurring ? formData.recurrence : undefined
     };
 
     onAddExpense(expense);
@@ -39,7 +43,9 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: '',
       value: '',
       category: '',
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split('T')[0],
+      isRecurring: false,
+      recurrence: 'monthly'
     });
   };
 
@@ -107,6 +113,32 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               required
             />
           </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isRecurring"
+              checked={formData.isRecurring}
+              onCheckedChange={(checked) => setFormData({...formData, isRecurring: checked as boolean})}
+            />
+            <Label htmlFor="isRecurring" className="text-white">Despesa recorrente</Label>
+          </div>
+
+          {formData.isRecurring && (
+            <div>
+              <Label htmlFor="recurrence" className="text-white">Recorrência</Label>
+              <Select value={formData.recurrence} onValueChange={(value) => setFormData({...formData, recurrence: value})}>
+                <SelectTrigger className="bg-goat-gray-900 border-goat-gray-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-goat-gray-800 border-goat-gray-600">
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="monthly">Mensal</SelectItem>
+                  <SelectItem value="quarterly">Trimestral</SelectItem>
+                  <SelectItem value="yearly">Anual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           
           <div className="flex gap-2 pt-4">
             <Button type="submit" className="flex-1 bg-red-600 hover:bg-red-700 text-white">
