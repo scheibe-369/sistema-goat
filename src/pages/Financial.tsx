@@ -277,10 +277,8 @@ export default function Financial() {
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                 {/* Coluna 1: Cliente e Status */}
                 <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h4 className="text-white font-medium">{entry.client}</h4>
-                    {getStatusBadge(entry.status)}
-                  </div>
+                  <h4 className="text-white font-medium mb-1">{entry.client}</h4>
+                  {getStatusBadge(entry.status)}
                 </div>
                 
                 {/* Coluna 2: Valor */}
@@ -309,7 +307,7 @@ export default function Financial() {
                       className="bg-green-600 hover:bg-green-700 text-white w-32"
                       onClick={() => handleTogglePaymentStatus(entry.id)}
                     >
-                      {entry.status === 'paid' ? 'Pago' : 'Marcar como Pago'}
+                      {entry.status === 'paid' ? 'Pago' : 'Confirmar'}
                     </Button>
                   )}
                 </div>
