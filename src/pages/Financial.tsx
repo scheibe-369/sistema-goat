@@ -23,8 +23,8 @@ interface FinancialEntry {
   referenceMonth: string; // Formato 'YYYY-MM'
   paymentDate?: string;
   observations?: string;
-  isRecurring: boolean; // Adicionado
-  recurrence?: 'Mensal';   // Adicionado
+  isRecurring: boolean;
+  recurrence?: 'Mensal';
 }
 
 interface Transaction {
@@ -57,8 +57,8 @@ const mockFinancialEntries: FinancialEntry[] = [
     status: 'paid',
     referenceMonth: '2024-01',
     paymentDate: '2024-01-05',
-    isRecurring: true, // Adicionado
-    recurrence: 'Mensal' // Adicionado
+    isRecurring: true,
+    recurrence: 'Mensal'
   },
   {
     id: '2',
@@ -67,8 +67,8 @@ const mockFinancialEntries: FinancialEntry[] = [
     status: 'overdue',
     referenceMonth: '2024-01',
     observations: 'Cliente comunicou dificuldade financeira',
-    isRecurring: true, // Adicionado
-    recurrence: 'Mensal' // Adicionado
+    isRecurring: true,
+    recurrence: 'Mensal'
   },
   {
     id: '3',
@@ -77,8 +77,8 @@ const mockFinancialEntries: FinancialEntry[] = [
     status: 'paid',
     referenceMonth: '2024-01',
     paymentDate: '2024-01-10',
-    isRecurring: true, // Adicionado
-    recurrence: 'Mensal' // Adicionado
+    isRecurring: true,
+    recurrence: 'Mensal'
   },
   {
     id: '4',
@@ -86,7 +86,7 @@ const mockFinancialEntries: FinancialEntry[] = [
     monthlyValue: 4500,
     status: 'pending',
     referenceMonth: '2024-01',
-    isRecurring: false // Adicionado
+    isRecurring: false
   },
   {
     id: '5',
@@ -94,8 +94,8 @@ const mockFinancialEntries: FinancialEntry[] = [
     monthlyValue: 6000,
     status: 'pending',
     referenceMonth: '2024-01',
-    isRecurring: true, // Adicionado
-    recurrence: 'Mensal' // Adicionado
+    isRecurring: true,
+    recurrence: 'Mensal'
   }
 ];
 
@@ -113,7 +113,6 @@ const initialExpenses: Expense[] = [
     {id: 4, description: 'Café e lanches', value: 300, category: 'Escritório', date: '2025-06-25', status: 'Pendente', isRecurring: false}
 ];
 
-// Dados de contratos com duração, usados para checar o fim do contrato
 const contractProjections = [
   { clientName: 'Tech Innovations', monthlyValue: 5000, durationInMonths: 12, startMonth: '2024-01' },
   { clientName: 'E-commerce Plus', monthlyValue: 3000, durationInMonths: 6, startMonth: '2024-01' },
@@ -198,7 +197,11 @@ export default function Financial() {
 
       if (entryToUpdate.isRecurring) {
         const contract = contractProjections.find(c => c.clientName === entryToUpdate.client);
-        if (!contract) return;
+        if (!contract) {
+            console.warn(`Contrato não encontrado para o cliente: ${entryToUpdate.client}`);
+            setFinancialEntries(updatedEntries);
+            return;
+        };
 
         const nextMonth = calculateNextMonth(entryToUpdate.referenceMonth);
         const startDate = parse(contract.startMonth, 'yyyy-MM', new Date());
