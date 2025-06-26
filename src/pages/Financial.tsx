@@ -40,7 +40,7 @@ interface Expense {
   description: string;
   value: number;
   category: string;
-  date: string;
+  date: string; 
   status: 'Pago' | 'Pendente';
   isRecurring: boolean;
   recurrence?: 'Semanal' | 'Mensal' | 'Semestral' | 'Anual';
@@ -86,7 +86,6 @@ export default function Financial() {
   const [transactions] = useState<Transaction[]>(mockTransactions);
   const [expenses, setExpenses] = useState(initialExpenses);
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>(mockFinancialEntries);
-
   const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
 
   // ==================================================================
@@ -115,15 +114,15 @@ export default function Financial() {
       };
 
       setExpenses(prev =>
-        ([
+        [
           ...prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp),
           newRecurringExpense
-        ]).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       );
 
     } else if (!expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
       setExpenses(prev => prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp));
-
+      
     } else if (expenseToUpdate.status === 'Pago') {
       if (expenseToUpdate.isRecurring) {
         alert("Não é possível reverter o status de uma despesa recorrente que já gerou a próxima cobrança.");
@@ -142,8 +141,8 @@ export default function Financial() {
     if (!entryToUpdate) return;
 
     if (entryToUpdate.status === 'pending' || entryToUpdate.status === 'overdue') {
-      const updatedEntries = financialEntries.map(e =>
-        e.id === entryId
+      const updatedEntries = financialEntries.map(e => 
+        e.id === entryId 
         ? { ...e, status: 'paid' as const, paymentDate: new Date().toISOString().split('T')[0] }
         : e
       );
@@ -175,11 +174,11 @@ export default function Financial() {
           return;
         }
       }
-
+      
       setFinancialEntries(updatedEntries);
 
     } else if (entryToUpdate.status === 'paid') {
-      const nextEntryExists = financialEntries.find(e =>
+      const nextEntryExists = financialEntries.find(e => 
         e.client === entryToUpdate.client && e.referenceMonth > entryToUpdate.referenceMonth
       );
       if (nextEntryExists) {
@@ -187,12 +186,12 @@ export default function Financial() {
         return;
       }
 
-      setFinancialEntries(prev => prev.map(e =>
+      setFinancialEntries(prev => prev.map(e => 
         e.id === entryId ? { ...e, status: 'pending' as const, paymentDate: undefined } : e
       ));
     }
   };
-
+  
   // ==================================================================
   // FUNÇÕES AUXILIARES
   // ==================================================================
@@ -250,13 +249,13 @@ export default function Financial() {
   const overdueEntries = financialEntries.filter(e => e.status === 'overdue');
 
   const filteredFinancialEntries = financialEntries.filter(entry => {
-    const statusFilter = activeStatusFilter === 'all'
+    const statusFilter = activeStatusFilter === 'all' 
       || (activeStatusFilter === 'pending' && (entry.status === 'pending' || entry.status === 'overdue'))
       || (entry.status === activeStatusFilter);
-
+    
     return statusFilter;
   });
-
+  
   // ==================================================================
   // RENDERIZAÇÃO JSX
   // ==================================================================
@@ -326,9 +325,9 @@ export default function Financial() {
                 size="sm"
                 onClick={() => setActiveStatusFilter('all')}
                 className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
-                  activeStatusFilter === 'all'
-                    ? 'bg-primary text-white hover:bg-primary/90'
-                    : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                  activeStatusFilter === 'all' 
+                  ? 'bg-primary text-white hover:bg-primary/90' 
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
                 }`}
               >
                 Todos
@@ -337,9 +336,9 @@ export default function Financial() {
                 size="sm"
                 onClick={() => setActiveStatusFilter('pending')}
                 className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
-                  activeStatusFilter === 'pending'
-                    ? 'bg-primary text-white hover:bg-primary/90'
-                    : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                  activeStatusFilter === 'pending' 
+                  ? 'bg-primary text-white hover:bg-primary/90'
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
                 }`}
               >
                 Em Aberto
@@ -348,9 +347,9 @@ export default function Financial() {
                 size="sm"
                 onClick={() => setActiveStatusFilter('paid')}
                 className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
-                  activeStatusFilter === 'paid'
-                    ? 'bg-primary text-white hover:bg-primary/90'
-                    : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                  activeStatusFilter === 'paid' 
+                  ? 'bg-primary text-white hover:bg-primary/90'
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
                 }`}
               >
                 Pagos
@@ -391,8 +390,7 @@ export default function Financial() {
                   ) : (
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="bg-green-600 text-white hover:bg-green-700 w-32"
+                      className="w-32 bg-green-600 text-white hover:bg-green-700 focus:outline-none"
                       onClick={() => handleTogglePaymentStatus(entry.id)}
                     >
                       Pago
@@ -413,7 +411,7 @@ export default function Financial() {
           </div>
           <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
-
+        
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
@@ -449,7 +447,7 @@ export default function Financial() {
                   >
                     {expense.status === 'Pago' ? 'Pago' : 'Pagar'}
                   </Button>
-
+                
                   <Button
                     size="sm"
                     className="bg-red-600 hover:bg-red-700 text-white w-20"
@@ -461,7 +459,7 @@ export default function Financial() {
               </div>
             </div>
           ))}
-
+        
           <div className="pt-3 border-t border-goat-gray-700">
             <div className="flex items-center justify-between">
               <p className="text-goat-gray-400">Total de Despesas Pendentes:</p>
