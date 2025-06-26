@@ -43,7 +43,8 @@ export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag"
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600"
+            className="w-full justify-between text-white hover:text-white"
+            style={{ backgroundColor: '#404040', borderColor: '#525252' }}
           >
             <div className="flex items-center gap-2">
               <div className={`w-4 h-4 rounded-full ${selectedColor.split(' ')[0]}`} />
@@ -51,7 +52,10 @@ export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag"
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-4 bg-goat-gray-800 border-goat-gray-700">
+        <PopoverContent 
+          className="w-64 p-4 border-goat-gray-700"
+          style={{ backgroundColor: '#404040' }}
+        >
           <div className="grid grid-cols-5 gap-2">
             {predefinedColors.map((color) => (
               <Button

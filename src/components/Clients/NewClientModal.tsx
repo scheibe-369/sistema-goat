@@ -234,6 +234,7 @@ export function NewClientModal({
               
               .dropdown-trigger:hover {
                 background-color: #404040 !important;
+                color: white !important;
               }
               
               .dropdown-content {
@@ -372,12 +373,12 @@ export function NewClientModal({
                         className="bg-goat-purple/20 hover:bg-goat-purple/30 text-white border-goat-purple/50 h-6 px-2 text-xs"
                         onClick={() => setShowAddPlan(!showAddPlan)}
                       >
-                        <Plus className="w-3 h-3 mr-1" /> Novo
+                        <Plus className="w-3 h-3 mr-1" /> <span className="text-white">Novo</span>
                       </Button>
                     </Label>
 
                     {showAddPlan && (
-                      <div className="space-y-4 p-4 bg-goat-gray-600 rounded-lg border border-goat-gray-500">
+                      <div className="space-y-4 p-4 rounded-lg border border-goat-gray-500" style={{ backgroundColor: '#404040' }}>
                         <div className="space-y-2">
                           <Input
                             value={newPlanName}
