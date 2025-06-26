@@ -254,7 +254,7 @@ export function EditClientModal({
               }
               
               .dropdown-content {
-                background-color: #262626 !important;
+                background-color: #404040 !important;
                 border-color: #525252 !important;
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
@@ -394,7 +394,7 @@ export function EditClientModal({
                     </Label>
 
                     {showAddPlan && (
-                      <div className="space-y-4 p-4 rounded-lg border border-goat-gray-500" style={{ backgroundColor: '#404040' }}>
+                      <div className="space-y-4 p-4 rounded-lg border border-goat-gray-500" style={{ backgroundColor: '#262626' }}>
                         <div className="space-y-2">
                           <Input
                             value={newPlanName}
