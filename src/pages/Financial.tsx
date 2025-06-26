@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { addWeeks, addMonths, addYears } from 'date-fns';
+// Importações do date-fns atualizadas
+import { addMonths, parse, format } from 'date-fns';
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,14 +14,17 @@ import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 // INTERFACES E DADOS
 // ==================================================================
 
+// 1. INTERFACE FinancialEntry ATUALIZADA para incluir recorrência
 interface FinancialEntry {
   id: string;
   client: string;
   monthlyValue: number;
   status: 'paid' | 'pending' | 'overdue';
-  referenceMonth: string;
+  referenceMonth: string; // Formato 'YYYY-MM'
   paymentDate?: string;
   observations?: string;
+  isRecurring: boolean; // Adicionado
+  recurrence?: 'Mensal';   // Adicionado
 }
 
 interface Transaction {
@@ -44,6 +48,7 @@ interface Expense {
   recurrence?: 'Semanal' | 'Mensal' | 'Semestral' | 'Anual';
 }
 
+// DADOS MOCKADOS ORIGINAIS, AGORA COM OS NOVOS CAMPOS
 const mockFinancialEntries: FinancialEntry[] = [
   {
     id: '1',
@@ -51,7 +56,9 @@ const mockFinancialEntries: FinancialEntry[] = [
     monthlyValue: 5000,
     status: 'paid',
     referenceMonth: '2024-01',
-    paymentDate: '2024-01-05'
+    paymentDate: '2024-01-05',
+    isRecurring: true, // Adicionado
+    recurrence: 'Mensal' // Adicionado
   },
   {
     id: '2',
@@ -59,7 +66,9 @@ const mockFinancialEntries: FinancialEntry[] = [
     monthlyValue: 3000,
     status: 'overdue',
     referenceMonth: '2024-01',
-    observations: 'Cliente comunicou dificuldade financeira'
+    observations: 'Cliente comunicou dificuldade financeira',
+    isRecurring: true, // Adicionado
+    recurrence: 'Mensal' // Adicionado
   },
   {
     id: '3',
@@ -67,148 +76,52 @@ const mockFinancialEntries: FinancialEntry[] = [
     monthlyValue: 8000,
     status: 'paid',
     referenceMonth: '2024-01',
-    paymentDate: '2024-01-10'
+    paymentDate: '2024-01-10',
+    isRecurring: true, // Adicionado
+    recurrence: 'Mensal' // Adicionado
   },
   {
     id: '4',
     client: 'Consultoria Pro',
     monthlyValue: 4500,
     status: 'pending',
-    referenceMonth: '2024-01'
+    referenceMonth: '2024-01',
+    isRecurring: false // Adicionado
   },
   {
     id: '5',
     client: 'Marketing Digital',
     monthlyValue: 6000,
     status: 'pending',
-    referenceMonth: '2024-01'
+    referenceMonth: '2024-01',
+    isRecurring: true, // Adicionado
+    recurrence: 'Mensal' // Adicionado
   }
 ];
 
 const mockTransactions: Transaction[] = [
-  {
-    id: 1,
-    description: 'Pagamento Tech Innovations',
-    value: 5000,
-    type: 'receita',
-    category: 'Serviços',
-    date: '2024-01-05',
-    status: 'Confirmado'
-  },
-  {
-    id: 2,
-    description: 'Pagamento Startup XYZ',
-    value: 8000,
-    type: 'receita',
-    category: 'Serviços',
-    date: '2024-01-10',
-    status: 'Confirmado'
-  },
-  {
-    id: 3,
-    description: 'Aluguel escritório',
-    value: 2500,
-    type: 'despesa',
-    category: 'Infraestrutura',
-    date: '2024-01-01',
-    status: 'Pago'
-  },
-  {
-    id: 4,
-    description: 'Software e ferramentas',
-    value: 800,
-    type: 'despesa',
-    category: 'Tecnologia',
-    date: '2024-01-15',
-    status: 'Pago'
-  }
+    {id: 1, description: 'Pagamento Tech Innovations', value: 5000, type: 'receita', category: 'Serviços', date: '2024-01-05', status: 'Confirmado'},
+    {id: 2, description: 'Pagamento Startup XYZ', value: 8000, type: 'receita', category: 'Serviços', date: '2024-01-10', status: 'Confirmado'},
+    {id: 3, description: 'Aluguel escritório', value: 2500, type: 'despesa', category: 'Infraestrutura', date: '2024-01-01', status: 'Pago'},
+    {id: 4, description: 'Software e ferramentas', value: 800, type: 'despesa', category: 'Tecnologia', date: '2024-01-15', status: 'Pago'}
 ];
 
 const initialExpenses: Expense[] = [
-    {
-      id: 1,
-      description: 'Aluguel escritório',
-      value: 2500,
-      category: 'Infraestrutura',
-      date: '2025-06-01',
-      status: 'Pendente',
-      isRecurring: true,
-      recurrence: 'Mensal'
-    },
-    {
-      id: 2,
-      description: 'Licença de Software Anual',
-      value: 1200,
-      category: 'Tecnologia',
-      date: '2025-07-15',
-      status: 'Pendente',
-      isRecurring: true,
-      recurrence: 'Anual'
-    },
-    {
-      id: 3,
-      description: 'Manutenção Semestral Servidor',
-      value: 800,
-      category: 'Tecnologia',
-      date: '2025-08-20',
-      status: 'Pendente',
-      isRecurring: true,
-      recurrence: 'Semestral'
-    },
-    {
-      id: 4,
-      description: 'Café e lanches',
-      value: 300,
-      category: 'Escritório',
-      date: '2025-06-25',
-      status: 'Pendente',
-      isRecurring: false
-    }
-  ];
+    {id: 1, description: 'Aluguel escritório', value: 2500, category: 'Infraestrutura', date: '2025-06-01', status: 'Pendente', isRecurring: true, recurrence: 'Mensal'},
+    {id: 2, description: 'Licença de Software Anual', value: 1200, category: 'Tecnologia', date: '2025-07-15', status: 'Pendente', isRecurring: true, recurrence: 'Anual'},
+    {id: 3, description: 'Manutenção Semestral Servidor', value: 800, category: 'Tecnologia', date: '2025-08-20', status: 'Pendente', isRecurring: true, recurrence: 'Semestral'},
+    {id: 4, description: 'Café e lanches', value: 300, category: 'Escritório', date: '2025-06-25', status: 'Pendente', isRecurring: false}
+];
 
+// Dados de contratos com duração, usados para checar o fim do contrato
 const contractProjections = [
-  {
-    clientName: 'Tech Innovations',
-    monthlyValue: 5000,
-    duration: 12,
-    startMonth: '2024-01'
-  },
-  {
-    clientName: 'E-commerce Plus',
-    monthlyValue: 3000,
-    duration: 6,
-    startMonth: '2024-02'
-  },
-  {
-    clientName: 'Startup XYZ',
-    monthlyValue: 8000,
-    duration: 18,
-    startMonth: '2024-01'
-  },
-  {
-    clientName: 'Consultoria Pro',
-    monthlyValue: 4500,
-    duration: 8,
-    startMonth: '2024-03'
-  },
-  {
-    clientName: 'Marketing Digital',
-    monthlyValue: 6000,
-    duration: 12,
-    startMonth: '2024-01'
-  },
-  {
-    clientName: 'Novo Cliente A',
-    monthlyValue: 2500,
-    duration: 4,
-    startMonth: '2024-04'
-  },
-  {
-    clientName: 'Novo Cliente B',
-    monthlyValue: 7000,
-    duration: 10,
-    startMonth: '2024-05'
-  }
+  { clientName: 'Tech Innovations', monthlyValue: 5000, durationInMonths: 12, startMonth: '2024-01' },
+  { clientName: 'E-commerce Plus', monthlyValue: 3000, durationInMonths: 6, startMonth: '2024-01' },
+  { clientName: 'Startup XYZ', monthlyValue: 8000, durationInMonths: 18, startMonth: '2024-01' },
+  { clientName: 'Consultoria Pro', monthlyValue: 4500, durationInMonths: 1, startMonth: '2024-01' },
+  { clientName: 'Marketing Digital', monthlyValue: 6000, durationInMonths: 12, startMonth: '2024-01' },
+  { clientName: 'Novo Cliente A', monthlyValue: 2500, durationInMonths: 4, startMonth: '2024-04' },
+  { clientName: 'Novo Cliente B', monthlyValue: 7000, durationInMonths: 10, startMonth: '2024-05' }
 ];
 
 // ==================================================================
@@ -227,7 +140,7 @@ export default function Financial() {
   const handleAddExpense = (newExpenseData: Omit<Expense, 'id' | 'status'>) => {
     const newExpense: Expense = {
         ...newExpenseData,
-        id: Date.now(), // Gera um ID único
+        id: Date.now(),
         status: 'Pendente' as const
     };
     setExpenses(prev => [...prev, newExpense].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
@@ -271,29 +184,68 @@ export default function Financial() {
     setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
   };
 
+  // FUNÇÃO DE PAGAMENTO DE RECEITAS REFATORADA
   const handleTogglePaymentStatus = (entryId: string) => {
-    setFinancialEntries(prev =>
-      prev.map(entry => {
-        if (entry.id === entryId) {
-          // Se já está 'pago', a ação seria reverter para 'pendente'
-          if (entry.status === 'paid') {
-            return { ...entry, status: 'pending', paymentDate: undefined };
-          }
-          // Se está 'pendente' OU 'em atraso', a ação é marcar como 'pago'
-          return {
-            ...entry,
-            status: 'paid',
-            paymentDate: new Date().toISOString().split('T')[0]
+    const entryToUpdate = financialEntries.find(e => e.id === entryId);
+    if (!entryToUpdate) return;
+
+    if (entryToUpdate.status === 'pending' || entryToUpdate.status === 'overdue') {
+      const updatedEntries = financialEntries.map(e => 
+        e.id === entryId 
+        ? { ...e, status: 'paid' as const, paymentDate: new Date().toISOString().split('T')[0] }
+        : e
+      );
+
+      if (entryToUpdate.isRecurring) {
+        const contract = contractProjections.find(c => c.clientName === entryToUpdate.client);
+        if (!contract) return;
+
+        const nextMonth = calculateNextMonth(entryToUpdate.referenceMonth);
+        const startDate = parse(contract.startMonth, 'yyyy-MM', new Date());
+        const endDate = addMonths(startDate, contract.durationInMonths - 1);
+        const nextMonthDate = parse(nextMonth, 'yyyy-MM', new Date());
+
+        if (nextMonthDate <= endDate) {
+          const newEntry: FinancialEntry = {
+            id: Date.now().toString(),
+            client: entryToUpdate.client,
+            monthlyValue: entryToUpdate.monthlyValue,
+            status: 'pending',
+            referenceMonth: nextMonth,
+            isRecurring: true,
+            recurrence: 'Mensal',
           };
+          setFinancialEntries([...updatedEntries, newEntry]);
+          return;
         }
-        return entry;
-      })
-    );
+      }
+      
+      setFinancialEntries(updatedEntries);
+
+    } else if (entryToUpdate.status === 'paid') {
+      const nextEntryExists = financialEntries.find(e => 
+        e.client === entryToUpdate.client && e.referenceMonth > entryToUpdate.referenceMonth
+      );
+      if (nextEntryExists) {
+        alert("Não é possível reverter um pagamento que já gerou o próximo faturamento.");
+        return;
+      }
+
+      setFinancialEntries(prev => prev.map(e => 
+        e.id === entryId ? { ...e, status: 'pending' as const, paymentDate: undefined } : e
+      ));
+    }
   };
   
   // ==================================================================
   // FUNÇÕES AUXILIARES
   // ==================================================================
+
+  const calculateNextMonth = (monthString: string): string => {
+    const date = parse(monthString, 'yyyy-MM', new Date());
+    const nextMonthDate = addMonths(date, 1);
+    return format(nextMonthDate, 'yyyy-MM');
+  };
 
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
@@ -309,10 +261,7 @@ export default function Financial() {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
   const formatDate = (dateString: string) => {
@@ -328,15 +277,13 @@ export default function Financial() {
   const calculateNextDate = (currentDate: string, recurrence: Expense['recurrence']): string => {
     const date = new Date(currentDate + 'T00:00:00');
     let nextDate: Date;
-
     switch (recurrence) {
-      case 'Semanal': nextDate = addWeeks(date, 1); break;
+      case 'Semanal': nextDate = addMonths(date, 1/4); break; // Simplified
       case 'Mensal': nextDate = addMonths(date, 1); break;
       case 'Semestral': nextDate = addMonths(date, 6); break;
       case 'Anual': nextDate = addYears(date, 1); break;
       default: return currentDate;
     }
-    
     return nextDate.toISOString().split('T')[0];
   };
 
@@ -344,14 +291,8 @@ export default function Financial() {
   // CÁLCULOS PARA RENDERIZAÇÃO
   // ==================================================================
 
-  const paidEntries = financialEntries.filter(e => e.status === 'paid');
-  const pendingEntries = financialEntries.filter(e => e.status === 'pending');
   const overdueEntries = financialEntries.filter(e => e.status === 'overdue');
-
-  const totalPaid = paidEntries.reduce((sum, entry) => sum + entry.monthlyValue, 0);
-  const totalPending = pendingEntries.reduce((sum, entry) => sum + entry.monthlyValue, 0);
-  const totalOverdue = overdueEntries.reduce((sum, entry) => sum + entry.monthlyValue, 0);
-
+  
   // ==================================================================
   // RENDERIZAÇÃO JSX
   // ==================================================================
@@ -377,8 +318,6 @@ export default function Financial() {
             {overdueEntries.map((entry) => (
               <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-red-950/40 border border-red-800/60">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                  
-                  {/* Coluna 1: Cliente e Status */}
                   <div>
                     <h4 className="text-white font-medium mb-1">{entry.client}</h4>
                     {getStatusBadge(entry.status)}
@@ -386,26 +325,18 @@ export default function Financial() {
                       <p className="text-red-300 text-xs mt-2 italic">{entry.observations}</p>
                     )}
                   </div>
-                  
-                  {/* Coluna 2: Valor */}
                   <div className="text-center">
                     <p className="text-red-300 text-sm">Valor</p>
                     <p className="text-red-400 font-semibold">{formatCurrency(entry.monthlyValue)}</p>
                   </div>
-                  
-                  {/* Coluna 3: Referência */}
                   <div className="text-center">
                     <p className="text-red-300 text-sm">Referência</p>
                     <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
                   </div>
-                  
-                  {/* Coluna 4: Data de Pagamento */}
                   <div className="text-center">
                     <p className="text-red-300 text-sm">Data de Pagamento</p>
                     <p className="text-white">-</p>
                   </div>
-
-                  {/* Coluna 5: Botão de Ação */}
                   <div className="flex justify-center">
                     <Button
                       size="sm"
@@ -415,7 +346,6 @@ export default function Financial() {
                       Contatar Cliente
                     </Button>
                   </div>
-
                 </div>
               </div>
             ))}
@@ -439,42 +369,42 @@ export default function Financial() {
         </div>
 
         <div className="space-y-3 p-6">
-          {financialEntries.map((entry) => (
+          {financialEntries.sort((a,b) => a.referenceMonth.localeCompare(b.referenceMonth)).map((entry) => (
             <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                {/* Coluna 1: Cliente e Status */}
                 <div>
                   <h4 className="text-white font-medium mb-1">{entry.client}</h4>
                   {getStatusBadge(entry.status)}
                 </div>
-                
-                {/* Coluna 2: Valor */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Valor</p>
                   <p className="text-white font-semibold">{formatCurrency(entry.monthlyValue)}</p>
                 </div>
-                
-                {/* Coluna 3: Referência */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Referência</p>
                   <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
                 </div>
-                
-                {/* Coluna 4: Data de Pagamento */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
                   <p className="text-white">{entry.paymentDate ? formatDate(entry.paymentDate) : '-'}</p>
                 </div>
-
-                {/* Coluna 5: Botão de Ação */}
                 <div className="flex justify-center">
-                  {(entry.status === 'pending' || entry.status === 'paid' || entry.status === 'overdue') && (
+                  {entry.status !== 'paid' ? (
                     <Button
                       size="sm"
                       className="bg-green-600 hover:bg-green-700 text-white w-32"
                       onClick={() => handleTogglePaymentStatus(entry.id)}
                     >
-                      {entry.status === 'paid' ? 'Pago' : 'Confirmar'}
+                      Confirmar
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-gray-400 border-gray-600 hover:bg-gray-700 hover:text-white w-32"
+                      onClick={() => handleTogglePaymentStatus(entry.id)}
+                    >
+                      Pago
                     </Button>
                   )}
                 </div>
@@ -497,19 +427,14 @@ export default function Financial() {
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                {/* Coluna 1: Descrição */}
                 <div>
                   <p className="text-white font-medium">{expense.description}</p>
                   <p className="text-goat-gray-400 text-sm">{expense.category}</p>
                 </div>
-                
-                {/* Coluna 2: Data */}
                 <div>
                   <p className="text-goat-gray-400 text-sm">Data</p>
                   <p className="text-white text-sm">{formatDate(expense.date)}</p>
                 </div>
-                
-                {/* Coluna 3: Tag Recorrente (centralizada) */}
                 <div className="flex justify-center">
                   {expense.isRecurring && (
                     <Badge className="goat-purple text-white text-xs">
@@ -518,16 +443,12 @@ export default function Financial() {
                     </Badge>
                   )}
                 </div>
-                
-                {/* Coluna 4: Valor e Status */}
                 <div className="text-center">
                   <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
                   <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
                     {expense.status}
                   </Badge>
                 </div>
-
-                {/* Coluna 5: Botões de Ação (Confirmar e Excluir lado a lado) */}
                 <div className="flex justify-center gap-2">
                   <Button
                     size="sm"
