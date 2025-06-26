@@ -1,5 +1,3 @@
-// Em seu arquivo: AppSidebar.tsx (versão completa e corrigida)
-
 import {
   Sidebar,
   SidebarContent,
@@ -74,12 +72,12 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        tooltip={item.title}
-                        // MUDANÇA AQUI: Removi a classe "hover:scale-105"
                         className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
                           w-12 h-12 rounded-full
                           ${
                             isActive
+                              // MUDANÇA AQUI: A classe "shadow-purple-500/25" foi removida desta linha
+                              ? "bg-gradient-to-r from-purple-600 to-goat-purple text-white"
                               : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
                           }`}
                       >
@@ -99,8 +97,6 @@ export function AppSidebar() {
           <SidebarMenu className="space-y-4 flex flex-col items-center">
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
-                tooltip="Sair"
-                // MUDANÇA AQUI TAMBÉM: Removi a classe "hover:scale-105"
                 className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
                   w-12 h-12 rounded-full`}
               >
