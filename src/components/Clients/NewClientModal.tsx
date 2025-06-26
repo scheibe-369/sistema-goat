@@ -377,13 +377,13 @@ export function NewClientModal({
                     </Label>
 
                     {showAddPlan && (
-                      <div className="space-y-4 p-4 bg-goat-gray-700 rounded-lg border border-goat-gray-600">
+                      <div className="space-y-4 p-4 bg-goat-gray-600 rounded-lg border border-goat-gray-500">
                         <div className="space-y-2">
                           <Input
                             value={newPlanName}
                             onChange={(e) => setNewPlanName(e.target.value)}
                             placeholder="Nome do novo plano"
-                            className="bg-goat-gray-600 border-goat-gray-500 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
+                            className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
                             onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
                           />
                         </div>
@@ -406,9 +406,8 @@ export function NewClientModal({
                           <Button
                             type="button"
                             size="sm"
-                            variant="ghost"
                             onClick={() => setShowAddPlan(false)}
-                            className="text-goat-gray-400 hover:text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white border-0"
                           >
                             Cancelar
                           </Button>
