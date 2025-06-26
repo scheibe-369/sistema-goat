@@ -1,5 +1,4 @@
 import { useState } from "react";
-// Importações do date-fns atualizadas
 import { addMonths, parse, format } from 'date-fns';
 
 import { Card } from "@/components/ui/card";
@@ -14,13 +13,12 @@ import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 // INTERFACES E DADOS
 // ==================================================================
 
-// 1. INTERFACE FinancialEntry ATUALIZADA para incluir recorrência
 interface FinancialEntry {
   id: string;
   client: string;
   monthlyValue: number;
   status: 'paid' | 'pending' | 'overdue';
-  referenceMonth: string; // Formato 'YYYY-MM'
+  referenceMonth: string;
   paymentDate?: string;
   observations?: string;
   isRecurring: boolean;
@@ -42,61 +40,18 @@ interface Expense {
   description: string;
   value: number;
   category: string;
-  date: string; // Formato 'YYYY-MM-DD'
+  date: string; 
   status: 'Pago' | 'Pendente';
   isRecurring: boolean;
   recurrence?: 'Semanal' | 'Mensal' | 'Semestral' | 'Anual';
 }
 
-// DADOS MOCKADOS ORIGINAIS, AGORA COM OS NOVOS CAMPOS
 const mockFinancialEntries: FinancialEntry[] = [
-  {
-    id: '1',
-    client: 'Tech Innovations',
-    monthlyValue: 5000,
-    status: 'paid',
-    referenceMonth: '2024-01',
-    paymentDate: '2024-01-05',
-    isRecurring: true,
-    recurrence: 'Mensal'
-  },
-  {
-    id: '2',
-    client: 'E-commerce Plus',
-    monthlyValue: 3000,
-    status: 'overdue',
-    referenceMonth: '2024-01',
-    observations: 'Cliente comunicou dificuldade financeira',
-    isRecurring: true,
-    recurrence: 'Mensal'
-  },
-  {
-    id: '3',
-    client: 'Startup XYZ',
-    monthlyValue: 8000,
-    status: 'paid',
-    referenceMonth: '2024-01',
-    paymentDate: '2024-01-10',
-    isRecurring: true,
-    recurrence: 'Mensal'
-  },
-  {
-    id: '4',
-    client: 'Consultoria Pro',
-    monthlyValue: 4500,
-    status: 'pending',
-    referenceMonth: '2024-01',
-    isRecurring: false
-  },
-  {
-    id: '5',
-    client: 'Marketing Digital',
-    monthlyValue: 6000,
-    status: 'pending',
-    referenceMonth: '2024-01',
-    isRecurring: true,
-    recurrence: 'Mensal'
-  }
+  { id: '1', client: 'Tech Innovations', monthlyValue: 5000, status: 'paid', referenceMonth: '2024-01', paymentDate: '2024-01-05', isRecurring: true, recurrence: 'Mensal' },
+  { id: '2', client: 'E-commerce Plus', monthlyValue: 3000, status: 'overdue', referenceMonth: '2024-01', observations: 'Cliente comunicou dificuldade financeira', isRecurring: true, recurrence: 'Mensal' },
+  { id: '3', client: 'Startup XYZ', monthlyValue: 8000, status: 'paid', referenceMonth: '2024-01', paymentDate: '2024-01-10', isRecurring: true, recurrence: 'Mensal' },
+  { id: '4', client: 'Consultoria Pro', monthlyValue: 4500, status: 'pending', referenceMonth: '2024-01', isRecurring: false },
+  { id: '5', client: 'Marketing Digital', monthlyValue: 6000, status: 'pending', referenceMonth: '2024-01', isRecurring: true, recurrence: 'Mensal' }
 ];
 
 const mockTransactions: Transaction[] = [
@@ -132,6 +87,9 @@ export default function Financial() {
   const [expenses, setExpenses] = useState(initialExpenses);
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>(mockFinancialEntries);
 
+  // 1. ESTADO PARA OS FILTROS
+  const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
+
   // ==================================================================
   // FUNÇÕES DE MANIPULAÇÃO DE ESTADO (HANDLERS)
   // ==================================================================
@@ -165,11 +123,9 @@ export default function Financial() {
       );
 
     } else if (!expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
+      // MUDANÇA #A: Apenas muda o status, não remove mais o item da lista
       setExpenses(prev => prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp));
-      setTimeout(() => {
-        setExpenses(prev => prev.filter(exp => exp.id !== expenseId));
-      }, 800);
-
+      
     } else if (expenseToUpdate.status === 'Pago') {
       if (expenseToUpdate.isRecurring) {
         alert("Não é possível reverter o status de uma despesa recorrente que já gerou a próxima cobrança.");
@@ -183,7 +139,6 @@ export default function Financial() {
     setExpenses(prev => prev.filter(expense => expense.id !== expenseId));
   };
 
-  // FUNÇÃO DE PAGAMENTO DE RECEITAS REFATORADA
   const handleTogglePaymentStatus = (entryId: string) => {
     const entryToUpdate = financialEntries.find(e => e.id === entryId);
     if (!entryToUpdate) return;
@@ -295,6 +250,19 @@ export default function Financial() {
   // ==================================================================
 
   const overdueEntries = financialEntries.filter(e => e.status === 'overdue');
+
+  // MUDANÇA #B: LÓGICA DE FILTRAGEM ATUALIZADA
+  const filteredFinancialEntries = financialEntries.filter(entry => {
+    // Lógica para o filtro de status
+    const statusFilter = activeStatusFilter === 'all' 
+      || (activeStatusFilter === 'pending' && (entry.status === 'pending' || entry.status === 'overdue'))
+      || (entry.status === activeStatusFilter);
+      
+    // Aqui você pode adicionar a lógica para o filtro de mês no futuro
+    // const monthFilter = ...;
+    
+    return statusFilter; // && monthFilter;
+  });
   
   // ==================================================================
   // RENDERIZAÇÃO JSX
@@ -360,19 +328,41 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
+            {/* MUDANÇA #C: NOVOS BOTÕES DE FILTRO */}
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
                 Janeiro 2024
               </Button>
-              <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
-                Todos os Status
+              <Button 
+                variant={activeStatusFilter === 'all' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => setActiveStatusFilter('all')}
+                className="text-white border-goat-gray-600"
+              >
+                Todos
+              </Button>
+              <Button 
+                variant={activeStatusFilter === 'pending' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => setActiveStatusFilter('pending')}
+                className="text-white border-goat-gray-600"
+              >
+                Em Aberto
+              </Button>
+              <Button 
+                variant={activeStatusFilter === 'paid' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => setActiveStatusFilter('paid')}
+                className="text-white border-goat-gray-600"
+              >
+                Pagos
               </Button>
             </div>
           </div>
         </div>
 
         <div className="space-y-3 p-6">
-          {financialEntries.sort((a,b) => a.referenceMonth.localeCompare(b.referenceMonth)).map((entry) => (
+          {filteredFinancialEntries.sort((a,b) => a.referenceMonth.localeCompare(b.referenceMonth)).map((entry) => (
             <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                 <div>
