@@ -1,4 +1,4 @@
-// Em seu arquivo: AppSidebar.tsx (versão completa e corrigida)
+// Em seu arquivo: AppSidebar.tsx (versão completa e atualizada)
 
 import {
   Sidebar,
@@ -28,11 +28,10 @@ export function AppSidebar() {
 
   return (
     <div className="relative">
-      {/* A MUDANÇA ESTÁ AQUI.
-        Reintroduzimos as regras fortes daquele seu CSS antigo, mas agora
-        de forma segura, aplicando-as somente aos links DENTRO da sidebar.
-      */}
       <style>{`
+        /* MUDANÇA #1: Aumentamos a largura da sidebar
+          Adicionando padding horizontal (esquerda/direita) de 12px.
+        */
         [data-sidebar="sidebar"] {
           position: fixed !important;
           top: 16px;
@@ -41,30 +40,28 @@ export function AppSidebar() {
           background-color: #080808 !important;
           padding-top: 12px !important;
           padding-bottom: 12px !important;
+          padding-left: 12px !important; 
+          padding-right: 12px !important;
           width: auto !important;
           border: none !important;
           box-shadow: none !important;
           backdrop-filter: none !important;
         }
 
-        /* Regra base para os links */
-        [data-sidebar="sidebar"] a {
-          color: white !important;
-          text-decoration: none !important;
-          border-radius: 9999px !important;
-          transition: all 0.2s ease;
-        }
-        
-        /* A CORREÇÃO DEFINITIVA: Força o estilo de foco para o link.
-          Esta é a regra que impede o amarelo.
+        /*
+          MUDANÇA #2: Removemos o contorno de foco dos ícones
+          Aplicando 'outline: none' quando o link está focado.
         */
         [data-sidebar="sidebar"] a:focus,
         [data-sidebar="sidebar"] a:focus-visible {
-          color: white !important;
-          background-color: transparent !important; /* Garante que não haja fundo inesperado */
-          outline: 2px solid #5315CB !important;
-          outline-offset: 2px;
+          outline: none !important;
           box-shadow: none !important;
+        }
+        
+        /* Esta regra pode ser removida se a de cima já resolver tudo,
+           mas podemos manter para garantir o raio da borda. */
+        [data-sidebar="sidebar"] a {
+          border-radius: 9999px !important;
         }
       `}</style>
 
