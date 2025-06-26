@@ -15,12 +15,51 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
-    value: '',
+    value: '0,00',
     category: '',
     date: new Date().toISOString().split('T')[0],
     isRecurring: false,
     recurrence: 'monthly'
   });
+
+  const handleValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    if (value === '' || value === '0' || value === '0,') {
+      setFormData({...formData, value: '0,00'});
+      return;
+    }
+    
+    if (!value.includes(',')) {
+      value = value + ',00';
+    } else {
+      const parts = value.split(',');
+      if (!parts[1] || parts[1] === '') {
+        value = parts[0] + ',00';
+      } else if (parts[1].length === 1) {
+        value = parts[0] + ',' + parts[1] + '0';
+      }
+    }
+    
+    setFormData({...formData, value});
+  };
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    value = value.replace(/[^\d,]/g, '');
+    
+    const parts = value.split(',');
+    if (parts.length > 2) {
+      value = parts[0] + ',' + parts.slice(1).join('');
+    }
+    
+    if (parts[1] && parts[1].length > 2) {
+      value = parts[0] + ',' + parts[1].substring(0, 2);
+    }
+    
+    setFormData({...formData, value});
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +67,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     const expense = {
       id: Date.now(),
       description: formData.description,
-      value: parseFloat(formData.value),
+      value: parseFloat(formData.value.replace(',', '.')),
       category: formData.category,
       date: formData.date,
       status: 'Pendente',
@@ -40,7 +79,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     setOpen(false);
     setFormData({
       description: '',
-      value: '',
+      value: '0,00',
       category: '',
       date: new Date().toISOString().split('T')[0],
       isRecurring: false,
@@ -73,14 +112,15 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
           </div>
           
           <div>
-            <Label htmlFor="value" className="text-white">Valor</Label>
+            <Label htmlFor="value" className="text-white">Valor (R$)</Label>
             <Input
               id="value"
-              type="number"
-              step="0.01"
+              type="text"
               value={formData.value}
-              onChange={(e) => setFormData({...formData, value: e.target.value})}
+              onChange={handleValueChange}
+              onBlur={handleValueBlur}
               className="bg-goat-gray-900 border-goat-gray-600 text-white"
+              placeholder="0,00"
               required
             />
           </div>
