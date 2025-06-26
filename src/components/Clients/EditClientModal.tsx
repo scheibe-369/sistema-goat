@@ -243,7 +243,7 @@ export function EditClientModal({
               
               /* Estilos customizados para dropdowns */
               .dropdown-trigger {
-                background-color: #262626 !important;
+                background-color: #404040 !important;
                 border-color: #525252 !important;
                 color: white !important;
               }
@@ -254,7 +254,7 @@ export function EditClientModal({
               }
               
               .dropdown-content {
-                background-color: #404040 !important;
+                background-color: #262626 !important;
                 border-color: #525252 !important;
                 min-width: var(--radix-dropdown-menu-trigger-width) !important;
                 width: var(--radix-dropdown-menu-trigger-width) !important;
