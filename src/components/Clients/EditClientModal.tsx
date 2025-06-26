@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { Edit, X, ChevronDown, Plus } from "lucide-react";
+import { ColorPicker } from "./ColorPicker";
 
 interface Client {
   id: number;
@@ -25,6 +26,7 @@ interface Client {
   plan?: string;
   startDate?: string;
   monthlyValue?: string;
+  planColor?: string;
 }
 
 interface EditClientModalProps {
@@ -32,9 +34,18 @@ interface EditClientModalProps {
   client: Client | null;
   onClose: () => void;
   onSave: (clientData: any) => void;
+  onPlanColorChange?: (planName: string, color: string) => void;
+  planColors?: Record<string, string>;
 }
 
-export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientModalProps) {
+export function EditClientModal({ 
+  isOpen, 
+  client, 
+  onClose, 
+  onSave, 
+  onPlanColorChange,
+  planColors = {}
+}: EditClientModalProps) {
   const [formData, setFormData] = useState({
     company: "",
     cnpj: "",
@@ -52,6 +63,7 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
 
   const [customPlans, setCustomPlans] = useState<string[]>([]);
   const [newPlanName, setNewPlanName] = useState("");
+  const [newPlanColor, setNewPlanColor] = useState("bg-purple-600 text-white hover:bg-purple-700");
   const [showAddPlan, setShowAddPlan] = useState(false);
 
   const defaultPlans = [
@@ -90,6 +102,22 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddCustomPlan = () => {
+    if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
+      setCustomPlans((prev) => [...prev, newPlanName.trim()]);
+      setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
+      
+      // Salvar a cor do plano
+      if (onPlanColorChange) {
+        onPlanColorChange(newPlanName.trim(), newPlanColor);
+      }
+      
+      setNewPlanName("");
+      setNewPlanColor("bg-purple-600 text-white hover:bg-purple-700");
+      setShowAddPlan(false);
+    }
   };
 
   const handleMonthlyValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -145,15 +173,6 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
     }
     
     handleChange("paymentDay", value);
-  };
-
-  const handleAddCustomPlan = () => {
-    if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
-      setCustomPlans((prev) => [...prev, newPlanName.trim()]);
-      setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
-      setNewPlanName("");
-      setShowAddPlan(false);
-    }
   };
 
   const handleRemoveCustomPlan = (planToRemove: string) => {
@@ -374,22 +393,42 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
                     </Label>
 
                     {showAddPlan && (
-                      <div className="flex gap-2 mb-2">
-                        <Input
-                          value={newPlanName}
-                          onChange={(e) => setNewPlanName(e.target.value)}
-                          placeholder="Nome do novo plano"
-                          className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
-                          onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
+                      <div className="space-y-4 p-4 bg-goat-gray-700 rounded-lg border border-goat-gray-600">
+                        <div className="space-y-2">
+                          <Input
+                            value={newPlanName}
+                            onChange={(e) => setNewPlanName(e.target.value)}
+                            placeholder="Nome do novo plano"
+                            className="bg-goat-gray-600 border-goat-gray-500 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
+                            onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
+                          />
+                        </div>
+                        
+                        <ColorPicker
+                          selectedColor={newPlanColor}
+                          onColorChange={setNewPlanColor}
+                          label="Cor do Plano"
                         />
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={handleAddCustomPlan}
-                          className="bg-goat-purple hover:bg-goat-purple/80 px-3 text-white"
-                        >
-                          <Plus className="w-4 h-4 text-white" />
-                        </Button>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={handleAddCustomPlan}
+                            className="bg-goat-purple hover:bg-goat-purple/80 text-white flex-1"
+                          >
+                            Adicionar Plano
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setShowAddPlan(false)}
+                            className="text-goat-gray-400 hover:text-white"
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
                       </div>
                     )}
 
@@ -472,19 +511,19 @@ export function EditClientModal({ isOpen, client, onClose, onSave }: EditClientM
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="dropdown-content">
                         <DropdownMenuItem
-                          onClick={() => handleChange("tags", ["Ativo", formData.plan])}
+                          onClick={() => handleChange("tags", ["Ativo"])}
                           className="dropdown-item cursor-pointer"
                         >
                           Ativo
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleChange("tags", ["A vencer", formData.plan])}
+                          onClick={() => handleChange("tags", ["A vencer"])}
                           className="dropdown-item cursor-pointer"
                         >
                           A vencer
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleChange("tags", ["Vencido", formData.plan])}
+                          onClick={() => handleChange("tags", ["Vencido"])}
                           className="dropdown-item cursor-pointer"
                         >
                           Vencido

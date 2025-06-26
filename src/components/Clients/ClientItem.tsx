@@ -15,6 +15,7 @@ interface Client {
   address: string;
   plan?: string;
   startDate?: string;
+  planColor?: string;
 }
 
 interface ClientItemProps {
@@ -23,9 +24,10 @@ interface ClientItemProps {
   onToggleExpanded: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  planColors?: Record<string, string>;
 }
 
-export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDelete }: ClientItemProps) {
+export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDelete, planColors = {} }: ClientItemProps) {
   const getTagColor = (tag: string) => {
     switch (tag.toLowerCase()) {
       case "ativo":
@@ -34,6 +36,30 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
         return "bg-yellow-600 text-white hover:bg-yellow-700";
       case "vencido":
         return "bg-red-600 text-white hover:bg-red-700";
+      case "premium":
+        return "bg-goat-purple text-white hover:bg-goat-purple";
+      case "gold":
+        return "bg-yellow-700 text-white hover:bg-yellow-800";
+      case "standard":
+        return "bg-goat-gray-600 text-white hover:bg-goat-gray-700";
+      default:
+        return "bg-goat-gray-600 text-white hover:bg-goat-gray-700";
+    }
+  };
+
+  const getPlanColor = (plan: string) => {
+    if (planColors[plan]) {
+      return planColors[plan];
+    }
+    
+    // Cores padrão para planos conhecidos
+    switch (plan.toLowerCase()) {
+      case "vendas":
+        return "bg-blue-600 text-white hover:bg-blue-700";
+      case "branding":
+        return "bg-pink-600 text-white hover:bg-pink-700";
+      case "automação":
+        return "bg-purple-600 text-white hover:bg-purple-700";
       case "premium":
         return "bg-goat-purple text-white hover:bg-goat-purple";
       case "gold":
@@ -63,6 +89,13 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
           <div className="flex items-center gap-3 flex-1">
             <h4 className="text-lg font-semibold text-white">{client.company}</h4>
             <div className="flex gap-2">
+              {/* Sempre mostrar o plano primeiro */}
+              {client.plan && (
+                <Badge className={`text-xs ${getPlanColor(client.plan)}`}>
+                  {client.plan}
+                </Badge>
+              )}
+              {/* Depois mostrar as outras tags */}
               {client.tags.map((tag, index) => (
                 <Badge key={index} className={`text-xs ${getTagColor(tag)}`}>
                   {tag}

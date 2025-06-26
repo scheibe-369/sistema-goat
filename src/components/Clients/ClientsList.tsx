@@ -15,6 +15,7 @@ interface Client {
   address: string;
   plan?: string;
   startDate?: string;
+  planColor?: string;
 }
 
 interface ClientsListProps {
@@ -23,6 +24,7 @@ interface ClientsListProps {
   onToggleExpanded: (clientId: number) => void;
   onEditClient: (client: Client) => void;
   onDeleteClient: (client: Client) => void;
+  planColors?: Record<string, string>;
 }
 
 export function ClientsList({ 
@@ -30,7 +32,8 @@ export function ClientsList({
   expandedClients, 
   onToggleExpanded, 
   onEditClient, 
-  onDeleteClient 
+  onDeleteClient,
+  planColors = {}
 }: ClientsListProps) {
   return (
     <Card className="bg-goat-gray-800 border-goat-gray-700">
@@ -47,6 +50,7 @@ export function ClientsList({
             onToggleExpanded={() => onToggleExpanded(client.id)}
             onEdit={() => onEditClient(client)}
             onDelete={() => onDeleteClient(client)}
+            planColors={planColors}
           />
         ))}
       </div>

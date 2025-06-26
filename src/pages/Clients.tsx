@@ -22,6 +22,7 @@ interface Client {
   address: string;
   plan?: string;
   startDate?: string;
+  planColor?: string;
 }
 
 export default function Clients() {
@@ -38,6 +39,9 @@ export default function Clients() {
     location: ""
   });
 
+  // Estado para armazenar as cores dos planos personalizados
+  const [planColors, setPlanColors] = useState<Record<string, string>>({});
+
   const [clients, setClients] = useState<Client[]>([
     {
       id: 1,
@@ -48,7 +52,7 @@ export default function Clients() {
       email: "contato@techsolutions.com",
       contractEnd: "2024-12-31",
       paymentDay: 15,
-      tags: ["Ativo", "Premium"],
+      tags: ["Ativo"],
       address: "São Paulo, SP",
       plan: "Premium",
       startDate: "2024-01-01"
@@ -62,7 +66,7 @@ export default function Clients() {
       email: "maria@marketingpro.com",
       contractEnd: "2024-08-15",
       paymentDay: 5,
-      tags: ["A vencer", "Gold"],
+      tags: ["A vencer"],
       address: "Rio de Janeiro, RJ",
       plan: "Gold",
       startDate: "2023-08-15"
@@ -76,7 +80,7 @@ export default function Clients() {
       email: "pedro@consultoriaabc.com",
       contractEnd: "2025-01-31",
       paymentDay: 10,
-      tags: ["Ativo", "Standard"],
+      tags: ["Ativo"],
       address: "Belo Horizonte, MG",
       plan: "Standard",
       startDate: "2024-02-01"
@@ -112,6 +116,10 @@ export default function Clients() {
   const handleDeleteClient = (clientId: number) => {
     setClients(clients.filter(client => client.id !== clientId));
     setDeletingClient(null);
+  };
+
+  const handlePlanColorChange = (planName: string, color: string) => {
+    setPlanColors(prev => ({ ...prev, [planName]: color }));
   };
 
   const filteredClients = clients.filter(client => {
@@ -156,12 +164,15 @@ export default function Clients() {
         onToggleExpanded={toggleClientExpanded}
         onEditClient={setEditingClient}
         onDeleteClient={setDeletingClient}
+        planColors={planColors}
       />
 
       <NewClientModal 
         isOpen={isNewClientModalOpen}
         onClose={() => setIsNewClientModalOpen(false)}
         onSave={handleNewClient}
+        onPlanColorChange={handlePlanColorChange}
+        planColors={planColors}
       />
 
       <EditClientModal 
@@ -169,6 +180,8 @@ export default function Clients() {
         client={editingClient}
         onClose={() => setEditingClient(null)}
         onSave={handleEditClient}
+        onPlanColorChange={handlePlanColorChange}
+        planColors={planColors}
       />
 
       <ClientFilters
