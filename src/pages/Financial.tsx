@@ -377,21 +377,45 @@ export default function Financial() {
             <AlertCircle className="w-6 h-6 text-red-400" />
             <h3 className="text-lg font-semibold text-red-400">Pagamentos em Atraso</h3>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {overdueEntries.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between p-3 bg-red-900/10 rounded-lg border border-red-800">
-                <div>
-                  <p className="text-white font-medium">{entry.client}</p>
-                  <p className="text-red-200 text-sm">Referência: {formatMonth(entry.referenceMonth)}</p>
-                  {entry.observations && (
-                    <p className="text-red-300 text-xs mt-1">{entry.observations}</p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-red-400 font-semibold">{formatCurrency(entry.monthlyValue)}</p>
-                  <Button size="sm" variant="outline" className="mt-2 text-red-400 border-red-600 hover:bg-red-900/20">
-                    Contatar Cliente
-                  </Button>
+              <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-red-950/40 border border-red-800/60">
+                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                  
+                  {/* Coluna 1: Cliente e Status */}
+                  <div>
+                    <h4 className="text-white font-medium mb-1">{entry.client}</h4>
+                    {getStatusBadge(entry.status)}
+                    {entry.observations && (
+                      <p className="text-red-300 text-xs mt-2 italic">{entry.observations}</p>
+                    )}
+                  </div>
+                  
+                  {/* Coluna 2: Valor */}
+                  <div className="text-center">
+                    <p className="text-red-300 text-sm">Valor</p>
+                    <p className="text-red-400 font-semibold">{formatCurrency(entry.monthlyValue)}</p>
+                  </div>
+                  
+                  {/* Coluna 3: Referência */}
+                  <div className="text-center">
+                    <p className="text-red-300 text-sm">Referência</p>
+                    <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
+                  </div>
+                  
+                  {/* Coluna 4: Data de Pagamento */}
+                  <div className="text-center">
+                    <p className="text-red-300 text-sm">Data de Pagamento</p>
+                    <p className="text-white">-</p>
+                  </div>
+
+                  {/* Coluna 5: Botão de Ação */}
+                  <div className="flex justify-center">
+                    <Button size="sm" variant="outline" className="text-red-400 border-red-600 hover:bg-red-900/40">
+                      Contatar Cliente
+                    </Button>
+                  </div>
+
                 </div>
               </div>
             ))}
@@ -468,7 +492,7 @@ export default function Financial() {
           </div>
           <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
-       
+        
         <div className="space-y-3">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
