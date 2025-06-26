@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -160,26 +161,38 @@ export default function Contracts() {
 
       {/* Expiring Contracts Alert */}
       {expiringContracts.length > 0 && (
-        <Card className="bg-yellow-900/20 border-yellow-600 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-6 h-6 text-white" />
-            <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
+        <Card className="bg-yellow-900/20 border-yellow-600">
+          <div className="p-6 border-b border-yellow-600">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-white" />
+              <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
+            </div>
           </div>
-          <div className="space-y-2">
-            {expiringContracts.map((contract) => (
-              <div key={contract.id} className="flex items-center justify-between p-3 bg-yellow-900/10 rounded-lg border border-yellow-800">
-                <div>
-                  <p className="text-white font-medium">{contract.client}</p>
-                  <p className="text-white text-sm">{contract.type}</p>
+          <div className="p-6">
+            <div className="space-y-4">
+              {expiringContracts.map((contract) => (
+                <div key={contract.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-yellow-900/10 rounded-lg border border-yellow-800">
+                  <div>
+                    <p className="text-white font-medium">{contract.client}</p>
+                    <p className="text-white text-sm opacity-80">{contract.type}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</p>
+                    <p className="text-white text-sm opacity-80">Valor mensal</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-semibold">{formatDate(contract.endDate)}</p>
+                    <p className="text-white text-sm opacity-80">Data de vencimento</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-semibold">
+                      {getDaysUntilExpiration(contract.endDate)} dias
+                    </p>
+                    <p className="text-white text-sm opacity-80">Restantes</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-white font-semibold">
-                    {getDaysUntilExpiration(contract.endDate)} dias restantes
-                  </p>
-                  <p className="text-white text-sm">Vence em {formatDate(contract.endDate)}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
       )}
