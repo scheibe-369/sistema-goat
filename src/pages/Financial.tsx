@@ -27,6 +27,17 @@ interface Transaction {
   status: string;
 }
 
+interface Expense {
+    id: number;
+    description: string;
+    value: number;
+    category: string;
+    date: string;
+    status: 'Pago' | 'Pendente';
+    isRecurring: boolean;
+    recurrence?: 'weekly' | 'monthly' | 'quarterly' | 'annually';
+}
+
 const mockFinancialEntries: FinancialEntry[] = [
   {
     id: '1',
@@ -107,14 +118,14 @@ const mockTransactions: Transaction[] = [
   }
 ];
 
-const initialExpenses = [
+const initialExpenses: Expense[] = [
   {
     id: 1,
     description: 'Aluguel escritório',
     value: 2500,
     category: 'Infraestrutura',
-    date: '2024-01-01',
-    status: 'Pago',
+    date: '2025-06-26',
+    status: 'Pendente',
     isRecurring: true,
     recurrence: 'monthly'
   },
@@ -132,7 +143,7 @@ const initialExpenses = [
     description: 'Marketing digital',
     value: 1200,
     category: 'Marketing',
-    date: '2024-01-20',
+    date: '2025-06-20',
     status: 'Pendente',
     isRecurring: false
   }
@@ -186,34 +197,59 @@ const contractProjections = [
 
 export default function Financial() {
   const [transactions] = useState<Transaction[]>(mockTransactions);
-  const [expenses, setExpenses] = useState(initialExpenses);
+  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>(mockFinancialEntries);
 
   const handleAddExpense = (newExpense: any) => {
-    setExpenses(prev => [...prev, newExpense]);
+    setExpenses(prev => [...prev, { ...newExpense, id: Math.max(...prev.map(e => e.id), 0) + 1 }]);
   };
 
   const handleToggleExpenseStatus = (expenseId: number) => {
     const expenseToUpdate = expenses.find(e => e.id === expenseId);
     if (!expenseToUpdate) return;
 
-    // Se a despesa NÃO é recorrente e está sendo marcada como 'Paga'
-    if (expenseToUpdate.isRecurring === false && expenseToUpdate.status === 'Pendente') {
-      
-      // Primeiro, atualiza o status para 'Pago' para dar um feedback visual
-      setExpenses(prev =>
-        prev.map(exp =>
-          exp.id === expenseId ? { ...exp, status: 'Pago' } : exp
-        )
-      );
+    if (expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
+      const currentDate = new Date(expenseToUpdate.date);
+      // Corrige o problema de fuso horário que pode subtrair um dia da data
+      const nextDate = new Date(currentDate.valueOf() + currentDate.getTimezoneOffset() * 60000);
 
-      // Depois de um curto atraso, remove o item da lista
+      switch (expenseToUpdate.recurrence) {
+        case 'weekly':
+          nextDate.setDate(nextDate.getDate() + 7);
+          break;
+        case 'monthly':
+          nextDate.setMonth(nextDate.getMonth() + 1);
+          break;
+        case 'quarterly':
+          nextDate.setMonth(nextDate.getMonth() + 3);
+          break;
+        case 'annually':
+          nextDate.setFullYear(nextDate.getFullYear() + 1);
+          break;
+        default:
+          // Se a recorrência for desconhecida, não faz nada para evitar erros
+          return;
+      }
+
+      const newRecurringExpense: Expense = {
+        ...expenseToUpdate,
+        id: Math.max(...expenses.map(e => e.id), 0) + 1,
+        date: nextDate.toISOString().split('T')[0],
+        status: 'Pendente',
+      };
+      
+      setExpenses(prev => [
+        ...prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp),
+        newRecurringExpense
+      ]);
+
+    } else if (!expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
+      setExpenses(prev => prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp));
       setTimeout(() => {
         setExpenses(prev => prev.filter(exp => exp.id !== expenseId));
       }, 800);
 
     } else {
-      // Para despesas recorrentes ou para desfazer um pagamento, apenas alterna o status
       setExpenses(prev =>
         prev.map(expense =>
           expense.id === expenseId
@@ -263,7 +299,9 @@ export default function Financial() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    if (!dateString || isNaN(new Date(dateString).getTime())) return '-';
+    const date = new Date(dateString);
+    return new Date(date.valueOf() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
   };
 
   const formatMonth = (monthString: string) => {
@@ -287,10 +325,8 @@ export default function Financial() {
           <h1 className="text-3xl font-bold text-white mb-2">Financeiro</h1>
           <p className="text-goat-gray-400">Controle de faturamento e recebimentos</p>
         </div>
-        {/* O BOTÃO FOI REMOVIDO DESTA ÁREA */}
       </div>
 
-      {/* Financial KPIs */}
       <FinancialKPIs transactions={transactions} />
 
       {overdueEntries.length > 0 && (
@@ -340,31 +376,22 @@ export default function Financial() {
           {financialEntries.map((entry) => (
             <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                {/* Coluna 1: Cliente e Status */}
                 <div>
                   <h4 className="text-white font-medium mb-1">{entry.client}</h4>
                   {getStatusBadge(entry.status)}
                 </div>
-                
-                {/* Coluna 2: Valor */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Valor</p>
                   <p className="text-white font-semibold">{formatCurrency(entry.monthlyValue)}</p>
                 </div>
-                
-                {/* Coluna 3: Referência */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Referência</p>
                   <p className="text-white">{formatMonth(entry.referenceMonth)}</p>
                 </div>
-                
-                {/* Coluna 4: Data de Pagamento */}
                 <div className="text-center">
                   <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
                   <p className="text-white">{entry.paymentDate ? formatDate(entry.paymentDate) : '-'}</p>
                 </div>
-
-                {/* Coluna 5: Botão de Ação */}
                 <div className="flex justify-center">
                   {(entry.status === 'pending' || entry.status === 'paid') && (
                     <Button 
@@ -372,7 +399,7 @@ export default function Financial() {
                       className="bg-green-600 hover:bg-green-700 text-white w-32"
                       onClick={() => handleTogglePaymentStatus(entry.id)}
                     >
-                      {entry.status === 'paid' ? 'Pago' : 'Confirmar'}
+                      {entry.status === 'paid' ? 'Desfazer' : 'Confirmar Pgto.'}
                     </Button>
                   )}
                 </div>
@@ -382,7 +409,6 @@ export default function Financial() {
         </div>
       </Card>
 
-      {/* Despesas Card - 5 Column Layout */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -396,19 +422,14 @@ export default function Financial() {
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
               <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                {/* Coluna 1: Descrição */}
                 <div>
                   <p className="text-white font-medium">{expense.description}</p>
                   <p className="text-goat-gray-400 text-sm">{expense.category}</p>
                 </div>
-                
-                {/* Coluna 2: Data */}
                 <div>
                   <p className="text-goat-gray-400 text-sm">Data</p>
                   <p className="text-white text-sm">{formatDate(expense.date)}</p>
                 </div>
-                
-                {/* Coluna 3: Tag Recorrente (centralizada) */}
                 <div className="flex justify-center">
                   {expense.isRecurring && (
                     <Badge className="bg-orange-600 text-white text-xs">
@@ -417,28 +438,25 @@ export default function Financial() {
                     </Badge>
                   )}
                 </div>
-                
-                {/* Coluna 4: Valor e Status */}
                 <div className="text-center">
                   <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
                   <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
                     {expense.status}
                   </Badge>
                 </div>
-
-                {/* Coluna 5: Botões de Ação (Confirmar e Excluir lado a lado) */}
                 <div className="flex justify-center gap-2">
                   <Button
                     size="sm"
-                    className='bg-green-600 hover:bg-green-700 text-white w-20'
+                    className={`font-semibold ${expense.status === 'Pago' && expense.isRecurring ? 'bg-green-800 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white w-20`}
                     onClick={() => handleToggleExpenseStatus(expense.id)}
+                    disabled={expense.status === 'Pago' && expense.isRecurring}
                   >
                     {expense.status === 'Pago' ? 'Pago' : 'Pagar'}
                   </Button>
-                  
                   <Button
                     size="sm"
-                    className="bg-red-600 hover:bg-red-700 text-white w-20"
+                    variant="ghost"
+                    className="text-red-400 hover:bg-red-900/20 hover:text-red-400"
                     onClick={() => handleDeleteExpense(expense.id)}
                   >
                     Excluir
@@ -447,7 +465,6 @@ export default function Financial() {
               </div>
             </div>
           ))}
-          
           <div className="pt-3 border-t border-goat-gray-700">
             <div className="flex items-center justify-between">
               <p className="text-goat-gray-400">Total de Despesas:</p>
@@ -458,8 +475,7 @@ export default function Financial() {
           </div>
         </div>
       </Card>
-
-      {/* Substitui o card de Projeção de Faturamento existente pelo novo gráfico */}
+      
       <ProjectionChart contracts={contractProjections} />
     </div>
   );
