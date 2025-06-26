@@ -8,7 +8,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 interface ContractProjection {
   clientName: string;
   monthlyValue: number;
-  duration: number; // em meses
+  durationInMonths: number; // Changed from 'duration' to match the actual data structure
   startMonth: string; // formato "YYYY-MM"
 }
 
@@ -35,7 +35,7 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
       const validContracts = contracts.filter(contract => 
         contract && 
         typeof contract.monthlyValue === 'number' && 
-        typeof contract.duration === 'number' && 
+        typeof contract.durationInMonths === 'number' && // Updated property name
         typeof contract.startMonth === 'string' &&
         contract.startMonth.includes('-')
       );
@@ -48,7 +48,7 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
           // Validação dos valores extraídos
           if (isNaN(startYear) || isNaN(startMonthNum)) return;
           
-          for (let i = 0; i < contract.duration; i++) {
+          for (let i = 0; i < contract.durationInMonths; i++) { // Updated property name
             let monthDate = new Date(startYear, startMonthNum - 1 + i, 1);
             
             // Consideramos apenas projeções a partir do mês atual
@@ -97,7 +97,7 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
   // Calcula contratos ativos de forma segura
   const activeContractsNow = contracts.filter(c => {
     try {
-      if (!c || !c.startMonth || typeof c.duration !== 'number') return false;
+      if (!c || !c.startMonth || typeof c.durationInMonths !== 'number') return false; // Updated property name
       
       const [startYear, startMonth] = c.startMonth.split('-').map(Number);
       if (isNaN(startYear) || isNaN(startMonth)) return false;
@@ -105,7 +105,7 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
       const today = new Date();
       const startDate = new Date(startYear, startMonth - 1, 1);
       const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + c.duration);
+      endDate.setMonth(endDate.getMonth() + c.durationInMonths); // Updated property name
       
       return today >= startDate && today < endDate;
     } catch (error) {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { addMonths, parse, format } from 'date-fns';
+import { addMonths, addYears, parse, format } from 'date-fns';
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,13 @@ interface Expense {
   status: 'Pago' | 'Pendente';
   isRecurring: boolean;
   recurrence?: 'Semanal' | 'Mensal' | 'Semestral' | 'Anual';
+}
+
+interface ContractProjection {
+  clientName: string;
+  monthlyValue: number;
+  durationInMonths: number; // Changed from 'duration' to match the actual data
+  startMonth: string; // formato "YYYY-MM"
 }
 
 const mockFinancialEntries: FinancialEntry[] = [
