@@ -1,3 +1,4 @@
+// Em seu arquivo ColorPicker.tsx
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,12 @@ interface ColorPickerProps {
   selectedColor: string;
   onColorChange: (color: string) => void;
   label?: string;
+  // 1. Adicione uma nova prop para receber a classe do gatilho
+  triggerClassName?: string;
 }
 
 const predefinedColors = [
+  // ... sua lista de cores permanece a mesma
   { name: "Roxo", value: "bg-purple-600 text-white hover:bg-purple-700" },
   { name: "Azul", value: "bg-blue-600 text-white hover:bg-blue-700" },
   { name: "Verde", value: "bg-green-600 text-white hover:bg-green-700" },
@@ -23,13 +27,14 @@ const predefinedColors = [
   { name: "Teal", value: "bg-teal-600 text-white hover:bg-teal-700" },
 ];
 
-export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag" }: ColorPickerProps) {
+export function ColorPicker({ 
+  selectedColor, 
+  onColorChange, 
+  label = "Cor da Tag",
+  // 2. Desestruture a nova prop com um valor padrão
+  triggerClassName = "" 
+}: ColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const getColorPreview = (colorClass: string) => {
-    const bgColor = colorClass.split(' ')[0];
-    return bgColor.replace('bg-', '');
-  };
 
   const getSelectedColorName = () => {
     const found = predefinedColors.find(color => color.value === selectedColor);
@@ -38,13 +43,13 @@ export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag"
 
   return (
     <div className="space-y-2">
-      <label className="text-white text-sm">{label}</label>
+      <label className="text-white text-sm font-medium">{label}</label>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
+          {/* 3. Remova os estilos fixos e aplique a prop */}
           <Button
-            variant="outline"
-            className="w-full justify-between text-white hover:text-white"
-            style={{ backgroundColor: '#404040', borderColor: '#525252' }}
+            // Remova variant="outline" e o style={{...}}
+            className={`w-full justify-between h-10 px-3 py-2 text-sm ${triggerClassName}`}
           >
             <div className="flex items-center gap-2">
               <div className={`w-4 h-4 rounded-full ${selectedColor.split(' ')[0]}`} />
@@ -53,8 +58,7 @@ export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag"
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-64 p-4 border-goat-gray-700"
-          style={{ backgroundColor: '#404040' }}
+          className="w-64 p-4 border-goat-gray-700 bg-goat-gray-700" // Use classes do Tailwind se possível
         >
           <div className="grid grid-cols-5 gap-2">
             {predefinedColors.map((color) => (
@@ -68,7 +72,7 @@ export function ColorPicker({ selectedColor, onColorChange, label = "Cor da Tag"
                   selectedColor === color.value 
                     ? 'border-white' 
                     : 'border-transparent hover:border-goat-gray-500'
-                } ${color.value.split(' ')[0]} hover:opacity-80`}
+                } ${color.value.split(' ')[0]} hover:opacity-80 transition-all`}
                 title={color.name}
               >
                 {selectedColor === color.value && (

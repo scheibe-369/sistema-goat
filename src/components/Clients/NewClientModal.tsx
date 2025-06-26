@@ -384,15 +384,17 @@ export function NewClientModal({
                             value={newPlanName}
                             onChange={(e) => setNewPlanName(e.target.value)}
                             placeholder="Nome do novo plano"
-                            className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple placeholder:text-white/70"
+                            className="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                             onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
                           />
                         </div>
                         
+                        {/* ALTERAÇÃO FEITA AQUI */}
                         <ColorPicker
                           selectedColor={newPlanColor}
                           onColorChange={setNewPlanColor}
                           label="Cor do Plano"
+                          triggerClassName="bg-goat-gray-700 border-goat-gray-600 text-white text-sm focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                         />
                         
                         <div className="flex gap-2">
