@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -160,26 +161,30 @@ export default function Contracts() {
 
       {/* Expiring Contracts Alert */}
       {expiringContracts.length > 0 && (
-        <Card className="bg-yellow-900/20 border-yellow-600 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-6 h-6 text-white" />
-            <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
+        <Card className="bg-goat-gray-800 border-goat-gray-700">
+          <div className="p-4 border-b border-goat-gray-700">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-400" />
+              <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
+            </div>
           </div>
-          <div className="space-y-2">
-            {expiringContracts.map((contract) => (
-              <div key={contract.id} className="flex items-center justify-between p-3 bg-yellow-900/10 rounded-lg border border-yellow-800">
-                <div>
-                  <p className="text-white font-medium">{contract.client}</p>
-                  <p className="text-white text-sm">{contract.type}</p>
+          <div className="p-4">
+            <div className="space-y-3">
+              {expiringContracts.map((contract) => (
+                <div key={contract.id} className="flex items-center justify-between p-3 bg-goat-gray-900/50 rounded-lg border border-goat-gray-700">
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{contract.client}</p>
+                    <p className="text-goat-gray-400 text-sm">{contract.type}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-semibold text-sm">
+                      -{getDaysUntilExpiration(contract.endDate)} dias restantes
+                    </p>
+                    <p className="text-goat-gray-400 text-xs">Vence em {formatDate(contract.endDate)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-white font-semibold">
-                    {getDaysUntilExpiration(contract.endDate)} dias restantes
-                  </p>
-                  <p className="text-white text-sm">Vence em {formatDate(contract.endDate)}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
       )}
