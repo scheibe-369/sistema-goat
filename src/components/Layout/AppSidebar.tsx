@@ -79,7 +79,7 @@ export function AppSidebar() {
                           w-12 h-12 rounded-full
                           ${
                             isActive
-                              ? "bg-primary bg-opacity-100"
+                              ? "bg-gradient-to-r from-goat-purple to-goat-purple text-white"
                               : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
                           }`}
                       >
