@@ -28,8 +28,9 @@ export function AppSidebar() {
 
   return (
     <div className="relative">
-      {/* A MUDANÇA ESTÁ AQUI DENTRO. 
-        Ajustamos as regras para a tag <a> para garantir que o estilo de foco seja o correto.
+      {/* A MUDANÇA ESTÁ AQUI.
+        Reintroduzimos as regras fortes daquele seu CSS antigo, mas agora
+        de forma segura, aplicando-as somente aos links DENTRO da sidebar.
       */}
       <style>{`
         [data-sidebar="sidebar"] {
@@ -46,23 +47,24 @@ export function AppSidebar() {
           backdrop-filter: none !important;
         }
 
-        [data-sidebar="sidebar"] button {
+        /* Regra base para os links */
+        [data-sidebar="sidebar"] a {
+          color: white !important;
+          text-decoration: none !important;
           border-radius: 9999px !important;
           transition: all 0.2s ease;
         }
-
-        /* Regra base para os links (tags <a>) na sidebar */
-        [data-sidebar="sidebar"] a {
-          border-radius: 9999px !important;
-          color: white !important;
-          text-decoration: none !important;
-        }
         
-        /* A CORREÇÃO FINAL E MAIS IMPORTANTE: */
+        /* A CORREÇÃO DEFINITIVA: Força o estilo de foco para o link.
+          Esta é a regra que impede o amarelo.
+        */
+        [data-sidebar="sidebar"] a:focus,
         [data-sidebar="sidebar"] a:focus-visible {
-          color: white !important; /* Garante que o texto fique branco ao focar */
-          outline: 2px solid #5315CB !important; /* Força o contorno roxo */
-          outline-offset: 2px !important;
+          color: white !important;
+          background-color: transparent !important; /* Garante que não haja fundo inesperado */
+          outline: 2px solid #5315CB !important;
+          outline-offset: 2px;
+          box-shadow: none !important;
         }
       `}</style>
 
@@ -94,8 +96,7 @@ export function AppSidebar() {
                           }`}
                       >
                         <Link to={item.url} className="flex items-center justify-center w-full h-full">
-                          {/* O ícone já tem text-white, mas a regra CSS acima garante para o texto do tooltip */}
-                          <item.icon className="w-5 h-5 text-white" />
+                          <item.icon className="w-5 h-5" />
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
