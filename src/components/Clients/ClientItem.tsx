@@ -35,7 +35,7 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
       case "vencido":
         return "bg-red-600 text-white hover:bg-red-700";
       case "premium":
-        return "bg-goat-purple text-white hover:bg-goat-purple";
+        return "bg-btn-primary text-white hover:bg-goat-purple";
       case "gold":
         return "bg-yellow-700 text-white hover:bg-yellow-800";
       case "standard":
