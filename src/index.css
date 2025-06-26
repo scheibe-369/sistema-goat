@@ -93,6 +93,11 @@
     @apply bg-goat-gray-800 border border-goat-gray-700 rounded-lg p-4;
   }
 
+  /* Purple badge hover fix for "Pendente" */
+  .bg-goat-purple:hover {
+    background-color: #4c1d95 !important; /* Darker purple for hover */
+  }
+
   /* ===============================================
      INÍCIO DO BLOCO DE CORREÇÃO PARA O SIDEBAR
      =============================================== */
