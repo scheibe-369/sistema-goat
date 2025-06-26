@@ -507,7 +507,7 @@ export default function Financial() {
                 <div className="flex justify-center gap-2">
                   <Button
                     size="sm"
-                    className={`text-white w-20 ${expense.status === 'Pago' ? 'bg-blue-600 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                    className={`text-white w-20 ${expense.status === 'Pago' ? 'bg-green-600 opacity-60 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
                     onClick={() => handleToggleExpenseStatus(expense.id)}
                       disabled={expense.status === 'Pago'}
                   >
