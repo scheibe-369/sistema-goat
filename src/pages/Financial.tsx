@@ -488,7 +488,7 @@ export default function Financial() {
                 {/* Coluna 3: Tag Recorrente (centralizada) */}
                 <div className="flex justify-center">
                   {expense.isRecurring && (
-                    <Badge className="bg-purple-600 text-white text-xs">
+                    <Badge className="goat-purple text-white text-xs">
                       <Repeat className="w-3 h-3 mr-1" />
                       {expense.recurrence}
                     </Badge>
