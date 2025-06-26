@@ -85,8 +85,8 @@ export function AppSidebar() {
                           w-12 h-12 rounded-full hover:scale-105
                           ${
                             isActive
-                              ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-purple-500/25"
-                              : "bg-black/90 text-white hover:bg-purple-600/20 hover:text-white"
+                              ? "bg-gradient-to-r from-purple-600 to-goat-purple text-white shadow-purple-500/25"
+                              : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
                           }`}
                       >
                         <Link to={item.url} className="flex items-center justify-center w-full h-full">
