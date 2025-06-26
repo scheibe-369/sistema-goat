@@ -1,3 +1,5 @@
+// Em seu arquivo: AppSidebar.tsx (versão com tooltips reativados e sem sombras)
+
 import {
   Sidebar,
   SidebarContent,
@@ -72,11 +74,11 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
+                        tooltip={item.title} // <-- PROP ADICIONADA DE VOLTA
+                        className={`flex items-center justify-center transition-colors duration-300 border border-transparent
                           w-12 h-12 rounded-full
                           ${
                             isActive
-                              // MUDANÇA AQUI: A classe "shadow-purple-500/25" foi removida desta linha
                               ? "bg-gradient-to-r from-purple-600 to-goat-purple text-white"
                               : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
                           }`}
@@ -97,7 +99,8 @@ export function AppSidebar() {
           <SidebarMenu className="space-y-4 flex flex-col items-center">
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
-                className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
+                tooltip="Sair" // <-- PROP ADICIONADA DE VOLTA
+                className={`flex items-center justify-center transition-colors duration-300 border border-transparent bg-red-600/90 text-white hover:bg-red-700
                   w-12 h-12 rounded-full`}
               >
                 <LogOut className="w-5 h-5 text-white" />
