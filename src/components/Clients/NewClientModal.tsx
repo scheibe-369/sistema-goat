@@ -233,7 +233,7 @@ export function NewClientModal({
               }
               
               .dropdown-trigger:hover {
-                background-color: #525252 !important;
+                background-color: #404040 !important;
               }
               
               .dropdown-content {
@@ -369,7 +369,7 @@ export function NewClientModal({
                       <Button
                         type="button"
                         size="sm"
-                        className="bg-goat-purple/20 hover:bg-goat-purple/30 text-goat-purple border-goat-purple/50 h-6 px-2 text-xs"
+                        className="bg-goat-purple/20 hover:bg-goat-purple/30 text-white border-goat-purple/50 h-6 px-2 text-xs"
                         onClick={() => setShowAddPlan(!showAddPlan)}
                       >
                         <Plus className="w-3 h-3 mr-1" /> Novo
