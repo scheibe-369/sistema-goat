@@ -378,7 +378,7 @@ export function NewClientModal({
                     </Label>
 
                     {showAddPlan && (
-                      <div className="space-y-4 p-4 rounded-lg border border-goat-gray-500" style={{ backgroundColor: '#404040' }}>
+                      <div className="space-y-4 p-4 rounded-lg border border-[#404040]" style={{ backgroundColor: '#262626' }}>
                         <div className="space-y-2">
                           <Input
                             value={newPlanName}
