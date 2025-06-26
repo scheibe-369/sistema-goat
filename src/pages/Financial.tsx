@@ -440,7 +440,7 @@ export default function Financial() {
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-red-400 font-semibold">{formatCurrency(expense.value)}</p>
+                  <p className="text-white font-semibold">{formatCurrency(expense.value)}</p>
                   <Badge className={expense.status === 'Pago' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
                     {expense.status}
                   </Badge>
