@@ -1,4 +1,4 @@
-// Em seu arquivo: AppSidebar.tsx (versão completa e atualizada)
+// Em seu arquivo: AppSidebar.tsx (versão completa e corrigida)
 
 import {
   Sidebar,
@@ -29,9 +29,6 @@ export function AppSidebar() {
   return (
     <div className="relative">
       <style>{`
-        /* MUDANÇA #1: Aumentamos a largura da sidebar
-          Adicionando padding horizontal (esquerda/direita) de 12px.
-        */
         [data-sidebar="sidebar"] {
           position: fixed !important;
           top: 16px;
@@ -48,18 +45,12 @@ export function AppSidebar() {
           backdrop-filter: none !important;
         }
 
-        /*
-          MUDANÇA #2: Removemos o contorno de foco dos ícones
-          Aplicando 'outline: none' quando o link está focado.
-        */
         [data-sidebar="sidebar"] a:focus,
         [data-sidebar="sidebar"] a:focus-visible {
           outline: none !important;
           box-shadow: none !important;
         }
         
-        /* Esta regra pode ser removida se a de cima já resolver tudo,
-           mas podemos manter para garantir o raio da borda. */
         [data-sidebar="sidebar"] a {
           border-radius: 9999px !important;
         }
@@ -84,8 +75,9 @@ export function AppSidebar() {
                         asChild
                         isActive={isActive}
                         tooltip={item.title}
+                        // MUDANÇA AQUI: Removi a classe "hover:scale-105"
                         className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none
-                          w-12 h-12 rounded-full hover:scale-105
+                          w-12 h-12 rounded-full
                           ${
                             isActive
                               ? "bg-gradient-to-r from-purple-600 to-goat-purple text-white shadow-purple-500/25"
@@ -109,8 +101,9 @@ export function AppSidebar() {
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
                 tooltip="Sair"
+                // MUDANÇA AQUI TAMBÉM: Removi a classe "hover:scale-105"
                 className={`flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl border-none bg-red-600/90 text-white hover:bg-red-700
-                  w-12 h-12 rounded-full hover:scale-105`}
+                  w-12 h-12 rounded-full`}
               >
                 <LogOut className="w-5 h-5 text-white" />
               </SidebarMenuButton>
