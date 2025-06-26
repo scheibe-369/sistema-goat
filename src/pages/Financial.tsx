@@ -87,7 +87,6 @@ export default function Financial() {
   const [expenses, setExpenses] = useState(initialExpenses);
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>(mockFinancialEntries);
 
-  // 1. ESTADO PARA OS FILTROS
   const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
 
   // ==================================================================
@@ -123,7 +122,6 @@ export default function Financial() {
       );
 
     } else if (!expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
-      // MUDANÇA #A: Apenas muda o status, não remove mais o item da lista
       setExpenses(prev => prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp));
       
     } else if (expenseToUpdate.status === 'Pago') {
@@ -251,17 +249,12 @@ export default function Financial() {
 
   const overdueEntries = financialEntries.filter(e => e.status === 'overdue');
 
-  // MUDANÇA #B: LÓGICA DE FILTRAGEM ATUALIZADA
   const filteredFinancialEntries = financialEntries.filter(entry => {
-    // Lógica para o filtro de status
     const statusFilter = activeStatusFilter === 'all' 
       || (activeStatusFilter === 'pending' && (entry.status === 'pending' || entry.status === 'overdue'))
       || (entry.status === activeStatusFilter);
-      
-    // Aqui você pode adicionar a lógica para o filtro de mês no futuro
-    // const monthFilter = ...;
     
-    return statusFilter; // && monthFilter;
+    return statusFilter;
   });
   
   // ==================================================================
@@ -328,32 +321,38 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            {/* MUDANÇA #C: NOVOS BOTÕES DE FILTRO */}
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="text-white border-goat-gray-600">
-                Janeiro 2024
-              </Button>
+              {/* Botão de Janeiro removido */}
               <Button 
-                variant={activeStatusFilter === 'all' ? 'default' : 'outline'} 
                 size="sm" 
                 onClick={() => setActiveStatusFilter('all')}
-                className="text-white border-goat-gray-600"
+                className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
+                  activeStatusFilter === 'all' 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                }`}
               >
                 Todos
               </Button>
               <Button 
-                variant={activeStatusFilter === 'pending' ? 'default' : 'outline'} 
                 size="sm" 
                 onClick={() => setActiveStatusFilter('pending')}
-                className="text-white border-goat-gray-600"
+                className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
+                  activeStatusFilter === 'pending' 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                }`}
               >
                 Em Aberto
               </Button>
               <Button 
-                variant={activeStatusFilter === 'paid' ? 'default' : 'outline'} 
                 size="sm" 
                 onClick={() => setActiveStatusFilter('paid')}
-                className="text-white border-goat-gray-600"
+                className={`transition-colors duration-200 rounded-md px-3 py-1 text-sm font-medium ${
+                  activeStatusFilter === 'paid' 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-700'
+                }`}
               >
                 Pagos
               </Button>
