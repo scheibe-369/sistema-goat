@@ -470,7 +470,7 @@ export default function Financial() {
           <div className="pt-3 border-t border-goat-gray-700">
             <div className="flex items-center justify-between">
               <p className="text-goat-gray-400">Total de Despesas Pendentes:</p>
-              <p className="text-red-400 font-bold text-xl">
+              <p className="text-white font-bold text-xl">
                 {formatCurrency(expenses.filter(e => e.status === 'Pendente').reduce((sum, expense) => sum + expense.value, 0))}
               </p>
             </div>
