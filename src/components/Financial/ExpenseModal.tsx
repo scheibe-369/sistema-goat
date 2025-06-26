@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -141,10 +140,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
           )}
           
           <div className="flex gap-2 pt-4">
-            <Button type="submit" className="flex-1 bg-red-600 hover:bg-red-700 text-white">
+            <Button type="submit" className="flex-1 bg-goat-purple hover:bg-goat-purple/90 text-white">
               Adicionar Despesa
             </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="text-white border-goat-gray-600">
+            <Button type="button" className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
           </div>
