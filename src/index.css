@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -96,6 +97,11 @@
   /* Purple badge hover fix for "Pendente" */
   .bg-goat-purple:hover {
     background-color: #4c1d95 !important; /* Darker purple for hover */
+  }
+
+  /* Yellow badge hover fix for "Pendente" status */
+  .bg-yellow-600:hover {
+    background-color: #b45309 !important; /* Darker yellow for hover */
   }
 
   /* ===============================================
