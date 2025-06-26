@@ -228,7 +228,7 @@ export default function Financial() {
     const newExpense: Expense = {
         ...newExpenseData,
         id: Date.now(), // Gera um ID único
-        status: 'Pendente' as const 
+        status: 'Pendente' as const
     };
     setExpenses(prev => [...prev, newExpense].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
   };
@@ -273,15 +273,21 @@ export default function Financial() {
 
   const handleTogglePaymentStatus = (entryId: string) => {
     setFinancialEntries(prev =>
-      prev.map(entry =>
-        entry.id === entryId
-          ? {
-              ...entry,
-              status: entry.status === 'pending' ? 'paid' : 'pending',
-              paymentDate: entry.status === 'pending' ? new Date().toISOString().split('T')[0] : undefined
-            }
-          : entry
-      )
+      prev.map(entry => {
+        if (entry.id === entryId) {
+          // Se já está 'pago', a ação seria reverter para 'pendente'
+          if (entry.status === 'paid') {
+            return { ...entry, status: 'pending', paymentDate: undefined };
+          }
+          // Se está 'pendente' OU 'em atraso', a ação é marcar como 'pago'
+          return {
+            ...entry,
+            status: 'paid',
+            paymentDate: new Date().toISOString().split('T')[0]
+          };
+        }
+        return entry;
+      })
     );
   };
   
@@ -462,7 +468,7 @@ export default function Financial() {
 
                 {/* Coluna 5: Botão de Ação */}
                 <div className="flex justify-center">
-                  {(entry.status === 'pending' || entry.status === 'paid') && (
+                  {(entry.status === 'pending' || entry.status === 'paid' || entry.status === 'overdue') && (
                     <Button
                       size="sm"
                       className="bg-green-600 hover:bg-green-700 text-white w-32"
