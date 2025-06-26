@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -162,13 +161,11 @@ export default function Contracts() {
       {/* Expiring Contracts Alert */}
       {expiringContracts.length > 0 && (
         <Card className="bg-yellow-900/20 border-yellow-600">
-          <div className="p-6 border-b border-yellow-600">
-            <div className="flex items-center gap-3">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-white" />
               <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
             </div>
-          </div>
-          <div className="p-6">
             <div className="space-y-4">
               {expiringContracts.map((contract) => (
                 <div key={contract.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-yellow-900/10 rounded-lg border border-yellow-800">
