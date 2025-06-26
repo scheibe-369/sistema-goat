@@ -94,7 +94,13 @@
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-goat-gray-800;
+    /* Adicionamos text-white aqui para definir a cor padrão do texto */
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-white transition-all duration-200 hover:bg-goat-gray-800;
+  }
+
+  /* Adicionamos esta nova regra para corrigir o contorno de foco amarelo */
+  .sidebar-item:focus-visible {
+    @apply ring-2 ring-goat-purple ring-offset-2 ring-offset-goat-dark;
   }
 
   .sidebar-item.active {
