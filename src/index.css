@@ -124,12 +124,10 @@
 }
 
 /* ===============================
-✅ Corrige Tooltip Radix (Anti amarelo)
+✅ Corrige Tooltip Radix (Anti amarelo) - VERSÃO CORRIGIDA
+   Agora o estilo se aplica apenas a tooltips, sem afetar outros componentes.
 =============================== */
-[data-state='delayed-open'],
-[role='tooltip'],
-.radix-tooltip-content,
-[data-radix-popper-content-wrapper] {
+[role='tooltip'] {
   background-color: #000 !important;
   color: #fff !important;
   border: none !important;
@@ -138,53 +136,11 @@
   font-size: 12px !important;
   padding: 6px 10px !important;
   border-radius: 6px !important;
-  transition: none !important;
-  animation: none !important;
-}
-
-[data-state='delayed-open'] *,
-[role='tooltip'] *,
-.radix-tooltip-content *,
-[data-radix-popper-content-wrapper] * {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  transition: none !important;
-  animation: none !important;
-}
-
-@keyframes radix-fade-in {
-  from {
-    opacity: 1 !important;
-  }
-  to {
-    opacity: 1 !important;
-  }
-}
-
-@keyframes radix-fade-out {
-  from {
-    opacity: 1 !important;
-  }
-  to {
-    opacity: 1 !important;
-  }
-}
-
-[data-state='open'],
-[data-state='closed'],
-[data-state='instant-open'] {
-  background-color: #000 !important;
-  color: #fff !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  transition: none !important;
-  animation: none !important;
 }
 
 /* ===============================
 ✅ Corrige Radix Select (Dropdown de Status e Plano)
+   (Este bloco estava correto e foi mantido)
 =============================== */
 [data-radix-select-content-wrapper],
 [data-state="open"] > div[data-radix-popper-content-wrapper],
