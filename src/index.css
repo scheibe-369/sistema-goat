@@ -191,3 +191,19 @@
 [role="option"]:hover {
   background-color: rgb(31, 31, 31) !important; /* hover um pouco mais escuro */
 }
+
+/* Em seu arquivo: index.css (adicione no final de tudo) */
+
+/* ===============================================
+   ✅ CORREÇÃO FINAL E DEFINITIVA: Tooltip da Sidebar
+   =============================================== */
+/*
+  Esta regra mira especificamente no elemento com a classe .bg-popover
+  (o tooltip) APENAS quando ele está dentro do [data-sidebar="sidebar"].
+*/
+[data-sidebar="sidebar"] .bg-popover {
+  background-color: #171717 !important; /* Cor de --popover (cinza escuro) */
+  color: white !important;             /* Cor de --popover-foreground (branco) */
+  border-width: 1px !important;
+  border-color: #404040 !important;   /* Cor de --border (cinza médio) */
+}
