@@ -1,5 +1,4 @@
 import { useState } from "react";
-// 1. ADICIONAR IMPORTAÇÕES DO DATE-FNS (instale com: npm install date-fns)
 import { addWeeks, addMonths, addYears } from 'date-fns';
 
 import { Card } from "@/components/ui/card";
@@ -34,7 +33,6 @@ interface Transaction {
   status: string;
 }
 
-// 2. INTERFACE ATUALIZADA PARA DESPESAS
 interface Expense {
   id: number;
   description: string;
@@ -126,7 +124,6 @@ const mockTransactions: Transaction[] = [
   }
 ];
 
-// 3. DADOS DE DESPESAS ATUALIZADOS COM O CAMPO "recurrence"
 const initialExpenses: Expense[] = [
     {
       id: 1,
@@ -169,7 +166,6 @@ const initialExpenses: Expense[] = [
     }
   ];
 
-// Dados de exemplo para contratos com duração específica
 const contractProjections = [
   {
     clientName: 'Tech Innovations',
@@ -232,21 +228,19 @@ export default function Financial() {
     const newExpense: Expense = {
         ...newExpenseData,
         id: Date.now(), // Gera um ID único
-        status: 'Pendente' as const // Explicitly type as const to match union type
+        status: 'Pendente' as const 
     };
     setExpenses(prev => [...prev, newExpense].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
   };
 
-  // 5. FUNÇÃO PRINCIPAL DE DESPESAS REFATORADA
   const handleToggleExpenseStatus = (expenseId: number) => {
     const expenseToUpdate = expenses.find(e => e.id === expenseId);
     if (!expenseToUpdate) return;
 
-    // Caso 1: Pagando uma despesa recorrente
     if (expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
       const newRecurringExpense: Expense = {
         ...expenseToUpdate,
-        id: Date.now(), // ID único para a nova despesa
+        id: Date.now(),
         status: 'Pendente' as const,
         date: calculateNextDate(expenseToUpdate.date, expenseToUpdate.recurrence),
       };
@@ -255,17 +249,15 @@ export default function Financial() {
         [
           ...prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp),
           newRecurringExpense
-        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Mantém a lista ordenada por data
+        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       );
 
-    // Caso 2: Pagando uma despesa NÃO recorrente
     } else if (!expenseToUpdate.isRecurring && expenseToUpdate.status === 'Pendente') {
       setExpenses(prev => prev.map(exp => exp.id === expenseId ? { ...exp, status: 'Pago' as const } : exp));
       setTimeout(() => {
         setExpenses(prev => prev.filter(exp => exp.id !== expenseId));
       }, 800);
 
-    // Caso 3: Revertendo um pagamento (de 'Pago' para 'Pendente')
     } else if (expenseToUpdate.status === 'Pago') {
       if (expenseToUpdate.isRecurring) {
         alert("Não é possível reverter o status de uma despesa recorrente que já gerou a próxima cobrança.");
@@ -300,11 +292,11 @@ export default function Financial() {
   const getStatusBadge = (status: FinancialEntry['status']) => {
     switch (status) {
       case 'paid':
-        return <Badge className="bg-green-600 text-white">Pago</Badge>;
+        return <Badge className="bg-green-600 text-white hover:bg-green-700 transition-colors">Pago</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-600 text-white">Em aberto</Badge>;
+        return <Badge className="bg-yellow-600 text-white hover:bg-yellow-700 transition-colors">Em aberto</Badge>;
       case 'overdue':
-        return <Badge className="bg-red-600 text-white">Em atraso</Badge>;
+        return <Badge className="bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer">Em atraso</Badge>;
       default:
         return <Badge variant="secondary">Desconhecido</Badge>;
     }
@@ -327,9 +319,8 @@ export default function Financial() {
     return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   };
 
-  // 4. FUNÇÃO AUXILIAR PARA CALCULAR A PRÓXIMA DATA DE VENCIMENTO
   const calculateNextDate = (currentDate: string, recurrence: Expense['recurrence']): string => {
-    const date = new Date(currentDate + 'T00:00:00'); // Garante UTC para evitar erros de fuso
+    const date = new Date(currentDate + 'T00:00:00');
     let nextDate: Date;
 
     switch (recurrence) {
@@ -340,7 +331,6 @@ export default function Financial() {
       default: return currentDate;
     }
     
-    // Retorna a data no formato YYYY-MM-DD
     return nextDate.toISOString().split('T')[0];
   };
 
@@ -411,7 +401,11 @@ export default function Financial() {
 
                   {/* Coluna 5: Botão de Ação */}
                   <div className="flex justify-center">
-                    <Button size="sm" variant="outline" className="text-red-400 border-red-600 hover:bg-red-900/40">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-red-400 border-red-600 hover:bg-red-900/40 hover:text-white focus:ring-2 focus:ring-red-500 focus:text-white"
+                    >
                       Contatar Cliente
                     </Button>
                   </div>
