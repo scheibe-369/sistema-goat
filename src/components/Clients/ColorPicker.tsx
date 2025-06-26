@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 
 interface ColorPickerProps {
   selectedColor: string;
-  onColorChange: (color: string);
+  onColorChange: (color: string) => void;
   label?: string;
 }
 
