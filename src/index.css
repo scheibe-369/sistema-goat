@@ -93,19 +93,44 @@
     @apply bg-goat-gray-800 border border-goat-gray-700 rounded-lg p-4;
   }
 
+  /* ===============================================
+     INÍCIO DO BLOCO DE CORREÇÃO PARA O SIDEBAR
+     =============================================== */
   .sidebar-item {
-    /* Adicionamos text-white aqui para definir a cor padrão do texto */
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-white transition-all duration-200 hover:bg-goat-gray-800;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-goat-gray-800;
+    
+    /* Força a cor do texto para branco e remove qualquer decoração de link */
+    color: white !important;
+    text-decoration: none !important;
   }
 
-  /* Adicionamos esta nova regra para corrigir o contorno de foco amarelo */
+  /*
+    Regra de FOCO - A mais importante para corrigir o amarelo.
+    Forçamos um contorno roxo e garantimos que o fundo e texto não mudem.
+  */
   .sidebar-item:focus-visible {
-    @apply ring-2 ring-goat-purple ring-offset-2 ring-offset-goat-dark;
+    background-color: #18181b; /* Cor de fundo para o estado de foco, ex: goat-gray-800/900 */
+    color: white !important; /* Garante que o texto permaneça branco */
+    outline: 2px solid #5315CB !important; /* O contorno roxo FORÇADO */
+    outline-offset: 2px;
+    box-shadow: none !important; /* Remove qualquer outro efeito de sombra de foco */
   }
 
+  /* Regra para o item ATIVO (quando a página está selecionada) */
   .sidebar-item.active {
     @apply bg-goat-purple text-white;
+    color: white !important;
   }
+
+  /* Regra de FOCO para o item ATIVO (melhora a acessibilidade) */
+  .sidebar-item.active:focus-visible {
+    outline: 2px solid white !important; /* Contorno branco para contrastar com o fundo roxo */
+    outline-offset: 2px;
+  }
+  
+  /* ===============================================
+     FIM DO BLOCO DE CORREÇÃO
+     =============================================== */
 
   /* Botões Outline Globais (Corrige amarelo) */
   .btn-outline {
