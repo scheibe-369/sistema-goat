@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,7 @@ import { useState } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
+import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface Lead {
@@ -127,6 +129,7 @@ export default function LeadsKanban() {
   const [tags, setTags] = useState<Tag[]>(defaultTags);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
+  const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const getGroupColor = (group: string) => {
@@ -156,6 +159,16 @@ export default function LeadsKanban() {
       ...stage,
       leads: stage.leads.filter(lead => lead.id !== leadId)
     })));
+  };
+
+  const handleAddStage = (newStageData: { name: string; color: string }) => {
+    const newStage: Stage = {
+      id: `stage-${Date.now()}`,
+      name: newStageData.name,
+      color: newStageData.color,
+      leads: []
+    };
+    setStages(prev => [...prev, newStage]);
   };
 
   const handleDragEnd = (result: DropResult) => {
@@ -193,6 +206,14 @@ export default function LeadsKanban() {
             <Settings className="w-4 h-4 mr-2" />
             Gerenciar Tags
           </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsAddStageModalOpen(true)}
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Etapa
+          </Button>
           <Button className="btn-primary">
             <Plus className="w-4 h-4 mr-2" />
             Novo Lead
@@ -223,7 +244,7 @@ export default function LeadsKanban() {
 
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[600px]">
+        <div className="grid gap-6 min-h-[600px]" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(280px, 1fr))` }}>
           {stages.map((stage) => (
             <div key={stage.id} className="space-y-4">
               {/* Stage Header */}
@@ -363,6 +384,12 @@ export default function LeadsKanban() {
         lead={selectedLead}
         tags={tags}
         onUpdateLead={handleUpdateLead}
+      />
+
+      <AddStageModal
+        open={isAddStageModalOpen}
+        onOpenChange={setIsAddStageModalOpen}
+        onAddStage={handleAddStage}
       />
     </div>
   );
