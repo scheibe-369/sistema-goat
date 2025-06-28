@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -148,7 +147,7 @@ export default function LeadsKanban() {
   const handleUpdateLead = (updatedLead: Lead) => {
     setStages(prev => prev.map(stage => ({
       ...stage,
-      leads: stage.leads.map(lead => 
+      leads: stage.leads.map(lead =>
         lead.id === updatedLead.id ? updatedLead : lead
       )
     })));
@@ -175,18 +174,18 @@ export default function LeadsKanban() {
     if (!result.destination) return;
 
     const { source, destination } = result;
-    
+
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
 
     const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
     const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
-    
+
     const newStages = [...stages];
     const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
     newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
-    
+
     setStages(newStages);
   };
 
@@ -198,18 +197,20 @@ export default function LeadsKanban() {
           <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setIsTagsModalOpen(true)}
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+            /* ALTERAÇÃO AQUI */
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             <Settings className="w-4 h-4 mr-2" />
             Gerenciar Tags
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => setIsAddStageModalOpen(true)}
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+            /* ALTERAÇÃO AQUI */
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nova Etapa
@@ -225,15 +226,21 @@ export default function LeadsKanban() {
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
         <div className="flex items-center gap-4">
           <span className="text-white font-medium">Filtros:</span>
-          <Button variant="outline" size="sm" className="text-white border-goat-gray-600 hover:bg-goat-gray-700">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            /* ALTERAÇÃO AQUI */
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+          >
             Todos os grupos
           </Button>
           {tags.map((tag) => (
-            <Button 
+            <Button
               key={tag.id}
-              variant="outline" 
-              size="sm" 
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+              variant="outline"
+              size="sm"
+              /* ALTERAÇÃO AQUI */
+              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
             >
               <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
               {tag.name}
@@ -290,9 +297,9 @@ export default function LeadsKanban() {
                                         <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
                                         <p className="text-goat-gray-400 text-xs">{lead.company}</p>
                                       </div>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className="text-goat-gray-400 hover:text-white h-6 w-6"
                                         onClick={() => handleEditLead(lead)}
                                       >
@@ -332,18 +339,20 @@ export default function LeadsKanban() {
                                   </div>
                                 </Card>
                               </ContextMenuTrigger>
-                              
+
                               <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                <ContextMenuItem 
+                                <ContextMenuItem
                                   onClick={() => handleEditLead(lead)}
-                                  className="text-white hover:bg-goat-gray-700"
+                                   /* ALTERAÇÃO AQUI */
+                                  className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
                                 >
                                   <Edit className="w-4 h-4 mr-2" />
                                   Editar Lead
                                 </ContextMenuItem>
-                                <ContextMenuItem 
+                                <ContextMenuItem
                                   onClick={() => handleDeleteLead(lead.id)}
-                                  className="text-red-400 hover:bg-goat-gray-700"
+                                   /* ALTERAÇÃO AQUI */
+                                  className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Excluir Lead
