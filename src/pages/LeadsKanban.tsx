@@ -163,62 +163,53 @@ export default function LeadsKanban() {
   };
 
   return (
-    <div className="page-container" style={{ minHeight: '100vh' }}>
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      margin: 0,
+      padding: 0,
+      boxSizing: 'border-box',
+      background: '#111'
+    }}>
       {/* Header e filtros centralizados */}
-      <div className="content-wrapper">
-        <div className="space-y-6 animate-fade-in">
-          {/* Header - Centralizado */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
-              <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
-            </div>
-            <div className="kanban-header-buttons">
-              <Button
-                className="btn-primary h-10 px-4"
-                onClick={() => setIsTagsModalOpen(true)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Gerenciar Tags
-              </Button>
-              <Button
-                className="btn-primary h-10 px-4"
-                onClick={() => setIsAddStageModalOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Etapa
-              </Button>
-              <Button
-                className="btn-primary h-10 px-4"
-                onClick={() => setIsNewLeadModalOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Lead
-              </Button>
-            </div>
-          </div>
-
-          {/* Filters - Centralizado */}
-          <FiltersBar
-            tags={tags}
-            selectedFilter={selectedFilter}
-            onFilterChange={setSelectedFilter}
-          />
+      <div style={{
+        maxWidth: 1200,
+        margin: '0 auto',
+        padding: '32px 16px 0 16px'
+      }}>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
+        <p className="text-goat-gray-400 mb-4">Gerencie seu pipeline de vendas</p>
+        <div className="kanban-header-buttons mb-6 flex gap-2">
+          <Button className="btn-primary h-10 px-4" onClick={() => setIsTagsModalOpen(true)}>
+            <Settings className="w-4 h-4 mr-2" />
+            Gerenciar Tags
+          </Button>
+          <Button className="btn-primary h-10 px-4" onClick={() => setIsAddStageModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Etapa
+          </Button>
+          <Button className="btn-primary h-10 px-4" onClick={() => setIsNewLeadModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Lead
+          </Button>
         </div>
+        <FiltersBar
+          tags={tags}
+          selectedFilter={selectedFilter}
+          onFilterChange={setSelectedFilter}
+        />
       </div>
 
-      {/* Kanban Board: fora dos wrappers centralizadores e grudado à esquerda */}
-      <div
-        style={{
-          width: '100vw',
-          minWidth: '100vw',
-          maxWidth: '100vw',
-          margin: 0,
-          padding: 0,
-          overflowX: 'auto',
-          background: 'transparent',
-        }}
-      >
+      {/* Kanban Board ocupa 100vw e não é centralizado */}
+      <div style={{
+        width: '100vw',
+        minWidth: '100vw',
+        maxWidth: '100vw',
+        margin: 0,
+        padding: 0,
+        overflowX: 'auto',
+        background: 'transparent'
+      }}>
         <KanbanBoard
           stages={stages}
           tags={tags}
@@ -237,7 +228,6 @@ export default function LeadsKanban() {
         tags={tags}
         onUpdateTags={setTags}
       />
-
       <EditLeadModal
         open={isEditLeadModalOpen}
         onOpenChange={setIsEditLeadModalOpen}
@@ -245,20 +235,17 @@ export default function LeadsKanban() {
         tags={tags}
         onUpdateLead={handleUpdateLead}
       />
-
       <AddStageModal
         open={isAddStageModalOpen}
         onOpenChange={setIsAddStageModalOpen}
         onAddStage={handleAddStage}
       />
-
       <EditStageModal
         open={isEditStageModalOpen}
         onOpenChange={setIsEditStageModalOpen}
         stage={selectedStage}
         onUpdateStage={handleUpdateStage}
       />
-
       <NewLeadModal
         open={isNewLeadModalOpen}
         onOpenChange={setIsNewLeadModalOpen}
