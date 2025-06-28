@@ -26,7 +26,7 @@ export function Header() {
           {/* Notifications */}
           <Button 
             variant="ghost" 
-            size="icon" 
+            size="default"
             className="relative text-goat-gray-400 hover:text-white hover:bg-goat-gray-800 rounded-xl transition-all duration-200"
           >
             <Bell className="w-5 h-5" />
@@ -36,7 +36,7 @@ export function Header() {
           {/* Settings */}
           <Button 
             variant="ghost" 
-            size="icon" 
+            size="default"
             className="text-goat-gray-400 hover:text-white hover:bg-goat-gray-800 rounded-xl transition-all duration-200"
           >
             <Settings className="w-5 h-5" />
