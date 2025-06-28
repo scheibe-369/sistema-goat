@@ -10,11 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
 
 interface Stage {
@@ -65,49 +66,86 @@ export function EditStageModal({
     onOpenChange(false);
   };
 
+  // Estilos igual ao select do NewLeadModal
+  const selectStyle = `
+    .edit-stage-trigger {
+      background-color: #404040 !important;
+      border-color: #525252 !important;
+      color: #fff !important;
+      border-radius: 0.75rem !important;
+      min-height: 44px;
+      font-size: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      transition: border-color 0.15s;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    .edit-stage-trigger svg {
+      color: #fff !important;
+      opacity: 0.7;
+    }
+    .edit-stage-value,
+    .edit-stage-value span {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem;
+      color: #fff !important;
+    }
+    .edit-stage-content {
+      background-color: #404040 !important;
+      border-color: #525252 !important;
+      border-radius: 0.75rem !important;
+      min-width: var(--radix-select-trigger-width) !important;
+      width: var(--radix-select-trigger-width) !important;
+      box-shadow: none !important;
+      margin-top: 0.2rem;
+      padding: 0.25rem 0;
+    }
+    .edit-stage-item {
+      color: #fff !important;
+      background-color: transparent !important;
+      border-radius: 0.5rem !important;
+      font-weight: 500;
+      transition: background 0.1s;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      min-height: 40px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem;
+    }
+    .edit-stage-item[data-state="checked"], .edit-stage-item:hover, .edit-stage-item[data-highlighted] {
+      background-color: #525252 !important;
+    }
+    [data-radix-popper-content-wrapper] { background: transparent !important; }
+    .radix-select-overlay { display: none !important; }
+  `;
+
+  // Helper para exibir cor selecionada (trigger)
+  const getColorSelected = () => {
+    const selected = colorOptions.find((opt) => opt.value === color);
+    if (!selected)
+      return <span className="text-white">Selecione uma cor</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
+        {selected.label}
+      </span>
+    );
+  };
+
   if (!stage) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        {/* Força texto branco no Trigger e em todos os estados */}
-        <style>{`
-          .stage-trigger,
-          .stage-trigger *,
-          .stage-trigger:focus,
-          .stage-trigger:active,
-          .stage-trigger[aria-expanded="true"],
-          .stage-trigger[data-state="open"] {
-            color: #fff !important;
-          }
-          .stage-trigger .stage-trigger-label {
-            color: #fff !important;
-          }
-          /* Dropdown styles para consistência */
-          .stage-color-dropdown .dropdown-item,
-          .stage-color-dropdown .dropdown-item:hover,
-          .stage-color-dropdown .dropdown-item:focus,
-          .stage-color-dropdown .dropdown-item[data-highlighted],
-          .stage-color-dropdown .dropdown-item[data-state="checked"],
-          .stage-color-dropdown .dropdown-item[aria-selected="true"] {
-            color: #fff !important;
-            background-color: transparent;
-          }
-          .stage-color-dropdown .dropdown-item[data-highlighted],
-          .stage-color-dropdown .dropdown-item:hover,
-          .stage-color-dropdown .dropdown-item:focus {
-            background-color: #525252 !important;
-          }
-          .stage-color-dropdown .dropdown-item[data-state="checked"],
-          .stage-color-dropdown .dropdown-item[aria-selected="true"] {
-            background-color: #404040 !important;
-            color: #fff !important;
-          }
-        `}</style>
+        <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Editar Etapa</DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="stageName" className="text-white">
@@ -122,55 +160,27 @@ export function EditStageModal({
               required
             />
           </div>
-
           <div>
             <Label className="text-white mb-1">Cor da Etapa</Label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="stage-trigger dropdown-trigger w-full flex items-center justify-between bg-[#404040] border-[#525252] text-white"
-                  style={{
-                    backgroundColor: "#404040",
-                    borderColor: "#525252",
-                  }}
-                  type="button"
-                >
-                  <span className="flex items-center gap-2 stage-trigger-label">
-                    <span
-                      className={`w-3 h-3 rounded-full ${
-                        colorOptions.find((c) => c.value === color)?.dot
-                      }`}
-                    ></span>
-                    {
-                      colorOptions.find((option) => option.value === color)
-                        ?.label
-                    }
-                  </span>
-                  <ChevronDown className="w-4 h-4 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="stage-color-dropdown bg-[#404040] border-[#525252] p-0 w-full min-w-[150px]"
-                align="start"
-              >
+            <Select value={color} onValueChange={setColor}>
+              <SelectTrigger className="edit-stage-trigger">
+                <SelectValue className="edit-stage-value">{getColorSelected()}</SelectValue>
+                <ChevronDown className="w-4 h-4 ml-auto" />
+              </SelectTrigger>
+              <SelectContent className="edit-stage-content">
                 {colorOptions.map((option) => (
-                  <DropdownMenuItem
+                  <SelectItem
                     key={option.value}
-                    onClick={() => setColor(option.value)}
-                    className={`dropdown-item flex items-center gap-2 px-4 py-2 text-white text-sm cursor-pointer rounded-none
-                      ${color === option.value ? "bg-goat-gray-700" : ""}
-                      hover:bg-goat-gray-600 hover:text-white focus:bg-goat-gray-600 focus:text-white
-                    `}
+                    value={option.value}
+                    className="edit-stage-item"
                   >
                     <span className={`w-3 h-3 rounded-full ${option.dot}`} />
-                    {option.label}
-                  </DropdownMenuItem>
+                    <span className="whitespace-nowrap">{option.label}</span>
+                  </SelectItem>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SelectContent>
+            </Select>
           </div>
-
           <DialogFooter className="gap-2">
             <Button
               type="button"
