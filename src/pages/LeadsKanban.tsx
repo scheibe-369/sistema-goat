@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, MoreVertical, Settings, Edit, Trash2, EllipsisVertical } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
@@ -143,21 +143,46 @@ export default function LeadsKanban() {
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
-  // --- Scroll Manual States ---
+  // ========== Momentum Scroll ==============
   const kanbanRef = useRef<HTMLDivElement>(null);
+  const momentumRef = useRef<number | null>(null);
   const [isDraggingScroll, setIsDraggingScroll] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [startTouchX, setStartTouchX] = useState(0);
-  const [touchScrollLeft, setTouchScrollLeft] = useState(0);
 
-  // Mouse handlers
+  // Para mouse
+  const lastMoveX = useRef<number>(0);
+  const lastMoveTime = useRef<number>(0);
+  const velocity = useRef<number>(0);
+
+  // Para touch
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchScrollLeft, setTouchScrollLeft] = useState(0);
+  const touchLastX = useRef(0);
+  const touchLastTime = useRef(0);
+  const touchVelocity = useRef(0);
+
+  // Limpa momentum no unmount
+  useEffect(() => {
+    return () => {
+      if (momentumRef.current) cancelAnimationFrame(momentumRef.current);
+    };
+  }, []);
+
+  // Mouse
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return; // Only left click
+    // Não scrolla se clicar em drag de card
+    if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
     setIsDraggingScroll(true);
     setStartX(e.pageX - (kanbanRef.current?.offsetLeft || 0));
     setScrollLeft(kanbanRef.current?.scrollLeft || 0);
+    lastMoveX.current = e.pageX;
+    lastMoveTime.current = Date.now();
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
     document.body.style.cursor = "grabbing";
   };
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -166,28 +191,75 @@ export default function LeadsKanban() {
     const x = e.pageX - (kanbanRef.current.offsetLeft || 0);
     const walk = (x - startX) * 1.2;
     kanbanRef.current.scrollLeft = scrollLeft - walk;
+
+    // Para momentum
+    const now = Date.now();
+    velocity.current = (e.pageX - lastMoveX.current) / (now - lastMoveTime.current + 1e-6);
+    lastMoveX.current = e.pageX;
+    lastMoveTime.current = now;
   };
   const handleMouseUp = () => {
     setIsDraggingScroll(false);
     document.body.style.cursor = "";
+    if (!kanbanRef.current) return;
+
+    // Momentum scroll (mouse)
+    let momentum = velocity.current * 50;
+    const deceleration = 0.93;
+
+    function animate() {
+      if (Math.abs(momentum) < 0.2) return;
+      kanbanRef.current!.scrollLeft -= momentum;
+      momentum *= deceleration;
+      momentumRef.current = requestAnimationFrame(animate);
+    }
+    if (Math.abs(momentum) > 1) animate();
   };
 
-  // Touch handlers
+  // Touch
   const handleTouchStart = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
     setIsDraggingScroll(true);
-    setStartTouchX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
+    setTouchStartX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
     setTouchScrollLeft(kanbanRef.current?.scrollLeft || 0);
+    touchLastX.current = e.touches[0].pageX;
+    touchLastTime.current = Date.now();
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
     const x = e.touches[0].pageX - (kanbanRef.current.offsetLeft || 0);
-    const walk = (x - startTouchX) * 1.1;
+    const walk = (x - touchStartX) * 1.1;
     kanbanRef.current.scrollLeft = touchScrollLeft - walk;
-  };
-  const handleTouchEnd = () => setIsDraggingScroll(false);
 
-  // ----------- SEUS HANDLERS ORIGINAIS -----------
+    // Para momentum
+    const now = Date.now();
+    touchVelocity.current = (e.touches[0].pageX - touchLastX.current) / (now - touchLastTime.current + 1e-6);
+    touchLastX.current = e.touches[0].pageX;
+    touchLastTime.current = now;
+  };
+  const handleTouchEnd = () => {
+    setIsDraggingScroll(false);
+
+    // Momentum scroll (touch)
+    let momentum = touchVelocity.current * 70;
+    const deceleration = 0.92;
+
+    function animate() {
+      if (!kanbanRef.current) return;
+      if (Math.abs(momentum) < 0.3) return;
+      kanbanRef.current.scrollLeft -= momentum;
+      momentum *= deceleration;
+      momentumRef.current = requestAnimationFrame(animate);
+    }
+    if (Math.abs(momentum) > 1) animate();
+  };
+
+  // ================== Funções Kanban/Leads ===================
+
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
     if (tag) return `${tag.color} text-white hover:${tag.color}`;
@@ -231,9 +303,9 @@ export default function LeadsKanban() {
       id: `lead-${Date.now()}`,
       lastUpdate: new Date().toISOString().split('T')[0]
     };
-    setStages(prev => prev.map(stage => 
-      stage.id === newLeadData.stage 
-        ? { ...stage, leads: [...stage.leads, newLead] } 
+    setStages(prev => prev.map(stage =>
+      stage.id === newLeadData.stage
+        ? { ...stage, leads: [...stage.leads, newLead] }
         : stage
     ));
   };
@@ -246,7 +318,7 @@ export default function LeadsKanban() {
   const handleUpdateStage = (updatedStage: { name: string; color: string }) => {
     if (!selectedStage) return;
     setStages(prev => prev.map(stage =>
-      stage.id === selectedStage.id 
+      stage.id === selectedStage.id
         ? { ...stage, name: updatedStage.name, color: updatedStage.color }
         : stage
     ));
@@ -277,7 +349,8 @@ export default function LeadsKanban() {
   };
   const filteredStages = getFilteredStages();
 
-  // =========== RENDER ================
+  // =================== JSX =========================
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -393,8 +466,8 @@ export default function LeadsKanban() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            data-drag-card // Permite distinguir clique para scroll vs arrastar card!
                             className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                            data-drag-card // ESSENCIAL: para não misturar drag de card com momentum
                           >
                             <ContextMenu>
                               <ContextMenuTrigger>
@@ -429,7 +502,6 @@ export default function LeadsKanban() {
                                   </div>
                                 </Card>
                               </ContextMenuTrigger>
-
                               <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
                                 <ContextMenuItem
                                   onClick={() => handleEditLead(lead)}
