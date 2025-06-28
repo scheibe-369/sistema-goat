@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -243,13 +244,64 @@ export default function LeadsKanban() {
       </Card>
 
       {/* Kanban Board with Touch-Friendly Horizontal Scroll */}
-      <div className="w-full">
+      <div className="w-full overflow-hidden">
         <div 
-          className="flex gap-6 pb-4 overflow-x-auto scrollbar-hide touch-pan-x"
+          className="flex gap-6 pb-4 overflow-x-auto min-w-max"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+            cursor: 'grab'
+          }}
+          onMouseDown={(e) => {
+            const slider = e.currentTarget;
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            const handleMouseDown = (e: MouseEvent) => {
+              isDown = true;
+              slider.style.cursor = 'grabbing';
+              startX = e.pageX - slider.offsetLeft;
+              scrollLeft = slider.scrollLeft;
+            };
+
+            const handleMouseLeave = () => {
+              isDown = false;
+              slider.style.cursor = 'grab';
+            };
+
+            const handleMouseUp = () => {
+              isDown = false;
+              slider.style.cursor = 'grab';
+            };
+
+            const handleMouseMove = (e: MouseEvent) => {
+              if (!isDown) return;
+              e.preventDefault();
+              const x = e.pageX - slider.offsetLeft;
+              const walk = (x - startX) * 2;
+              slider.scrollLeft = scrollLeft - walk;
+            };
+
+            handleMouseDown(e.nativeEvent);
+            
+            const cleanup = () => {
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+              document.removeEventListener('mouseleave', handleMouseLeave);
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', () => {
+              handleMouseUp();
+              cleanup();
+            });
+            document.addEventListener('mouseleave', () => {
+              handleMouseLeave();
+              cleanup();
+            });
           }}
         >
           <DragDropContext onDragEnd={handleDragEnd}>
@@ -275,7 +327,7 @@ export default function LeadsKanban() {
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`space-y-2 min-h-[400px] max-h-[600px] p-2 rounded-lg transition-colors overflow-y-auto scrollbar-hide ${
+                      className={`space-y-2 min-h-[400px] max-h-[600px] p-2 rounded-lg transition-colors overflow-y-auto ${
                         snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
                       }`}
                       style={{
