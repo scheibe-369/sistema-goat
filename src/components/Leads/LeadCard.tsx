@@ -30,11 +30,14 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`${snapshot.isDragging ? 'z-50 shadow-lg border-goat-purple/80' : ''} transition-all`}
           style={{
-            ...provided.draggableProps.style, // NÃO mexa em transform aqui!
-            cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+            ...provided.draggableProps.style,
+            cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+            zIndex: snapshot.isDragging ? 9999 : undefined,
+            boxShadow: snapshot.isDragging ? "0 12px 32px 0 rgba(80,20,230,0.18)" : undefined,
+            // Nunca mexa em transform!
           }}
+          className="transition-all"
         >
           <ContextMenu>
             <ContextMenuTrigger>

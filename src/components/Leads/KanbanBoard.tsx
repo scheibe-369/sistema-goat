@@ -90,7 +90,7 @@ export function KanbanBoard({
     };
   }, [isCardBeingDragged, autoScrollLoop]);
 
-  // Touch support para auto-scroll (opcional, pode melhorar ainda mais para touch events)
+  // Touch support para auto-scroll
   useEffect(() => {
     if (!isCardBeingDragged) return;
     const handler = (e: TouchEvent) => {
