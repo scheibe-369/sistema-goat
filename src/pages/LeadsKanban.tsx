@@ -327,61 +327,65 @@ export default function LeadsKanban() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header - Fixed */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
-          <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            className="btn-primary"
-            onClick={() => setIsTagsModalOpen(true)}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Gerenciar Tags
-          </Button>
-          <Button
-            className="btn-primary"
-            onClick={() => setIsAddStageModalOpen(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Etapa
-          </Button>
-          <Button className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Lead
-          </Button>
+    <div className="page-container">
+      <div className="content-wrapper">
+        <div className="space-y-6 animate-fade-in">
+          {/* Header - Fixed Width */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex-shrink-0">
+              <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
+              <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
+            </div>
+            <div className="kanban-header-buttons">
+              <Button
+                className="btn-primary"
+                onClick={() => setIsTagsModalOpen(true)}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Gerenciar Tags
+              </Button>
+              <Button
+                className="btn-primary"
+                onClick={() => setIsAddStageModalOpen(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Etapa
+              </Button>
+              <Button className="btn-primary">
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Lead
+              </Button>
+            </div>
+          </div>
+
+          {/* Filters - Fixed Width */}
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+            <div className="flex items-center gap-4">
+              <span className="text-white font-medium">Filtros:</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+              >
+                Todos os grupos
+              </Button>
+              {tags.map((tag) => (
+                <Button
+                  key={tag.id}
+                  variant="outline"
+                  size="sm"
+                  className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+                >
+                  <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
+                  {tag.name}
+                </Button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Filters - Fixed */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
-        <div className="flex items-center gap-4">
-          <span className="text-white font-medium">Filtros:</span>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
-          >
-            Todos os grupos
-          </Button>
-          {tags.map((tag) => (
-            <Button
-              key={tag.id}
-              variant="outline"
-              size="sm"
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
-            >
-              <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
-              {tag.name}
-            </Button>
-          ))}
-        </div>
-      </Card>
-
-      {/* Kanban Board - Scroll Horizontal Fluido */}
+      {/* Kanban Board - Full Width com Scroll Horizontal */}
       <div 
         ref={scrollContainerRef}
         className="kanban-scroll-fluid"

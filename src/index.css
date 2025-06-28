@@ -43,9 +43,19 @@
     @apply border-border;
   }
 
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   body {
     @apply bg-goat-dark text-white font-sans;
     font-family: 'Inter', sans-serif;
+  }
+
+  #root {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -326,4 +336,51 @@
 /* Previne conflitos com react-beautiful-dnd */
 .kanban-scroll-fluid [data-rbd-droppable-context-id] {
   transform: none !important;
+}
+
+/* =======================================
+   ✅ NOVA SEÇÃO: CORREÇÃO DO OVERFLOW HORIZONTAL
+   ======================================= */
+
+/* Garante que a página principal não tenha overflow horizontal */
+.page-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Container com largura máxima e centralizado */
+.content-wrapper {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Responsividade para o header de botões do Kanban */
+.kanban-header-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .kanban-header-buttons {
+    gap: 0.25rem;
+  }
+  
+  .kanban-header-buttons button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanban-header-buttons {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+  }
 }
