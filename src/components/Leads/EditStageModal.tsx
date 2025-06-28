@@ -11,9 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
@@ -67,15 +67,27 @@ export function EditStageModal({
 
   if (!stage) return null;
 
-  // Pega objeto do color selecionado para mostrar dot e label
-  const selectedColor = colorOptions.find((c) => c.value === color);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+        {/* Força texto branco no hover e estados ativos */}
+        <style>{`
+          .stage-color-dropdown .dropdown-item,
+          .stage-color-dropdown .dropdown-item:hover,
+          .stage-color-dropdown .dropdown-item:focus {
+            color: #fff !important;
+            background-color: transparent;
+          }
+          .stage-color-dropdown .dropdown-item:hover,
+          .stage-color-dropdown .dropdown-item[data-highlighted] {
+            background-color: #525252 !important;
+            color: #fff !important;
+          }
+        `}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Editar Etapa</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="stageName" className="text-white">
@@ -85,40 +97,51 @@ export function EditStageModal({
               id="stageName"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
               placeholder="Digite o nome da etapa"
               required
             />
           </div>
-          {/* Dropdown Cor da Etapa */}
+
           <div>
-            <Label className="text-white">Cor da Etapa</Label>
+            <Label className="text-white mb-1">Cor da Etapa</Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`
-                    w-full flex items-center justify-between gap-2
-                    bg-goat-gray-700 border-goat-gray-600 text-white font-medium rounded-md px-3 min-h-[44px]
-                    hover:bg-goat-gray-600 transition-colors
-                  `}
+                  className="dropdown-trigger w-full flex items-center justify-between bg-[#404040] border-[#525252] text-white"
+                  style={{
+                    backgroundColor: "#404040",
+                    borderColor: "#525252",
+                  }}
                   type="button"
                 >
                   <span className="flex items-center gap-2">
-                    <span className={`w-3 h-3 rounded-full ${selectedColor?.dot}`} />
-                    {selectedColor?.label || "Selecione uma cor"}
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        colorOptions.find((c) => c.value === color)?.dot
+                      }`}
+                    ></span>
+                    {
+                      colorOptions.find((option) => option.value === color)
+                        ?.label
+                    }
                   </span>
-                  <ChevronDown className="h-4 w-4 opacity-50" />
+                  <ChevronDown className="w-4 h-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#404040] border-[#525252] w-full min-w-[150px] p-0 mt-1">
+              <DropdownMenuContent
+                className="stage-color-dropdown bg-[#404040] border-[#525252] p-0 w-full min-w-[150px]"
+                align="start"
+              >
                 {colorOptions.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
                     onClick={() => setColor(option.value)}
-                    className={`flex items-center gap-2 px-4 py-2 text-white text-sm cursor-pointer rounded-none ${
-                      color === option.value ? "bg-goat-gray-700" : ""
-                    }`}
+                    className={`dropdown-item flex items-center gap-2 px-4 py-2 text-white text-sm cursor-pointer rounded-none
+                      ${color === option.value ? "bg-goat-gray-700" : ""}
+                      hover:bg-goat-gray-600 hover:text-white focus:bg-goat-gray-600 focus:text-white
+                    `}
                   >
                     <span className={`w-3 h-3 rounded-full ${option.dot}`} />
                     {option.label}
@@ -127,15 +150,16 @@ export function EditStageModal({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           <DialogFooter className="gap-2">
             <Button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
+              className="flex-1 h-12 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white border-0 transition-colors duration-200"
             >
               Cancelar
             </Button>
-            <Button type="submit" className="btn-primary">
+            <Button type="submit" className="btn-primary flex-1 h-12 text-lg font-semibold">
               Salvar Alterações
             </Button>
           </DialogFooter>
