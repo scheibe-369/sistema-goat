@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus, Settings } from "lucide-react";
 import { useState } from "react";
@@ -150,24 +149,25 @@ export default function LeadsKanban() {
   };
 
   const handleUpdateStage = (updatedStage: Stage) => {
-    setStages(prev => prev.map(stage => 
+    setStages(prev => prev.map(stage =>
       stage.id === updatedStage.id ? updatedStage : stage
     ));
   };
 
   const handleAddLead = (newLead: Lead, stageId: string) => {
-    setStages(prev => prev.map(stage => 
-      stage.id === stageId 
+    setStages(prev => prev.map(stage =>
+      stage.id === stageId
         ? { ...stage, leads: [...stage.leads, newLead] }
         : stage
     ));
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ minHeight: '100vh' }}>
+      {/* Header e filtros centralizados */}
       <div className="content-wrapper">
         <div className="space-y-6 animate-fade-in">
-          {/* Header - Fixed Width */}
+          {/* Header - Centralizado */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex-shrink-0">
               <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
@@ -188,7 +188,7 @@ export default function LeadsKanban() {
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Etapa
               </Button>
-              <Button 
+              <Button
                 className="btn-primary h-10 px-4"
                 onClick={() => setIsNewLeadModalOpen(true)}
               >
@@ -198,7 +198,7 @@ export default function LeadsKanban() {
             </div>
           </div>
 
-          {/* Filters - Fixed Width */}
+          {/* Filters - Centralizado */}
           <FiltersBar
             tags={tags}
             selectedFilter={selectedFilter}
@@ -207,16 +207,28 @@ export default function LeadsKanban() {
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <KanbanBoard
-        stages={stages}
-        tags={tags}
-        selectedFilter={selectedFilter}
-        onStagesChange={setStages}
-        onEditStage={handleEditStage}
-        onEditLead={handleEditLead}
-        onDeleteLead={handleDeleteLead}
-      />
+      {/* Kanban Board: fora dos wrappers centralizadores e grudado à esquerda */}
+      <div
+        style={{
+          width: '100vw',
+          minWidth: '100vw',
+          maxWidth: '100vw',
+          margin: 0,
+          padding: 0,
+          overflowX: 'auto',
+          background: 'transparent',
+        }}
+      >
+        <KanbanBoard
+          stages={stages}
+          tags={tags}
+          selectedFilter={selectedFilter}
+          onStagesChange={setStages}
+          onEditStage={handleEditStage}
+          onEditLead={handleEditLead}
+          onDeleteLead={handleDeleteLead}
+        />
+      </div>
 
       {/* Modals */}
       <TagsManagementModal
