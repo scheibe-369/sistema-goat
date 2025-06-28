@@ -92,8 +92,19 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     });
   };
 
-  // CSS ultra-específico para remover o ícone de verificado (checked) de QUALQUER lugar do Select
+  // CSS ultra-específico para remover QUALQUER ícone de verificado do Select
   const selectStyle = `
+    /* Remove qualquer "check" do Radix Select em qualquer lugar do DOM do modal */
+    [data-radix-select-item-indicator] {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      left: 0 !important;
+      color: transparent !important;
+      background: none !important;
+    }
     .expense-select-trigger {
       background-color: #404040 !important;
       border-color: #525252 !important;
@@ -132,31 +143,6 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       background-color: #525252 !important;
       color: white !important;
     }
-    /* Remove QUALQUER ícone de verificado/checked do Radix/shadcn dentro do select (trigger ou lista) */
-    .expense-select-trigger [data-radix-select-item-indicator],
-    .expense-select-content [data-radix-select-item-indicator],
-    .expense-select-item [data-radix-select-item-indicator],
-    .expense-select-content span[data-radix-select-item-indicator],
-    .expense-select-item svg[data-state="checked"],
-    .expense-select-content svg[data-state="checked"],
-    [data-radix-select-item-indicator] {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-      position: static !important;
-      pointer-events: none !important;
-      background: none !important;
-      color: transparent !important;
-      left: 0 !important;
-    }
-    /* Deep selector para remover ícone se for inserido em slot direto pelo Radix */
-    .expense-select-content > div > .expense-select-item > [data-radix-select-item-indicator] {
-      display: none !important;
-    }
-    /* Se ainda assim surgir, esconde global */
-    [data-radix-select-item-indicator] {
-      display: none !important;
-    }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
   `;
 
@@ -169,6 +155,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+        {/* AQUI está o CSS matador */}
         <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Nova Despesa</DialogTitle>
