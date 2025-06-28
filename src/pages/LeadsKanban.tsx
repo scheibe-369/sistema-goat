@@ -162,7 +162,6 @@ export default function LeadsKanban() {
   const touchLastTime = useRef(0);
   const touchVelocity = useRef(0);
 
-  // Limpa momentum no unmount
   useEffect(() => {
     return () => {
       if (momentumRef.current) cancelAnimationFrame(momentumRef.current);
@@ -171,7 +170,6 @@ export default function LeadsKanban() {
 
   // Mouse
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Não scrolla se clicar em drag de card
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
     setIsDraggingScroll(true);
@@ -192,7 +190,6 @@ export default function LeadsKanban() {
     const walk = (x - startX) * 1.2;
     kanbanRef.current.scrollLeft = scrollLeft - walk;
 
-    // Para momentum
     const now = Date.now();
     velocity.current = (e.pageX - lastMoveX.current) / (now - lastMoveTime.current + 1e-6);
     lastMoveX.current = e.pageX;
@@ -203,7 +200,6 @@ export default function LeadsKanban() {
     document.body.style.cursor = "";
     if (!kanbanRef.current) return;
 
-    // Momentum scroll (mouse)
     let momentum = velocity.current * 50;
     const deceleration = 0.93;
 
@@ -235,7 +231,6 @@ export default function LeadsKanban() {
     const walk = (x - touchStartX) * 1.1;
     kanbanRef.current.scrollLeft = touchScrollLeft - walk;
 
-    // Para momentum
     const now = Date.now();
     touchVelocity.current = (e.touches[0].pageX - touchLastX.current) / (now - touchLastTime.current + 1e-6);
     touchLastX.current = e.touches[0].pageX;
@@ -244,7 +239,6 @@ export default function LeadsKanban() {
   const handleTouchEnd = () => {
     setIsDraggingScroll(false);
 
-    // Momentum scroll (touch)
     let momentum = touchVelocity.current * 70;
     const deceleration = 0.92;
 
@@ -258,8 +252,7 @@ export default function LeadsKanban() {
     if (Math.abs(momentum) > 1) animate();
   };
 
-  // ================== Funções Kanban/Leads ===================
-
+  // =============== Kanban Logic ===============
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
     if (tag) return `${tag.color} text-white hover:${tag.color}`;
@@ -327,9 +320,7 @@ export default function LeadsKanban() {
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination } = result;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) {
-      return;
-    }
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
     const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
     const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
     const newStages = [...stages];
@@ -339,7 +330,6 @@ export default function LeadsKanban() {
     setStages(newStages);
   };
 
-  // Função de filtro
   const getFilteredStages = () => {
     if (activeFilter === 'all') return stages;
     return stages.map(stage => ({
@@ -349,7 +339,7 @@ export default function LeadsKanban() {
   };
   const filteredStages = getFilteredStages();
 
-  // =================== JSX =========================
+  // ================ JSX =====================
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -384,7 +374,7 @@ export default function LeadsKanban() {
           <Button 
             variant="outline" 
             size="sm" 
-            className={`text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white ${
+            className={`text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
               activeFilter === 'all' ? 'bg-goat-purple border-goat-purple' : ''
             }`}
             onClick={() => setActiveFilter('all')}
@@ -396,7 +386,7 @@ export default function LeadsKanban() {
               key={tag.id}
               variant="outline"
               size="sm"
-              className={`text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white ${
+              className={`text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
                 activeFilter === tag.name ? 'bg-goat-purple border-goat-purple' : ''
               }`}
               onClick={() => setActiveFilter(tag.name)}
@@ -435,14 +425,14 @@ export default function LeadsKanban() {
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
                   <h3 className="font-semibold text-white">{stage.name}</h3>
-                  <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
+                  <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
                     {stage.leads.length}
                   </Badge>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-goat-gray-400 hover:text-white"
+                  className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white"
                   onClick={() => handleEditStage(stage)}
                 >
                   <EllipsisVertical className="w-4 h-4" />
@@ -482,7 +472,7 @@ export default function LeadsKanban() {
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-goat-gray-400 hover:text-white h-6 w-6"
+                                        className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-6 w-6"
                                         onClick={() => handleEditLead(lead)}
                                       >
                                         <MoreVertical className="w-3 h-3" />
@@ -505,7 +495,7 @@ export default function LeadsKanban() {
                               <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
                                 <ContextMenuItem
                                   onClick={() => handleEditLead(lead)}
-                                  className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
+                                  className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
                                 >
                                   <Edit className="w-4 h-4 mr-2" />
                                   Editar Lead
