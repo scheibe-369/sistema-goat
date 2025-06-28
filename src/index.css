@@ -78,6 +78,16 @@
     outline: 2px solid #5315CB;
     outline-offset: 2px;
   }
+
+  /* Hide scrollbar for kanban horizontal scroll */
+  .flex.overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .flex.overflow-x-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer components {

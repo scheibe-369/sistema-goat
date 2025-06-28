@@ -1,12 +1,15 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
+import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2, EllipsisVertical } from "lucide-react";
 import { useState } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
+import { NewLeadModal } from "@/components/Leads/NewLeadModal";
+import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface Lead {
@@ -129,7 +132,11 @@ export default function LeadsKanban() {
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
+  const [isEditStageModalOpen, setIsEditStageModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
@@ -170,6 +177,34 @@ export default function LeadsKanban() {
     setStages(prev => [...prev, newStage]);
   };
 
+  const handleAddLead = (newLeadData: Omit<Lead, 'id' | 'lastUpdate'>) => {
+    const newLead: Lead = {
+      ...newLeadData,
+      id: `lead-${Date.now()}`,
+      lastUpdate: new Date().toISOString().split('T')[0]
+    };
+    
+    // Adiciona o lead na primeira etapa
+    setStages(prev => prev.map((stage, index) => 
+      index === 0 ? { ...stage, leads: [...stage.leads, newLead] } : stage
+    ));
+  };
+
+  const handleEditStage = (stage: Stage) => {
+    setSelectedStage(stage);
+    setIsEditStageModalOpen(true);
+  };
+
+  const handleUpdateStage = (updatedStage: { name: string; color: string }) => {
+    if (!selectedStage) return;
+    
+    setStages(prev => prev.map(stage =>
+      stage.id === selectedStage.id 
+        ? { ...stage, name: updatedStage.name, color: updatedStage.color }
+        : stage
+    ));
+  };
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -188,6 +223,20 @@ export default function LeadsKanban() {
 
     setStages(newStages);
   };
+
+  // Função de filtro
+  const getFilteredStages = () => {
+    if (activeFilter === 'all') {
+      return stages;
+    }
+    
+    return stages.map(stage => ({
+      ...stage,
+      leads: stage.leads.filter(lead => lead.group === activeFilter)
+    }));
+  };
+
+  const filteredStages = getFilteredStages();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -211,7 +260,10 @@ export default function LeadsKanban() {
             <Plus className="w-4 h-4 mr-2" />
             Nova Etapa
           </Button>
-          <Button className="btn-primary">
+          <Button 
+            className="btn-primary"
+            onClick={() => setIsNewLeadModalOpen(true)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Novo Lead
           </Button>
@@ -225,7 +277,10 @@ export default function LeadsKanban() {
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+            className={`text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white ${
+              activeFilter === 'all' ? 'bg-goat-purple border-goat-purple' : ''
+            }`}
+            onClick={() => setActiveFilter('all')}
           >
             Todos os grupos
           </Button>
@@ -234,7 +289,10 @@ export default function LeadsKanban() {
               key={tag.id}
               variant="outline"
               size="sm"
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+              className={`text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white ${
+                activeFilter === tag.name ? 'bg-goat-purple border-goat-purple' : ''
+              }`}
+              onClick={() => setActiveFilter(tag.name)}
             >
               <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
               {tag.name}
@@ -245,9 +303,16 @@ export default function LeadsKanban() {
 
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid gap-6 min-h-[600px]" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(280px, 1fr))` }}>
-          {stages.map((stage) => (
-            <div key={stage.id} className="space-y-4">
+        <div 
+          className="flex gap-6 min-h-[600px] overflow-x-auto overflow-y-hidden pb-4"
+          style={{ 
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          {filteredStages.map((stage) => (
+            <div key={stage.id} className="flex-shrink-0 w-80 space-y-4">
               {/* Stage Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -257,8 +322,13 @@ export default function LeadsKanban() {
                     {stage.leads.length}
                   </Badge>
                 </div>
-                <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
-                  <Plus className="w-4 h-4" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-goat-gray-400 hover:text-white"
+                  onClick={() => handleEditStage(stage)}
+                >
+                  <EllipsisVertical className="w-4 h-4" />
                 </Button>
               </div>
 
@@ -391,6 +461,20 @@ export default function LeadsKanban() {
         open={isAddStageModalOpen}
         onOpenChange={setIsAddStageModalOpen}
         onAddStage={handleAddStage}
+      />
+
+      <NewLeadModal
+        open={isNewLeadModalOpen}
+        onOpenChange={setIsNewLeadModalOpen}
+        tags={tags}
+        onAddLead={handleAddLead}
+      />
+
+      <EditStageModal
+        open={isEditStageModalOpen}
+        onOpenChange={setIsEditStageModalOpen}
+        stage={selectedStage}
+        onUpdateStage={handleUpdateStage}
       />
     </div>
   );
