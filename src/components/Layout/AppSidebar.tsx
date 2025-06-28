@@ -11,12 +11,12 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Home, Kanban, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
+import { Home, Filter, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Kanban", url: "/leads", icon: Kanban },
+  { title: "Funil", url: "/leads", icon: Filter },
   { title: "Contratos", url: "/contracts", icon: FileText },
   { title: "Financeiro", url: "/financial", icon: DollarSign },
   { title: "Conversas", url: "/conversations", icon: MessageSquare },
