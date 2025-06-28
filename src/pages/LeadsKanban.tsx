@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -132,6 +131,9 @@ export default function LeadsKanban() {
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   
+  // ✅ NOVO: Estado para filtros
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  
   // Scroll horizontal fluido
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -144,6 +146,18 @@ export default function LeadsKanban() {
   // ✅ NOVO: Estados para auto-scroll durante drag
   const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+
+  // ✅ NOVO: Função para filtrar leads
+  const getFilteredStages = () => {
+    if (selectedFilter === 'all') {
+      return stages;
+    }
+    
+    return stages.map(stage => ({
+      ...stage,
+      leads: stage.leads.filter(lead => lead.group === selectedFilter)
+    }));
+  };
 
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
@@ -327,6 +341,9 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
+  // ✅ Usar stages filtrados em vez dos stages originais
+  const filteredStages = getFilteredStages();
+
   return (
     <div className="page-container">
       <div className="content-wrapper">
@@ -364,18 +381,28 @@ export default function LeadsKanban() {
             <div className="flex items-center gap-4">
               <span className="text-white font-medium">Filtros:</span>
               <Button 
-                variant="outline" 
+                variant={selectedFilter === 'all' ? 'default' : 'outline'}
                 size="sm" 
-                className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+                className={`${
+                  selectedFilter === 'all' 
+                    ? 'bg-goat-purple text-white hover:bg-goat-purple/80' 
+                    : 'text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white'
+                } focus:text-white`}
+                onClick={() => setSelectedFilter('all')}
               >
                 Todos os grupos
               </Button>
               {tags.map((tag) => (
                 <Button
                   key={tag.id}
-                  variant="outline"
+                  variant={selectedFilter === tag.name ? 'default' : 'outline'}
                   size="sm"
-                  className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+                  className={`${
+                    selectedFilter === tag.name
+                      ? `${tag.color} text-white hover:${tag.color}/80`
+                      : 'text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white'
+                  } focus:text-white`}
+                  onClick={() => setSelectedFilter(tag.name)}
                 >
                   <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
                   {tag.name}
@@ -406,7 +433,7 @@ export default function LeadsKanban() {
           onDragStart={handleDragStart}
         >
           <div className="kanban-stages-wrapper">
-            {stages.map((stage) => (
+            {filteredStages.map((stage) => (
               <div key={stage.id} className="kanban-stage">
                 {/* Stage Header */}
                 <div className="flex items-center justify-between mb-4">
@@ -505,7 +532,12 @@ export default function LeadsKanban() {
                       {/* Empty State */}
                       {stage.leads.length === 0 && (
                         <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
-                          <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
+                          <p className="text-goat-gray-400 text-sm">
+                            {selectedFilter === 'all' 
+                              ? 'Arraste leads para cá' 
+                              : `Nenhum lead de "${selectedFilter}" nesta etapa`
+                            }
+                          </p>
                         </div>
                       )}
                     </div>
