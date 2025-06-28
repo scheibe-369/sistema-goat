@@ -253,8 +253,8 @@ export default function LeadsKanban() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
-          <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Pipeline</h1>
+          <p className="text-goat-gray-400">Gerencie seus leads</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -282,7 +282,10 @@ export default function LeadsKanban() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+      <Card 
+        className="p-4" 
+        style={{ backgroundColor: '#080808', border: 'none', boxShadow: 'none' }}
+      >
         <div className="flex items-center gap-4">
           <span className="text-white font-medium">Filtros:</span>
           <Button 
@@ -311,6 +314,7 @@ export default function LeadsKanban() {
           ))}
         </div>
       </Card>
+
 
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
