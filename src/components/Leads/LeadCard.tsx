@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +30,11 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`${snapshot.isDragging ? 'rotate-2 scale-105 z-50' : ''} transition-transform`}
+          className={`${snapshot.isDragging ? 'z-50 shadow-lg border-goat-purple/80' : ''} transition-all`}
           style={{
             ...provided.draggableProps.style,
-            transform: snapshot.isDragging 
-              ? `${provided.draggableProps.style?.transform} rotate(2deg) scale(1.05)`
-              : provided.draggableProps.style?.transform,
             cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+            // NÃO mexa em transform!
           }}
         >
           <ContextMenu>
@@ -59,12 +56,10 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
                       <MoreVertical className="w-3 h-3" />
                     </Button>
                   </div>
-
                   {/* Group Badge */}
                   <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
                     {lead.group}
                   </Badge>
-
                   {/* Last Update */}
                   <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
                     <Calendar className="w-3 h-3" />
@@ -73,7 +68,6 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
                 </div>
               </Card>
             </ContextMenuTrigger>
-
             <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
               <ContextMenuItem
                 onClick={() => onEditLead(lead)}
