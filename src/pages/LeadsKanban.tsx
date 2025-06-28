@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
+import { Plus, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
@@ -464,25 +464,6 @@ export default function LeadsKanban() {
                                       <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
                                         {lead.group}
                                       </Badge>
-
-                                      {/* Lead Value */}
-                                      {lead.value && (
-                                        <div className="text-goat-purple font-semibold text-sm">
-                                          {lead.value}
-                                        </div>
-                                      )}
-
-                                      {/* Contact Info */}
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                          <Phone className="w-3 h-3" />
-                                          <span>{lead.phone}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                          <Mail className="w-3 h-3" />
-                                          <span>{lead.email}</span>
-                                        </div>
-                                      </div>
 
                                       {/* Last Update */}
                                       <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
