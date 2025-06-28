@@ -200,12 +200,16 @@ export function KanbanBoard({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{
-        cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
-        touchAction: isCardBeingDragged ? 'none' : 'pan-x',
+        width: '100vw',
+        minWidth: '100vw',
+        maxWidth: '100vw',
+        marginLeft: 0,
+        paddingLeft: 0,
         position: 'relative',
         overflow: 'auto',
         height: '100%',
-        width: '100%'
+        cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+        touchAction: isCardBeingDragged ? 'none' : 'pan-x'
       }}
     >
       <DragDropContext
