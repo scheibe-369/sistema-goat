@@ -30,9 +30,9 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`${snapshot.isDragging ? 'z-50 shadow-2xl border-goat-purple/80 rotate-2' : ''} transition-all`}
+          className={`${snapshot.isDragging ? 'z-50 shadow-lg border-goat-purple/80' : ''} transition-all`}
           style={{
-            ...provided.draggableProps.style,
+            ...provided.draggableProps.style, // NÃO mexa em transform aqui!
             cursor: snapshot.isDragging ? 'grabbing' : 'grab'
           }}
         >
