@@ -4,19 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown } from "lucide-react";
 
 interface Tag {
   id: string;
   name: string;
   color: string;
 }
-
 interface Stage {
   id: string;
   name: string;
   color: string;
 }
-
 interface Lead {
   name: string;
   company: string;
@@ -26,7 +25,6 @@ interface Lead {
   value?: string;
   stage: string;
 }
-
 interface NewLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,158 +35,192 @@ interface NewLeadModalProps {
 
 export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
   const [formData, setFormData] = useState<Lead>({
-    name: '',
-    company: '',
-    phone: '',
-    email: '',
-    group: '',
-    value: '',
-    stage: ''
+    name: "",
+    company: "",
+    phone: "",
+    email: "",
+    group: "",
+    value: "",
+    stage: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.company || !formData.phone || !formData.stage) return;
     onAddLead(formData);
-
     setFormData({
-      name: '',
-      company: '',
-      phone: '',
-      email: '',
-      group: '',
-      value: '',
-      stage: ''
+      name: "",
+      company: "",
+      phone: "",
+      email: "",
+      group: "",
+      value: "",
+      stage: "",
     });
     onOpenChange(false);
   };
 
-  const handleChange = (field: keyof Lead, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   // Formata campo valor como moeda
   const handleValueChange = (value: string) => {
-    // Aceita apenas números e vírgula/ponto
     let v = value.replace(/[^\d,]/g, '').replace(',', '.');
     let num = parseFloat(v);
     if (isNaN(num)) {
       setFormData(prev => ({ ...prev, value: '' }));
       return;
     }
-    setFormData(prev => ({ ...prev, value: num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }));
+    setFormData(prev => ({
+      ...prev,
+      value: num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    }));
   };
+
+  // Estilos visuais para Select (igual NewClientModal)
+  const selectStyle = `
+    .lead-select-trigger {
+      background-color: #404040 !important;
+      border-color: #525252 !important;
+      color: white !important;
+      border-radius: 0.75rem !important;
+      min-height: 44px;
+      font-size: 1rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      transition: border-color 0.15s;
+    }
+    .lead-select-content {
+      background-color: #404040 !important;
+      border-color: #525252 !important;
+      border-radius: 0.75rem !important;
+      min-width: var(--radix-select-trigger-width) !important;
+      width: var(--radix-select-trigger-width) !important;
+      box-shadow: none !important;
+      margin-top: 0.2rem;
+      padding: 0.25rem 0;
+    }
+    .lead-select-item {
+      color: white !important;
+      background-color: transparent !important;
+      border-radius: 0.5rem !important;
+      font-weight: 500;
+      transition: background 0.1s;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .lead-select-item[data-state="checked"], .lead-select-item:hover, .lead-select-item[data-highlighted] {
+      background-color: #525252 !important;
+    }
+    /* Remove sombra do menu e overlay */
+    [data-radix-popper-content-wrapper] { background: transparent !important; }
+    .radix-select-overlay { display: none !important; }
+  `;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+        <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Novo Lead</DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="name" className="text-white">Nome *</Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
-
           <div>
             <Label htmlFor="company" className="text-white">Empresa *</Label>
             <Input
               id="company"
               value={formData.company}
-              onChange={(e) => handleChange('company', e.target.value)}
+              onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
-
           <div>
             <Label htmlFor="phone" className="text-white">Telefone *</Label>
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
+              onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
-
+          {/* Select Etapa */}
           <div>
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
-            <Select value={formData.stage} onValueChange={(value) => handleChange('stage', value)}>
-              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
+            <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
+              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center">
                 <SelectValue placeholder="Selecione uma etapa" />
+                <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                {stages.map((stage) => (
+              <SelectContent className="lead-select-content">
+                {stages.map(stage => (
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="text-white bg-goat-gray-700 hover:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 transition-colors"
+                    className="lead-select-item"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
-                      {stage.name}
-                    </div>
+                    <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
+                    {stage.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="email" className="text-white">Email (opcional)</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
-
+          {/* Select Tag */}
           <div>
             <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
-            <Select value={formData.group} onValueChange={(value) => handleChange('group', value)}>
-              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
+            <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
+              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center">
                 <SelectValue placeholder="Selecione uma tag" />
+                <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                {tags.map((tag) => (
+              <SelectContent className="lead-select-content">
+                {tags.map(tag => (
                   <SelectItem
                     key={tag.id}
                     value={tag.name}
-                    className="text-white bg-goat-gray-700 hover:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 transition-colors"
+                    className="lead-select-item"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
-                      {tag.name}
-                    </div>
+                    <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
+                    {tag.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
             <Input
               id="value"
               value={formData.value}
-              onChange={(e) => handleValueChange(e.target.value)}
+              onChange={e => handleValueChange(e.target.value)}
               placeholder="Ex: R$ 5.000,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               inputMode="decimal"
             />
           </div>
-
           <DialogFooter className="gap-2">
             <Button
               type="button"
