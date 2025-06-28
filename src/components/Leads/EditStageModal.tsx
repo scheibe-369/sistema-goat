@@ -70,8 +70,20 @@ export function EditStageModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        {/* Força texto branco até no item selecionado */}
+        {/* Força texto branco no Trigger e em todos os estados */}
         <style>{`
+          .stage-trigger,
+          .stage-trigger *,
+          .stage-trigger:focus,
+          .stage-trigger:active,
+          .stage-trigger[aria-expanded="true"],
+          .stage-trigger[data-state="open"] {
+            color: #fff !important;
+          }
+          .stage-trigger .stage-trigger-label {
+            color: #fff !important;
+          }
+          /* Dropdown styles para consistência */
           .stage-color-dropdown .dropdown-item,
           .stage-color-dropdown .dropdown-item:hover,
           .stage-color-dropdown .dropdown-item:focus,
@@ -117,14 +129,14 @@ export function EditStageModal({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="dropdown-trigger w-full flex items-center justify-between bg-[#404040] border-[#525252] text-white"
+                  className="stage-trigger dropdown-trigger w-full flex items-center justify-between bg-[#404040] border-[#525252] text-white"
                   style={{
                     backgroundColor: "#404040",
                     borderColor: "#525252",
                   }}
                   type="button"
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 stage-trigger-label">
                     <span
                       className={`w-3 h-3 rounded-full ${
                         colorOptions.find((c) => c.value === color)?.dot
