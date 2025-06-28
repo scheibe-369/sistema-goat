@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
@@ -131,6 +131,12 @@ export default function LeadsKanban() {
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  
+  // Scroll horizontal fluido
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
@@ -190,6 +196,56 @@ export default function LeadsKanban() {
     setStages(newStages);
   };
 
+  // Handlers para scroll horizontal fluido
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    
+    // Previne seleção de texto durante o drag
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // Multiplicador para velocidade
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  // Touch events para mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header - Fixed */}
@@ -245,8 +301,19 @@ export default function LeadsKanban() {
         </div>
       </Card>
 
-      {/* Kanban Board - Horizontally Scrollable */}
-      <div className="kanban-scroll-container">
+      {/* Kanban Board - Scroll Horizontal Fluido */}
+      <div 
+        ref={scrollContainerRef}
+        className="kanban-scroll-fluid"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+      >
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="kanban-stages-wrapper">
             {stages.map((stage) => (
@@ -283,6 +350,10 @@ export default function LeadsKanban() {
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                              style={{
+                                ...provided.draggableProps.style,
+                                cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+                              }}
                             >
                               <ContextMenu>
                                 <ContextMenuTrigger>

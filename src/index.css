@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -219,22 +220,45 @@
 }
 
 /* =======================================
-   Kanban Horizontal Scroll Styles
+   ✅ SCROLL HORIZONTAL FLUIDO OTIMIZADO
    ======================================= */
-.kanban-scroll-container {
+.kanban-scroll-fluid {
   overflow-x: auto;
   overflow-y: hidden;
-  /* Remove scrollbar visibility */
+  
+  /* Performance otimizada */
+  will-change: scroll-position;
+  transform: translateZ(0); /* Force hardware acceleration */
+  
+  /* Scrollbar invisível mas funcional */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
-  /* Smooth scrolling */
+  
+  /* Scroll suave */
   scroll-behavior: smooth;
-  /* Add padding for better UX */
-  padding-bottom: 8px;
+  
+  /* Padding para melhor UX */
+  padding: 8px 4px 16px 4px;
+  
+  /* Cursor indica que é possível arrastar */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  
+  /* Touch scrolling otimizado para mobile */
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
-.kanban-scroll-container::-webkit-scrollbar {
+.kanban-scroll-fluid::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
+}
+
+/* Previne seleção de texto durante o drag */
+.kanban-scroll-fluid:active {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .kanban-stages-wrapper {
@@ -243,22 +267,63 @@
   min-height: 600px;
   width: max-content;
   padding: 4px;
+  
+  /* Otimização para GPU */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* Transições suaves */
+  transition: transform 0.1s ease-out;
 }
 
 .kanban-stage {
   min-width: 280px;
   max-width: 280px;
   flex-shrink: 0;
+  
+  /* Scroll snap para mobile */
+  scroll-snap-align: start;
+  
+  /* Otimização de renderização */
+  contain: layout style;
 }
 
-/* Touch-friendly scrolling for mobile */
-@media (pointer: coarse) {
-  .kanban-scroll-container {
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
+/* Otimizações específicas para Chrome e Opera */
+@supports (-webkit-appearance: none) {
+  .kanban-scroll-fluid {
+    /* Melhora a performance em browsers WebKit */
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
   }
   
-  .kanban-stage {
-    scroll-snap-align: start;
+  .kanban-stages-wrapper {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
   }
+}
+
+/* Media queries para diferentes dispositivos */
+@media (max-width: 768px) {
+  .kanban-stage {
+    min-width: 260px;
+    max-width: 260px;
+  }
+  
+  .kanban-stages-wrapper {
+    gap: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  .kanban-scroll-fluid {
+    /* Touch scrolling ainda mais otimizado para mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+}
+
+/* Previne conflitos com react-beautiful-dnd */
+.kanban-scroll-fluid [data-rbd-droppable-context-id] {
+  transform: none !important;
 }
