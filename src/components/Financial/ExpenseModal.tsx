@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Dialog,
@@ -94,17 +95,36 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
 
   // CSS ultra-específico para remover QUALQUER ícone de verificado do Select
   const selectStyle = `
-    /* Remove qualquer "check" do Radix Select em qualquer lugar do DOM do modal */
-    [data-radix-select-item-indicator] {
+    /* Remove TODOS os indicadores de seleção do Radix Select */
+    .expense-modal [data-radix-select-item-indicator],
+    .expense-modal span[data-radix-select-item-indicator],
+    .expense-modal [data-state="checked"] [data-radix-select-item-indicator],
+    .expense-modal [data-highlighted] [data-radix-select-item-indicator] {
       display: none !important;
+      visibility: hidden !important;
       width: 0 !important;
       height: 0 !important;
-      pointer-events: none !important;
+      opacity: 0 !important;
       position: absolute !important;
-      left: 0 !important;
-      color: transparent !important;
-      background: none !important;
+      left: -9999px !important;
+      pointer-events: none !important;
     }
+
+    /* Remove qualquer SVG de check dentro dos itens do select */
+    .expense-modal [data-radix-select-item] svg,
+    .expense-modal .expense-select-item svg,
+    .expense-modal [role="option"] svg {
+      display: none !important;
+      visibility: hidden !important;
+    }
+
+    /* Ajusta o padding dos itens para remover o espaço do ícone */
+    .expense-modal .expense-select-item,
+    .expense-modal [data-radix-select-item] {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+
     .expense-select-trigger {
       background-color: #404040 !important;
       border-color: #525252 !important;
@@ -154,8 +174,8 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
           Nova Despesa
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        {/* AQUI está o CSS matador */}
+      <DialogContent className="expense-modal bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+        {/* CSS matador para remover ícones de verificado */}
         <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Nova Despesa</DialogTitle>
