@@ -70,17 +70,25 @@ export function EditStageModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        {/* Força texto branco no hover e estados ativos */}
+        {/* Força texto branco até no item selecionado */}
         <style>{`
           .stage-color-dropdown .dropdown-item,
           .stage-color-dropdown .dropdown-item:hover,
-          .stage-color-dropdown .dropdown-item:focus {
+          .stage-color-dropdown .dropdown-item:focus,
+          .stage-color-dropdown .dropdown-item[data-highlighted],
+          .stage-color-dropdown .dropdown-item[data-state="checked"],
+          .stage-color-dropdown .dropdown-item[aria-selected="true"] {
             color: #fff !important;
             background-color: transparent;
           }
+          .stage-color-dropdown .dropdown-item[data-highlighted],
           .stage-color-dropdown .dropdown-item:hover,
-          .stage-color-dropdown .dropdown-item[data-highlighted] {
+          .stage-color-dropdown .dropdown-item:focus {
             background-color: #525252 !important;
+          }
+          .stage-color-dropdown .dropdown-item[data-state="checked"],
+          .stage-color-dropdown .dropdown-item[aria-selected="true"] {
+            background-color: #404040 !important;
             color: #fff !important;
           }
         `}</style>
