@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -445,7 +446,7 @@ export default function LeadsKanban() {
                     </Badge>
                   </div>
                   <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
-                    <Plus className="w-4 h-4" />
+                    <MoreVertical className="w-4 h-4" />
                   </Button>
                 </div>
 
