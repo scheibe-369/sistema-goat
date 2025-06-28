@@ -17,16 +17,19 @@ interface Lead {
   value?: string;
   stage: string;
 }
+
 interface Tag {
   id: string;
   name: string;
   color: string;
 }
+
 interface Stage {
   id: string;
   name: string;
   color: string;
 }
+
 interface EditLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,9 +61,9 @@ export function EditLeadModal({
     }
   );
 
+  // Atualiza o formData ao abrir/receber um lead diferente
   useEffect(() => {
-    if (lead && lead.id !== formData.id) setFormData(lead);
-    // eslint-disable-next-line
+    if (lead) setFormData(lead);
   }, [lead]);
 
   const handleSave = () => {
@@ -83,97 +86,67 @@ export function EditLeadModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Formata campo valor como moeda
-  const handleValueChange = (value: string) => {
-    let numbers = value.replace(/\D/g, "");
-    if (!numbers) {
-      setFormData((prev) => ({ ...prev, value: "" }));
-      return;
-    }
+  const formatCurrency = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
+    if (!numbers) return "";
     const amount = parseInt(numbers) / 100;
-    setFormData((prev) => ({
-      ...prev,
-      value: amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
-    }));
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount);
   };
 
-  // Select custom styles
+  const handleValueChange = (value: string) => {
+    const formatted = formatCurrency(value);
+    handleInputChange("value", formatted);
+  };
+
+  // Estilo para remover o ícone de verificado e padronizar o dropdown
   const selectStyle = `
     .lead-select-trigger {
       background-color: #404040 !important;
-      border-color: #525252 !important;
-      color: white !important;
-      border-radius: 0.75rem !important;
+      border: 1px solid #525252 !important;
+      color: #fff !important;
       min-height: 44px;
       font-size: 1rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      transition: border-color 0.15s;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
+      font-weight: 500;
+      transition: border 0.2s;
     }
-    .lead-select-value,
-    .lead-select-value span {
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
+    .lead-select-trigger:hover, .lead-select-trigger:focus {
+      border-color: #6b21d3 !important;
+      box-shadow: 0 0 0 1px #6b21d3 !important;
     }
     .lead-select-content {
       background-color: #404040 !important;
-      border-color: #525252 !important;
-      border-radius: 0.75rem !important;
-      min-width: var(--radix-select-trigger-width) !important;
-      width: var(--radix-select-trigger-width) !important;
-      box-shadow: none !important;
-      margin-top: 0.2rem;
-      padding: 0.25rem 0;
+      border: 1px solid #525252 !important;
+      min-width: var(--radix-select-trigger-width, 220px) !important;
+      box-shadow: 0 8px 32px 0 #00000022;
+      margin-top: 5px;
     }
     .lead-select-item {
-      color: white !important;
+      color: #fff !important;
       background-color: transparent !important;
-      border-radius: 0.5rem !important;
-      font-weight: 500;
-      transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
       padding-left: 1rem;
       padding-right: 1rem;
-      min-height: 40px;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
+      border-radius: 0.5rem;
+      transition: background 0.1s;
     }
-    .lead-select-item[data-state="checked"], .lead-select-item:hover, .lead-select-item[data-highlighted] {
+    .lead-select-item:hover, .lead-select-item[data-highlighted] {
       background-color: #525252 !important;
-    }
-    [data-radix-popper-content-wrapper] { background: transparent !important; }
-    .radix-select-overlay { display: none !important; }
-    /* Remove texto roxo do valor */
-    input#value, input#value::placeholder {
       color: #fff !important;
     }
+    .lead-select-item > [data-select-item-indicator],
+    .lead-select-item svg,
+    .lead-select-item [data-radix-select-item-indicator] {
+      display: none !important;
+    }
   `;
-
-  const getStageSelected = () => {
-    const selected = stages.find((s) => s.id === formData.stage);
-    if (!selected) return <span className="text-white">Selecione uma etapa</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
-        {selected.name}
-      </span>
-    );
-  };
-
-  const getTagSelected = () => {
-    const selected = tags.find((t) => t.name === formData.group);
-    if (!selected) return <span className="text-white">Selecione uma tag</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
-        {selected.name}
-      </span>
-    );
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -196,6 +169,7 @@ export function EditLeadModal({
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
+
           <div>
             <Label className="text-white">Empresa</Label>
             <Input
@@ -205,6 +179,7 @@ export function EditLeadModal({
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
+
           <div>
             <Label className="text-white">Telefone</Label>
             <Input
@@ -215,18 +190,27 @@ export function EditLeadModal({
             />
           </div>
 
-          {/* Select Etapa */}
+          {/* ETAPA */}
           <div>
             <Label className="text-white">Etapa</Label>
             <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
-              <SelectTrigger className="lead-select-trigger">
-                <SelectValue className="lead-select-value">{getStageSelected()}</SelectValue>
+              <SelectTrigger className="lead-select-trigger w-full flex items-center">
+                <div className="flex items-center gap-2">
+                  {stages.find((s) => s.id === formData.stage) && (
+                    <span className={`w-3 h-3 rounded-full ${stages.find((s) => s.id === formData.stage)?.color}`}></span>
+                  )}
+                  <SelectValue placeholder="Selecione uma etapa" />
+                </div>
               </SelectTrigger>
               <SelectContent className="lead-select-content">
                 {stages.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.id} className="lead-select-item">
-                    <span className={`w-3 h-3 rounded-full ${stage.color}`} />
-                    <span className="whitespace-nowrap">{stage.name}</span>
+                  <SelectItem
+                    key={stage.id}
+                    value={stage.id}
+                    className="lead-select-item"
+                  >
+                    <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
+                    {stage.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -250,22 +234,30 @@ export function EditLeadModal({
               onChange={(e) => handleValueChange(e.target.value)}
               placeholder="R$ 0,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              id="value"
+              inputMode="decimal"
             />
           </div>
 
-          {/* Select Tag */}
           <div>
             <Label className="text-white">Tag (Opcional)</Label>
-            <Select value={formData.group} onValueChange={(value) => handleInputChange("group", value)}>
-              <SelectTrigger className="lead-select-trigger">
-                <SelectValue className="lead-select-value">{getTagSelected()}</SelectValue>
+            <Select value={formData.group || ""} onValueChange={(value) => handleInputChange("group", value)}>
+              <SelectTrigger className="lead-select-trigger w-full flex items-center">
+                <div className="flex items-center gap-2">
+                  {tags.find((t) => t.name === formData.group) && (
+                    <span className={`w-3 h-3 rounded-full ${tags.find((t) => t.name === formData.group)?.color}`}></span>
+                  )}
+                  <SelectValue placeholder="Selecione uma tag" />
+                </div>
               </SelectTrigger>
               <SelectContent className="lead-select-content">
                 {tags.map((tag) => (
-                  <SelectItem key={tag.id} value={tag.name} className="lead-select-item">
-                    <span className={`w-3 h-3 rounded-full ${tag.color}`} />
-                    <span className="whitespace-nowrap">{tag.name}</span>
+                  <SelectItem
+                    key={tag.id}
+                    value={tag.name}
+                    className="lead-select-item"
+                  >
+                    <span className={`w-3 h-3 rounded-full ${tag.color}`}></span>
+                    {tag.name}
                   </SelectItem>
                 ))}
               </SelectContent>
