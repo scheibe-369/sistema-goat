@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -387,20 +386,6 @@ export default function LeadsKanban() {
                                     <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
                                       {lead.group}
                                     </Badge>
-
-                                    {/* Lead Value */}
-                                    {lead.value && (
-                                      <div className="text-goat-purple font-semibold text-sm">
-                                        {lead.value}
-                                      </div>
-                                    )}
-
-                                    {/* Contact Info - Only Email */}
-                                    <div className="space-y-1">
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                        <span>{lead.email}</span>
-                                      </div>
-                                    </div>
 
                                     {/* Last Update */}
                                     <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
