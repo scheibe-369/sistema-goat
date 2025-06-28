@@ -46,24 +46,11 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     stage: ''
   });
 
-  // Máscara para campo valor (R$)
-  const handleValueChange = (raw: string) => {
-    // Remove qualquer caractere que não seja número
-    const onlyNumbers = raw.replace(/\D/g, "");
-    let number = parseFloat(onlyNumbers) / 100;
-    if (isNaN(number)) number = 0;
-    setFormData(prev => ({
-      ...prev,
-      value: number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.company || !formData.phone || !formData.stage) {
-      return;
-    }
+    if (!formData.name || !formData.company || !formData.phone || !formData.stage) return;
     onAddLead(formData);
+
     setFormData({
       name: '',
       company: '',
@@ -78,6 +65,18 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
 
   const handleChange = (field: keyof Lead, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Formata campo valor como moeda
+  const handleValueChange = (value: string) => {
+    // Aceita apenas números e vírgula/ponto
+    let v = value.replace(/[^\d,]/g, '').replace(',', '.');
+    let num = parseFloat(v);
+    if (isNaN(num)) {
+      setFormData(prev => ({ ...prev, value: '' }));
+      return;
+    }
+    setFormData(prev => ({ ...prev, value: num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }));
   };
 
   return (
@@ -98,6 +97,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
+
           <div>
             <Label htmlFor="company" className="text-white">Empresa *</Label>
             <Input
@@ -108,6 +108,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
+
           <div>
             <Label htmlFor="phone" className="text-white">Telefone *</Label>
             <Input
@@ -118,18 +119,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
+
           <div>
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
             <Select value={formData.stage} onValueChange={(value) => handleChange('stage', value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma etapa" />
               </SelectTrigger>
-              <SelectContent className="bg-[#404040] border-goat-gray-600">
+              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                 {stages.map((stage) => (
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="text-white hover:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700"
+                    className="text-white bg-goat-gray-700 hover:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
@@ -140,6 +142,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectContent>
             </Select>
           </div>
+
           <div>
             <Label htmlFor="email" className="text-white">Email (opcional)</Label>
             <Input
@@ -150,18 +153,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
+
           <div>
             <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
             <Select value={formData.group} onValueChange={(value) => handleChange('group', value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma tag" />
               </SelectTrigger>
-              <SelectContent className="bg-[#404040] border-goat-gray-600">
+              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                 {tags.map((tag) => (
                   <SelectItem
                     key={tag.id}
                     value={tag.name}
-                    className="text-white hover:bg-goat-gray-700 data-[state=checked]:bg-goat-gray-700"
+                    className="text-white bg-goat-gray-700 hover:bg-goat-gray-600 data-[state=checked]:bg-goat-gray-600 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
@@ -172,17 +176,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectContent>
             </Select>
           </div>
+
           <div>
             <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
             <Input
               id="value"
               value={formData.value}
-              onChange={e => handleValueChange(e.target.value)}
+              onChange={(e) => handleValueChange(e.target.value)}
               placeholder="Ex: R$ 5.000,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              inputMode="numeric"
+              inputMode="decimal"
             />
           </div>
+
           <DialogFooter className="gap-2">
             <Button
               type="button"
