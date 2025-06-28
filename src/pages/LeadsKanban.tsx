@@ -359,7 +359,7 @@ export default function LeadsKanban() {
           </div>
 
           {/* Filters - Fixed Width */}
-          <Card className="border-goat-gray-700 p-4" style={{ backgroundColor: '#080808' }}>
+          <Card className="p-4 border-0" style={{ backgroundColor: '#080808' }}>
             <div className="flex items-center gap-4">
               <span className="text-white font-medium">Filtros:</span>
               <Button 
