@@ -70,6 +70,28 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onUpdate
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const formatCurrency = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Se não há números, retorna vazio
+    if (!numbers) return '';
+    
+    // Converte para número e divide por 100 para ter centavos
+    const amount = parseInt(numbers) / 100;
+    
+    // Formata como moeda brasileira
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(amount);
+  };
+
+  const handleValueChange = (value: string) => {
+    const formatted = formatCurrency(value);
+    handleInputChange('value', formatted);
+  };
+
   // Reset form when lead changes
   if (lead && lead.id !== formData.id) {
     setFormData(lead);
@@ -149,8 +171,8 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onUpdate
             <Label className="text-white">Valor (Opcional)</Label>
             <Input
               value={formData.value || ''}
-              onChange={(e) => handleInputChange('value', e.target.value)}
-              placeholder="R$ 5.000"
+              onChange={(e) => handleValueChange(e.target.value)}
+              placeholder="R$ 0,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
@@ -181,8 +203,7 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onUpdate
             </Button>
             <Button 
               onClick={() => onOpenChange(false)} 
-              variant="outline"
-              className="text-white border-goat-gray-600 flex-1"
+              className="flex-1 btn-outline-danger"
             >
               <X className="w-4 h-4 mr-2" />
               Cancelar
