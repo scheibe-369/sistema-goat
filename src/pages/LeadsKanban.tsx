@@ -139,14 +139,14 @@ export default function LeadsKanban() {
   }, []);
 
   // Lead handlers
-  const handleAddLead = (newLead: Omit<Lead, 'id'>) => {
+  const handleAddLead = (newLead: Omit<Lead, 'id'>, stageId: string) => {
     const lead: Lead = {
       ...newLead,
       id: Date.now().toString(),
     };
     
     const updatedStages = stages.map(stage => 
-      stage.id === 'prospecting' ? { ...stage, leads: [...stage.leads, lead] } : stage
+      stage.id === stageId ? { ...stage, leads: [...stage.leads, lead] } : stage
     );
     
     setStages(updatedStages);
@@ -270,6 +270,7 @@ export default function LeadsKanban() {
         open={newLeadModal}
         onOpenChange={setNewLeadModal}
         tags={tags}
+        stages={stages}
         onAddLead={handleAddLead}
       />
 
