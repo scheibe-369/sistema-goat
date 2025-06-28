@@ -10,6 +10,7 @@ import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { useAutoScroll } from "@/hooks/useAutoScroll";
 
 interface Lead {
   id: string;
@@ -135,24 +136,38 @@ export default function LeadsKanban() {
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
-  
-  // ✅ NOVO: Estado para filtros
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   
-  // Scroll horizontal fluido
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // ✅ NOVO: Hook customizado para auto-scroll otimizado
+  const { scrollContainerRef, stopAutoScroll, handleDragPosition } = useAutoScroll({
+    triggerZone: 120,
+    maxSpeed: 12,
+    speedMultiplier: 0.15
+  });
+  
+  // Estados para scroll horizontal fluido
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  
-  // Estado para controlar quando um card está sendo arrastado
   const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
 
-  // ✅ NOVO: Estados para auto-scroll durante drag
-  const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null);
-  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  // ✅ NOVO: Event listener otimizado para mousemove durante drag
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isCardBeingDragged) {
+        handleDragPosition(e.clientX);
+      }
+    };
 
-  // ✅ NOVO: Função para filtrar leads
+    if (isCardBeingDragged) {
+      document.addEventListener('mousemove', handleMouseMove, { passive: true });
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        stopAutoScroll();
+      };
+    }
+  }, [isCardBeingDragged, handleDragPosition, stopAutoScroll]);
+
   const getFilteredStages = () => {
     if (selectedFilter === 'all') {
       return stages;
@@ -222,71 +237,8 @@ export default function LeadsKanban() {
     ));
   };
 
-  // ✅ NOVO: Função para auto-scroll durante drag
-  const startAutoScroll = (direction: 'left' | 'right', speed: number) => {
-    if (autoScrollInterval) {
-      clearInterval(autoScrollInterval);
-    }
-
-    const interval = setInterval(() => {
-      if (scrollContainerRef.current) {
-        const scrollAmount = direction === 'left' ? -speed : speed;
-        scrollContainerRef.current.scrollLeft += scrollAmount;
-      }
-    }, 16); // ~60fps
-
-    setAutoScrollInterval(interval);
-  };
-
-  const stopAutoScroll = () => {
-    if (autoScrollInterval) {
-      clearInterval(autoScrollInterval);
-      setAutoScrollInterval(null);
-    }
-  };
-
-  // ✅ NOVO: Detecta posição do mouse durante drag para auto-scroll
-  const handleDragUpdate = (e: MouseEvent) => {
-    if (!isCardBeingDragged || !scrollContainerRef.current) return;
-
-    const container = scrollContainerRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const mouseX = e.clientX;
-    
-    // Zona de trigger para auto-scroll (100px da borda)
-    const triggerZone = 100;
-    const leftBoundary = containerRect.left + triggerZone;
-    const rightBoundary = containerRect.right - triggerZone;
-
-    if (mouseX < leftBoundary) {
-      // Próximo da borda esquerda - scroll para esquerda
-      const distance = leftBoundary - mouseX;
-      const speed = Math.min(distance / 10, 10); // Velocidade proporcional, máximo 10
-      startAutoScroll('left', speed);
-    } else if (mouseX > rightBoundary) {
-      // Próximo da borda direita - scroll para direita
-      const distance = mouseX - rightBoundary;
-      const speed = Math.min(distance / 10, 10); // Velocidade proporcional, máximo 10
-      startAutoScroll('right', speed);
-    } else {
-      // Fora das zonas de trigger - para o auto-scroll
-      stopAutoScroll();
-    }
-  };
-
-  // ✅ NOVO: Adiciona event listener para mouse move durante drag
-  useEffect(() => {
-    if (isCardBeingDragged) {
-      document.addEventListener('mousemove', handleDragUpdate);
-      return () => {
-        document.removeEventListener('mousemove', handleDragUpdate);
-        stopAutoScroll();
-      };
-    }
-  }, [isCardBeingDragged]);
-
   const handleDragEnd = (result: DropResult) => {
-    // Para o auto-scroll ao finalizar o drag
+    // ✅ Para o auto-scroll e limpa estados
     stopAutoScroll();
     
     if (!result.destination) {
@@ -309,14 +261,19 @@ export default function LeadsKanban() {
     newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
 
     setStages(newStages);
-    setIsCardBeingDragged(false);
+    
+    // ✅ Reset completo de estados para garantir touch funcionando
+    setTimeout(() => {
+      setIsCardBeingDragged(false);
+      setIsDragging(false);
+    }, 50);
   };
 
   const handleDragStart = () => {
     setIsCardBeingDragged(true);
   };
 
-  // Handlers para scroll horizontal fluido
+  // ✅ Handlers otimizados para scroll horizontal fluido
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
@@ -344,7 +301,7 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
-  // Touch events para mobile
+  // ✅ Touch events otimizados para evitar travamento após drag
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
@@ -365,7 +322,6 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
-  // ✅ Usar stages filtrados em vez dos stages originais
   const filteredStages = getFilteredStages();
 
   return (
@@ -440,7 +396,7 @@ export default function LeadsKanban() {
         </div>
       </div>
 
-      {/* Kanban Board - Full Width com Scroll Horizontal */}
+      {/* ✅ Kanban Board com scroll otimizado */}
       <div 
         ref={scrollContainerRef}
         className="kanban-scroll-fluid"
@@ -452,7 +408,8 @@ export default function LeadsKanban() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{ 
-          cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab')
+          cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+          touchAction: isCardBeingDragged ? 'none' : 'pan-x' // ✅ Melhora touch durante drag
         }}
       >
         <DragDropContext 
