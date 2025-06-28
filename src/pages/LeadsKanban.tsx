@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -137,6 +136,9 @@ export default function LeadsKanban() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  
+  // ✅ NOVO: Estado para controlar quando um card está sendo arrastado
+  const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
 
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
@@ -178,11 +180,17 @@ export default function LeadsKanban() {
   };
 
   const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+    if (!result.destination) {
+      // ✅ Reativa o scroll quando o drag termina (mesmo sem drop válido)
+      setIsCardBeingDragged(false);
+      return;
+    }
 
     const { source, destination } = result;
 
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      // ✅ Reativa o scroll quando o drag termina sem mudança
+      setIsCardBeingDragged(false);
       return;
     }
 
@@ -194,11 +202,20 @@ export default function LeadsKanban() {
     newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
 
     setStages(newStages);
+    
+    // ✅ Reativa o scroll após o drop bem-sucedido
+    setIsCardBeingDragged(false);
   };
 
-  // Handlers para scroll horizontal fluido
+  // ✅ NOVO: Detecta quando o drag de um card começa
+  const handleDragStart = () => {
+    setIsCardBeingDragged(true);
+  };
+
+  // Handlers para scroll horizontal fluido - ✅ MODIFICADO para considerar o card sendo arrastado
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return;
+    // ✅ Se um card está sendo arrastado, não inicia o scroll
+    if (!scrollContainerRef.current || isCardBeingDragged) return;
     
     setIsDragging(true);
     setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
@@ -209,7 +226,8 @@ export default function LeadsKanban() {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+    // ✅ Se um card está sendo arrastado, não processa o scroll
+    if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     
     e.preventDefault();
     const x = e.pageX - scrollContainerRef.current.offsetLeft;
@@ -225,9 +243,10 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
-  // Touch events para mobile
+  // Touch events para mobile - ✅ MODIFICADO para considerar o card sendo arrastado
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!scrollContainerRef.current) return;
+    // ✅ Se um card está sendo arrastado, não inicia o scroll
+    if (!scrollContainerRef.current || isCardBeingDragged) return;
     
     setIsDragging(true);
     setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
@@ -235,7 +254,8 @@ export default function LeadsKanban() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+    // ✅ Se um card está sendo arrastado, não processa o scroll
+    if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     
     const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
@@ -312,9 +332,14 @@ export default function LeadsKanban() {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        style={{ 
+          cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab')
+        }}
       >
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext 
+          onDragEnd={handleDragEnd}
+          onDragStart={handleDragStart}
+        >
           <div className="kanban-stages-wrapper">
             {stages.map((stage) => (
               <div key={stage.id} className="kanban-stage">
