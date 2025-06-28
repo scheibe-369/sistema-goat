@@ -233,7 +233,7 @@ export function EditLeadModal({
               value={formData.value || ""}
               onChange={(e) => handleValueChange(e.target.value)}
               placeholder="R$ 0,00"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
               inputMode="decimal"
             />
           </div>
