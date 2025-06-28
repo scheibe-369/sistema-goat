@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,11 +31,13 @@ export function LeadCard({ lead, index, tags, onEditLead, onDeleteLead }: LeadCa
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`${snapshot.isDragging ? 'z-50 shadow-lg border-goat-purple/80' : ''} transition-all`}
+          className={`${snapshot.isDragging ? 'z-50 shadow-2xl border-goat-purple/80 rotate-2' : ''} transition-all`}
           style={{
             ...provided.draggableProps.style,
-            cursor: snapshot.isDragging ? 'grabbing' : 'grab'
-            // NÃO mexa em transform!
+            cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+            transform: snapshot.isDragging 
+              ? `${provided.draggableProps.style?.transform} rotate(2deg)` 
+              : provided.draggableProps.style?.transform
           }}
         >
           <ContextMenu>
