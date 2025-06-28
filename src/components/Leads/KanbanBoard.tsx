@@ -1,7 +1,9 @@
-import { DragDropContext, DropResult, DragUpdate, DragStart } from 'react-beautiful-dnd';
+
+import { DragDropContext, DropResult, DragStart } from 'react-beautiful-dnd';
 import { StageColumn } from "./StageColumn";
 import { Stage, Lead, Tag } from "@/types/kanban";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
+import { useAutoScroll } from "@/hooks/useAutoScroll";
 
 interface KanbanBoardProps {
   stages: Stage[];
@@ -22,95 +24,16 @@ export function KanbanBoard({
   onEditLead,
   onDeleteLead
 }: KanbanBoardProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
-  const dragXRef = useRef<number | null>(null);
-
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
 
-  // Auto-scroll config
-  const EDGE_SIZE = 100;
-  const MAX_SPEED = 20;
-  const MIN_SPEED = 4;
-
-  // Função para calcular a velocidade de auto-scroll
-  const getAutoScrollSpeed = (mouseX: number, rect: DOMRect) => {
-    const leftDist = mouseX - rect.left;
-    const rightDist = rect.right - mouseX;
-
-    if (leftDist < EDGE_SIZE && leftDist > 0) {
-      const pct = 1 - (leftDist / EDGE_SIZE);
-      return -((MAX_SPEED - MIN_SPEED) * pct + MIN_SPEED);
-    }
-    if (rightDist < EDGE_SIZE && rightDist > 0) {
-      const pct = 1 - (rightDist / EDGE_SIZE);
-      return (MAX_SPEED - MIN_SPEED) * pct + MIN_SPEED;
-    }
-    return 0;
-  };
-
-  // Loop de auto-scroll usando requestAnimationFrame
-  const autoScrollLoop = useCallback(() => {
-    if (!isCardBeingDragged || !scrollContainerRef.current || dragXRef.current === null) return;
-
-    const rect = scrollContainerRef.current.getBoundingClientRect();
-    const speed = getAutoScrollSpeed(dragXRef.current, rect);
-
-    if (speed !== 0) {
-      scrollContainerRef.current.scrollLeft += speed;
-      animationRef.current = requestAnimationFrame(autoScrollLoop);
-    } else {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-    }
-  }, [isCardBeingDragged]);
-
-  // Listener global para capturar posição do mouse durante drag
-  useEffect(() => {
-    if (!isCardBeingDragged) return;
-    const handler = (e: MouseEvent) => {
-      dragXRef.current = e.clientX;
-      if (!animationRef.current) {
-        animationRef.current = requestAnimationFrame(autoScrollLoop);
-      }
-    };
-    document.addEventListener('mousemove', handler, { passive: true });
-    return () => {
-      document.removeEventListener('mousemove', handler);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      dragXRef.current = null;
-    };
-  }, [isCardBeingDragged, autoScrollLoop]);
-
-  // Touch support para auto-scroll (opcional, pode melhorar ainda mais para touch events)
-  useEffect(() => {
-    if (!isCardBeingDragged) return;
-    const handler = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        dragXRef.current = e.touches[0].clientX;
-        if (!animationRef.current) {
-          animationRef.current = requestAnimationFrame(autoScrollLoop);
-        }
-      }
-    };
-    document.addEventListener('touchmove', handler, { passive: true });
-    return () => document.removeEventListener('touchmove', handler);
-  }, [isCardBeingDragged, autoScrollLoop]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) cancelAnimationRef(animationRef.current);
-    };
-  }, []);
+  const { scrollContainerRef, startAutoScroll, stopAutoScroll } = useAutoScroll({
+    triggerZone: 100,
+    maxSpeed: 15,
+    speedMultiplier: 0.2
+  });
 
   // Filtro dos stages
   const getFilteredStages = () => {
@@ -126,14 +49,9 @@ export function KanbanBoard({
     setIsCardBeingDragged(true);
   };
 
-  const handleDragUpdate = (update: DragUpdate) => {
-    // Não precisa implementar nada aqui, só usamos o mousemove global!
-  };
-
   const handleDragEnd = (result: DropResult) => {
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
     setIsCardBeingDragged(false);
-    dragXRef.current = null;
+    stopAutoScroll();
 
     if (!result.destination) return;
     const { source, destination } = result;
@@ -161,6 +79,7 @@ export function KanbanBoard({
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     e.preventDefault();
   };
+
   const handleMouseMoveScroll = (e: React.MouseEvent) => {
     if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     e.preventDefault();
@@ -168,6 +87,7 @@ export function KanbanBoard({
     const walk = (x - startX) * 2;
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
+
   const handleMouseUp = () => setIsDragging(false);
   const handleMouseLeave = () => setIsDragging(false);
 
@@ -178,12 +98,14 @@ export function KanbanBoard({
     setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
+
   const handleTouchEnd = () => setIsDragging(false);
 
   const filteredStages = getFilteredStages();
@@ -215,7 +137,6 @@ export function KanbanBoard({
       <DragDropContext
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
-        onDragUpdate={handleDragUpdate}
       >
         <div
           className="kanban-stages-wrapper"
