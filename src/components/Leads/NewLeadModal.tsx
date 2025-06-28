@@ -35,43 +35,57 @@ interface NewLeadModalProps {
   onAddLead: (lead: Lead) => void;
 }
 
+function formatBRL(value: string) {
+  // Remove tudo que não for número
+  let cleaned = value.replace(/\D/g, "");
+  // Converte para float com duas casas
+  let num = Number(cleaned) / 100;
+  // Formata para BRL
+  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
   const [formData, setFormData] = useState<Lead>({
-    name: '',
-    company: '',
-    phone: '',
-    email: '',
-    group: '',
-    value: '',
-    stage: ''
+    name: "",
+    company: "",
+    phone: "",
+    email: "",
+    group: "",
+    value: "",
+    stage: "",
   });
+
+  // Armazena o valor raw sem formatação
+  const [valueRaw, setValueRaw] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.company || !formData.phone || !formData.stage) {
       return;
     }
 
     onAddLead(formData);
-    
-    // Reset form
+
     setFormData({
-      name: '',
-      company: '',
-      phone: '',
-      email: '',
-      group: '',
-      value: '',
-      stage: ''
+      name: "",
+      company: "",
+      phone: "",
+      email: "",
+      group: "",
+      value: "",
+      stage: "",
     });
-    
+    setValueRaw("");
     onOpenChange(false);
   };
 
   const handleChange = (field: keyof Lead, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  // Para garantir menu seamless
+  const menuClass = "bg-goat-gray-700 border-goat-gray-600 text-white shadow-lg";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -82,47 +96,55 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name" className="text-white">Nome *</Label>
+            <Label htmlFor="name" className="text-white">
+              Nome *
+            </Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
+              onChange={(e) => handleChange("name", e.target.value)}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="company" className="text-white">Empresa *</Label>
+            <Label htmlFor="company" className="text-white">
+              Empresa *
+            </Label>
             <Input
               id="company"
               value={formData.company}
-              onChange={(e) => handleChange('company', e.target.value)}
+              onChange={(e) => handleChange("company", e.target.value)}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="phone" className="text-white">Telefone *</Label>
+            <Label htmlFor="phone" className="text-white">
+              Telefone *
+            </Label>
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
+              onChange={(e) => handleChange("phone", e.target.value)}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="stage" className="text-white">Etapa *</Label>
-            <Select value={formData.stage} onValueChange={(value) => handleChange('stage', value)}>
+            <Label htmlFor="stage" className="text-white">
+              Etapa *
+            </Label>
+            <Select value={formData.stage} onValueChange={(value) => handleChange("stage", value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma etapa" />
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+              <SelectContent className={menuClass}>
                 {stages.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.id} className="text-white">
+                  <SelectItem key={stage.id} value={stage.id} className="text-white hover:bg-goat-gray-600">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
                       {stage.name}
@@ -134,25 +156,29 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           </div>
 
           <div>
-            <Label htmlFor="email" className="text-white">Email (opcional)</Label>
+            <Label htmlFor="email" className="text-white">
+              Email (opcional)
+            </Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              onChange={(e) => handleChange("email", e.target.value)}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
 
           <div>
-            <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
-            <Select value={formData.group} onValueChange={(value) => handleChange('group', value)}>
+            <Label htmlFor="group" className="text-white">
+              Tag (opcional)
+            </Label>
+            <Select value={formData.group} onValueChange={(value) => handleChange("group", value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma tag" />
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+              <SelectContent className={menuClass}>
                 {tags.map((tag) => (
-                  <SelectItem key={tag.id} value={tag.name} className="text-white">
+                  <SelectItem key={tag.id} value={tag.name} className="text-white hover:bg-goat-gray-600">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
                       {tag.name}
@@ -164,13 +190,21 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           </div>
 
           <div>
-            <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
+            <Label htmlFor="value" className="text-white">
+              Valor (opcional)
+            </Label>
             <Input
               id="value"
-              value={formData.value}
-              onChange={(e) => handleChange('value', e.target.value)}
-              placeholder="Ex: R$ 5.000"
+              value={formatBRL(valueRaw)}
+              inputMode="numeric"
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\D/g, "");
+                setValueRaw(raw);
+                handleChange("value", formatBRL(raw));
+              }}
+              placeholder="Ex: R$ 5.000,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              maxLength={17}
             />
           </div>
 
