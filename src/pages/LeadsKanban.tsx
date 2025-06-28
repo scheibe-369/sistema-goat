@@ -9,7 +9,6 @@ import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Lead {
   id: string;
@@ -243,197 +242,133 @@ export default function LeadsKanban() {
         </div>
       </Card>
 
-      {/* Kanban Board with Touch-Friendly Horizontal Scroll */}
-      <div className="w-full overflow-hidden">
-        <div 
-          className="flex gap-6 pb-4 overflow-x-auto min-w-max"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x',
-            cursor: 'grab'
-          }}
-          onMouseDown={(e) => {
-            const slider = e.currentTarget;
-            let isDown = false;
-            let startX = 0;
-            let scrollLeft = 0;
-
-            const handleMouseDown = (e: MouseEvent) => {
-              isDown = true;
-              slider.style.cursor = 'grabbing';
-              startX = e.pageX - slider.offsetLeft;
-              scrollLeft = slider.scrollLeft;
-            };
-
-            const handleMouseLeave = () => {
-              isDown = false;
-              slider.style.cursor = 'grab';
-            };
-
-            const handleMouseUp = () => {
-              isDown = false;
-              slider.style.cursor = 'grab';
-            };
-
-            const handleMouseMove = (e: MouseEvent) => {
-              if (!isDown) return;
-              e.preventDefault();
-              const x = e.pageX - slider.offsetLeft;
-              const walk = (x - startX) * 2;
-              slider.scrollLeft = scrollLeft - walk;
-            };
-
-            handleMouseDown(e.nativeEvent);
-            
-            const cleanup = () => {
-              document.removeEventListener('mousemove', handleMouseMove);
-              document.removeEventListener('mouseup', handleMouseUp);
-              document.removeEventListener('mouseleave', handleMouseLeave);
-            };
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', () => {
-              handleMouseUp();
-              cleanup();
-            });
-            document.addEventListener('mouseleave', () => {
-              handleMouseLeave();
-              cleanup();
-            });
-          }}
-        >
-          <DragDropContext onDragEnd={handleDragEnd}>
-            {stages.map((stage) => (
-              <div key={stage.id} className="flex-shrink-0 w-80 space-y-4">
-                {/* Stage Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
-                    <h3 className="font-semibold text-white">{stage.name}</h3>
-                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
-                      {stage.leads.length}
-                    </Badge>
-                  </div>
-                  <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
-                    <Plus className="w-4 h-4" />
-                  </Button>
+      {/* Kanban Board */}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="grid gap-6 min-h-[600px]" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(280px, 1fr))` }}>
+          {stages.map((stage) => (
+            <div key={stage.id} className="space-y-4">
+              {/* Stage Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                  <h3 className="font-semibold text-white">{stage.name}</h3>
+                  <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
+                    {stage.leads.length}
+                  </Badge>
                 </div>
+                <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
 
-                {/* Lead Cards */}
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-2 min-h-[400px] max-h-[600px] p-2 rounded-lg transition-colors overflow-y-auto ${
-                        snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
-                      }`}
-                      style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none'
-                      }}
-                    >
-                      {stage.leads.map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
-                            >
-                              <ContextMenu>
-                                <ContextMenuTrigger>
-                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    <div className="space-y-3">
-                                      {/* Lead Header */}
-                                      <div className="flex items-start justify-between">
-                                        <div>
-                                          <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
-                                          <p className="text-goat-gray-400 text-xs">{lead.company}</p>
-                                        </div>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="icon" 
-                                          className="text-goat-gray-400 hover:text-white h-6 w-6"
-                                          onClick={() => handleEditLead(lead)}
-                                        >
-                                          <MoreVertical className="w-3 h-3" />
-                                        </Button>
+              {/* Lead Cards */}
+              <Droppable droppableId={stage.id}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
+                      snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
+                    }`}
+                  >
+                    {stage.leads.map((lead, index) => (
+                      <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                          >
+                            <ContextMenu>
+                              <ContextMenuTrigger>
+                                <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                  <div className="space-y-3">
+                                    {/* Lead Header */}
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
+                                        <p className="text-goat-gray-400 text-xs">{lead.company}</p>
                                       </div>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="text-goat-gray-400 hover:text-white h-6 w-6"
+                                        onClick={() => handleEditLead(lead)}
+                                      >
+                                        <MoreVertical className="w-3 h-3" />
+                                      </Button>
+                                    </div>
 
-                                      {/* Group Badge */}
-                                      <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                                        {lead.group}
-                                      </Badge>
+                                    {/* Group Badge */}
+                                    <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
+                                      {lead.group}
+                                    </Badge>
 
-                                      {/* Lead Value */}
-                                      {lead.value && (
-                                        <div className="text-goat-purple font-semibold text-sm">
-                                          {lead.value}
-                                        </div>
-                                      )}
-
-                                      {/* Contact Info */}
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                          <Phone className="w-3 h-3" />
-                                          <span>{lead.phone}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                          <Mail className="w-3 h-3" />
-                                          <span>{lead.email}</span>
-                                        </div>
+                                    {/* Lead Value */}
+                                    {lead.value && (
+                                      <div className="text-goat-purple font-semibold text-sm">
+                                        {lead.value}
                                       </div>
+                                    )}
 
-                                      {/* Last Update */}
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                        <Calendar className="w-3 h-3" />
-                                        <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
+                                    {/* Contact Info */}
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                                        <Phone className="w-3 h-3" />
+                                        <span>{lead.phone}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                                        <Mail className="w-3 h-3" />
+                                        <span>{lead.email}</span>
                                       </div>
                                     </div>
-                                  </Card>
-                                </ContextMenuTrigger>
-                                
-                                <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                  <ContextMenuItem 
-                                    onClick={() => handleEditLead(lead)}
-                                    className="text-white hover:bg-goat-gray-700"
-                                  >
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar Lead
-                                  </ContextMenuItem>
-                                  <ContextMenuItem 
-                                    onClick={() => handleDeleteLead(lead.id)}
-                                    className="text-red-400 hover:bg-goat-gray-700"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Excluir Lead
-                                  </ContextMenuItem>
-                                </ContextMenuContent>
-                              </ContextMenu>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
 
-                      {/* Empty State */}
-                      {stage.leads.length === 0 && (
-                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
-                          <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            ))}
-          </DragDropContext>
+                                    {/* Last Update */}
+                                    <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                                      <Calendar className="w-3 h-3" />
+                                      <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                  </div>
+                                </Card>
+                              </ContextMenuTrigger>
+                              
+                              <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                <ContextMenuItem 
+                                  onClick={() => handleEditLead(lead)}
+                                  className="text-white hover:bg-goat-gray-700"
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Editar Lead
+                                </ContextMenuItem>
+                                <ContextMenuItem 
+                                  onClick={() => handleDeleteLead(lead.id)}
+                                  className="text-red-400 hover:bg-goat-gray-700"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Excluir Lead
+                                </ContextMenuItem>
+                              </ContextMenuContent>
+                            </ContextMenu>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+
+                    {/* Empty State */}
+                    {stage.leads.length === 0 && (
+                      <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
+                        <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))}
         </div>
-      </div>
+      </DragDropContext>
 
       {/* Modals */}
       <TagsManagementModal
