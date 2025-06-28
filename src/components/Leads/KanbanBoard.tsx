@@ -1,5 +1,4 @@
 import { DragDropContext, DropResult, DragUpdate, DragStart } from 'react-beautiful-dnd';
-import { useAutoScroll } from "@/hooks/useAutoScroll";
 import { StageColumn } from "./StageColumn";
 import { Stage, Lead, Tag } from "@/types/kanban";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -24,8 +23,8 @@ export function KanbanBoard({
   onDeleteLead
 }: KanbanBoardProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const autoScrollRef = useRef<number | null>(null);
-  const lastMousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const autoScrollAnimationRef = useRef<number | null>(null);
+  const dragPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -33,105 +32,104 @@ export function KanbanBoard({
   const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
 
   // Configurações do auto-scroll
-  const AUTO_SCROLL_CONFIG = {
-    triggerZone: 120,
-    maxSpeed: 12,
-    speedMultiplier: 0.15,
-    acceleration: 1.2
+  const SCROLL_CONFIG = {
+    EDGE_SIZE: 100, // Zona de ativação do auto-scroll (100px da borda)
+    MAX_SPEED: 15,  // Velocidade máxima
+    MIN_SPEED: 2    // Velocidade mínima
   };
 
-  // Função para calcular a velocidade do auto-scroll baseada na distância da borda
-  const calculateScrollSpeed = useCallback((mouseX: number, containerRect: DOMRect) => {
-    const { triggerZone, maxSpeed, speedMultiplier } = AUTO_SCROLL_CONFIG;
+  // Função para calcular a velocidade e direção do scroll
+  const getScrollSpeed = useCallback((mouseX: number, containerRect: DOMRect) => {
+    const { EDGE_SIZE, MAX_SPEED, MIN_SPEED } = SCROLL_CONFIG;
     
-    const leftDistance = mouseX - containerRect.left;
-    const rightDistance = containerRect.right - mouseX;
-    
-    let speed = 0;
-    let direction = 0;
+    // Distâncias das bordas
+    const leftEdgeDistance = mouseX - containerRect.left;
+    const rightEdgeDistance = containerRect.right - mouseX;
     
     // Scroll para a esquerda
-    if (leftDistance < triggerZone && leftDistance > 0) {
-      const intensity = (triggerZone - leftDistance) / triggerZone;
-      speed = Math.min(maxSpeed, intensity * maxSpeed * speedMultiplier * 10);
-      direction = -1;
-    }
-    // Scroll para a direita
-    else if (rightDistance < triggerZone && rightDistance > 0) {
-      const intensity = (triggerZone - rightDistance) / triggerZone;
-      speed = Math.min(maxSpeed, intensity * maxSpeed * speedMultiplier * 10);
-      direction = 1;
+    if (leftEdgeDistance < EDGE_SIZE && leftEdgeDistance > 0) {
+      const intensity = 1 - (leftEdgeDistance / EDGE_SIZE);
+      const speed = MIN_SPEED + (intensity * (MAX_SPEED - MIN_SPEED));
+      return { speed: -speed, shouldScroll: true };
     }
     
-    return { speed, direction };
+    // Scroll para a direita  
+    if (rightEdgeDistance < EDGE_SIZE && rightEdgeDistance > 0) {
+      const intensity = 1 - (rightEdgeDistance / EDGE_SIZE);
+      const speed = MIN_SPEED + (intensity * (MAX_SPEED - MIN_SPEED));
+      return { speed: speed, shouldScroll: true };
+    }
+    
+    return { speed: 0, shouldScroll: false };
   }, []);
 
-  // Função para executar o auto-scroll
-  const performAutoScroll = useCallback(() => {
-    if (!scrollContainerRef.current || !isCardBeingDragged) return;
-    
+  // Função que executa o auto-scroll
+  const autoScroll = useCallback(() => {
+    if (!scrollContainerRef.current || !isCardBeingDragged) {
+      return;
+    }
+
     const container = scrollContainerRef.current;
     const containerRect = container.getBoundingClientRect();
-    const { x: mouseX } = lastMousePositionRef.current;
+    const { x: mouseX } = dragPositionRef.current;
     
-    const { speed, direction } = calculateScrollSpeed(mouseX, containerRect);
+    const { speed, shouldScroll } = getScrollSpeed(mouseX, containerRect);
     
-    if (speed > 0) {
-      container.scrollLeft += direction * speed;
+    if (shouldScroll && Math.abs(speed) > 0) {
+      // Aplica o scroll
+      container.scrollLeft += speed;
       
-      // Continua o auto-scroll se ainda estiver na zona de trigger
-      autoScrollRef.current = requestAnimationFrame(performAutoScroll);
+      // Continua o auto-scroll
+      autoScrollAnimationRef.current = requestAnimationFrame(autoScroll);
     } else {
-      // Para o auto-scroll se saiu da zona de trigger
-      if (autoScrollRef.current) {
-        cancelAnimationFrame(autoScrollRef.current);
-        autoScrollRef.current = null;
+      // Para o auto-scroll se não deve mais scrollar
+      if (autoScrollAnimationRef.current) {
+        cancelAnimationFrame(autoScrollAnimationRef.current);
+        autoScrollAnimationRef.current = null;
       }
     }
-  }, [isCardBeingDragged, calculateScrollSpeed]);
+  }, [isCardBeingDragged, getScrollSpeed]);
 
-  // Função para parar o auto-scroll
+  // Para o auto-scroll
   const stopAutoScroll = useCallback(() => {
-    if (autoScrollRef.current) {
-      cancelAnimationFrame(autoScrollRef.current);
-      autoScrollRef.current = null;
+    if (autoScrollAnimationRef.current) {
+      cancelAnimationFrame(autoScrollAnimationRef.current);
+      autoScrollAnimationRef.current = null;
     }
   }, []);
 
-  // Atualiza a posição do mouse e gerencia o auto-scroll
-  const handleMouseMove = useCallback((e: MouseEvent) => {
+  // Listener global para capturar movimento do mouse durante drag
+  const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
     if (!isCardBeingDragged) return;
     
-    lastMousePositionRef.current = { x: e.clientX, y: e.clientY };
+    // Atualiza a posição do drag
+    dragPositionRef.current = { x: e.clientX, y: e.clientY };
     
     if (!scrollContainerRef.current) return;
     
     const containerRect = scrollContainerRef.current.getBoundingClientRect();
-    const { speed } = calculateScrollSpeed(e.clientX, containerRect);
+    const { shouldScroll } = getScrollSpeed(e.clientX, containerRect);
     
-    // Inicia o auto-scroll se não estiver rodando e estiver na zona de trigger
-    if (speed > 0 && !autoScrollRef.current) {
-      autoScrollRef.current = requestAnimationFrame(performAutoScroll);
+    // Inicia o auto-scroll se necessário
+    if (shouldScroll && !autoScrollAnimationRef.current) {
+      autoScrollAnimationRef.current = requestAnimationFrame(autoScroll);
     }
-    // Para o auto-scroll se saiu da zona de trigger
-    else if (speed === 0 && autoScrollRef.current) {
-      stopAutoScroll();
-    }
-  }, [isCardBeingDragged, calculateScrollSpeed, performAutoScroll, stopAutoScroll]);
+  }, [isCardBeingDragged, getScrollSpeed, autoScroll]);
 
-  // Effect para gerenciar eventos de mouse durante o drag
+  // Effect para gerenciar eventos globais durante drag
   useEffect(() => {
     if (isCardBeingDragged) {
-      document.addEventListener('mousemove', handleMouseMove, { passive: true });
+      // Adiciona listener global
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: true });
       
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
         stopAutoScroll();
       };
     }
-  }, [isCardBeingDragged, handleMouseMove, stopAutoScroll]);
+  }, [isCardBeingDragged, handleGlobalMouseMove, stopAutoScroll]);
 
-  // Limpa o auto-scroll quando o componente é desmontado
+  // Cleanup no unmount
   useEffect(() => {
     return () => {
       stopAutoScroll();
@@ -152,18 +150,18 @@ export function KanbanBoard({
   const handleDragStart = (start: DragStart) => {
     setIsCardBeingDragged(true);
     
-    // Captura a posição inicial do mouse
-    const handleInitialMouseMove = (e: MouseEvent) => {
-      lastMousePositionRef.current = { x: e.clientX, y: e.clientY };
-      document.removeEventListener('mousemove', handleInitialMouseMove);
+    // Captura posição inicial do mouse
+    const captureInitialPosition = (e: MouseEvent) => {
+      dragPositionRef.current = { x: e.clientX, y: e.clientY };
+      document.removeEventListener('mousemove', captureInitialPosition);
     };
     
-    document.addEventListener('mousemove', handleInitialMouseMove, { once: true });
+    document.addEventListener('mousemove', captureInitialPosition, { once: true });
   };
 
   const handleDragUpdate = (update: DragUpdate) => {
-    // O auto-scroll é gerenciado pelo evento mousemove
-    // Aqui podemos adicionar outras lógicas se necessário
+    // O auto-scroll é gerenciado pelo mousemove global
+    if (!update.destination) return;
   };
 
   const handleDragEnd = (result: DropResult) => {
@@ -176,6 +174,7 @@ export function KanbanBoard({
 
     const { source, destination } = result;
 
+    // Se dropped no mesmo lugar, não faz nada
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
@@ -197,6 +196,10 @@ export function KanbanBoard({
   // Handlers para scroll manual (quando não está arrastando card)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current || isCardBeingDragged) return;
+    
+    // Evita conflito com drag de cards
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-rbd-draggable-id]')) return;
     
     setIsDragging(true);
     setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
@@ -260,15 +263,28 @@ export function KanbanBoard({
         cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
         touchAction: isCardBeingDragged ? 'none' : 'pan-x',
         position: 'relative',
-        overflow: 'auto'
+        overflow: 'auto',
+        height: '100%',
+        width: '100%'
       }}
     >
       <DragDropContext 
         onDragEnd={handleDragEnd}
         onDragStart={handleDragStart}
         onDragUpdate={handleDragUpdate}
+        // CRÍTICO: Define o container de scroll para o react-beautiful-dnd
+        scrollContainer={scrollContainerRef.current}
       >
-        <div className="kanban-stages-wrapper">
+        <div 
+          className="kanban-stages-wrapper"
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            minHeight: '100%',
+            position: 'relative',
+            width: 'max-content'
+          }}
+        >
           {filteredStages.map((stage) => (
             <StageColumn
               key={stage.id}
