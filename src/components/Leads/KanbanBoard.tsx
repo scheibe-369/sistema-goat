@@ -220,4 +220,26 @@ export function KanbanBoard({
         <div
           className="kanban-stages-wrapper"
           style={{
-           
+            display: 'flex',
+            alignItems: 'flex-start',
+            minHeight: '100%',
+            position: 'relative',
+            width: 'max-content'
+          }}
+        >
+          {filteredStages.map((stage) => (
+            <StageColumn
+              key={stage.id}
+              stage={stage}
+              tags={tags}
+              selectedFilter={selectedFilter}
+              onEditStage={onEditStage}
+              onEditLead={onEditLead}
+              onDeleteLead={onDeleteLead}
+            />
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
+  );
+}
