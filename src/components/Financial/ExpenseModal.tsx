@@ -92,7 +92,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     });
   };
 
-  // CSS super específico para garantir que NENHUM ícone de verificado apareça
+  // CSS ultra-específico para remover o ícone de verificado (checked) de QUALQUER lugar do Select
   const selectStyle = `
     .expense-select-trigger {
       background-color: #404040 !important;
@@ -132,9 +132,11 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       background-color: #525252 !important;
       color: white !important;
     }
-    /* REMOVE QUALQUER ÍCONE DE VERIFICADO */
-    .expense-select-item [data-radix-select-item-indicator],
+    /* Remove QUALQUER ícone de verificado/checked do Radix/shadcn dentro do select (trigger ou lista) */
+    .expense-select-trigger [data-radix-select-item-indicator],
     .expense-select-content [data-radix-select-item-indicator],
+    .expense-select-item [data-radix-select-item-indicator],
+    .expense-select-content span[data-radix-select-item-indicator],
     .expense-select-item svg[data-state="checked"],
     .expense-select-content svg[data-state="checked"],
     [data-radix-select-item-indicator] {
@@ -146,6 +148,14 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       background: none !important;
       color: transparent !important;
       left: 0 !important;
+    }
+    /* Deep selector para remover ícone se for inserido em slot direto pelo Radix */
+    .expense-select-content > div > .expense-select-item > [data-radix-select-item-indicator] {
+      display: none !important;
+    }
+    /* Se ainda assim surgir, esconde global */
+    [data-radix-select-item-indicator] {
+      display: none !important;
     }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
   `;
