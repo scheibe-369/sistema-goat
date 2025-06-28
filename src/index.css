@@ -163,6 +163,26 @@
     @apply bg-red-900/20 text-red-400;
     color: #f87171 !important;
   }
+
+  /* ===============================================
+     SCROLLBAR HIDE - Para esconder barras de rolagem
+     =============================================== */
+  .scrollbar-hide {
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Touch-friendly horizontal scroll */
+  .touch-pan-x {
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ===============================
