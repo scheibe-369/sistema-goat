@@ -75,17 +75,18 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
             <Select value={color} onValueChange={setColor}>
               <SelectTrigger
                 className={`
-                  bg-goat-gray-700 
-                  border-goat-gray-600 
-                  text-white 
-                  placeholder:text-white
-                  focus:border-goat-purple
-                  focus:ring-goat-purple/20
-                  transition-colors
+                  bg-goat-purple
+                  text-white
+                  font-semibold
+                  border-0
+                  focus:ring-2 focus:ring-goat-purple/60
                   min-h-[44px]
                   rounded-md
                   px-3
                   w-full
+                  transition-colors
+                  hover:bg-goat-purple/90
+                  placeholder:text-white
                 `}
               >
                 <SelectValue placeholder="Selecione uma cor" />
