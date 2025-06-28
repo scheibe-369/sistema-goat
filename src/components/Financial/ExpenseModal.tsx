@@ -88,7 +88,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     });
   };
 
-  // Estilos iguais ao NewLeadModal
+  // Estilos customizados para o modal
   const selectStyle = `
     .expense-select-trigger {
       background-color: #404040 !important;
@@ -123,6 +123,12 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     }
     .expense-select-item[data-state="checked"], .expense-select-item:hover, .expense-select-item[data-highlighted] {
       background-color: #525252 !important;
+    }
+    .expense-select-item .select-item-indicator {
+      display: none !important;
+    }
+    .expense-select-item [data-radix-select-item-indicator] {
+      display: none !important;
     }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
   `;
