@@ -25,6 +25,8 @@ const LeadsKanban = () => {
           id: "1",
           name: "João da Silva",
           company: "Tech Corp",
+          phone: "(11) 99999-0001",
+          email: "joao@techcorp.com",
           group: "Premium",
           lastUpdate: new Date().toISOString(),
         },
@@ -32,6 +34,8 @@ const LeadsKanban = () => {
           id: "2",
           name: "Maria Santos",
           company: "Design Studio",
+          phone: "(11) 99999-0002",
+          email: "maria@designstudio.com",
           group: "Básico",
           lastUpdate: new Date().toISOString(),
         },
@@ -46,6 +50,8 @@ const LeadsKanban = () => {
           id: "3",
           name: "Pedro Costa",
           company: "Marketing Agency",
+          phone: "(11) 99999-0003",
+          email: "pedro@marketingagency.com",
           group: "Premium",
           lastUpdate: new Date().toISOString(),
         },
@@ -60,6 +66,8 @@ const LeadsKanban = () => {
           id: "4",
           name: "Ana Oliveira",
           company: "E-commerce Plus",
+          phone: "(11) 99999-0004",
+          email: "ana@ecommerceplus.com",
           group: "Enterprise",
           lastUpdate: new Date().toISOString(),
         },
@@ -73,7 +81,7 @@ const LeadsKanban = () => {
     },
   ]);
 
-  const [tags] = useState<Tag[]>([
+  const [tags, setTags] = useState<Tag[]>([
     { id: "1", name: "Premium", color: "bg-purple-500" },
     { id: "2", name: "Básico", color: "bg-blue-500" },
     { id: "3", name: "Enterprise", color: "bg-red-500" },
@@ -155,6 +163,11 @@ const LeadsKanban = () => {
       id: Date.now().toString(),
     };
     setStages(prev => [...prev, stage]);
+  };
+
+  // Tags handler
+  const handleUpdateTags = (updatedTags: Tag[]) => {
+    setTags(updatedTags);
   };
 
   return (
@@ -240,7 +253,6 @@ const LeadsKanban = () => {
         open={modals.editLead}
         onOpenChange={(open) => open ? openModal('editLead') : closeModal('editLead')}
         lead={selectedLead}
-        stages={stages}
         tags={tags}
         onUpdateLead={handleUpdateLead}
       />
@@ -261,6 +273,8 @@ const LeadsKanban = () => {
       <TagsManagementModal
         open={modals.tagsManagement}
         onOpenChange={(open) => open ? openModal('tagsManagement') : closeModal('tagsManagement')}
+        tags={tags}
+        onUpdateTags={handleUpdateTags}
       />
     </div>
   );
