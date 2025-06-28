@@ -13,10 +13,10 @@ interface KanbanBoardProps {
   onDeleteLead: (leadId: string) => void;
 }
 
-export function KanbanBoard({ 
-  stages, 
-  tags, 
-  selectedFilter, 
+export function KanbanBoard({
+  stages,
+  tags,
+  selectedFilter,
   onStagesChange,
   onEditStage,
   onEditLead,
@@ -90,7 +90,7 @@ export function KanbanBoard({
     };
   }, [isCardBeingDragged, autoScrollLoop]);
 
-  // Touch support para auto-scroll (opcional, pode melhorar ainda mais para touch events)
+  // Touch support para auto-scroll
   useEffect(() => {
     if (!isCardBeingDragged) return;
     const handler = (e: TouchEvent) => {
@@ -203,8 +203,8 @@ export function KanbanBoard({
         width: '100vw',
         minWidth: '100vw',
         maxWidth: '100vw',
-        marginLeft: 0,
-        paddingLeft: 0,
+        margin: 0,
+        padding: 0,
         position: 'relative',
         overflow: 'auto',
         height: '100%',
@@ -220,26 +220,4 @@ export function KanbanBoard({
         <div
           className="kanban-stages-wrapper"
           style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            minHeight: '100%',
-            position: 'relative',
-            width: 'max-content'
-          }}
-        >
-          {filteredStages.map((stage) => (
-            <StageColumn
-              key={stage.id}
-              stage={stage}
-              tags={tags}
-              selectedFilter={selectedFilter}
-              onEditStage={onEditStage}
-              onEditLead={onEditLead}
-              onDeleteLead={onDeleteLead}
-            />
-          ))}
-        </div>
-      </DragDropContext>
-    </div>
-  );
-}
+           
