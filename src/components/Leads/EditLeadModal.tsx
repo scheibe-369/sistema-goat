@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, X } from "lucide-react";
 
@@ -13,13 +12,11 @@ interface Lead {
   name: string;
   company: string;
   phone: string;
-  email: string;
-  group: string;
+  stage: string;
   lastUpdate: string;
-  value?: string;
 }
 
-interface Tag {
+interface Stage {
   id: string;
   name: string;
   color: string;
@@ -29,21 +26,19 @@ interface EditLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lead: Lead | null;
-  tags: Tag[];
+  stages: Stage[];
   onUpdateLead: (lead: Lead) => void;
 }
 
-export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: EditLeadModalProps) {
+export function EditLeadModal({ open, onOpenChange, lead, stages, onUpdateLead }: EditLeadModalProps) {
   const [formData, setFormData] = useState<Lead>(
     lead || {
       id: '',
       name: '',
       company: '',
       phone: '',
-      email: '',
-      group: 'Clientes GOAT',
-      lastUpdate: '',
-      value: ''
+      stage: '',
+      lastUpdate: ''
     }
   );
 
@@ -108,37 +103,17 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: 
           </div>
 
           <div>
-            <Label className="text-white">Email</Label>
-            <Input
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="email@exemplo.com"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
-            />
-          </div>
-
-          <div>
-            <Label className="text-white">Valor (Opcional)</Label>
-            <Input
-              value={formData.value || ''}
-              onChange={(e) => handleInputChange('value', e.target.value)}
-              placeholder="R$ 5.000"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
-            />
-          </div>
-
-          <div>
-            <Label className="text-white">Tag/Grupo</Label>
-            <Select value={formData.group} onValueChange={(value) => handleInputChange('group', value)}>
+            <Label className="text-white">Etapa</Label>
+            <Select value={formData.stage} onValueChange={(value) => handleInputChange('stage', value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                {tags.map((tag) => (
-                  <SelectItem key={tag.id} value={tag.name} className="text-white">
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.name} className="text-white">
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${tag.color}`}></div>
-                      {tag.name}
+                      <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                      {stage.name}
                     </div>
                   </SelectItem>
                 ))}
