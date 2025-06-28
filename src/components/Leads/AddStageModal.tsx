@@ -142,7 +142,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
               type="submit"
               className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
             >
-              Adicionar Etapa
+              Adicionar
             </Button>
             <Button
               type="button"
