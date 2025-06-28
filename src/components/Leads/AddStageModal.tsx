@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,46 +11,97 @@ interface AddStageModalProps {
 }
 
 const colorOptions = [
-  { name: 'Cinza', value: 'bg-gray-500' },
-  { name: 'Vermelho', value: 'bg-red-500' },
-  { name: 'Amarelo', value: 'bg-yellow-500' },
-  { name: 'Verde', value: 'bg-green-500' },
-  { name: 'Azul', value: 'bg-blue-500' },
-  { name: 'Roxo', value: 'bg-purple-500' },
-  { name: 'Rosa', value: 'bg-pink-500' },
-  { name: 'Laranja', value: 'bg-orange-500' },
+  { name: "Cinza", value: "bg-gray-500" },
+  { name: "Vermelho", value: "bg-red-500" },
+  { name: "Amarelo", value: "bg-yellow-500" },
+  { name: "Verde", value: "bg-green-500" },
+  { name: "Azul", value: "bg-blue-500" },
+  { name: "Roxo", value: "bg-purple-500" },
+  { name: "Rosa", value: "bg-pink-500" },
+  { name: "Laranja", value: "bg-orange-500" },
 ];
 
 export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalProps) {
-  const [stageName, setStageName] = useState('');
-  const [selectedColor, setSelectedColor] = useState('bg-gray-500');
+  const [stageName, setStageName] = useState("");
+  const [selectedColor, setSelectedColor] = useState("bg-gray-500");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (stageName.trim()) {
       onAddStage({
         name: stageName.trim(),
-        color: selectedColor
+        color: selectedColor,
       });
-      setStageName('');
-      setSelectedColor('bg-gray-500');
+      setStageName("");
+      setSelectedColor("bg-gray-500");
       onOpenChange(false);
     }
   };
 
+  // Estilo para deixar os textos SEM cor roxa e grid igual aos outros selects
+  const gridStyle = `
+    .add-stage-color-btn {
+      background: transparent !important;
+      border-radius: 0.75rem !important;
+      border-width: 2px;
+      border-style: solid;
+      color: white !important;
+      transition: border 0.15s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 600;
+      min-width: 70px;
+      min-height: 70px;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .add-stage-color-btn .add-stage-dot {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 9999px;
+      margin-bottom: 0.25rem;
+      border: 2px solid #222;
+      box-shadow: 0 0 0 1.5px #222;
+    }
+    .add-stage-color-btn.selected {
+      border-color: #6B21D3 !important; /* Roxo GOAT */
+      background: #34205322 !important;
+      color: white !important;
+    }
+    .add-stage-color-btn:not(.selected) {
+      border-color: #525252 !important;
+    }
+    .add-stage-color-btn:hover:not(.selected) {
+      border-color: #6B21D3 !important;
+    }
+    .add-stage-color-label {
+      font-size: 0.9rem;
+      color: #fff !important;
+      font-weight: 500;
+      margin: 0;
+    }
+  `;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white">
+      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+        <style>{gridStyle}</style>
         <DialogHeader>
-          <DialogTitle>Adicionar Nova Etapa</DialogTitle>
+          <DialogTitle className="text-white">Adicionar Nova Etapa</DialogTitle>
           <DialogDescription className="text-goat-gray-400">
             Crie uma nova etapa para organizar seus leads
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="stage-name">Nome da Etapa</Label>
+          <div>
+            <Label htmlFor="stage-name" className="text-white">
+              Nome da Etapa *
+            </Label>
             <Input
               id="stage-name"
               value={stageName}
@@ -62,37 +112,38 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Cor da Etapa</Label>
-            <div className="grid grid-cols-4 gap-2">
+          <div>
+            <Label className="text-white">Cor da Etapa</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
               {colorOptions.map((color) => (
                 <button
-                  key={color.value}
                   type="button"
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`p-2 rounded-lg border-2 transition-colors ${
-                    selectedColor === color.value 
-                      ? 'border-goat-purple' 
-                      : 'border-goat-gray-600 hover:border-goat-gray-500'
+                  key={color.value}
+                  tabIndex={0}
+                  className={`add-stage-color-btn ${
+                    selectedColor === color.value ? "selected" : ""
                   }`}
+                  onClick={() => setSelectedColor(color.value)}
                 >
-                  <div className={`w-6 h-6 rounded-full ${color.value} mx-auto`}></div>
-                  <span className="text-xs text-goat-gray-400 mt-1 block">{color.name}</span>
+                  <div className={`add-stage-dot ${color.value}`}></div>
+                  <span className="add-stage-color-label">{color.name}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2 pt-2">
             <Button
               type="button"
-              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold h-12 border-0"
             >
               Cancelar
             </Button>
-            <Button type="submit" className="btn-primary">
+            <Button
+              type="submit"
+              className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
+            >
               Adicionar Etapa
             </Button>
           </DialogFooter>
