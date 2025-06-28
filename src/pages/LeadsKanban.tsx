@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,8 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } 
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
+import { EditStageModal } from "@/components/Leads/EditStageModal";
+import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface Lead {
@@ -130,7 +131,10 @@ export default function LeadsKanban() {
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
+  const [isEditStageModalOpen, setIsEditStageModalOpen] = useState(false);
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   
   // ✅ NOVO: Estado para filtros
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
@@ -197,6 +201,25 @@ export default function LeadsKanban() {
       leads: []
     };
     setStages(prev => [...prev, newStage]);
+  };
+
+  const handleEditStage = (stage: Stage) => {
+    setSelectedStage(stage);
+    setIsEditStageModalOpen(true);
+  };
+
+  const handleUpdateStage = (updatedStage: Stage) => {
+    setStages(prev => prev.map(stage => 
+      stage.id === updatedStage.id ? updatedStage : stage
+    ));
+  };
+
+  const handleAddLead = (newLead: Lead, stageId: string) => {
+    setStages(prev => prev.map(stage => 
+      stage.id === stageId 
+        ? { ...stage, leads: [...stage.leads, newLead] }
+        : stage
+    ));
   };
 
   // ✅ NOVO: Função para auto-scroll durante drag
@@ -370,7 +393,10 @@ export default function LeadsKanban() {
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Etapa
               </Button>
-              <Button className="btn-primary h-10 px-4">
+              <Button 
+                className="btn-primary h-10 px-4"
+                onClick={() => setIsNewLeadModalOpen(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Lead
               </Button>
@@ -445,7 +471,12 @@ export default function LeadsKanban() {
                       {stage.leads.length}
                     </Badge>
                   </div>
-                  <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-goat-gray-400 hover:text-white"
+                    onClick={() => handleEditStage(stage)}
+                  >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </div>
@@ -570,6 +601,21 @@ export default function LeadsKanban() {
         open={isAddStageModalOpen}
         onOpenChange={setIsAddStageModalOpen}
         onAddStage={handleAddStage}
+      />
+
+      <EditStageModal
+        open={isEditStageModalOpen}
+        onOpenChange={setIsEditStageModalOpen}
+        stage={selectedStage}
+        onUpdateStage={handleUpdateStage}
+      />
+
+      <NewLeadModal
+        open={isNewLeadModalOpen}
+        onOpenChange={setIsNewLeadModalOpen}
+        tags={tags}
+        stages={stages}
+        onAddLead={handleAddLead}
       />
     </div>
   );
