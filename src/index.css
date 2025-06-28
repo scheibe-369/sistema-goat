@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -217,4 +216,49 @@
   color: white !important;             /* Cor de --popover-foreground (branco) */
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
+}
+
+/* =======================================
+   Kanban Horizontal Scroll Styles
+   ======================================= */
+.kanban-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Remove scrollbar visibility */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  /* Add padding for better UX */
+  padding-bottom: 8px;
+}
+
+.kanban-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.kanban-stages-wrapper {
+  display: flex;
+  gap: 24px;
+  min-height: 600px;
+  width: max-content;
+  padding: 4px;
+}
+
+.kanban-stage {
+  min-width: 280px;
+  max-width: 280px;
+  flex-shrink: 0;
+}
+
+/* Touch-friendly scrolling for mobile */
+@media (pointer: coarse) {
+  .kanban-scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  
+  .kanban-stage {
+    scroll-snap-align: start;
+  }
 }
