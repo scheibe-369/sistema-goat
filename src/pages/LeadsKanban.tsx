@@ -327,43 +327,43 @@ export default function LeadsKanban() {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in h-full">
-      {/* Header - Mais compacto */}
+    <div className="space-y-6 animate-fade-in">
+      {/* Header - Fixed */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Kanban de Leads</h1>
-          <p className="text-goat-gray-400 text-sm">Gerencie seu pipeline de vendas</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
+          <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
         </div>
         <div className="flex gap-2">
           <Button
-            className="btn-primary text-xs px-3 py-1.5"
+            className="btn-primary"
             onClick={() => setIsTagsModalOpen(true)}
           >
-            <Settings className="w-3 h-3 mr-1" />
+            <Settings className="w-4 h-4 mr-2" />
             Gerenciar Tags
           </Button>
           <Button
-            className="btn-primary text-xs px-3 py-1.5"
+            className="btn-primary"
             onClick={() => setIsAddStageModalOpen(true)}
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-4 h-4 mr-2" />
             Nova Etapa
           </Button>
-          <Button className="btn-primary text-xs px-3 py-1.5">
-            <Plus className="w-3 h-3 mr-1" />
+          <Button className="btn-primary">
+            <Plus className="w-4 h-4 mr-2" />
             Novo Lead
           </Button>
         </div>
       </div>
 
-      {/* Filters - Mais compacto */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-3">
-        <div className="flex items-center gap-3">
-          <span className="text-white font-medium text-sm">Filtros:</span>
+      {/* Filters - Fixed */}
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+        <div className="flex items-center gap-4">
+          <span className="text-white font-medium">Filtros:</span>
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white text-xs px-2 py-1"
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             Todos os grupos
           </Button>
@@ -372,16 +372,16 @@ export default function LeadsKanban() {
               key={tag.id}
               variant="outline"
               size="sm"
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white text-xs px-2 py-1"
+              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
             >
-              <div className={`w-2 h-2 rounded-full ${tag.color} mr-1`}></div>
+              <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
               {tag.name}
             </Button>
           ))}
         </div>
       </Card>
 
-      {/* Kanban Board - Ajustado para viewport */}
+      {/* Kanban Board - Scroll Horizontal Fluido */}
       <div 
         ref={scrollContainerRef}
         className="kanban-scroll-fluid"
@@ -403,17 +403,17 @@ export default function LeadsKanban() {
           <div className="kanban-stages-wrapper">
             {stages.map((stage) => (
               <div key={stage.id} className="kanban-stage">
-                {/* Stage Header - Mais compacto */}
-                <div className="flex items-center justify-between mb-3">
+                {/* Stage Header */}
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2.5 h-2.5 rounded-full ${stage.color}`}></div>
-                    <h3 className="font-semibold text-white text-sm">{stage.name}</h3>
-                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700 px-1.5 py-0.5">
+                    <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                    <h3 className="font-semibold text-white">{stage.name}</h3>
+                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
                       {stage.leads.length}
                     </Badge>
                   </div>
-                  <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white h-6 w-6">
-                    <Plus className="w-3 h-3" />
+                  <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
+                    <Plus className="w-4 h-4" />
                   </Button>
                 </div>
 
@@ -423,7 +423,7 @@ export default function LeadsKanban() {
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`space-y-2 min-h-[300px] max-h-[calc(100vh-350px)] overflow-y-auto p-2 rounded-lg transition-colors ${
+                      className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
                         snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
                       }`}
                     >
@@ -442,8 +442,8 @@ export default function LeadsKanban() {
                             >
                               <ContextMenu>
                                 <ContextMenuTrigger>
-                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    <div className="space-y-2">
+                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                    <div className="space-y-3">
                                       {/* Lead Header */}
                                       <div className="flex items-start justify-between">
                                         <div>
@@ -453,7 +453,7 @@ export default function LeadsKanban() {
                                         <Button
                                           variant="ghost"
                                           size="icon"
-                                          className="text-goat-gray-400 hover:text-white h-5 w-5"
+                                          className="text-goat-gray-400 hover:text-white h-6 w-6"
                                           onClick={() => handleEditLead(lead)}
                                         >
                                           <MoreVertical className="w-3 h-3" />
@@ -461,7 +461,7 @@ export default function LeadsKanban() {
                                       </div>
 
                                       {/* Group Badge */}
-                                      <Badge className={`text-xs ${getGroupColor(lead.group)} px-2 py-0.5`}>
+                                      <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
                                         {lead.group}
                                       </Badge>
 
@@ -485,7 +485,7 @@ export default function LeadsKanban() {
                                       </div>
 
                                       {/* Last Update */}
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-1 border-t border-goat-gray-700">
+                                      <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
                                         <Calendar className="w-3 h-3" />
                                         <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
                                       </div>
@@ -518,8 +518,8 @@ export default function LeadsKanban() {
 
                       {/* Empty State */}
                       {stage.leads.length === 0 && (
-                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 text-center">
-                          <p className="text-goat-gray-400 text-xs">Arraste leads para cá</p>
+                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
+                          <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
                         </div>
                       )}
                     </div>
