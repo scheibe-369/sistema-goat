@@ -394,12 +394,8 @@ export default function LeadsKanban() {
                                       </div>
                                     )}
 
-                                    {/* Contact Info */}
+                                    {/* Contact Info - Only Email */}
                                     <div className="space-y-1">
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
-                                        <Phone className="w-3 h-3" />
-                                        <span>{lead.phone}</span>
-                                      </div>
                                       <div className="flex items-center gap-2 text-xs text-goat-gray-400">
                                         <Mail className="w-3 h-3" />
                                         <span>{lead.email}</span>
