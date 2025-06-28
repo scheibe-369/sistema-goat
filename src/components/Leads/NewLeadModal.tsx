@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown } from "lucide-react";
 
 interface Tag {
   id: string;
@@ -74,7 +73,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     }));
   };
 
-  // Estilos visuais para Select (igual NewClientModal)
+  // Estilos visuais para Select
   const selectStyle = `
     .lead-select-trigger {
       background-color: #404040 !important;
@@ -106,16 +105,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
       padding-left: 1rem;
       padding-right: 1rem;
       min-height: 40px;
-      display: flex;
-      align-items: center;
+      display: flex !important;
+      align-items: center !important;
       gap: 0.5rem;
     }
     .lead-select-item[data-state="checked"], .lead-select-item:hover, .lead-select-item[data-highlighted] {
       background-color: #525252 !important;
     }
-    /* Remove sombra do menu e overlay */
     [data-radix-popper-content-wrapper] { background: transparent !important; }
     .radix-select-overlay { display: none !important; }
+    /* Remove texto roxo do valor */
+    input#value, input#value::placeholder {
+      color: #fff !important;
+    }
   `;
 
   return (
@@ -160,10 +162,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           <div>
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
             <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
-              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center">
-                <SelectValue placeholder="Selecione uma etapa" />
-                <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-              </SelectTrigger>
+              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center" />
               <SelectContent className="lead-select-content">
                 {stages.map(stage => (
                   <SelectItem
@@ -172,7 +171,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
                     className="lead-select-item"
                   >
                     <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
-                    {stage.name}
+                    <span className="whitespace-nowrap">{stage.name}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -192,10 +191,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           <div>
             <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
             <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
-              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center">
-                <SelectValue placeholder="Selecione uma tag" />
-                <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-              </SelectTrigger>
+              <SelectTrigger className="lead-select-trigger flex w-full justify-between items-center" />
               <SelectContent className="lead-select-content">
                 {tags.map(tag => (
                   <SelectItem
@@ -204,7 +200,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
                     className="lead-select-item"
                   >
                     <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
-                    {tag.name}
+                    <span className="whitespace-nowrap">{tag.name}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -219,6 +215,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               placeholder="Ex: R$ 5.000,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               inputMode="decimal"
+              style={{ color: "#fff" }}
             />
           </div>
           <DialogFooter className="gap-2">
