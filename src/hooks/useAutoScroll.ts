@@ -42,8 +42,13 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
     scrollConfigRef.current = null;
   }, []);
 
-  const handleDragPosition = useCallback((mouseX: number) => {
+  const handleDragUpdate = useCallback((update: any) => {
     if (!scrollContainerRef.current) return;
+
+    // Get mouse position from the drag update
+    const mouseX = update.clientX || 0;
+    
+    if (mouseX === 0) return; // No valid mouse position
 
     const container = scrollContainerRef.current;
     const containerRect = container.getBoundingClientRect();
@@ -70,6 +75,6 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
     scrollContainerRef,
     startAutoScroll,
     stopAutoScroll,
-    handleDragPosition,
+    handleDragUpdate,
   };
 }

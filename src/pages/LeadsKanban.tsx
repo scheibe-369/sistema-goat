@@ -9,7 +9,7 @@ import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { NewLeadModal } from "@/components/Leads/NewLeadModal";
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
 import { useAutoScroll } from "@/hooks/useAutoScroll";
 
 interface Lead {
@@ -138,8 +138,8 @@ export default function LeadsKanban() {
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   
-  // ✅ NOVO: Hook customizado para auto-scroll otimizado
-  const { scrollContainerRef, stopAutoScroll, handleDragPosition } = useAutoScroll({
+  // ✅ Hook customizado para auto-scroll otimizado
+  const { scrollContainerRef, stopAutoScroll, handleDragUpdate } = useAutoScroll({
     triggerZone: 120,
     maxSpeed: 12,
     speedMultiplier: 0.15
@@ -151,11 +151,12 @@ export default function LeadsKanban() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
 
-  // ✅ NOVO: Event listener otimizado para mousemove durante drag
+  // ✅ Event listener para capturar posição do mouse durante drag
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isCardBeingDragged) {
-        handleDragPosition(e.clientX);
+        // Passa a posição do mouse para o hook de auto-scroll
+        handleDragUpdate({ clientX: e.clientX, clientY: e.clientY });
       }
     };
 
@@ -166,7 +167,7 @@ export default function LeadsKanban() {
         stopAutoScroll();
       };
     }
-  }, [isCardBeingDragged, handleDragPosition, stopAutoScroll]);
+  }, [isCardBeingDragged, handleDragUpdate, stopAutoScroll]);
 
   const getFilteredStages = () => {
     if (selectedFilter === 'all') {
@@ -262,7 +263,7 @@ export default function LeadsKanban() {
 
     setStages(newStages);
     
-    // ✅ Reset completo de estados para garantir touch funcionando
+    // ✅ Reset completo de estados
     setTimeout(() => {
       setIsCardBeingDragged(false);
       setIsDragging(false);
@@ -273,7 +274,12 @@ export default function LeadsKanban() {
     setIsCardBeingDragged(true);
   };
 
-  // ✅ Handlers otimizados para scroll horizontal fluido
+  // ✅ Novo handler para drag update que integra com auto-scroll
+  const onDragUpdate = (update: DragUpdate) => {
+    // Chama o handler do hook de auto-scroll
+    handleDragUpdate(update);
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
@@ -301,7 +307,6 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
-  // ✅ Touch events otimizados para evitar travamento após drag
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
@@ -396,7 +401,7 @@ export default function LeadsKanban() {
         </div>
       </div>
 
-      {/* ✅ Kanban Board com scroll otimizado */}
+      {/* ✅ Kanban Board com scroll otimizado e drag corrigido */}
       <div 
         ref={scrollContainerRef}
         className="kanban-scroll-fluid"
@@ -409,12 +414,13 @@ export default function LeadsKanban() {
         onTouchEnd={handleTouchEnd}
         style={{ 
           cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
-          touchAction: isCardBeingDragged ? 'none' : 'pan-x' // ✅ Melhora touch durante drag
+          touchAction: isCardBeingDragged ? 'none' : 'pan-x'
         }}
       >
         <DragDropContext 
           onDragEnd={handleDragEnd}
           onDragStart={handleDragStart}
+          onDragUpdate={onDragUpdate}
         >
           <div className="kanban-stages-wrapper">
             {filteredStages.map((stage) => (
@@ -455,16 +461,21 @@ export default function LeadsKanban() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                              className={`${snapshot.isDragging ? 'rotate-2 scale-105 z-50' : ''} transition-transform`}
                               style={{
                                 ...provided.draggableProps.style,
+                                // ✅ Correção para o card ficar grudado ao cursor
+                                transform: snapshot.isDragging 
+                                  ? `${provided.draggableProps.style?.transform} rotate(2deg) scale(1.05)`
+                                  : provided.draggableProps.style?.transform,
                                 cursor: snapshot.isDragging ? 'grabbing' : 'grab'
                               }}
                             >
                               <ContextMenu>
                                 <ContextMenuTrigger>
                                   <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    <div className="space-y-3">
+                                    {/* Lead Header */}
+                                      <div className="space-y-3">
                                       {/* Lead Header */}
                                       <div className="flex items-start justify-between">
                                         <div>
