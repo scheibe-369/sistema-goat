@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,12 +24,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
 
   const handleValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
     if (value === '' || value === '0' || value === '0,') {
-      setFormData({...formData, value: '0,00'});
+      setFormData({ ...formData, value: '0,00' });
       return;
     }
-    
     if (!value.includes(',')) {
       value = value + ',00';
     } else {
@@ -41,30 +38,24 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
         value = parts[0] + ',' + parts[1] + '0';
       }
     }
-    
-    setFormData({...formData, value});
+    setFormData({ ...formData, value });
   };
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
     value = value.replace(/[^\d,]/g, '');
-    
     const parts = value.split(',');
     if (parts.length > 2) {
       value = parts[0] + ',' + parts.slice(1).join('');
     }
-    
     if (parts[1] && parts[1].length > 2) {
       value = parts[0] + ',' + parts[1].substring(0, 2);
     }
-    
-    setFormData({...formData, value});
+    setFormData({ ...formData, value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     const expense = {
       id: Date.now(),
       description: formData.description,
@@ -75,7 +66,6 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       isRecurring: formData.isRecurring,
       recurrence: formData.isRecurring ? formData.recurrence : undefined
     };
-
     onAddExpense(expense);
     setOpen(false);
     setFormData({
@@ -88,7 +78,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     });
   };
 
-  // Estilos customizados para o modal
+  // Remove o ícone de verificado do menu de recorrência (e dos outros selects desse modal)
   const selectStyle = `
     .expense-select-trigger {
       background-color: #404040 !important;
@@ -120,13 +110,12 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       padding-left: 1rem;
       padding-right: 1rem;
       min-height: 40px;
+      position: relative;
     }
     .expense-select-item[data-state="checked"], .expense-select-item:hover, .expense-select-item[data-highlighted] {
       background-color: #525252 !important;
     }
-    .expense-select-item .select-item-indicator {
-      display: none !important;
-    }
+    /* Remove o ícone de verificado */
     .expense-select-item [data-radix-select-item-indicator] {
       display: none !important;
     }
@@ -152,12 +141,11 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
             <Input
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
-          
           <div>
             <Label htmlFor="value" className="text-white">Valor (R$) *</Label>
             <Input
@@ -171,10 +159,9 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               required
             />
           </div>
-          
           <div>
             <Label htmlFor="category" className="text-white">Categoria *</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+            <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
               <SelectTrigger className="expense-select-trigger">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
@@ -187,32 +174,29 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               </SelectContent>
             </Select>
           </div>
-          
           <div>
             <Label htmlFor="date" className="text-white">Data *</Label>
             <Input
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
-
           <div className="flex items-center space-x-2">
             <Checkbox
               id="isRecurring"
               checked={formData.isRecurring}
-              onCheckedChange={(checked) => setFormData({...formData, isRecurring: checked as boolean})}
+              onCheckedChange={(checked) => setFormData({ ...formData, isRecurring: checked as boolean })}
             />
             <Label htmlFor="isRecurring" className="text-white">Despesa recorrente</Label>
           </div>
-
           {formData.isRecurring && (
             <div>
               <Label htmlFor="recurrence" className="text-white">Recorrência</Label>
-              <Select value={formData.recurrence} onValueChange={(value) => setFormData({...formData, recurrence: value})}>
+              <Select value={formData.recurrence} onValueChange={(value) => setFormData({ ...formData, recurrence: value })}>
                 <SelectTrigger className="expense-select-trigger">
                   <SelectValue />
                 </SelectTrigger>
@@ -225,7 +209,6 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               </Select>
             </div>
           )}
-          
           <div className="flex gap-2 pt-4">
             <Button
               type="button"
