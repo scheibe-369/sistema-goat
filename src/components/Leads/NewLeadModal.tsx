@@ -59,18 +59,20 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     onOpenChange(false);
   };
 
-  // Formata campo valor como moeda
+  const formatCurrency = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
+    if (!numbers) return "";
+    const amount = parseInt(numbers) / 100;
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount);
+  };
+
   const handleValueChange = (value: string) => {
-    let v = value.replace(/[^\d,]/g, '').replace(',', '.');
-    let num = parseFloat(v);
-    if (isNaN(num)) {
-      setFormData(prev => ({ ...prev, value: '' }));
-      return;
-    }
-    setFormData(prev => ({
-      ...prev,
-      value: num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-    }));
+    const formatted = formatCurrency(value);
+    setFormData(prev => ({ ...prev, value: formatted }));
   };
 
   // Alinhamento visual do Select e dos itens
@@ -246,12 +248,11 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
             <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
             <Input
               id="value"
-              value={formData.value}
+              value={formData.value || ""}
               onChange={e => handleValueChange(e.target.value)}
-              placeholder="Ex: R$ 5.000,00"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              placeholder="R$ 0,00"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
               inputMode="decimal"
-              style={{ color: "#fff" }}
             />
           </div>
           <DialogFooter className="gap-2">
