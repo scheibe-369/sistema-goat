@@ -203,7 +203,7 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onUpdate
             </Button>
             <Button 
               onClick={() => onOpenChange(false)} 
-              className="flex-1 btn-outline-danger"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
             >
               <X className="w-4 h-4 mr-2" />
               Cancelar

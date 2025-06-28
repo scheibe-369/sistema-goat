@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -178,9 +177,8 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           <DialogFooter className="gap-2">
             <Button
               type="button"
-              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="btn-outline"
+              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
             >
               Cancelar
             </Button>
