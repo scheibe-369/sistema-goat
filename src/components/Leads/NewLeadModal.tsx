@@ -5,18 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+// Tipos
 interface Tag {
   id: string;
   name: string;
   color: string;
 }
-
 interface Stage {
   id: string;
   name: string;
   color: string;
 }
-
 interface Lead {
   name: string;
   company: string;
@@ -26,22 +25,12 @@ interface Lead {
   value?: string;
   stage: string;
 }
-
 interface NewLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tags: Tag[];
   stages: Stage[];
   onAddLead: (lead: Lead) => void;
-}
-
-function formatBRL(value: string) {
-  // Remove tudo que não for número
-  let cleaned = value.replace(/\D/g, "");
-  // Converte para float com duas casas
-  let num = Number(cleaned) / 100;
-  // Formata para BRL
-  return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
@@ -52,21 +41,37 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     email: "",
     group: "",
     value: "",
-    stage: "",
+    stage: ""
   });
 
-  // Armazena o valor raw sem formatação
-  const [valueRaw, setValueRaw] = useState<string>("");
+  // Máscara de moeda BRL
+  const formatCurrency = (value: string) => {
+    // Remove tudo que não é número
+    let cleaned = value.replace(/\D/g, "");
+    let intValue = parseInt(cleaned || "0", 10);
+    return (intValue / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2
+    });
+  };
+
+  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    if (!val) {
+      setFormData((prev) => ({ ...prev, value: "" }));
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      value: formatCurrency(val)
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.company || !formData.phone || !formData.stage) {
-      return;
-    }
-
+    if (!formData.name || !formData.company || !formData.phone || !formData.stage) return;
     onAddLead(formData);
-
     setFormData({
       name: "",
       company: "",
@@ -74,18 +79,18 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
       email: "",
       group: "",
       value: "",
-      stage: "",
+      stage: ""
     });
-    setValueRaw("");
     onOpenChange(false);
   };
 
   const handleChange = (field: keyof Lead, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Para garantir menu seamless
-  const menuClass = "bg-goat-gray-700 border-goat-gray-600 text-white shadow-lg";
+  // Classes para uniformizar o fundo dos menus
+  const menuClass = "bg-[#232323] border border-[#404040] shadow-lg";
+  const itemClass = "text-white bg-[#404040] hover:bg-goat-gray-600 data-[state=checked]:bg-[#404040] transition-colors rounded-md px-3 py-2 cursor-pointer";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,9 +101,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name" className="text-white">
-              Nome *
-            </Label>
+            <Label htmlFor="name" className="text-white">Nome *</Label>
             <Input
               id="name"
               value={formData.name}
@@ -107,11 +110,8 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
-
           <div>
-            <Label htmlFor="company" className="text-white">
-              Empresa *
-            </Label>
+            <Label htmlFor="company" className="text-white">Empresa *</Label>
             <Input
               id="company"
               value={formData.company}
@@ -120,11 +120,8 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
-
           <div>
-            <Label htmlFor="phone" className="text-white">
-              Telefone *
-            </Label>
+            <Label htmlFor="phone" className="text-white">Telefone *</Label>
             <Input
               id="phone"
               value={formData.phone}
@@ -133,18 +130,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
-
           <div>
-            <Label htmlFor="stage" className="text-white">
-              Etapa *
-            </Label>
-            <Select value={formData.stage} onValueChange={(value) => handleChange("stage", value)}>
+            <Label htmlFor="stage" className="text-white">Etapa *</Label>
+            <Select value={formData.stage} onValueChange={value => handleChange("stage", value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma etapa" />
               </SelectTrigger>
               <SelectContent className={menuClass}>
-                {stages.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.id} className="text-white hover:bg-goat-gray-600">
+                {stages.map(stage => (
+                  <SelectItem
+                    key={stage.id}
+                    value={stage.id}
+                    className={itemClass}
+                  >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
                       {stage.name}
@@ -154,11 +152,8 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectContent>
             </Select>
           </div>
-
           <div>
-            <Label htmlFor="email" className="text-white">
-              Email (opcional)
-            </Label>
+            <Label htmlFor="email" className="text-white">Email (opcional)</Label>
             <Input
               id="email"
               type="email"
@@ -167,18 +162,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
-
           <div>
-            <Label htmlFor="group" className="text-white">
-              Tag (opcional)
-            </Label>
-            <Select value={formData.group} onValueChange={(value) => handleChange("group", value)}>
+            <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
+            <Select value={formData.group} onValueChange={value => handleChange("group", value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma tag" />
               </SelectTrigger>
               <SelectContent className={menuClass}>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.id} value={tag.name} className="text-white hover:bg-goat-gray-600">
+                {tags.map(tag => (
+                  <SelectItem
+                    key={tag.id}
+                    value={tag.name}
+                    className={itemClass}
+                  >
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${tag.color}`}></div>
                       {tag.name}
@@ -188,20 +184,13 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectContent>
             </Select>
           </div>
-
           <div>
-            <Label htmlFor="value" className="text-white">
-              Valor (opcional)
-            </Label>
+            <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
             <Input
               id="value"
-              value={formatBRL(valueRaw)}
               inputMode="numeric"
-              onChange={(e) => {
-                const raw = e.target.value.replace(/\D/g, "");
-                setValueRaw(raw);
-                handleChange("value", formatBRL(raw));
-              }}
+              value={formData.value}
+              onChange={handleCurrencyChange}
               placeholder="Ex: R$ 5.000,00"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               maxLength={17}
