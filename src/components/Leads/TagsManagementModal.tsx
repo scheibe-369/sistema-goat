@@ -97,7 +97,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                     value={newTagName}
                     onChange={(e) => setNewTagName(e.target.value)}
                     placeholder="Ex: Cliente VIP"
-                    className="bg-goat-gray-600 border-goat-gray-500 text-white"
+                    className="bg-goat-gray-600 border-goat-gray-500 text-white placeholder:text-white"
                   />
                 </div>
                 <div>
@@ -151,7 +151,8 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                         <Input
                           value={editingTag.name}
                           onChange={(e) => setEditingTag({ ...editingTag, name: e.target.value })}
-                          className="bg-goat-gray-500 border-goat-gray-400 text-white"
+                          className="bg-goat-gray-500 border-goat-gray-400 text-white placeholder:text-white"
+                          placeholder="Editar nome da Tag"
                         />
                         <div className="flex gap-1">
                           {defaultColors.map((color) => (
@@ -178,7 +179,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                       </div>
                     ) : (
                       <>
-                        <Badge className={`${tag.color} text-white`}>{tag.name}</Badge>
+                        <Badge className={`${tag.color} text-white hover:${tag.color}`}>{tag.name}</Badge>
                         <div className="flex gap-2">
                           <Button
                             onClick={() => handleEditTag(tag)}
