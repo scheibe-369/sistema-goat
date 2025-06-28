@@ -178,7 +178,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                       </div>
                     ) : (
                       <>
-                        <Badge className={`${tag.color} text-white hover:${tag.color}`}>{tag.name}</Badge>
+                        <Badge className={${tag.color} text-white}>{tag.name}</Badge>
                         <div className="flex gap-2">
                           <Button
                             onClick={() => handleEditTag(tag)}
