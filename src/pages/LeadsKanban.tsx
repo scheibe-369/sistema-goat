@@ -1,138 +1,153 @@
-
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Settings } from "lucide-react";
-import { KanbanBoard } from "@/components/Leads/KanbanBoard";
-import { FiltersBar } from "@/components/Leads/FiltersBar";
-import { NewLeadModal } from "@/components/Leads/NewLeadModal";
-import { EditLeadModal } from "@/components/Leads/EditLeadModal";
-import { EditStageModal } from "@/components/Leads/EditStageModal";
-import { AddStageModal } from "@/components/Leads/AddStageModal";
+import { Plus, Phone, Mail, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
-import { Stage, Lead, Tag } from "@/types/kanban";
+import { EditLeadModal } from "@/components/Leads/EditLeadModal";
+import { AddStageModal } from "@/components/Leads/AddStageModal";
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
-const LeadsKanban = () => {
-  // Initial data
-  const [stages, setStages] = useState<Stage[]>([
-    {
-      id: "1",
-      name: "Novos Leads",
-      color: "bg-blue-500",
-      leads: [
-        {
-          id: "1",
-          name: "João da Silva",
-          company: "Tech Corp",
-          phone: "(11) 99999-0001",
-          email: "joao@techcorp.com",
-          group: "Premium",
-          lastUpdate: new Date().toISOString(),
-        },
-        {
-          id: "2",
-          name: "Maria Santos",
-          company: "Design Studio",
-          phone: "(11) 99999-0002",
-          email: "maria@designstudio.com",
-          group: "Básico",
-          lastUpdate: new Date().toISOString(),
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Qualificação",
-      color: "bg-yellow-500",
-      leads: [
-        {
-          id: "3",
-          name: "Pedro Costa",
-          company: "Marketing Agency",
-          phone: "(11) 99999-0003",
-          email: "pedro@marketingagency.com",
-          group: "Premium",
-          lastUpdate: new Date().toISOString(),
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Proposta",
-      color: "bg-orange-500",
-      leads: [
-        {
-          id: "4",
-          name: "Ana Oliveira",
-          company: "E-commerce Plus",
-          phone: "(11) 99999-0004",
-          email: "ana@ecommerceplus.com",
-          group: "Enterprise",
-          lastUpdate: new Date().toISOString(),
-        },
-      ],
-    },
-    {
-      id: "4",
-      name: "Fechamento",
-      color: "bg-green-500",
-      leads: [],
-    },
-  ]);
+interface Lead {
+  id: string;
+  name: string;
+  company: string;
+  phone: string;
+  email: string;
+  group: string;
+  lastUpdate: string;
+  value?: string;
+}
 
-  const [tags, setTags] = useState<Tag[]>([
-    { id: "1", name: "Premium", color: "bg-purple-500" },
-    { id: "2", name: "Básico", color: "bg-blue-500" },
-    { id: "3", name: "Enterprise", color: "bg-red-500" },
-  ]);
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
 
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  const [modals, setModals] = useState({
-    newLead: false,
-    editLead: false,
-    editStage: false,
-    addStage: false,
-    tagsManagement: false,
-  });
+interface Stage {
+  id: string;
+  name: string;
+  color: string;
+  leads: Lead[];
+}
 
+const defaultTags: Tag[] = [
+  { id: '1', name: 'Clientes GOAT', color: 'bg-purple-600' },
+  { id: '2', name: 'Networking', color: 'bg-blue-600' },
+];
+
+const mockStages: Stage[] = [
+  {
+    id: 'no-service',
+    name: 'Sem atendimento',
+    color: 'bg-gray-500',
+    leads: [
+      {
+        id: '1',
+        name: 'João Silva',
+        company: 'Tech Innovations',
+        phone: '(11) 99999-9999',
+        email: 'joao@tech.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-15',
+        value: 'R$ 5.000'
+      },
+      {
+        id: '2',
+        name: 'Maria Santos',
+        company: 'Digital Marketing',
+        phone: '(11) 88888-8888',
+        email: 'maria@digital.com',
+        group: 'Networking',
+        lastUpdate: '2024-01-14'
+      }
+    ]
+  },
+  {
+    id: 'in-service',
+    name: 'Em atendimento',
+    color: 'bg-yellow-500',
+    leads: [
+      {
+        id: '3',
+        name: 'Pedro Costa',
+        company: 'E-commerce Plus',
+        phone: '(11) 77777-7777',
+        email: 'pedro@ecommerce.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-16',
+        value: 'R$ 8.000'
+      }
+    ]
+  },
+  {
+    id: 'meeting-scheduled',
+    name: 'Reunião agendada',
+    color: 'bg-blue-500',
+    leads: [
+      {
+        id: '4',
+        name: 'Ana Oliveira',
+        company: 'Startup XYZ',
+        phone: '(11) 66666-6666',
+        email: 'ana@startup.com',
+        group: 'Networking',
+        lastUpdate: '2024-01-17'
+      }
+    ]
+  },
+  {
+    id: 'proposal-sent',
+    name: 'Proposta enviada',
+    color: 'bg-purple-500',
+    leads: [
+      {
+        id: '5',
+        name: 'Carlos Ferreira',
+        company: 'Consultoria Pro',
+        phone: '(11) 55555-5555',
+        email: 'carlos@consultoria.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-18',
+        value: 'R$ 12.000'
+      }
+    ]
+  },
+  {
+    id: 'cold',
+    name: 'Frio',
+    color: 'bg-gray-400',
+    leads: []
+  }
+];
+
+export default function LeadsKanban() {
+  const [stages, setStages] = useState(mockStages);
+  const [tags, setTags] = useState<Tag[]>(defaultTags);
+  const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
+  const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
+  const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
 
-  // Modal handlers
-  const openModal = (modalName: keyof typeof modals) => {
-    setModals(prev => ({ ...prev, [modalName]: true }));
-  };
-
-  const closeModal = (modalName: keyof typeof modals) => {
-    setModals(prev => ({ ...prev, [modalName]: false }));
-    if (modalName === 'editLead') setSelectedLead(null);
-    if (modalName === 'editStage') setSelectedStage(null);
-  };
-
-  // Lead handlers
-  const handleAddLead = (newLead: Omit<Lead, "id">, stageId: string) => {
-    const lead: Lead = {
-      ...newLead,
-      id: Date.now().toString(),
-    };
-
-    setStages(prev => prev.map(stage => 
-      stage.id === stageId 
-        ? { ...stage, leads: [...stage.leads, lead] }
-        : stage
-    ));
+  const getGroupColor = (group: string) => {
+    const tag = tags.find(t => t.name === group);
+    if (tag) {
+      return `${tag.color} text-white hover:${tag.color}`;
+    }
+    return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
   };
 
   const handleEditLead = (lead: Lead) => {
     setSelectedLead(lead);
-    openModal('editLead');
+    setIsEditLeadModalOpen(true);
   };
 
   const handleUpdateLead = (updatedLead: Lead) => {
     setStages(prev => prev.map(stage => ({
       ...stage,
-      leads: stage.leads.map(lead => 
+      leads: stage.leads.map(lead =>
         lead.id === updatedLead.id ? updatedLead : lead
       )
     })));
@@ -145,139 +160,238 @@ const LeadsKanban = () => {
     })));
   };
 
-  // Stage handlers
-  const handleEditStage = (stage: Stage) => {
-    setSelectedStage(stage);
-    openModal('editStage');
-  };
-
-  const handleUpdateStage = (updatedStage: Stage) => {
-    setStages(prev => prev.map(stage => 
-      stage.id === updatedStage.id ? updatedStage : stage
-    ));
-  };
-
-  const handleAddStage = (newStage: Omit<Stage, "id">) => {
-    const stage: Stage = {
-      ...newStage,
-      id: Date.now().toString(),
+  const handleAddStage = (newStageData: { name: string; color: string }) => {
+    const newStage: Stage = {
+      id: `stage-${Date.now()}`,
+      name: newStageData.name,
+      color: newStageData.color,
+      leads: []
     };
-    setStages(prev => [...prev, stage]);
+    setStages(prev => [...prev, newStage]);
   };
 
-  // Tags handler
-  const handleUpdateTags = (updatedTags: Tag[]) => {
-    setTags(updatedTags);
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      return;
+    }
+
+    const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
+    const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
+
+    const newStages = [...stages];
+    const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
+    newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
+
+    setStages(newStages);
   };
 
   return (
-    <div className="kanban-page">
-      {/* Header */}
-      <div className="kanban-header">
-        <Card className="p-6 border-0" style={{ backgroundColor: '#080808' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white mb-2">Pipeline de Leads</h1>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-goat-gray-400 text-sm">
-                    {stages.reduce((acc, stage) => acc + stage.leads.length, 0)} leads ativos
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-goat-gray-400 text-sm">{stages.length} etapas</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => openModal('newLead')}
-                className="bg-goat-purple hover:bg-goat-purple/80 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Lead
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => openModal('addStage')}
-                className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Etapa
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => openModal('tagsManagement')}
-                className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white"
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Gerenciar Tags
-              </Button>
-            </div>
-          </div>
-        </Card>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
+          <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            className="btn-primary"
+            onClick={() => setIsTagsModalOpen(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Gerenciar Tags
+          </Button>
+          <Button
+            className="btn-primary"
+            onClick={() => setIsAddStageModalOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Etapa
+          </Button>
+          <Button className="btn-primary">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Lead
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
-      <FiltersBar
-        tags={tags}
-        selectedFilter={selectedFilter}
-        onFilterChange={setSelectedFilter}
-      />
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+        <div className="flex items-center gap-4">
+          <span className="text-white font-medium">Filtros:</span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+          >
+            Todos os grupos
+          </Button>
+          {tags.map((tag) => (
+            <Button
+              key={tag.id}
+              variant="outline"
+              size="sm"
+              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+            >
+              <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
+              {tag.name}
+            </Button>
+          ))}
+        </div>
+      </Card>
 
       {/* Kanban Board */}
-      <div className="kanban-container">
-        <KanbanBoard
-          stages={stages}
-          tags={tags}
-          selectedFilter={selectedFilter}
-          onStagesChange={setStages}
-          onEditStage={handleEditStage}
-          onEditLead={handleEditLead}
-          onDeleteLead={handleDeleteLead}
-        />
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="grid gap-6 min-h-[600px]" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(280px, 1fr))` }}>
+          {stages.map((stage) => (
+            <div key={stage.id} className="space-y-4">
+              {/* Stage Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                  <h3 className="font-semibold text-white">{stage.name}</h3>
+                  <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
+                    {stage.leads.length}
+                  </Badge>
+                </div>
+                <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Lead Cards */}
+              <Droppable droppableId={stage.id}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
+                      snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
+                    }`}
+                  >
+                    {stage.leads.map((lead, index) => (
+                      <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                          >
+                            <ContextMenu>
+                              <ContextMenuTrigger>
+                                <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                  <div className="space-y-3">
+                                    {/* Lead Header */}
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
+                                        <p className="text-goat-gray-400 text-xs">{lead.company}</p>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-goat-gray-400 hover:text-white h-6 w-6"
+                                        onClick={() => handleEditLead(lead)}
+                                      >
+                                        <MoreVertical className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+
+                                    {/* Group Badge */}
+                                    <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
+                                      {lead.group}
+                                    </Badge>
+
+                                    {/* Lead Value */}
+                                    {lead.value && (
+                                      <div className="text-goat-purple font-semibold text-sm">
+                                        {lead.value}
+                                      </div>
+                                    )}
+
+                                    {/* Contact Info */}
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                                        <Phone className="w-3 h-3" />
+                                        <span>{lead.phone}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-goat-gray-400">
+                                        <Mail className="w-3 h-3" />
+                                        <span>{lead.email}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Last Update */}
+                                    <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                                      <Calendar className="w-3 h-3" />
+                                      <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                  </div>
+                                </Card>
+                              </ContextMenuTrigger>
+
+                              <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                <ContextMenuItem
+                                  onClick={() => handleEditLead(lead)}
+                                  className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Editar Lead
+                                </ContextMenuItem>
+                                <ContextMenuItem
+                                  onClick={() => handleDeleteLead(lead.id)}
+                                  className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Excluir Lead
+                                </ContextMenuItem>
+                              </ContextMenuContent>
+                            </ContextMenu>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+
+                    {/* Empty State */}
+                    {stage.leads.length === 0 && (
+                      <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
+                        <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))}
+        </div>
+      </DragDropContext>
 
       {/* Modals */}
-      <NewLeadModal
-        open={modals.newLead}
-        onOpenChange={(open) => open ? openModal('newLead') : closeModal('newLead')}
-        stages={stages}
+      <TagsManagementModal
+        open={isTagsModalOpen}
+        onOpenChange={setIsTagsModalOpen}
         tags={tags}
-        onAddLead={handleAddLead}
+        onUpdateTags={setTags}
       />
 
       <EditLeadModal
-        open={modals.editLead}
-        onOpenChange={(open) => open ? openModal('editLead') : closeModal('editLead')}
+        open={isEditLeadModalOpen}
+        onOpenChange={setIsEditLeadModalOpen}
         lead={selectedLead}
         tags={tags}
         onUpdateLead={handleUpdateLead}
       />
 
-      <EditStageModal
-        open={modals.editStage}
-        onOpenChange={(open) => open ? openModal('editStage') : closeModal('editStage')}
-        stage={selectedStage}
-        onUpdateStage={handleUpdateStage}
-      />
-
       <AddStageModal
-        open={modals.addStage}
-        onOpenChange={(open) => open ? openModal('addStage') : closeModal('addStage')}
+        open={isAddStageModalOpen}
+        onOpenChange={setIsAddStageModalOpen}
         onAddStage={handleAddStage}
-      />
-
-      <TagsManagementModal
-        open={modals.tagsManagement}
-        onOpenChange={(open) => open ? openModal('tagsManagement') : closeModal('tagsManagement')}
-        tags={tags}
-        onUpdateTags={handleUpdateTags}
       />
     </div>
   );
-};
-
-export default LeadsKanban;
+}
