@@ -355,8 +355,8 @@ export default function LeadsKanban() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Pipeline</h1>
-          <p className="text-goat-gray-400">Gerencie seus leads</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Funil</h1>
+          <p className="text-goat-gray-400">Gerencie seus leads e clientes</p>
         </div>
         <div className="flex gap-2">
           <Button className="btn-primary h-10 px-4" onClick={() => setIsTagsModalOpen(true)}>
