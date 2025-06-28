@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -44,11 +43,7 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!name.trim()) {
-      return;
-    }
-
+    if (!name.trim()) return;
     onUpdateStage({ name: name.trim(), color });
     onOpenChange(false);
   };
@@ -69,7 +64,7 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
               id="stageName"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
               placeholder="Digite o nome da etapa"
               required
             />
@@ -78,8 +73,22 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
           <div>
             <Label htmlFor="stageColor" className="text-white">Cor da Etapa</Label>
             <Select value={color} onValueChange={setColor}>
-              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
-                <SelectValue />
+              <SelectTrigger
+                className={`
+                  bg-goat-gray-700 
+                  border-goat-gray-600 
+                  text-white 
+                  placeholder:text-white
+                  focus:border-goat-purple
+                  focus:ring-goat-purple/20
+                  transition-colors
+                  min-h-[44px]
+                  rounded-md
+                  px-3
+                  w-full
+                `}
+              >
+                <SelectValue placeholder="Selecione uma cor" />
               </SelectTrigger>
               <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                 {colorOptions.map((option) => (
@@ -97,9 +106,8 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
           <DialogFooter className="gap-2">
             <Button
               type="button"
-              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="btn-outline"
+              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
             >
               Cancelar
             </Button>
