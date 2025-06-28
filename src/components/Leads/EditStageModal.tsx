@@ -66,7 +66,20 @@ export function EditStageModal({
     onOpenChange(false);
   };
 
-  // Estilos igual ao select do NewLeadModal
+  // Helper visual do valor selecionado
+  const getColorSelected = () => {
+    const selected = colorOptions.find((opt) => opt.value === color);
+    if (!selected)
+      return <span className="text-white">Selecione uma cor</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
+        {selected.label}
+      </span>
+    );
+  };
+
+  // CSS customizado para remover verificado e forçar apenas um ChevronDown
   const selectStyle = `
     .edit-stage-trigger {
       background-color: #404040 !important;
@@ -76,16 +89,22 @@ export function EditStageModal({
       min-height: 44px;
       font-size: 1rem;
       padding-left: 1rem;
-      padding-right: 1rem;
+      padding-right: 2.5rem;
       transition: border-color 0.15s;
       display: flex !important;
       align-items: center !important;
       gap: 0.5rem;
       font-weight: 500;
+      position: relative;
     }
     .edit-stage-trigger svg {
       color: #fff !important;
       opacity: 0.7;
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
     }
     .edit-stage-value,
     .edit-stage-value span {
@@ -116,26 +135,18 @@ export function EditStageModal({
       display: flex !important;
       align-items: center !important;
       gap: 0.5rem;
+      position: relative;
     }
     .edit-stage-item[data-state="checked"], .edit-stage-item:hover, .edit-stage-item[data-highlighted] {
       background-color: #525252 !important;
     }
+    /* Remove ícone de verificado (check) */
+    .edit-stage-item [data-select-item-indicator] {
+      display: none !important;
+    }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
     .radix-select-overlay { display: none !important; }
   `;
-
-  // Helper para exibir cor selecionada (trigger)
-  const getColorSelected = () => {
-    const selected = colorOptions.find((opt) => opt.value === color);
-    if (!selected)
-      return <span className="text-white">Selecione uma cor</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
-        {selected.label}
-      </span>
-    );
-  };
 
   if (!stage) return null;
 
