@@ -1,40 +1,15 @@
-import { Card } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, MoreVertical, Settings, Edit, Trash2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { Plus, Settings } from "lucide-react";
+import { useState } from "react";
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { NewLeadModal } from "@/components/Leads/NewLeadModal";
-import { DragDropContext, Droppable, Draggable, DropResult, DragUpdate } from 'react-beautiful-dnd';
-import { useAutoScroll } from "@/hooks/useAutoScroll";
-
-interface Lead {
-  id: string;
-  name: string;
-  company: string;
-  phone: string;
-  email: string;
-  group: string;
-  lastUpdate: string;
-  value?: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface Stage {
-  id: string;
-  name: string;
-  color: string;
-  leads: Lead[];
-}
+import { KanbanBoard } from "@/components/Leads/KanbanBoard";
+import { FiltersBar } from "@/components/Leads/FiltersBar";
+import { Lead, Tag, Stage } from "@/types/kanban";
 
 const defaultTags: Tag[] = [
   { id: '1', name: 'Clientes GOAT', color: 'bg-purple-600' },
@@ -137,56 +112,6 @@ export default function LeadsKanban() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
-  
-  // ✅ Hook customizado para auto-scroll otimizado
-  const { scrollContainerRef, stopAutoScroll, handleDragUpdate } = useAutoScroll({
-    triggerZone: 120,
-    maxSpeed: 12,
-    speedMultiplier: 0.15
-  });
-  
-  // Estados para scroll horizontal fluido
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
-
-  // ✅ Event listener para capturar posição do mouse durante drag
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isCardBeingDragged) {
-        // Passa a posição do mouse para o hook de auto-scroll
-        handleDragUpdate({ clientX: e.clientX, clientY: e.clientY });
-      }
-    };
-
-    if (isCardBeingDragged) {
-      document.addEventListener('mousemove', handleMouseMove, { passive: true });
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        stopAutoScroll();
-      };
-    }
-  }, [isCardBeingDragged, handleDragUpdate, stopAutoScroll]);
-
-  const getFilteredStages = () => {
-    if (selectedFilter === 'all') {
-      return stages;
-    }
-    
-    return stages.map(stage => ({
-      ...stage,
-      leads: stage.leads.filter(lead => lead.group === selectedFilter)
-    }));
-  };
-
-  const getGroupColor = (group: string) => {
-    const tag = tags.find(t => t.name === group);
-    if (tag) {
-      return `${tag.color} text-white hover:${tag.color}`;
-    }
-    return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
-  };
 
   const handleEditLead = (lead: Lead) => {
     setSelectedLead(lead);
@@ -238,97 +163,6 @@ export default function LeadsKanban() {
     ));
   };
 
-  const handleDragEnd = (result: DropResult) => {
-    // ✅ Para o auto-scroll e limpa estados
-    stopAutoScroll();
-    
-    if (!result.destination) {
-      setIsCardBeingDragged(false);
-      return;
-    }
-
-    const { source, destination } = result;
-
-    if (source.droppableId === destination.droppableId && source.index === destination.index) {
-      setIsCardBeingDragged(false);
-      return;
-    }
-
-    const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
-    const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
-
-    const newStages = [...stages];
-    const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
-    newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
-
-    setStages(newStages);
-    
-    // ✅ Reset completo de estados
-    setTimeout(() => {
-      setIsCardBeingDragged(false);
-      setIsDragging(false);
-    }, 50);
-  };
-
-  const handleDragStart = () => {
-    setIsCardBeingDragged(true);
-  };
-
-  // ✅ Novo handler para drag update que integra com auto-scroll
-  const onDragUpdate = (update: DragUpdate) => {
-    // Chama o handler do hook de auto-scroll
-    handleDragUpdate(update);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current || isCardBeingDragged) return;
-    
-    setIsDragging(true);
-    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
-    
-    e.preventDefault();
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
-    
-    e.preventDefault();
-    const x = e.pageX - scrollContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!scrollContainerRef.current || isCardBeingDragged) return;
-    
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
-    
-    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  const filteredStages = getFilteredStages();
-
   return (
     <div className="page-container">
       <div className="content-wrapper">
@@ -365,189 +199,24 @@ export default function LeadsKanban() {
           </div>
 
           {/* Filters - Fixed Width */}
-          <Card className="p-4 border-0" style={{ backgroundColor: '#080808' }}>
-            <div className="flex items-center gap-4">
-              <span className="text-white font-medium">Filtros:</span>
-              <Button 
-                variant={selectedFilter === 'all' ? 'default' : 'outline'}
-                size="sm" 
-                className={`${
-                  selectedFilter === 'all' 
-                    ? 'bg-goat-purple text-white hover:bg-goat-purple/80' 
-                    : 'text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white'
-                } focus:text-white`}
-                onClick={() => setSelectedFilter('all')}
-              >
-                Todos os grupos
-              </Button>
-              {tags.map((tag) => (
-                <Button
-                  key={tag.id}
-                  variant={selectedFilter === tag.name ? 'default' : 'outline'}
-                  size="sm"
-                  className={`${
-                    selectedFilter === tag.name
-                      ? `${tag.color} text-white hover:${tag.color}/80`
-                      : 'text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white'
-                  } focus:text-white`}
-                  onClick={() => setSelectedFilter(tag.name)}
-                >
-                  <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
-                  {tag.name}
-                </Button>
-              ))}
-            </div>
-          </Card>
+          <FiltersBar
+            tags={tags}
+            selectedFilter={selectedFilter}
+            onFilterChange={setSelectedFilter}
+          />
         </div>
       </div>
 
-      {/* ✅ Kanban Board com scroll otimizado e drag corrigido */}
-      <div 
-        ref={scrollContainerRef}
-        className="kanban-scroll-fluid"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{ 
-          cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab'),
-          touchAction: isCardBeingDragged ? 'none' : 'pan-x'
-        }}
-      >
-        <DragDropContext 
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
-          onDragUpdate={onDragUpdate}
-        >
-          <div className="kanban-stages-wrapper">
-            {filteredStages.map((stage) => (
-              <div key={stage.id} className="kanban-stage">
-                {/* Stage Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
-                    <h3 className="font-semibold text-white">{stage.name}</h3>
-                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
-                      {stage.leads.length}
-                    </Badge>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="text-goat-gray-400 hover:text-white"
-                    onClick={() => handleEditStage(stage)}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Lead Cards */}
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
-                        snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
-                      }`}
-                    >
-                      {stage.leads.map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105 z-50' : ''} transition-transform`}
-                              style={{
-                                ...provided.draggableProps.style,
-                                // ✅ Correção para o card ficar grudado ao cursor
-                                transform: snapshot.isDragging 
-                                  ? `${provided.draggableProps.style?.transform} rotate(2deg) scale(1.05)`
-                                  : provided.draggableProps.style?.transform,
-                                cursor: snapshot.isDragging ? 'grabbing' : 'grab'
-                              }}
-                            >
-                              <ContextMenu>
-                                <ContextMenuTrigger>
-                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    {/* Lead Header */}
-                                      <div className="space-y-3">
-                                      {/* Lead Header */}
-                                      <div className="flex items-start justify-between">
-                                        <div>
-                                          <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
-                                          <p className="text-goat-gray-400 text-xs">{lead.company}</p>
-                                        </div>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="text-goat-gray-400 hover:text-white h-6 w-6"
-                                          onClick={() => handleEditLead(lead)}
-                                        >
-                                          <MoreVertical className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-
-                                      {/* Group Badge */}
-                                      <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                                        {lead.group}
-                                      </Badge>
-
-                                      {/* Last Update */}
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                        <Calendar className="w-3 h-3" />
-                                        <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
-                                      </div>
-                                    </div>
-                                  </Card>
-                                </ContextMenuTrigger>
-
-                                <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                  <ContextMenuItem
-                                    onClick={() => handleEditLead(lead)}
-                                    className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
-                                  >
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar Lead
-                                  </ContextMenuItem>
-                                  <ContextMenuItem
-                                    onClick={() => handleDeleteLead(lead.id)}
-                                    className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Excluir Lead
-                                  </ContextMenuItem>
-                                </ContextMenuContent>
-                              </ContextMenu>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-
-                      {/* Empty State */}
-                      {stage.leads.length === 0 && (
-                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
-                          <p className="text-goat-gray-400 text-sm">
-                            {selectedFilter === 'all' 
-                              ? 'Arraste leads para cá' 
-                              : `Nenhum lead de "${selectedFilter}" nesta etapa`
-                            }
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            ))}
-          </div>
-        </DragDropContext>
-      </div>
+      {/* Kanban Board */}
+      <KanbanBoard
+        stages={stages}
+        tags={tags}
+        selectedFilter={selectedFilter}
+        onStagesChange={setStages}
+        onEditStage={handleEditStage}
+        onEditLead={handleEditLead}
+        onDeleteLead={handleDeleteLead}
+      />
 
       {/* Modals */}
       <TagsManagementModal
