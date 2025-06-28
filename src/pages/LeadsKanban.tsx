@@ -386,10 +386,12 @@ export default function LeadsKanban() {
                                       </Button>
                                     </div>
 
-                                    {/* Group Badge */}
-                                    <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                                      {lead.group}
-                                    </Badge>
+                                    {/* Group Badge - Only show if group exists */}
+                                    {lead.group && (
+                                      <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
+                                        {lead.group}
+                                      </Badge>
+                                    )}
 
                                     {/* Last Update */}
                                     <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
