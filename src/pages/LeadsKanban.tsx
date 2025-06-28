@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,8 +17,10 @@ interface Lead {
   name: string;
   company: string;
   phone: string;
-  stage: string;
+  email: string;
+  group: string;
   lastUpdate: string;
+  value?: string;
 }
 
 interface Tag {
@@ -49,15 +52,18 @@ const mockStages: Stage[] = [
         name: 'João Silva',
         company: 'Tech Innovations',
         phone: '(11) 99999-9999',
-        stage: 'Sem atendimento',
-        lastUpdate: '2024-01-15'
+        email: 'joao@tech.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-15',
+        value: 'R$ 5.000'
       },
       {
         id: '2',
         name: 'Maria Santos',
         company: 'Digital Marketing',
         phone: '(11) 88888-8888',
-        stage: 'Sem atendimento',
+        email: 'maria@digital.com',
+        group: 'Networking',
         lastUpdate: '2024-01-14'
       }
     ]
@@ -72,8 +78,10 @@ const mockStages: Stage[] = [
         name: 'Pedro Costa',
         company: 'E-commerce Plus',
         phone: '(11) 77777-7777',
-        stage: 'Em atendimento',
-        lastUpdate: '2024-01-16'
+        email: 'pedro@ecommerce.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-16',
+        value: 'R$ 8.000'
       }
     ]
   },
@@ -87,7 +95,8 @@ const mockStages: Stage[] = [
         name: 'Ana Oliveira',
         company: 'Startup XYZ',
         phone: '(11) 66666-6666',
-        stage: 'Reunião agendada',
+        email: 'ana@startup.com',
+        group: 'Networking',
         lastUpdate: '2024-01-17'
       }
     ]
@@ -102,8 +111,10 @@ const mockStages: Stage[] = [
         name: 'Carlos Ferreira',
         company: 'Consultoria Pro',
         phone: '(11) 55555-5555',
-        stage: 'Proposta enviada',
-        lastUpdate: '2024-01-18'
+        email: 'carlos@consultoria.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-18',
+        value: 'R$ 12.000'
       }
     ]
   },
@@ -173,13 +184,10 @@ export default function LeadsKanban() {
       lastUpdate: new Date().toISOString().split('T')[0]
     };
     
-    // Find the stage by name and add the lead there
-    const targetStageIndex = stages.findIndex(stage => stage.name === newLeadData.stage);
-    if (targetStageIndex !== -1) {
-      setStages(prev => prev.map((stage, index) => 
-        index === targetStageIndex ? { ...stage, leads: [...stage.leads, newLead] } : stage
-      ));
-    }
+    // Adiciona o lead na primeira etapa
+    setStages(prev => prev.map((stage, index) => 
+      index === 0 ? { ...stage, leads: [...stage.leads, newLead] } : stage
+    ));
   };
 
   const handleEditStage = (stage: Stage) => {
@@ -445,7 +453,7 @@ export default function LeadsKanban() {
         open={isEditLeadModalOpen}
         onOpenChange={setIsEditLeadModalOpen}
         lead={selectedLead}
-        stages={stages}
+        tags={tags}
         onUpdateLead={handleUpdateLead}
       />
 
@@ -458,7 +466,7 @@ export default function LeadsKanban() {
       <NewLeadModal
         open={isNewLeadModalOpen}
         onOpenChange={setIsNewLeadModalOpen}
-        stages={stages}
+        tags={tags}
         onAddLead={handleAddLead}
       />
 
