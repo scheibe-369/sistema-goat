@@ -1,5 +1,5 @@
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 interface UseAutoScrollOptions {
   triggerZone?: number;
@@ -12,6 +12,7 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
   const animationFrameRef = useRef<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const scrollConfigRef = useRef<{ direction: 'left' | 'right'; speed: number } | null>(null);
+  const mouseXRef = useRef<number | null>(null);
 
   const animate = useCallback(() => {
     if (!scrollContainerRef.current || !scrollConfigRef.current) return;
@@ -42,34 +43,58 @@ export function useAutoScroll(options: UseAutoScrollOptions = {}) {
     scrollConfigRef.current = null;
   }, []);
 
-  const handleDragUpdate = useCallback((update: any) => {
-    if (!scrollContainerRef.current) return;
+  // Monitor mouse position during drag
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseXRef.current = e.clientX;
+      
+      if (!scrollContainerRef.current) return;
+      
+      const container = scrollContainerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const leftBoundary = containerRect.left + triggerZone;
+      const rightBoundary = containerRect.right - triggerZone;
 
-    // Get mouse position from the drag update
-    const mouseX = update.clientX || 0;
-    
-    if (mouseX === 0) return; // No valid mouse position
+      if (mouseXRef.current < leftBoundary && mouseXRef.current > containerRect.left) {
+        // Próximo da borda esquerda - scroll para esquerda
+        const distance = leftBoundary - mouseXRef.current;
+        const speed = Math.min(distance * speedMultiplier, maxSpeed);
+        startAutoScroll('left', speed);
+      } else if (mouseXRef.current > rightBoundary && mouseXRef.current < containerRect.right) {
+        // Próximo da borda direita - scroll para direita
+        const distance = mouseXRef.current - rightBoundary;
+        const speed = Math.min(distance * speedMultiplier, maxSpeed);
+        startAutoScroll('right', speed);
+      } else {
+        // Fora das zonas de trigger - para o auto-scroll
+        stopAutoScroll();
+      }
+    };
 
-    const container = scrollContainerRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const leftBoundary = containerRect.left + triggerZone;
-    const rightBoundary = containerRect.right - triggerZone;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseXRef.current = e.touches[0].clientX;
+        handleMouseMove({ clientX: e.touches[0].clientX } as MouseEvent);
+      }
+    };
 
-    if (mouseX < leftBoundary) {
-      // Próximo da borda esquerda - scroll para esquerda
-      const distance = leftBoundary - mouseX;
-      const speed = Math.min(distance * speedMultiplier, maxSpeed);
-      startAutoScroll('left', speed);
-    } else if (mouseX > rightBoundary) {
-      // Próximo da borda direita - scroll para direita
-      const distance = mouseX - rightBoundary;
-      const speed = Math.min(distance * speedMultiplier, maxSpeed);
-      startAutoScroll('right', speed);
-    } else {
-      // Fora das zonas de trigger - para o auto-scroll
-      stopAutoScroll();
-    }
+    // Add global listeners
+    document.addEventListener('mousemove', handleMouseMove, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [triggerZone, speedMultiplier, maxSpeed, startAutoScroll, stopAutoScroll]);
+
+  const handleDragUpdate = useCallback((update: any) => {
+    // This function is called by the drag and drop system
+    // The actual auto-scroll logic is handled by the global mouse listeners
+  }, []);
 
   return {
     scrollContainerRef,
