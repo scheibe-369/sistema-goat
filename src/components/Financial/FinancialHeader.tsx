@@ -14,7 +14,7 @@ export function FinancialHeader({ onNewTransaction }: FinancialHeaderProps) {
         <p className="text-goat-gray-400">Controle suas receitas e despesas</p>
       </div>
       <Button 
-        className="btn-primary"
+        className="btn-primary h-10 px-4"
         onClick={onNewTransaction}
       >
         <Plus className="w-4 h-4 mr-2" />

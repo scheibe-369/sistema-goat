@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
@@ -18,7 +19,7 @@ export function ConversationsHeader({ onNewConversation }: ConversationsHeaderPr
         chama a função para abrir o modal na página principal.
       */}
       <Button 
-        className="btn-primary"
+        className="btn-primary h-10 px-4"
         onClick={onNewConversation}
       >
         <PlusCircle className="w-4 h-4 mr-2" />

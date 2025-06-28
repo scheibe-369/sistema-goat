@@ -173,6 +173,13 @@
     @apply bg-red-900/20 text-red-400;
     color: #f87171 !important;
   }
+
+  /* ===============================================
+     PADRONIZAÇÃO DE BOTÕES DE HEADER
+     =============================================== */
+  .header-button {
+    @apply h-10 px-4 font-semibold text-sm;
+  }
 }
 
 /* ===============================

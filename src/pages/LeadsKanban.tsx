@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -338,20 +339,20 @@ export default function LeadsKanban() {
             </div>
             <div className="kanban-header-buttons">
               <Button
-                className="btn-primary"
+                className="btn-primary h-10 px-4"
                 onClick={() => setIsTagsModalOpen(true)}
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Gerenciar Tags
               </Button>
               <Button
-                className="btn-primary"
+                className="btn-primary h-10 px-4"
                 onClick={() => setIsAddStageModalOpen(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Nova Etapa
               </Button>
-              <Button className="btn-primary">
+              <Button className="btn-primary h-10 px-4">
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Lead
               </Button>
