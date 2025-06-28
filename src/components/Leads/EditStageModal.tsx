@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown } from "lucide-react";
 
 interface Stage {
   id: string;
@@ -173,7 +172,7 @@ export function EditStageModal({
                 <SelectValue className="edit-stage-value">
                   {getColorSelected()}
                 </SelectValue>
-                <ChevronDown className="ml-auto w-4 h-4 opacity-50" />
+                {/* Removido o ChevronDown manual aqui */}
               </SelectTrigger>
               <SelectContent className="edit-stage-content">
                 {colorOptions.map((option) => (
