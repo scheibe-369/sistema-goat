@@ -327,189 +327,197 @@ export default function LeadsKanban() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header - Fixed */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
-          <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            className="btn-primary"
-            onClick={() => setIsTagsModalOpen(true)}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Gerenciar Tags
-          </Button>
-          <Button
-            className="btn-primary"
-            onClick={() => setIsAddStageModalOpen(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Etapa
-          </Button>
-          <Button className="btn-primary">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Lead
-          </Button>
+    <div className="min-h-screen flex flex-col">
+      {/* 🔧 HEADER FIXO - Novo container fixo */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-goat-gray-900/95 backdrop-blur-sm border-b border-goat-gray-700">
+        <div className="px-6 py-4 space-y-4">
+          {/* Header Principal */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Kanban de Leads</h1>
+              <p className="text-goat-gray-400">Gerencie seu pipeline de vendas</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                className="btn-primary"
+                onClick={() => setIsTagsModalOpen(true)}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Gerenciar Tags
+              </Button>
+              <Button
+                className="btn-primary"
+                onClick={() => setIsAddStageModalOpen(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Etapa
+              </Button>
+              <Button className="btn-primary">
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Lead
+              </Button>
+            </div>
+          </div>
+
+          {/* Filtros */}
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+            <div className="flex items-center gap-4">
+              <span className="text-white font-medium">Filtros:</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+              >
+                Todos os grupos
+              </Button>
+              {tags.map((tag) => (
+                <Button
+                  key={tag.id}
+                  variant="outline"
+                  size="sm"
+                  className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
+                >
+                  <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
+                  {tag.name}
+                </Button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Filters - Fixed */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
-        <div className="flex items-center gap-4">
-          <span className="text-white font-medium">Filtros:</span>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
-          >
-            Todos os grupos
-          </Button>
-          {tags.map((tag) => (
-            <Button
-              key={tag.id}
-              variant="outline"
-              size="sm"
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
-            >
-              <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
-              {tag.name}
-            </Button>
-          ))}
-        </div>
-      </Card>
-
-      {/* Kanban Board - Scroll Horizontal Fluido */}
-      <div 
-        ref={scrollContainerRef}
-        className="kanban-scroll-fluid"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{ 
-          cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab')
-        }}
-      >
-        <DragDropContext 
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
+      {/* 🔧 CONTEÚDO PRINCIPAL - Adicionado padding-top para compensar header fixo */}
+      <div className="flex-1 pt-48 px-6 pb-6 animate-fade-in">
+        {/* Kanban Board - Scroll Horizontal Fluido */}
+        <div 
+          ref={scrollContainerRef}
+          className="kanban-scroll-fluid"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ 
+            cursor: isCardBeingDragged ? 'default' : (isDragging ? 'grabbing' : 'grab')
+          }}
         >
-          <div className="kanban-stages-wrapper">
-            {stages.map((stage) => (
-              <div key={stage.id} className="kanban-stage">
-                {/* Stage Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
-                    <h3 className="font-semibold text-white">{stage.name}</h3>
-                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
-                      {stage.leads.length}
-                    </Badge>
-                  </div>
-                  <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Lead Cards */}
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
-                        snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
-                      }`}
-                    >
-                      {stage.leads.map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
-                              style={{
-                                ...provided.draggableProps.style,
-                                cursor: snapshot.isDragging ? 'grabbing' : 'grab'
-                              }}
-                            >
-                              <ContextMenu>
-                                <ContextMenuTrigger>
-                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    <div className="space-y-3">
-                                      {/* Lead Header */}
-                                      <div className="flex items-start justify-between">
-                                        <div>
-                                          <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
-                                          <p className="text-goat-gray-400 text-xs">{lead.company}</p>
-                                        </div>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="text-goat-gray-400 hover:text-white h-6 w-6"
-                                          onClick={() => handleEditLead(lead)}
-                                        >
-                                          <MoreVertical className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-
-                                      {/* Group Badge */}
-                                      <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                                        {lead.group}
-                                      </Badge>
-
-                                      {/* Last Update */}
-                                      <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                        <Calendar className="w-3 h-3" />
-                                        <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
-                                      </div>
-                                    </div>
-                                  </Card>
-                                </ContextMenuTrigger>
-
-                                <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                  <ContextMenuItem
-                                    onClick={() => handleEditLead(lead)}
-                                    className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
-                                  >
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar Lead
-                                  </ContextMenuItem>
-                                  <ContextMenuItem
-                                    onClick={() => handleDeleteLead(lead.id)}
-                                    className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Excluir Lead
-                                  </ContextMenuItem>
-                                </ContextMenuContent>
-                              </ContextMenu>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-
-                      {/* Empty State */}
-                      {stage.leads.length === 0 && (
-                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
-                          <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
-                        </div>
-                      )}
+          <DragDropContext 
+            onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
+          >
+            <div className="kanban-stages-wrapper">
+              {stages.map((stage) => (
+                <div key={stage.id} className="kanban-stage">
+                  {/* Stage Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                      <h3 className="font-semibold text-white">{stage.name}</h3>
+                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-gray-700">
+                        {stage.leads.length}
+                      </Badge>
                     </div>
-                  )}
-                </Droppable>
-              </div>
-            ))}
-          </div>
-        </DragDropContext>
+                    <Button variant="ghost" size="icon" className="text-goat-gray-400 hover:text-white">
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Lead Cards */}
+                  <Droppable droppableId={stage.id}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-2 min-h-[400px] p-2 rounded-lg transition-colors ${
+                          snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
+                        }`}
+                      >
+                        {stage.leads.map((lead, index) => (
+                          <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  cursor: snapshot.isDragging ? 'grabbing' : 'grab'
+                                }}
+                              >
+                                <ContextMenu>
+                                  <ContextMenuTrigger>
+                                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                      <div className="space-y-3">
+                                        {/* Lead Header */}
+                                        <div className="flex items-start justify-between">
+                                          <div>
+                                            <h4 className="font-semibold text-white text-sm">{lead.name}</h4>
+                                            <p className="text-goat-gray-400 text-xs">{lead.company}</p>
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-goat-gray-400 hover:text-white h-6 w-6"
+                                            onClick={() => handleEditLead(lead)}
+                                          >
+                                            <MoreVertical className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+
+                                        {/* Group Badge */}
+                                        <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
+                                          {lead.group}
+                                        </Badge>
+
+                                        {/* Last Update */}
+                                        <div className="flex items-center gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                                          <Calendar className="w-3 h-3" />
+                                          <span>Atualizado em {new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}</span>
+                                        </div>
+                                      </div>
+                                    </Card>
+                                  </ContextMenuTrigger>
+
+                                  <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                    <ContextMenuItem
+                                      onClick={() => handleEditLead(lead)}
+                                      className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
+                                    >
+                                      <Edit className="w-4 h-4 mr-2" />
+                                      Editar Lead
+                                    </ContextMenuItem>
+                                    <ContextMenuItem
+                                      onClick={() => handleDeleteLead(lead.id)}
+                                      className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Excluir Lead
+                                    </ContextMenuItem>
+                                  </ContextMenuContent>
+                                </ContextMenu>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+
+                        {/* Empty State */}
+                        {stage.leads.length === 0 && (
+                          <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-6 text-center">
+                            <p className="text-goat-gray-400 text-sm">Arraste leads para cá</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              ))}
+            </div>
+          </DragDropContext>
+        </div>
       </div>
 
       {/* Modals */}
