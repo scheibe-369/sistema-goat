@@ -38,14 +38,14 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
     }
   };
 
-  // Estilo para deixar os textos SEM cor roxa e grid igual aos outros selects
+  // Custom style: texto branco, placeholder branco, labels das cores brancas, buttons alinhados
   const gridStyle = `
     .add-stage-color-btn {
       background: transparent !important;
       border-radius: 0.75rem !important;
       border-width: 2px;
       border-style: solid;
-      color: white !important;
+      color: #fff !important;
       transition: border 0.15s;
       display: flex;
       flex-direction: column;
@@ -68,9 +68,9 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
       box-shadow: 0 0 0 1.5px #222;
     }
     .add-stage-color-btn.selected {
-      border-color: #6B21D3 !important; /* Roxo GOAT */
+      border-color: #6B21D3 !important;
       background: #34205322 !important;
-      color: white !important;
+      color: #fff !important;
     }
     .add-stage-color-btn:not(.selected) {
       border-color: #525252 !important;
@@ -83,6 +83,11 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
       color: #fff !important;
       font-weight: 500;
       margin: 0;
+    }
+    /* Placeholder branco */
+    input#stage-name::placeholder {
+      color: #fff !important;
+      opacity: 0.7 !important;
     }
   `;
 
@@ -132,19 +137,19 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
             </div>
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <DialogFooter className="gap-2 pt-2 flex-row-reverse flex">
+            <Button
+              type="submit"
+              className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
+            >
+              Adicionar Etapa
+            </Button>
             <Button
               type="button"
               onClick={() => onOpenChange(false)}
               className="flex-1 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold h-12 border-0"
             >
               Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
-            >
-              Adicionar Etapa
             </Button>
           </DialogFooter>
         </form>
