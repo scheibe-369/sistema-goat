@@ -198,19 +198,15 @@ export default function LeadsKanban() {
         </div>
         <div className="flex gap-2">
           <Button
-            variant="outline"
+            className="btn-primary"
             onClick={() => setIsTagsModalOpen(true)}
-            /* ALTERAÇÃO AQUI */
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             <Settings className="w-4 h-4 mr-2" />
             Gerenciar Tags
           </Button>
           <Button
-            variant="outline"
+            className="btn-primary"
             onClick={() => setIsAddStageModalOpen(true)}
-            /* ALTERAÇÃO AQUI */
-            className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nova Etapa
@@ -229,7 +225,6 @@ export default function LeadsKanban() {
           <Button 
             variant="outline" 
             size="sm" 
-            /* ALTERAÇÃO AQUI */
             className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
           >
             Todos os grupos
@@ -239,7 +234,6 @@ export default function LeadsKanban() {
               key={tag.id}
               variant="outline"
               size="sm"
-              /* ALTERAÇÃO AQUI */
               className="text-white border-goat-gray-600 hover:bg-goat-gray-700 hover:text-white focus:text-white"
             >
               <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`}></div>
@@ -343,7 +337,6 @@ export default function LeadsKanban() {
                               <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
                                 <ContextMenuItem
                                   onClick={() => handleEditLead(lead)}
-                                   /* ALTERAÇÃO AQUI */
                                   className="text-white data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-white"
                                 >
                                   <Edit className="w-4 h-4 mr-2" />
@@ -351,7 +344,6 @@ export default function LeadsKanban() {
                                 </ContextMenuItem>
                                 <ContextMenuItem
                                   onClick={() => handleDeleteLead(lead.id)}
-                                   /* ALTERAÇÃO AQUI */
                                   className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
