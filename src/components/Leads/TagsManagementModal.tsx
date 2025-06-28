@@ -82,7 +82,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                 <Button 
                   size="sm"
                   onClick={() => setIsCreating(true)}
-                  className="bg-goat-purple hover:bg-goat-purple/90 text-white transition-all"
+                  className="btn-primary h-8 px-4 font-semibold"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar
@@ -116,7 +116,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={handleCreateTag} size="sm" className="bg-goat-purple hover:bg-goat-purple/90 text-white">
+                  <Button onClick={handleCreateTag} size="sm" className="btn-primary h-8 px-4 font-semibold">
                     <Save className="w-4 h-4 mr-2" />
                     Salvar
                   </Button>
@@ -127,7 +127,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                       setNewTagColor(defaultColors[0]);
                     }} 
                     size="sm" 
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
@@ -164,13 +164,13 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                           ))}
                         </div>
                         <div className="flex gap-1">
-                          <Button onClick={handleSaveEdit} size="sm" className="bg-goat-purple hover:bg-goat-purple/90 text-white">
+                          <Button onClick={handleSaveEdit} size="sm" className="btn-primary h-8 px-4 font-semibold">
                             <Save className="w-4 h-4" />
                           </Button>
                           <Button 
                             onClick={() => setEditingTag(null)} 
                             size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -183,14 +183,14 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                           <Button
                             onClick={() => handleEditTag(tag)}
                             size="sm"
-                            className="bg-goat-purple hover:bg-goat-purple/90 text-white"
+                            className="btn-primary h-8 px-4 font-semibold"
                           >
                             Editar
                           </Button>
                           <Button
                             onClick={() => handleDeleteTag(tag.id)}
                             size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
                           >
                             Excluir
                           </Button>
