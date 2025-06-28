@@ -50,7 +50,7 @@ export function EditStageModal({
   onUpdateStage,
 }: EditStageModalProps) {
   const [name, setName] = useState("");
-  const [color, setColor] = useState(colorOptions[0].value);
+  const [color, setColor] = useState("bg-gray-500");
 
   useEffect(() => {
     if (stage) {
@@ -66,52 +66,29 @@ export function EditStageModal({
     onOpenChange(false);
   };
 
-  // Helper visual do valor selecionado
-  const getColorSelected = () => {
-    const selected = colorOptions.find((opt) => opt.value === color);
-    if (!selected)
-      return <span className="text-white">Selecione uma cor</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
-        {selected.label}
-      </span>
-    );
-  };
+  if (!stage) return null;
 
-  // CSS customizado para remover verificado e forçar apenas um ChevronDown
+  // Styles iguais ao Novo Lead para o Select
   const selectStyle = `
     .edit-stage-trigger {
       background-color: #404040 !important;
       border-color: #525252 !important;
-      color: #fff !important;
+      color: white !important;
       border-radius: 0.75rem !important;
       min-height: 44px;
       font-size: 1rem;
       padding-left: 1rem;
-      padding-right: 2.5rem;
-      transition: border-color 0.15s;
+      padding-right: 1rem;
       display: flex !important;
       align-items: center !important;
       gap: 0.5rem;
       font-weight: 500;
-      position: relative;
-    }
-    .edit-stage-trigger svg {
-      color: #fff !important;
-      opacity: 0.7;
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
     }
     .edit-stage-value,
     .edit-stage-value span {
       display: flex !important;
       align-items: center !important;
       gap: 0.5rem;
-      color: #fff !important;
     }
     .edit-stage-content {
       background-color: #404040 !important;
@@ -124,7 +101,7 @@ export function EditStageModal({
       padding: 0.25rem 0;
     }
     .edit-stage-item {
-      color: #fff !important;
+      color: white !important;
       background-color: transparent !important;
       border-radius: 0.5rem !important;
       font-weight: 500;
@@ -135,20 +112,35 @@ export function EditStageModal({
       display: flex !important;
       align-items: center !important;
       gap: 0.5rem;
-      position: relative;
     }
     .edit-stage-item[data-state="checked"], .edit-stage-item:hover, .edit-stage-item[data-highlighted] {
       background-color: #525252 !important;
+      color: #fff !important;
     }
-    /* Remove ícone de verificado (check) */
-    .edit-stage-item [data-select-item-indicator] {
+    /* Remove absolutamente qualquer ícone de verificado */
+    .edit-stage-item [data-select-item-indicator],
+    .edit-stage-item svg,
+    .edit-stage-item [data-radix-select-item-indicator] {
       display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      visibility: hidden !important;
     }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
     .radix-select-overlay { display: none !important; }
   `;
 
-  if (!stage) return null;
+  // Trigger formatado (bolinha + label)
+  const getColorSelected = () => {
+    const selected = colorOptions.find((opt) => opt.value === color);
+    if (!selected) return <span className="text-white">Selecione</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
+        {selected.label}
+      </span>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -157,6 +149,7 @@ export function EditStageModal({
         <DialogHeader>
           <DialogTitle className="text-white">Editar Etapa</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="stageName" className="text-white">
@@ -172,11 +165,15 @@ export function EditStageModal({
             />
           </div>
           <div>
-            <Label className="text-white mb-1">Cor da Etapa</Label>
+            <Label htmlFor="stageColor" className="text-white">
+              Cor da Etapa
+            </Label>
             <Select value={color} onValueChange={setColor}>
               <SelectTrigger className="edit-stage-trigger">
-                <SelectValue className="edit-stage-value">{getColorSelected()}</SelectValue>
-                <ChevronDown className="w-4 h-4 ml-auto" />
+                <SelectValue className="edit-stage-value">
+                  {getColorSelected()}
+                </SelectValue>
+                <ChevronDown className="ml-auto w-4 h-4 opacity-50" />
               </SelectTrigger>
               <SelectContent className="edit-stage-content">
                 {colorOptions.map((option) => (
@@ -196,11 +193,11 @@ export function EditStageModal({
             <Button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-12 text-lg font-semibold bg-red-600 hover:bg-red-700 text-white border-0 transition-colors duration-200"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold h-12 border-0"
             >
               Cancelar
             </Button>
-            <Button type="submit" className="btn-primary flex-1 h-12 text-lg font-semibold">
+            <Button type="submit" className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0">
               Salvar Alterações
             </Button>
           </DialogFooter>
