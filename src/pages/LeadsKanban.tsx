@@ -137,8 +137,12 @@ export default function LeadsKanban() {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   
-  // ✅ NOVO: Estado para controlar quando um card está sendo arrastado
+  // Estado para controlar quando um card está sendo arrastado
   const [isCardBeingDragged, setIsCardBeingDragged] = useState(false);
+
+  // ✅ NOVO: Estados para auto-scroll durante drag
+  const [autoScrollInterval, setAutoScrollInterval] = useState<NodeJS.Timeout | null>(null);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
 
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
@@ -179,9 +183,74 @@ export default function LeadsKanban() {
     setStages(prev => [...prev, newStage]);
   };
 
+  // ✅ NOVO: Função para auto-scroll durante drag
+  const startAutoScroll = (direction: 'left' | 'right', speed: number) => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+    }
+
+    const interval = setInterval(() => {
+      if (scrollContainerRef.current) {
+        const scrollAmount = direction === 'left' ? -speed : speed;
+        scrollContainerRef.current.scrollLeft += scrollAmount;
+      }
+    }, 16); // ~60fps
+
+    setAutoScrollInterval(interval);
+  };
+
+  const stopAutoScroll = () => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      setAutoScrollInterval(null);
+    }
+  };
+
+  // ✅ NOVO: Detecta posição do mouse durante drag para auto-scroll
+  const handleDragUpdate = (e: MouseEvent) => {
+    if (!isCardBeingDragged || !scrollContainerRef.current) return;
+
+    const container = scrollContainerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const mouseX = e.clientX;
+    
+    // Zona de trigger para auto-scroll (100px da borda)
+    const triggerZone = 100;
+    const leftBoundary = containerRect.left + triggerZone;
+    const rightBoundary = containerRect.right - triggerZone;
+
+    if (mouseX < leftBoundary) {
+      // Próximo da borda esquerda - scroll para esquerda
+      const distance = leftBoundary - mouseX;
+      const speed = Math.min(distance / 10, 10); // Velocidade proporcional, máximo 10
+      startAutoScroll('left', speed);
+    } else if (mouseX > rightBoundary) {
+      // Próximo da borda direita - scroll para direita
+      const distance = mouseX - rightBoundary;
+      const speed = Math.min(distance / 10, 10); // Velocidade proporcional, máximo 10
+      startAutoScroll('right', speed);
+    } else {
+      // Fora das zonas de trigger - para o auto-scroll
+      stopAutoScroll();
+    }
+  };
+
+  // ✅ NOVO: Adiciona event listener para mouse move durante drag
+  useEffect(() => {
+    if (isCardBeingDragged) {
+      document.addEventListener('mousemove', handleDragUpdate);
+      return () => {
+        document.removeEventListener('mousemove', handleDragUpdate);
+        stopAutoScroll();
+      };
+    }
+  }, [isCardBeingDragged]);
+
   const handleDragEnd = (result: DropResult) => {
+    // Para o auto-scroll ao finalizar o drag
+    stopAutoScroll();
+    
     if (!result.destination) {
-      // ✅ Reativa o scroll quando o drag termina (mesmo sem drop válido)
       setIsCardBeingDragged(false);
       return;
     }
@@ -189,7 +258,6 @@ export default function LeadsKanban() {
     const { source, destination } = result;
 
     if (source.droppableId === destination.droppableId && source.index === destination.index) {
-      // ✅ Reativa o scroll quando o drag termina sem mudança
       setIsCardBeingDragged(false);
       return;
     }
@@ -202,36 +270,30 @@ export default function LeadsKanban() {
     newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
 
     setStages(newStages);
-    
-    // ✅ Reativa o scroll após o drop bem-sucedido
     setIsCardBeingDragged(false);
   };
 
-  // ✅ NOVO: Detecta quando o drag de um card começa
   const handleDragStart = () => {
     setIsCardBeingDragged(true);
   };
 
-  // Handlers para scroll horizontal fluido - ✅ MODIFICADO para considerar o card sendo arrastado
+  // Handlers para scroll horizontal fluido
   const handleMouseDown = (e: React.MouseEvent) => {
-    // ✅ Se um card está sendo arrastado, não inicia o scroll
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
     setIsDragging(true);
     setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
-    // Previne seleção de texto durante o drag
     e.preventDefault();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    // ✅ Se um card está sendo arrastado, não processa o scroll
     if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     
     e.preventDefault();
     const x = e.pageX - scrollContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // Multiplicador para velocidade
+    const walk = (x - startX) * 2;
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
 
@@ -243,9 +305,8 @@ export default function LeadsKanban() {
     setIsDragging(false);
   };
 
-  // Touch events para mobile - ✅ MODIFICADO para considerar o card sendo arrastado
+  // Touch events para mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    // ✅ Se um card está sendo arrastado, não inicia o scroll
     if (!scrollContainerRef.current || isCardBeingDragged) return;
     
     setIsDragging(true);
@@ -254,7 +315,6 @@ export default function LeadsKanban() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    // ✅ Se um card está sendo arrastado, não processa o scroll
     if (!isDragging || !scrollContainerRef.current || isCardBeingDragged) return;
     
     const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
