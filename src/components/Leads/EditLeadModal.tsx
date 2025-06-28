@@ -13,13 +13,20 @@ interface Lead {
   name: string;
   company: string;
   phone: string;
-  email: string;
-  group: string;
+  email?: string;
+  group?: string;
   lastUpdate: string;
   value?: string;
+  stage: string;
 }
 
 interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
+
+interface Stage {
   id: string;
   name: string;
   color: string;
@@ -30,10 +37,11 @@ interface EditLeadModalProps {
   onOpenChange: (open: boolean) => void;
   lead: Lead | null;
   tags: Tag[];
+  stages: Stage[];
   onUpdateLead: (lead: Lead) => void;
 }
 
-export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: EditLeadModalProps) {
+export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onUpdateLead }: EditLeadModalProps) {
   const [formData, setFormData] = useState<Lead>(
     lead || {
       id: '',
@@ -41,14 +49,15 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: 
       company: '',
       phone: '',
       email: '',
-      group: 'Clientes GOAT',
+      group: '',
       lastUpdate: '',
-      value: ''
+      value: '',
+      stage: ''
     }
   );
 
   const handleSave = () => {
-    if (!formData.name.trim() || !formData.company.trim()) return;
+    if (!formData.name.trim() || !formData.company.trim() || !formData.phone.trim() || !formData.stage) return;
     
     onUpdateLead({
       ...formData,
@@ -108,9 +117,28 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: 
           </div>
 
           <div>
-            <Label className="text-white">Email</Label>
+            <Label className="text-white">Etapa</Label>
+            <Select value={formData.stage} onValueChange={(value) => handleInputChange('stage', value)}>
+              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.id} className="text-white">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
+                      {stage.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-white">Email (Opcional)</Label>
             <Input
-              value={formData.email}
+              value={formData.email || ''}
               onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="email@exemplo.com"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
@@ -128,7 +156,7 @@ export function EditLeadModal({ open, onOpenChange, lead, tags, onUpdateLead }: 
           </div>
 
           <div>
-            <Label className="text-white">Tag/Grupo</Label>
+            <Label className="text-white">Tag (Opcional)</Label>
             <Select value={formData.group} onValueChange={(value) => handleInputChange('group', value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue />

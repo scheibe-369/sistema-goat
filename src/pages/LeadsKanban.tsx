@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +16,11 @@ interface Lead {
   name: string;
   company: string;
   phone: string;
-  email: string;
-  group: string;
+  email?: string;
+  group?: string;
   lastUpdate: string;
   value?: string;
+  stage: string;
 }
 
 interface Tag {
@@ -55,7 +55,8 @@ const mockStages: Stage[] = [
         email: 'joao@tech.com',
         group: 'Clientes GOAT',
         lastUpdate: '2024-01-15',
-        value: 'R$ 5.000'
+        value: 'R$ 5.000',
+        stage: 'no-service'
       },
       {
         id: '2',
@@ -64,7 +65,8 @@ const mockStages: Stage[] = [
         phone: '(11) 88888-8888',
         email: 'maria@digital.com',
         group: 'Networking',
-        lastUpdate: '2024-01-14'
+        lastUpdate: '2024-01-14',
+        stage: 'no-service'
       }
     ]
   },
@@ -81,7 +83,8 @@ const mockStages: Stage[] = [
         email: 'pedro@ecommerce.com',
         group: 'Clientes GOAT',
         lastUpdate: '2024-01-16',
-        value: 'R$ 8.000'
+        value: 'R$ 8.000',
+        stage: 'in-service'
       }
     ]
   },
@@ -97,7 +100,8 @@ const mockStages: Stage[] = [
         phone: '(11) 66666-6666',
         email: 'ana@startup.com',
         group: 'Networking',
-        lastUpdate: '2024-01-17'
+        lastUpdate: '2024-01-17',
+        stage: 'meeting-scheduled'
       }
     ]
   },
@@ -114,7 +118,8 @@ const mockStages: Stage[] = [
         email: 'carlos@consultoria.com',
         group: 'Clientes GOAT',
         lastUpdate: '2024-01-18',
-        value: 'R$ 12.000'
+        value: 'R$ 12.000',
+        stage: 'proposal-sent'
       }
     ]
   },
@@ -184,9 +189,11 @@ export default function LeadsKanban() {
       lastUpdate: new Date().toISOString().split('T')[0]
     };
     
-    // Adiciona o lead na primeira etapa
-    setStages(prev => prev.map((stage, index) => 
-      index === 0 ? { ...stage, leads: [...stage.leads, newLead] } : stage
+    // Adiciona o lead na etapa selecionada
+    setStages(prev => prev.map(stage => 
+      stage.id === newLeadData.stage 
+        ? { ...stage, leads: [...stage.leads, newLead] } 
+        : stage
     ));
   };
 
@@ -219,6 +226,10 @@ export default function LeadsKanban() {
 
     const newStages = [...stages];
     const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
+    
+    // Atualiza a etapa do lead
+    movedLead.stage = destination.droppableId;
+    
     newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
 
     setStages(newStages);
@@ -454,6 +465,7 @@ export default function LeadsKanban() {
         onOpenChange={setIsEditLeadModalOpen}
         lead={selectedLead}
         tags={tags}
+        stages={stages}
         onUpdateLead={handleUpdateLead}
       />
 
@@ -467,6 +479,7 @@ export default function LeadsKanban() {
         open={isNewLeadModalOpen}
         onOpenChange={setIsNewLeadModalOpen}
         tags={tags}
+        stages={stages}
         onAddLead={handleAddLead}
       />
 

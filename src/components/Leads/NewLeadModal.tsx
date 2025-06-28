@@ -12,36 +12,45 @@ interface Tag {
   color: string;
 }
 
+interface Stage {
+  id: string;
+  name: string;
+  color: string;
+}
+
 interface Lead {
   name: string;
   company: string;
   phone: string;
-  email: string;
-  group: string;
+  email?: string;
+  group?: string;
   value?: string;
+  stage: string;
 }
 
 interface NewLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tags: Tag[];
+  stages: Stage[];
   onAddLead: (lead: Lead) => void;
 }
 
-export function NewLeadModal({ open, onOpenChange, tags, onAddLead }: NewLeadModalProps) {
+export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
   const [formData, setFormData] = useState<Lead>({
     name: '',
     company: '',
     phone: '',
     email: '',
     group: '',
-    value: ''
+    value: '',
+    stage: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.company || !formData.phone || !formData.email || !formData.group) {
+    if (!formData.name || !formData.company || !formData.phone || !formData.stage) {
       return;
     }
 
@@ -54,7 +63,8 @@ export function NewLeadModal({ open, onOpenChange, tags, onAddLead }: NewLeadMod
       phone: '',
       email: '',
       group: '',
-      value: ''
+      value: '',
+      stage: ''
     });
     
     onOpenChange(false);
@@ -106,22 +116,40 @@ export function NewLeadModal({ open, onOpenChange, tags, onAddLead }: NewLeadMod
           </div>
 
           <div>
-            <Label htmlFor="email" className="text-white">Email *</Label>
+            <Label htmlFor="stage" className="text-white">Etapa *</Label>
+            <Select value={formData.stage} onValueChange={(value) => handleChange('stage', value)}>
+              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
+                <SelectValue placeholder="Selecione uma etapa" />
+              </SelectTrigger>
+              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.id} className="text-white">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${stage.color}`}></div>
+                      {stage.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="email" className="text-white">Email (opcional)</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              required
             />
           </div>
 
           <div>
-            <Label htmlFor="group" className="text-white">Grupo *</Label>
+            <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
             <Select value={formData.group} onValueChange={(value) => handleChange('group', value)}>
               <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
-                <SelectValue placeholder="Selecione um grupo" />
+                <SelectValue placeholder="Selecione uma tag" />
               </SelectTrigger>
               <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                 {tags.map((tag) => (
