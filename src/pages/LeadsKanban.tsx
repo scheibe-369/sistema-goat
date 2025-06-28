@@ -42,7 +42,93 @@ const defaultTags: Tag[] = [
 ];
 
 const mockStages: Stage[] = [
-  // ... (seus dados originais)
+  {
+    id: 'no-service',
+    name: 'Sem atendimento',
+    color: 'bg-gray-500',
+    leads: [
+      {
+        id: '1',
+        name: 'João Silva',
+        company: 'Tech Innovations',
+        phone: '(11) 99999-9999',
+        email: 'joao@tech.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-15',
+        value: 'R$ 5.000',
+        stage: 'no-service'
+      },
+      {
+        id: '2',
+        name: 'Maria Santos',
+        company: 'Digital Marketing',
+        phone: '(11) 88888-8888',
+        email: 'maria@digital.com',
+        group: 'Networking',
+        lastUpdate: '2024-01-14',
+        stage: 'no-service'
+      }
+    ]
+  },
+  {
+    id: 'in-service',
+    name: 'Em atendimento',
+    color: 'bg-yellow-500',
+    leads: [
+      {
+        id: '3',
+        name: 'Pedro Costa',
+        company: 'E-commerce Plus',
+        phone: '(11) 77777-7777',
+        email: 'pedro@ecommerce.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-16',
+        value: 'R$ 8.000',
+        stage: 'in-service'
+      }
+    ]
+  },
+  {
+    id: 'meeting-scheduled',
+    name: 'Reunião agendada',
+    color: 'bg-blue-500',
+    leads: [
+      {
+        id: '4',
+        name: 'Ana Oliveira',
+        company: 'Startup XYZ',
+        phone: '(11) 66666-6666',
+        email: 'ana@startup.com',
+        group: 'Networking',
+        lastUpdate: '2024-01-17',
+        stage: 'meeting-scheduled'
+      }
+    ]
+  },
+  {
+    id: 'proposal-sent',
+    name: 'Proposta enviada',
+    color: 'bg-purple-500',
+    leads: [
+      {
+        id: '5',
+        name: 'Carlos Ferreira',
+        company: 'Consultoria Pro',
+        phone: '(11) 55555-5555',
+        email: 'carlos@consultoria.com',
+        group: 'Clientes GOAT',
+        lastUpdate: '2024-01-18',
+        value: 'R$ 12.000',
+        stage: 'proposal-sent'
+      }
+    ]
+  },
+  {
+    id: 'cold',
+    name: 'Frio',
+    color: 'bg-gray-400',
+    leads: []
+  }
 ];
 
 export default function LeadsKanban() {
@@ -59,53 +145,127 @@ export default function LeadsKanban() {
 
   // --- Scroll Manual States ---
   const kanbanRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingScroll, setIsDraggingScroll] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [startTouchX, setStartTouchX] = useState(0);
+  const [touchScrollLeft, setTouchScrollLeft] = useState(0);
 
   // Mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // Only left click
-    setIsDragging(true);
+    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
+    setIsDraggingScroll(true);
     setStartX(e.pageX - (kanbanRef.current?.offsetLeft || 0));
     setScrollLeft(kanbanRef.current?.scrollLeft || 0);
-    document.body.style.cursor = 'grabbing';
+    document.body.style.cursor = "grabbing";
   };
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !kanbanRef.current) return;
+    if (!isDraggingScroll || !kanbanRef.current) return;
     e.preventDefault();
-    const x = e.pageX - kanbanRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
+    const x = e.pageX - (kanbanRef.current.offsetLeft || 0);
+    const walk = (x - startX) * 1.2;
     kanbanRef.current.scrollLeft = scrollLeft - walk;
   };
   const handleMouseUp = () => {
-    setIsDragging(false);
-    document.body.style.cursor = '';
+    setIsDraggingScroll(false);
+    document.body.style.cursor = "";
   };
 
   // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
-    setScrollLeft(kanbanRef.current?.scrollLeft || 0);
+    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
+    setIsDraggingScroll(true);
+    setStartTouchX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
+    setTouchScrollLeft(kanbanRef.current?.scrollLeft || 0);
   };
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !kanbanRef.current) return;
-    const x = e.touches[0].pageX - kanbanRef.current.offsetLeft;
-    const walk = (x - startX) * 1.2;
-    kanbanRef.current.scrollLeft = scrollLeft - walk;
+    if (!isDraggingScroll || !kanbanRef.current) return;
+    const x = e.touches[0].pageX - (kanbanRef.current.offsetLeft || 0);
+    const walk = (x - startTouchX) * 1.1;
+    kanbanRef.current.scrollLeft = touchScrollLeft - walk;
   };
-  const handleTouchEnd = () => setIsDragging(false);
+  const handleTouchEnd = () => setIsDraggingScroll(false);
 
-  // --- Restante do código igual ao seu (handleEditLead, handleUpdateLead, etc) ---
-
+  // ----------- SEUS HANDLERS ORIGINAIS -----------
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
     if (tag) return `${tag.color} text-white hover:${tag.color}`;
     return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
   };
 
-  // ... demais handlers iguais ...
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsEditLeadModalOpen(true);
+  };
+
+  const handleUpdateLead = (updatedLead: Lead) => {
+    setStages(prev => prev.map(stage => ({
+      ...stage,
+      leads: stage.leads.map(lead =>
+        lead.id === updatedLead.id ? updatedLead : lead
+      )
+    })));
+  };
+
+  const handleDeleteLead = (leadId: string) => {
+    setStages(prev => prev.map(stage => ({
+      ...stage,
+      leads: stage.leads.filter(lead => lead.id !== leadId)
+    })));
+  };
+
+  const handleAddStage = (newStageData: { name: string; color: string }) => {
+    const newStage: Stage = {
+      id: `stage-${Date.now()}`,
+      name: newStageData.name,
+      color: newStageData.color,
+      leads: []
+    };
+    setStages(prev => [...prev, newStage]);
+  };
+
+  const handleAddLead = (newLeadData: Omit<Lead, 'id' | 'lastUpdate'>) => {
+    const newLead: Lead = {
+      ...newLeadData,
+      id: `lead-${Date.now()}`,
+      lastUpdate: new Date().toISOString().split('T')[0]
+    };
+    setStages(prev => prev.map(stage => 
+      stage.id === newLeadData.stage 
+        ? { ...stage, leads: [...stage.leads, newLead] } 
+        : stage
+    ));
+  };
+
+  const handleEditStage = (stage: Stage) => {
+    setSelectedStage(stage);
+    setIsEditStageModalOpen(true);
+  };
+
+  const handleUpdateStage = (updatedStage: { name: string; color: string }) => {
+    if (!selectedStage) return;
+    setStages(prev => prev.map(stage =>
+      stage.id === selectedStage.id 
+        ? { ...stage, name: updatedStage.name, color: updatedStage.color }
+        : stage
+    ));
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const { source, destination } = result;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      return;
+    }
+    const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
+    const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
+    const newStages = [...stages];
+    const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
+    movedLead.stage = destination.droppableId;
+    newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
+    setStages(newStages);
+  };
 
   // Função de filtro
   const getFilteredStages = () => {
@@ -117,12 +277,13 @@ export default function LeadsKanban() {
   };
   const filteredStages = getFilteredStages();
 
+  // =========== RENDER ================
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Funil</h1>
-          <p className="text-goat-gray-400">Gerencie seus leads e clientes</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Pipeline</h1>
+          <p className="text-goat-gray-400">Gerencie seus leads</p>
         </div>
         <div className="flex gap-2">
           <Button className="btn-primary h-10 px-4" onClick={() => setIsTagsModalOpen(true)}>
@@ -183,8 +344,8 @@ export default function LeadsKanban() {
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
-            cursor: isDragging ? 'grabbing' : 'grab',
-            userSelect: isDragging ? 'none' : 'auto',
+            cursor: isDraggingScroll ? "grabbing" : "grab",
+            userSelect: isDraggingScroll ? "none" : "auto",
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -232,6 +393,7 @@ export default function LeadsKanban() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            data-drag-card // Permite distinguir clique para scroll vs arrastar card!
                             className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
                           >
                             <ContextMenu>
