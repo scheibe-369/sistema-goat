@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Save, X } from "lucide-react";
+import { Plus, Edit, Save, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface Tag {
@@ -39,30 +39,22 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
 
   const handleCreateTag = () => {
     if (!newTagName.trim()) return;
-    
     const newTag: Tag = {
       id: Date.now().toString(),
       name: newTagName.trim(),
       color: newTagColor
     };
-    
     onUpdateTags([...tags, newTag]);
     setNewTagName("");
     setNewTagColor(defaultColors[0]);
     setIsCreating(false);
   };
 
-  const handleEditTag = (tag: Tag) => {
-    setEditingTag({ ...tag });
-  };
+  const handleEditTag = (tag: Tag) => setEditingTag({ ...tag });
 
   const handleSaveEdit = () => {
     if (!editingTag || !editingTag.name.trim()) return;
-    
-    const updatedTags = tags.map(tag => 
-      tag.id === editingTag.id ? editingTag : tag
-    );
-    
+    const updatedTags = tags.map(tag => tag.id === editingTag.id ? editingTag : tag);
     onUpdateTags(updatedTags);
     setEditingTag(null);
   };
@@ -81,7 +73,6 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
             Crie, edite ou remova tags para categorizar seus leads
           </DialogDescription>
         </DialogHeader>
-
         <div className="space-y-6">
           {/* Create New Tag */}
           <Card className="bg-goat-gray-700 border-goat-gray-600 p-4">
@@ -89,16 +80,15 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
               <h4 className="font-medium text-white">Nova Tag</h4>
               {!isCreating && (
                 <Button 
-                  size="sm" 
+                  size="sm"
                   onClick={() => setIsCreating(true)}
-                  className="btn-primary"
+                  className="bg-goat-purple hover:bg-goat-purple/90 text-white transition-all"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar
                 </Button>
               )}
             </div>
-
             {isCreating && (
               <div className="space-y-3">
                 <div>
@@ -110,13 +100,13 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                     className="bg-goat-gray-600 border-goat-gray-500 text-white"
                   />
                 </div>
-                
                 <div>
                   <Label className="text-white">Cor</Label>
                   <div className="flex gap-2 mt-2">
                     {defaultColors.map((color) => (
                       <button
                         key={color}
+                        type="button"
                         onClick={() => setNewTagColor(color)}
                         className={`w-8 h-8 rounded-full ${color} ${
                           newTagColor === color ? 'ring-2 ring-white' : ''
@@ -125,9 +115,8 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                     ))}
                   </div>
                 </div>
-
                 <div className="flex gap-2">
-                  <Button onClick={handleCreateTag} size="sm" className="btn-primary">
+                  <Button onClick={handleCreateTag} size="sm" className="bg-goat-purple hover:bg-goat-purple/90 text-white">
                     <Save className="w-4 h-4 mr-2" />
                     Salvar
                   </Button>
@@ -138,8 +127,7 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                       setNewTagColor(defaultColors[0]);
                     }} 
                     size="sm" 
-                    variant="outline"
-                    className="text-white border-goat-gray-600"
+                    className="bg-red-600 hover:bg-red-700 text-white"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
@@ -152,7 +140,6 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
           {/* Existing Tags */}
           <Card className="bg-goat-gray-700 border-goat-gray-600 p-4">
             <h4 className="font-medium text-white mb-3">Tags Existentes</h4>
-            
             {tags.length === 0 ? (
               <p className="text-goat-gray-400 text-sm">Nenhuma tag criada ainda</p>
             ) : (
@@ -170,22 +157,20 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                           {defaultColors.map((color) => (
                             <button
                               key={color}
+                              type="button"
                               onClick={() => setEditingTag({ ...editingTag, color })}
-                              className={`w-6 h-6 rounded-full ${color} ${
-                                editingTag.color === color ? 'ring-2 ring-white' : ''
-                              }`}
+                              className={`w-6 h-6 rounded-full ${color} ${editingTag.color === color ? 'ring-2 ring-white' : ''}`}
                             />
                           ))}
                         </div>
                         <div className="flex gap-1">
-                          <Button onClick={handleSaveEdit} size="sm" className="btn-primary">
+                          <Button onClick={handleSaveEdit} size="sm" className="bg-goat-purple hover:bg-goat-purple/90 text-white">
                             <Save className="w-4 h-4" />
                           </Button>
                           <Button 
                             onClick={() => setEditingTag(null)} 
-                            size="sm" 
-                            variant="outline"
-                            className="text-white border-goat-gray-400"
+                            size="sm"
+                            className="bg-red-600 hover:bg-red-700 text-white"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -193,25 +178,21 @@ export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: 
                       </div>
                     ) : (
                       <>
-                        <Badge className={`${tag.color} text-white hover:${tag.color}`}>
-                          {tag.name}
-                        </Badge>
-                        <div className="flex gap-1">
+                        <Badge className={`${tag.color} text-white hover:${tag.color}`}>{tag.name}</Badge>
+                        <div className="flex gap-2">
                           <Button
                             onClick={() => handleEditTag(tag)}
                             size="sm"
-                            variant="ghost"
-                            className="text-goat-gray-300 hover:text-white"
+                            className="bg-goat-purple hover:bg-goat-purple/90 text-white"
                           >
-                            <Edit className="w-4 h-4" />
+                            Editar
                           </Button>
                           <Button
                             onClick={() => handleDeleteTag(tag.id)}
                             size="sm"
-                            variant="ghost"
-                            className="text-red-400 hover:text-red-300"
+                            className="bg-red-600 hover:bg-red-700 text-white"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            Excluir
                           </Button>
                         </div>
                       </>
