@@ -1,13 +1,25 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface Stage {
   id: string;
-  name: string;  
+  name: string;
   color: string;
   leads: any[];
 }
@@ -20,19 +32,24 @@ interface EditStageModalProps {
 }
 
 const colorOptions = [
-  { value: 'bg-gray-500', label: 'Cinza', class: 'bg-gray-500' },
-  { value: 'bg-red-500', label: 'Vermelho', class: 'bg-red-500' },
-  { value: 'bg-yellow-500', label: 'Amarelo', class: 'bg-yellow-500' },
-  { value: 'bg-green-500', label: 'Verde', class: 'bg-green-500' },
-  { value: 'bg-blue-500', label: 'Azul', class: 'bg-blue-500' },
-  { value: 'bg-purple-500', label: 'Roxo', class: 'bg-purple-500' },
-  { value: 'bg-pink-500', label: 'Rosa', class: 'bg-pink-500' },
-  { value: 'bg-orange-500', label: 'Laranja', class: 'bg-orange-500' }
+  { value: "bg-gray-500", label: "Cinza", dot: "bg-gray-500" },
+  { value: "bg-red-500", label: "Vermelho", dot: "bg-red-500" },
+  { value: "bg-yellow-500", label: "Amarelo", dot: "bg-yellow-500" },
+  { value: "bg-green-500", label: "Verde", dot: "bg-green-500" },
+  { value: "bg-blue-500", label: "Azul", dot: "bg-blue-500" },
+  { value: "bg-purple-500", label: "Roxo", dot: "bg-purple-500" },
+  { value: "bg-pink-500", label: "Rosa", dot: "bg-pink-500" },
+  { value: "bg-orange-500", label: "Laranja", dot: "bg-orange-500" },
 ];
 
-export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: EditStageModalProps) {
-  const [name, setName] = useState('');
-  const [color, setColor] = useState('bg-gray-500');
+export function EditStageModal({
+  open,
+  onOpenChange,
+  stage,
+  onUpdateStage,
+}: EditStageModalProps) {
+  const [name, setName] = useState("");
+  const [color, setColor] = useState(colorOptions[0].value);
 
   useEffect(() => {
     if (stage) {
@@ -50,16 +67,20 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
 
   if (!stage) return null;
 
+  // Pega objeto do color selecionado para mostrar dot e label
+  const selectedColor = colorOptions.find((c) => c.value === color);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Editar Etapa</DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="stageName" className="text-white">Nome da Etapa *</Label>
+            <Label htmlFor="stageName" className="text-white">
+              Nome da Etapa *
+            </Label>
             <Input
               id="stageName"
               value={name}
@@ -69,40 +90,43 @@ export function EditStageModal({ open, onOpenChange, stage, onUpdateStage }: Edi
               required
             />
           </div>
-
+          {/* Dropdown Cor da Etapa */}
           <div>
-            <Label htmlFor="stageColor" className="text-white">Cor da Etapa</Label>
-            <Select value={color} onValueChange={setColor}>
-              <SelectTrigger
-                className={`
-                  bg-goat-gray-700 
-                  border-goat-gray-600 
-                  text-white 
-                  placeholder:text-white
-                  focus:border-goat-purple
-                  focus:ring-goat-purple/20
-                  transition-colors
-                  min-h-[44px]
-                  rounded-md
-                  px-3
-                  w-full
-                `}
-              >
-                <SelectValue placeholder="Selecione uma cor" />
-              </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+            <Label className="text-white">Cor da Etapa</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={`
+                    w-full flex items-center justify-between gap-2
+                    bg-goat-gray-700 border-goat-gray-600 text-white font-medium rounded-md px-3 min-h-[44px]
+                    hover:bg-goat-gray-600 transition-colors
+                  `}
+                  type="button"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full ${selectedColor?.dot}`} />
+                    {selectedColor?.label || "Selecione uma cor"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#404040] border-[#525252] w-full min-w-[150px] p-0 mt-1">
                 {colorOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${option.class}`}></div>
-                      {option.label}
-                    </div>
-                  </SelectItem>
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => setColor(option.value)}
+                    className={`flex items-center gap-2 px-4 py-2 text-white text-sm cursor-pointer rounded-none ${
+                      color === option.value ? "bg-goat-gray-700" : ""
+                    }`}
+                  >
+                    <span className={`w-3 h-3 rounded-full ${option.dot}`} />
+                    {option.label}
+                  </DropdownMenuItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-
           <DialogFooter className="gap-2">
             <Button
               type="button"
