@@ -242,3 +242,123 @@
   position: static !important;
   box-shadow: none !important;
 }
+/* ===============================================
+   ✅ CORREÇÃO DO HOVER DESPROPORCIONAL NO SELECT
+   =============================================== */
+
+/* Corrige o hover dos itens do select para ficar proporcional */
+[data-radix-select-content] [data-radix-select-item],
+.SelectItem,
+[role="option"] {
+  /* Garante padding uniforme em todos os lados */
+  padding: 0.5rem 1rem !important;
+  
+  /* Remove qualquer margin que possa causar desalinhamento */
+  margin: 0 !important;
+  
+  /* Centraliza o conteúdo */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  
+  /* Garante que o item ocupe toda a largura disponível */
+  width: 100% !important;
+  box-sizing: border-box !important;
+  
+  /* Transição suave para o hover */
+  transition: background-color 0.15s ease !important;
+  
+  /* Garante que não há espaçamento extra */
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+/* Hover state com padding consistente */
+[data-radix-select-content] [data-radix-select-item]:hover,
+[data-radix-select-content] [data-radix-select-item][data-highlighted],
+.SelectItem:hover,
+[role="option"]:hover {
+  background-color: rgb(31, 31, 31) !important;
+  
+  /* Mantém o mesmo padding durante o hover */
+  padding: 0.5rem 1rem !important;
+}
+
+/* Estado selecionado também com padding consistente */
+[data-radix-select-content] [data-radix-select-item][data-state="checked"],
+.SelectItem[data-state="checked"] {
+  background-color: rgb(31, 31, 31) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Garante que o container do select também esteja alinhado */
+[data-radix-select-content],
+.SelectContent {
+  padding: 0.25rem 0 !important;
+  /* Remove qualquer padding interno que possa afetar o alinhamento */
+}
+
+/* Correção específica para o texto dentro do item */
+[data-radix-select-content] [data-radix-select-item] [data-radix-select-item-text],
+.SelectItem [data-radix-select-item-text] {
+  width: 100% !important;
+  text-align: left !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===============================================
+   ✅ CORREÇÃO ESPECÍFICA PARA SEU COMPONENTE
+   =============================================== */
+
+/* Corrige especificamente os selects do modal de despesa */
+.expense-select-item {
+  padding: 0.75rem 1rem !important; /* Padding mais generoso */
+  margin: 0.125rem 0.25rem !important; /* Pequena margem para espaçamento */
+  border-radius: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  width: calc(100% - 0.5rem) !important; /* Compensa a margem */
+  box-sizing: border-box !important;
+}
+
+.expense-select-item:hover,
+.expense-select-item[data-highlighted],
+.expense-select-item[data-state="checked"] {
+  background-color: #525252 !important;
+  /* Mantém o mesmo padding e margin durante hover/seleção */
+  padding: 0.75rem 1rem !important;
+  margin: 0.125rem 0.25rem !important;
+}
+
+/* Garante que o container do select tenha padding adequado */
+.expense-select-content {
+  padding: 0.25rem !important;
+}
+
+/* ===============================================
+   ✅ CORREÇÃO PARA TODOS OS SELECTS DO SISTEMA
+   =============================================== */
+
+/* Regra global para garantir consistência em todos os selects */
+[data-radix-select-content] {
+  padding: 0.25rem !important;
+}
+
+[data-radix-select-content] > [role="option"] {
+  margin: 0.125rem 0.25rem !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.5rem !important;
+  width: calc(100% - 0.5rem) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+[data-radix-select-content] > [role="option"]:hover,
+[data-radix-select-content] > [role="option"][data-highlighted] {
+  /* Mantém as mesmas dimensões durante o hover */
+  margin: 0.125rem 0.25rem !important;
+  padding: 0.75rem 1rem !important;
+}
