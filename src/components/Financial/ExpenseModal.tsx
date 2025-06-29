@@ -1,21 +1,9 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus } from "lucide-react";
 
@@ -26,28 +14,28 @@ interface ExpenseModalProps {
 export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    description: "",
-    value: "0,00",
-    category: "",
-    date: new Date().toISOString().split("T")[0],
+    description: '',
+    value: '0,00',
+    category: '',
+    date: new Date().toISOString().split('T')[0],
     isRecurring: false,
-    recurrence: "monthly",
+    recurrence: 'monthly'
   });
 
   const handleValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    if (value === "" || value === "0" || value === "0,") {
-      setFormData({ ...formData, value: "0,00" });
+    if (value === '' || value === '0' || value === '0,') {
+      setFormData({ ...formData, value: '0,00' });
       return;
     }
-    if (!value.includes(",")) {
-      value = value + ",00";
+    if (!value.includes(',')) {
+      value = value + ',00';
     } else {
-      const parts = value.split(",");
-      if (!parts[1] || parts[1] === "") {
-        value = parts[0] + ",00";
+      const parts = value.split(',');
+      if (!parts[1] || parts[1] === '') {
+        value = parts[0] + ',00';
       } else if (parts[1].length === 1) {
-        value = parts[0] + "," + parts[1] + "0";
+        value = parts[0] + ',' + parts[1] + '0';
       }
     }
     setFormData({ ...formData, value });
@@ -55,13 +43,13 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    value = value.replace(/[^\d,]/g, "");
-    const parts = value.split(",");
+    value = value.replace(/[^\d,]/g, '');
+    const parts = value.split(',');
     if (parts.length > 2) {
-      value = parts[0] + "," + parts.slice(1).join("");
+      value = parts[0] + ',' + parts.slice(1).join('');
     }
     if (parts[1] && parts[1].length > 2) {
-      value = parts[0] + "," + parts[1].substring(0, 2);
+      value = parts[0] + ',' + parts[1].substring(0, 2);
     }
     setFormData({ ...formData, value });
   };
@@ -71,26 +59,26 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     const expense = {
       id: Date.now(),
       description: formData.description,
-      value: parseFloat(formData.value.replace(",", ".")),
+      value: parseFloat(formData.value.replace(',', '.')),
       category: formData.category,
       date: formData.date,
-      status: "Pendente",
+      status: 'Pendente',
       isRecurring: formData.isRecurring,
-      recurrence: formData.isRecurring ? formData.recurrence : undefined,
+      recurrence: formData.isRecurring ? formData.recurrence : undefined
     };
     onAddExpense(expense);
     setOpen(false);
     setFormData({
-      description: "",
-      value: "0,00",
-      category: "",
-      date: new Date().toISOString().split("T")[0],
+      description: '',
+      value: '0,00',
+      category: '',
+      date: new Date().toISOString().split('T')[0],
       isRecurring: false,
-      recurrence: "monthly",
+      recurrence: 'monthly'
     });
   };
 
-  // CSS: Força o ícone de verificado a ficar na cor #404040 (camuflado no fundo)
+  // Remove o ícone de verificado do menu de recorrência (e dos outros selects desse modal)
   const selectStyle = `
     .expense-select-trigger {
       background-color: #404040 !important;
@@ -127,16 +115,9 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     .expense-select-item[data-state="checked"], .expense-select-item:hover, .expense-select-item[data-highlighted] {
       background-color: #525252 !important;
     }
-    /* Força o ícone de verificado para #404040, camuflando no fundo do dropdown */
-    .expense-select-item [data-radix-select-item-indicator] svg,
-    .expense-select-item svg[data-state="checked"],
-    .expense-select-content [data-radix-select-item-indicator] svg,
-    .expense-select-content svg[data-state="checked"],
-    .expense-select-item [data-radix-select-item-indicator],
-    .expense-select-content [data-radix-select-item-indicator] {
-      color: #404040 !important;
-      fill: #404040 !important;
-      stroke: #404040 !important;
+    /* Remove o ícone de verificado */
+    .expense-select-item [data-radix-select-item-indicator] {
+      display: none !important;
     }
     [data-radix-popper-content-wrapper] { background: transparent !important; }
   `;

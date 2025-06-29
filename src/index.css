@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -212,6 +213,8 @@
   background-color: rgb(31, 31, 31) !important; /* hover um pouco mais escuro */
 }
 
+/* Em seu arquivo: index.css (adicione no final de tudo) */
+
 /* ===============================================
    ✅ CORREÇÃO FINAL E DEFINITIVA: Tooltip da Sidebar
    =============================================== */
@@ -224,46 +227,4 @@
   color: white !important;             /* Cor de --popover-foreground (branco) */
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
-}
-
-/* ==== REMOVER O ÍCONE DE VERIFICADO DE TODOS OS SELECTS DO RADIX (INCLUSIVE SHADCN/UI) ==== */
-/* Remove o span/svg usado como indicador do item selecionado */
-[data-radix-select-item-indicator],
-.SelectItem [data-radix-select-item-indicator],
-.SelectItem svg[data-state="checked"],
-.SelectItem span[data-radix-select-item-indicator],
-.SelectContent [data-radix-select-item-indicator],
-.SelectContent svg[data-state="checked"],
-.SelectContent span[data-radix-select-item-indicator],
-/* Alguns casos o ícone é o primeiro filho */
-.SelectItem > [data-radix-select-item-indicator],
-.SelectContent > .SelectItem > [data-radix-select-item-indicator],
-/* Caso especial: deep SVG ou custom Radix */
-.SelectItem svg,
-.SelectContent .SelectItem svg[data-state="checked"] {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  background: none !important;
-  color: transparent !important;
-  pointer-events: none !important;
-  position: static !important;
-}
-
-/* (Opcional) Garante que o texto do item selecionado não fica com recuo a mais */
-.SelectItem,
-[data-radix-select-item-indicator] + span,
-.SelectItem > span {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-}
-/* Força o ícone de verificado dos selects Radix/shadcn para #404040 */
-[data-radix-select-item-indicator] svg,
-.SelectItem [data-radix-select-item-indicator] svg,
-.SelectContent [data-radix-select-item-indicator] svg,
-.SelectItem svg[data-state="checked"],
-.SelectContent svg[data-state="checked"] {
-  color: #404040 !important;
-  fill: #404040 !important;
-  stroke: #404040 !important;
 }
