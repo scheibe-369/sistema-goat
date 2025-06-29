@@ -228,3 +228,17 @@
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
 }
+/* Remove o ícone de verificado do Radix Select em qualquer contexto */
+[data-radix-select-item-indicator],
+[data-radix-select-item-indicator] *,
+.expense-select-item [data-radix-select-item-indicator],
+.expense-select-content [data-radix-select-item-indicator] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  color: transparent !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  position: static !important;
+  box-shadow: none !important;
+}
