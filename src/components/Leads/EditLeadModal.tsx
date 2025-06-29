@@ -1,23 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, X } from "lucide-react";
-
-interface Lead {
-  id: string;
-  name: string;
-  company: string;
-  phone: string;
-  email?: string;
-  group?: string;
-  lastUpdate: string;
-  value?: string;
-  stage: string;
-}
 
 interface Tag {
   id: string;
@@ -31,60 +18,56 @@ interface Stage {
   color: string;
 }
 
+interface Lead {
+  id: string;
+  name: string;
+  company: string;
+  phone: string;
+  email?: string;
+  group?: string;
+  value?: string;
+  stage: string;
+}
+
 interface EditLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   lead: Lead | null;
   tags: Tag[];
   stages: Stage[];
-  onUpdateLead: (lead: Lead) => void;
+  onEditLead: (lead: Lead) => void;
 }
 
-export function EditLeadModal({
-  open,
-  onOpenChange,
-  lead,
-  tags,
-  stages,
-  onUpdateLead,
-}: EditLeadModalProps) {
-  const [formData, setFormData] = useState<Lead>(
-    lead || {
-      id: "",
-      name: "",
-      company: "",
-      phone: "",
-      email: "",
-      group: "",
-      lastUpdate: "",
-      value: "",
-      stage: "",
-    }
-  );
+export function EditLeadModal({ open, onOpenChange, lead, tags, stages, onEditLead }: EditLeadModalProps) {
+  const [formData, setFormData] = useState<Omit<Lead, 'id'>>({
+    name: "",
+    company: "",
+    phone: "",
+    email: "",
+    group: "",
+    value: "",
+    stage: "",
+  });
 
-  // Atualiza o formData ao abrir/receber um lead diferente
   useEffect(() => {
-    if (lead) setFormData(lead);
+    if (lead) {
+      setFormData({
+        name: lead.name,
+        company: lead.company,
+        phone: lead.phone,
+        email: lead.email || "",
+        group: lead.group || "",
+        value: lead.value || "",
+        stage: lead.stage,
+      });
+    }
   }, [lead]);
 
-  const handleSave = () => {
-    if (
-      !formData.name.trim() ||
-      !formData.company.trim() ||
-      !formData.phone.trim() ||
-      !formData.stage
-    )
-      return;
-
-    onUpdateLead({
-      ...formData,
-      lastUpdate: new Date().toISOString().split("T")[0],
-    });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!lead || !formData.name || !formData.company || !formData.phone || !formData.stage) return;
+    onEditLead({ ...lead, ...formData });
     onOpenChange(false);
-  };
-
-  const handleInputChange = (field: keyof Lead, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const formatCurrency = (value: string) => {
@@ -100,152 +83,124 @@ export function EditLeadModal({
 
   const handleValueChange = (value: string) => {
     const formatted = formatCurrency(value);
-    handleInputChange("value", formatted);
-  };
-
-  const getStageSelected = () => {
-    const selected = stages.find(s => s.id === formData.stage);
-    if (!selected) return <span className="text-white">Selecione uma etapa</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
-        {selected.name}
-      </span>
-    );
-  };
-
-  const getTagSelected = () => {
-    const selected = tags.find(t => t.name === formData.group);
-    if (!selected) return <span className="text-white">Selecione uma tag</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
-        {selected.name}
-      </span>
-    );
+    setFormData(prev => ({ ...prev, value: formatted }));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle>Editar Lead</DialogTitle>
-          <DialogDescription className="text-goat-gray-400">
-            Altere as informações do lead
-          </DialogDescription>
+          <DialogTitle className="text-white">Editar Lead</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label className="text-white">Nome</Label>
+            <Label htmlFor="name" className="text-white">Nome *</Label>
             <Input
+              id="name"
               value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              placeholder="Nome do lead"
+              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              required
             />
           </div>
-
           <div>
-            <Label className="text-white">Empresa</Label>
+            <Label htmlFor="company" className="text-white">Empresa *</Label>
             <Input
+              id="company"
               value={formData.company}
-              onChange={(e) => handleInputChange("company", e.target.value)}
-              placeholder="Nome da empresa"
+              onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              required
             />
           </div>
-
           <div>
-            <Label className="text-white">Telefone</Label>
+            <Label htmlFor="phone" className="text-white">Telefone *</Label>
             <Input
+              id="phone"
               value={formData.phone}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              placeholder="(11) 99999-9999"
+              onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              required
             />
           </div>
-
-          {/* ETAPA */}
+          {/* Select Etapa */}
           <div>
-            <Label className="text-white">Etapa</Label>
-            <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
+            <Label htmlFor="stage" className="text-white">Etapa *</Label>
+            <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
               <SelectTrigger>
-                <SelectValue>{getStageSelected()}</SelectValue>
+                <SelectValue placeholder="Selecione uma etapa" />
               </SelectTrigger>
               <SelectContent>
-                {stages.map((stage) => (
+                {stages.map(stage => (
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
                   >
                     <span className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
-                      {stage.name}
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`} />
+                      <span className="whitespace-nowrap">{stage.name}</span>
                     </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
           <div>
-            <Label className="text-white">Email (Opcional)</Label>
+            <Label htmlFor="email" className="text-white">Email (opcional)</Label>
             <Input
-              value={formData.email || ""}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="email@exemplo.com"
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
-
+          {/* Select Tag */}
           <div>
-            <Label className="text-white">Valor (Opcional)</Label>
-            <Input
-              value={formData.value || ""}
-              onChange={(e) => handleValueChange(e.target.value)}
-              placeholder="R$ 0,00"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
-              inputMode="decimal"
-            />
-          </div>
-
-          <div>
-            <Label className="text-white">Tag (Opcional)</Label>
-            <Select value={formData.group || ""} onValueChange={(value) => handleInputChange("group", value)}>
+            <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
+            <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
               <SelectTrigger>
-                <SelectValue>{getTagSelected()}</SelectValue>
+                <SelectValue placeholder="Selecione uma tag" />
               </SelectTrigger>
               <SelectContent>
-                {tags.map((tag) => (
+                {tags.map(tag => (
                   <SelectItem
                     key={tag.id}
                     value={tag.name}
                   >
                     <span className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${tag.color}`}></span>
-                      {tag.name}
+                      <span className={`w-3 h-3 rounded-full ${tag.color}`} />
+                      <span className="whitespace-nowrap">{tag.name}</span>
                     </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSave} className="btn-primary flex-1">
-              <Save className="w-4 h-4 mr-2" />
-              Salvar
-            </Button>
+          <div>
+            <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
+            <Input
+              id="value"
+              value={formData.value || ""}
+              onChange={e => handleValueChange(e.target.value)}
+              placeholder="R$ 0,00"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              inputMode="decimal"
+            />
+          </div>
+          <DialogFooter className="gap-2">
             <Button
+              type="button"
               onClick={() => onOpenChange(false)}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
+              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
             >
-              <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-          </div>
-        </div>
+            <Button type="submit" className="btn-primary">
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
