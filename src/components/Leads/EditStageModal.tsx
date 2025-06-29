@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -67,69 +68,6 @@ export function EditStageModal({
 
   if (!stage) return null;
 
-  // Styles iguais ao Novo Lead para o Select
-  const selectStyle = `
-    .edit-stage-trigger {
-      background-color: #404040 !important;
-      border-color: #525252 !important;
-      color: white !important;
-      border-radius: 0.75rem !important;
-      min-height: 44px;
-      font-size: 1rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-      font-weight: 500;
-    }
-    .edit-stage-value,
-    .edit-stage-value span {
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-    }
-    .edit-stage-content {
-      background-color: #404040 !important;
-      border-color: #525252 !important;
-      border-radius: 0.75rem !important;
-      min-width: var(--radix-select-trigger-width) !important;
-      width: var(--radix-select-trigger-width) !important;
-      box-shadow: none !important;
-      margin-top: 0.2rem;
-      padding: 0.25rem 0;
-    }
-    .edit-stage-item {
-      color: white !important;
-      background-color: transparent !important;
-      border-radius: 0.5rem !important;
-      font-weight: 500;
-      transition: background 0.1s;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      min-height: 40px;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-    }
-    .edit-stage-item[data-state="checked"], .edit-stage-item:hover, .edit-stage-item[data-highlighted] {
-      background-color: #525252 !important;
-      color: #fff !important;
-    }
-    /* Remove absolutamente qualquer ícone de verificado */
-    .edit-stage-item [data-select-item-indicator],
-    .edit-stage-item svg,
-    .edit-stage-item [data-radix-select-item-indicator] {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-      visibility: hidden !important;
-    }
-    [data-radix-popper-content-wrapper] { background: transparent !important; }
-    .radix-select-overlay { display: none !important; }
-  `;
-
-  // Trigger formatado (bolinha + label)
   const getColorSelected = () => {
     const selected = colorOptions.find((opt) => opt.value === color);
     if (!selected) return <span className="text-white">Selecione</span>;
@@ -144,7 +82,6 @@ export function EditStageModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Editar Etapa</DialogTitle>
         </DialogHeader>
@@ -168,21 +105,18 @@ export function EditStageModal({
               Cor da Etapa
             </Label>
             <Select value={color} onValueChange={setColor}>
-              <SelectTrigger className="edit-stage-trigger">
-                <SelectValue className="edit-stage-value">
+              <SelectTrigger>
+                <SelectValue>
                   {getColorSelected()}
                 </SelectValue>
-                {/* Removido o ChevronDown manual aqui */}
               </SelectTrigger>
-              <SelectContent className="edit-stage-content">
+              <SelectContent>
                 {colorOptions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className="edit-stage-item"
-                  >
-                    <span className={`w-3 h-3 rounded-full ${option.dot}`} />
-                    <span className="whitespace-nowrap">{option.label}</span>
+                  <SelectItem key={option.value} value={option.value}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${option.dot}`} />
+                      {option.label}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

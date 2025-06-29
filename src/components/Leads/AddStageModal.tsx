@@ -1,7 +1,9 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
 interface AddStageModalProps {
@@ -11,14 +13,14 @@ interface AddStageModalProps {
 }
 
 const colorOptions = [
-  { name: "Cinza", value: "bg-gray-500" },
-  { name: "Vermelho", value: "bg-red-500" },
-  { name: "Amarelo", value: "bg-yellow-500" },
-  { name: "Verde", value: "bg-green-500" },
-  { name: "Azul", value: "bg-blue-500" },
-  { name: "Roxo", value: "bg-purple-500" },
-  { name: "Rosa", value: "bg-pink-500" },
-  { name: "Laranja", value: "bg-orange-500" },
+  { name: "Cinza", value: "bg-gray-500", dot: "bg-gray-500" },
+  { name: "Vermelho", value: "bg-red-500", dot: "bg-red-500" },
+  { name: "Amarelo", value: "bg-yellow-500", dot: "bg-yellow-500" },
+  { name: "Verde", value: "bg-green-500", dot: "bg-green-500" },
+  { name: "Azul", value: "bg-blue-500", dot: "bg-blue-500" },
+  { name: "Roxo", value: "bg-purple-500", dot: "bg-purple-500" },
+  { name: "Rosa", value: "bg-pink-500", dot: "bg-pink-500" },
+  { name: "Laranja", value: "bg-orange-500", dot: "bg-orange-500" },
 ];
 
 export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalProps) {
@@ -38,63 +40,20 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
     }
   };
 
-  // Custom style: texto branco, placeholder branco, labels das cores brancas, buttons alinhados
-  const gridStyle = `
-    .add-stage-color-btn {
-      background: transparent !important;
-      border-radius: 0.75rem !important;
-      border-width: 2px;
-      border-style: solid;
-      color: #fff !important;
-      transition: border 0.15s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      font-weight: 600;
-      min-width: 70px;
-      min-height: 70px;
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
-      cursor: pointer;
-      outline: none;
-    }
-    .add-stage-color-btn .add-stage-dot {
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 9999px;
-      margin-bottom: 0.25rem;
-      border: 2px solid #222;
-      box-shadow: 0 0 0 1.5px #222;
-    }
-    .add-stage-color-btn.selected {
-      border-color: #6B21D3 !important;
-      background: #34205322 !important;
-      color: #fff !important;
-    }
-    .add-stage-color-btn:not(.selected) {
-      border-color: #525252 !important;
-    }
-    .add-stage-color-btn:hover:not(.selected) {
-      border-color: #6B21D3 !important;
-    }
-    .add-stage-color-label {
-      font-size: 0.9rem;
-      color: #fff !important;
-      font-weight: 500;
-      margin: 0;
-    }
-    /* Placeholder branco */
-    input#stage-name::placeholder {
-      color: #fff !important;
-      opacity: 0.7 !important;
-    }
-  `;
+  const getColorSelected = () => {
+    const selected = colorOptions.find((opt) => opt.value === selectedColor);
+    if (!selected) return <span className="text-white">Selecione uma cor</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.dot}`} />
+        {selected.name}
+      </span>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        <style>{gridStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Adicionar Nova Etapa</DialogTitle>
           <DialogDescription className="text-goat-gray-400">
@@ -119,22 +78,23 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
 
           <div>
             <Label className="text-white">Cor da Etapa</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-              {colorOptions.map((color) => (
-                <button
-                  type="button"
-                  key={color.value}
-                  tabIndex={0}
-                  className={`add-stage-color-btn ${
-                    selectedColor === color.value ? "selected" : ""
-                  }`}
-                  onClick={() => setSelectedColor(color.value)}
-                >
-                  <div className={`add-stage-dot ${color.value}`}></div>
-                  <span className="add-stage-color-label">{color.name}</span>
-                </button>
-              ))}
-            </div>
+            <Select value={selectedColor} onValueChange={setSelectedColor}>
+              <SelectTrigger>
+                <SelectValue>
+                  {getColorSelected()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {colorOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${option.dot}`} />
+                      {option.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <DialogFooter className="gap-2 pt-2 flex-row-reverse flex">
