@@ -78,7 +78,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     });
   };
 
-  // Remove o ícone de verificado do menu de recorrência (e dos outros selects desse modal)
+  // Estilos mais robustos para remover completamente o ícone de verificado
   const selectStyle = `
     .expense-select-trigger {
       background-color: #404040 !important;
@@ -107,19 +107,64 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       border-radius: 0.5rem !important;
       font-weight: 500;
       transition: background 0.1s;
-      padding-left: 1rem;
+      padding-left: 1rem !important;
       padding-right: 1rem;
       min-height: 40px;
       position: relative;
     }
-    .expense-select-item[data-state="checked"], .expense-select-item:hover, .expense-select-item[data-highlighted] {
+    .expense-select-item[data-state="checked"], 
+    .expense-select-item:hover, 
+    .expense-select-item[data-highlighted] {
       background-color: #525252 !important;
     }
-    /* Remove o ícone de verificado */
-    .expense-select-item [data-radix-select-item-indicator] {
+    
+    /* ========================================
+       REMOÇÃO COMPLETA DO ÍCONE DE VERIFICADO
+       ======================================== */
+    
+    /* Remove o indicador principal */
+    .expense-select-item [data-radix-select-item-indicator],
+    .expense-select-content [data-radix-select-item-indicator],
+    [data-radix-select-item-indicator] {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      position: absolute !important;
+      left: -9999px !important;
+    }
+    
+    /* Remove qualquer SVG dentro dos itens */
+    .expense-select-item svg,
+    .expense-select-content svg {
       display: none !important;
     }
-    [data-radix-popper-content-wrapper] { background: transparent !important; }
+    
+    /* Remove pseudo-elementos que possam criar ícones */
+    .expense-select-item::before,
+    .expense-select-item::after,
+    .expense-select-item [data-radix-select-item-indicator]::before,
+    .expense-select-item [data-radix-select-item-indicator]::after {
+      display: none !important;
+      content: none !important;
+    }
+    
+    /* Garante que o texto ocupe todo o espaço */
+    .expense-select-item [data-radix-select-item-text] {
+      width: 100% !important;
+      text-align: left !important;
+    }
+    
+    /* Remove espaço reservado para o ícone */
+    .expense-select-item {
+      justify-content: flex-start !important;
+      text-align: left !important;
+    }
+    
+    [data-radix-popper-content-wrapper] { 
+      background: transparent !important; 
+    }
   `;
 
   return (
