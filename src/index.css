@@ -257,3 +257,13 @@
   margin-left: 0 !important;
   padding-left: 0 !important;
 }
+/* Força o ícone de verificado dos selects Radix/shadcn para #404040 */
+[data-radix-select-item-indicator] svg,
+.SelectItem [data-radix-select-item-indicator] svg,
+.SelectContent [data-radix-select-item-indicator] svg,
+.SelectItem svg[data-state="checked"],
+.SelectContent svg[data-state="checked"] {
+  color: #404040 !important;
+  fill: #404040 !important;
+  stroke: #404040 !important;
+}
