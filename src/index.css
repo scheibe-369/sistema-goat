@@ -228,3 +228,28 @@
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
 }
+/* ==== REMOVER O ÍCONE DE VERIFICADO DE TODOS OS SELECTS DO RADIX (INCLUSIVE SHADCN/UI) ==== */
+/* Remove o span/svg usado como indicador do item selecionado */
+[data-radix-select-item-indicator],
+.SelectItem [data-radix-select-item-indicator],
+.SelectItem svg[data-state="checked"],
+.SelectItem span[data-radix-select-item-indicator],
+.SelectContent [data-radix-select-item-indicator],
+.SelectContent svg[data-state="checked"],
+.SelectContent span[data-radix-select-item-indicator] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: none !important;
+  color: transparent !important;
+  pointer-events: none !important;
+  position: static !important;
+}
+
+/* (Opcional) Garante que o texto do item selecionado não fica com recuo a mais */
+.SelectItem,
+[data-radix-select-item-indicator] + span,
+.SelectItem > span {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
