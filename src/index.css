@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -213,8 +212,6 @@
   background-color: rgb(31, 31, 31) !important; /* hover um pouco mais escuro */
 }
 
-/* Em seu arquivo: index.css (adicione no final de tudo) */
-
 /* ===============================================
    ✅ CORREÇÃO FINAL E DEFINITIVA: Tooltip da Sidebar
    =============================================== */
@@ -228,6 +225,7 @@
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
 }
+
 /* ==== REMOVER O ÍCONE DE VERIFICADO DE TODOS OS SELECTS DO RADIX (INCLUSIVE SHADCN/UI) ==== */
 /* Remove o span/svg usado como indicador do item selecionado */
 [data-radix-select-item-indicator],
@@ -236,7 +234,13 @@
 .SelectItem span[data-radix-select-item-indicator],
 .SelectContent [data-radix-select-item-indicator],
 .SelectContent svg[data-state="checked"],
-.SelectContent span[data-radix-select-item-indicator] {
+.SelectContent span[data-radix-select-item-indicator],
+/* Alguns casos o ícone é o primeiro filho */
+.SelectItem > [data-radix-select-item-indicator],
+.SelectContent > .SelectItem > [data-radix-select-item-indicator],
+/* Caso especial: deep SVG ou custom Radix */
+.SelectItem svg,
+.SelectContent .SelectItem svg[data-state="checked"] {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
