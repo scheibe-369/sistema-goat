@@ -362,3 +362,154 @@
   margin: 0.125rem 0.25rem !important;
   padding: 0.75rem 1rem !important;
 }
+/* ===============================================
+   ✅ CORREÇÃO DEFINITIVA - MARGEM DESIGUAL NO HOVER
+   =============================================== */
+
+/* Remove completamente o espaço reservado para o ícone */
+[data-radix-select-content] [data-radix-select-item],
+.expense-select-item,
+[role="option"] {
+  /* Reset completo do layout */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  
+  /* Padding perfeitamente simétrico */
+  padding: 0.75rem 1rem 0.75rem 1rem !important;
+  
+  /* Remove qualquer margin */
+  margin: 0.125rem 0.25rem !important;
+  
+  /* Largura total menos as margens */
+  width: calc(100% - 0.5rem) !important;
+  box-sizing: border-box !important;
+  
+  /* Remove espaçamento interno adicional */
+  gap: 0 !important;
+  
+  /* Garante que não há elementos flutuantes */
+  position: relative !important;
+  
+  /* Remove qualquer indentação */
+  text-indent: 0 !important;
+  
+  /* Alinhamento de texto */
+  text-align: left !important;
+  
+  /* Remove espaçamento de lista */
+  list-style: none !important;
+  
+  /* Garante altura consistente */
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Força remoção do espaço do ícone no Radix Select */
+[data-radix-select-item] {
+  /* Remove padding-left extra que o Radix pode adicionar para o ícone */
+  padding-left: 1rem !important;
+  
+  /* Garante que o primeiro elemento filho (texto) não tenha margin */
+  > * {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+}
+
+/* Corrige o texto dentro do item */
+[data-radix-select-content] [data-radix-select-item-text],
+.SelectItemText,
+[data-radix-select-item] > span {
+  /* Remove qualquer espaçamento do texto */
+  margin: 0 !important;
+  padding: 0 !important;
+  
+  /* Garante que o texto comece no início */
+  text-align: left !important;
+  
+  /* Remove indentação */
+  text-indent: 0 !important;
+  
+  /* Largura total */
+  width: 100% !important;
+  
+  /* Remove espaçamento de linha */
+  line-height: normal !important;
+}
+
+/* Estados de hover e seleção com padding idêntico */
+[data-radix-select-content] [data-radix-select-item]:hover,
+[data-radix-select-content] [data-radix-select-item][data-highlighted],
+[data-radix-select-content] [data-radix-select-item][data-state="checked"],
+.expense-select-item:hover,
+.expense-select-item[data-highlighted],
+.expense-select-item[data-state="checked"] {
+  /* EXATAMENTE o mesmo padding do estado normal */
+  padding: 0.75rem 1rem 0.75rem 1rem !important;
+  margin: 0.125rem 0.25rem !important;
+  
+  /* Garante que não há mudança de layout */
+  width: calc(100% - 0.5rem) !important;
+  box-sizing: border-box !important;
+}
+
+/* ===============================================
+   ✅ CORREÇÃO ESPECÍFICA PARA COMPONENTES RADIX
+   =============================================== */
+
+/* Remove qualquer wrapper interno que possa criar espaçamento */
+[data-radix-select-item-indicator] + *,
+[data-radix-select-item] > [data-radix-select-item-text] {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Garante que o container principal não tenha padding extra */
+[data-radix-select-content] {
+  padding: 0.25rem !important;
+}
+
+/* Remove espaçamento de qualquer elemento filho */
+[data-radix-select-content] > * {
+  margin: 0.125rem 0.25rem !important;
+}
+
+/* ===============================================
+   ✅ SOLUÇÃO EXTREMA - FORÇA LAYOUT SIMÉTRICO
+   =============================================== */
+
+/* Se ainda houver problema, esta regra força simetria total */
+.expense-select-item,
+[data-radix-select-content] [role="option"] {
+  /* Reset total do box model */
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  
+  /* Padding interno consistente */
+  padding: 0.75rem 1rem !important;
+  
+  /* Margem externa consistente */
+  margin: 0.125rem 0.25rem !important;
+  
+  /* Largura calculada */
+  width: calc(100% - 0.5rem) !important;
+  
+  /* Layout flex para garantir alinhamento */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  
+  /* Remove qualquer espaçamento automático */
+  box-sizing: border-box !important;
+}
+
+/* Força o texto a ocupar todo o espaço disponível */
+.expense-select-item > *,
+[data-radix-select-content] [role="option"] > * {
+  flex: 1 !important;
+  text-align: left !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
