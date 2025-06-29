@@ -1,34 +1,41 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-/* ===============================================
-   GOAT CRM Theme - Dark Mode with Purple Accents
-   =============================================== */
-
+/* GOAT CRM Theme - Dark Mode with Purple Accents */
 @layer base {
   :root {
     --background: 8 8 8; /* #080808 */
     --foreground: 255 255 255;
+
     --card: 23 23 23;
     --card-foreground: 255 255 255;
+
     --popover: 23 23 23;
     --popover-foreground: 255 255 255;
+
     --primary: 83 21 203; /* #5315CB */
     --primary-foreground: 255 255 255;
+
     --secondary: 38 38 38;
     --secondary-foreground: 255 255 255;
+
     --muted: 38 38 38;
     --muted-foreground: 163 163 163;
+
     --accent: 64 64 64;
     --accent-foreground: 255 255 255;
+
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
+
     --border: 64 64 64;
     --input: 38 38 38;
     --ring: 83 21 203;
+
     --radius: 0.75rem;
   }
 
@@ -45,7 +52,19 @@
     @apply font-bold;
   }
 
-  /* Focus styles globais */
+  .gradient-text {
+    @apply bg-gradient-to-r from-goat-purple to-purple-400 bg-clip-text text-transparent;
+  }
+
+  .glass-effect {
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(83, 21, 203, 0.3);
+  }
+
+  /* Focus border roxo */
   *:focus {
     outline: none;
   }
@@ -60,7 +79,7 @@
     outline-offset: 2px;
   }
 
-  /* Hide scrollbar para kanban horizontal */
+  /* Hide scrollbar for kanban horizontal scroll */
   .flex.overflow-x-auto::-webkit-scrollbar {
     display: none;
   }
@@ -72,24 +91,6 @@
 }
 
 @layer components {
-  /* ===============================================
-     UTILITY CLASSES
-     =============================================== */
-  .gradient-text {
-    @apply bg-gradient-to-r from-goat-purple to-purple-400 bg-clip-text text-transparent;
-  }
-
-  .glass-effect {
-    @apply bg-black/20 backdrop-blur-md border border-white/10;
-  }
-
-  .glow-purple {
-    box-shadow: 0 0 20px rgba(83, 21, 203, 0.3);
-  }
-
-  /* ===============================================
-     BUTTONS COMPONENTS
-     =============================================== */
   .btn-primary {
     @apply bg-goat-purple hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
     color: white !important;
@@ -99,6 +100,60 @@
     color: white !important;
   }
 
+  .card-dark {
+    @apply bg-goat-gray-800 border border-goat-gray-700 rounded-lg p-4;
+  }
+
+  /* Purple badge hover fix for "Pendente" */
+  .bg-goat-purple:hover {
+    background-color: #4c1d95 !important; /* Darker purple for hover */
+  }
+
+  /* Yellow badge hover fix for "Pendente" status */
+  .bg-yellow-600:hover {
+    background-color: #b45309 !important; /* Darker yellow for hover */
+  }
+
+  /* ===============================================
+     INÍCIO DO BLOCO DE CORREÇÃO PARA O SIDEBAR
+     =============================================== */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-goat-gray-800;
+    
+    /* Força a cor do texto para branco e remove qualquer decoração de link */
+    color: white !important;
+    text-decoration: none !important;
+  }
+
+  /*
+    Regra de FOCO - A mais importante para corrigir o amarelo.
+    Forçamos um contorno roxo e garantimos que o fundo e texto não mudem.
+  */
+  .sidebar-item:focus-visible {
+    background-color: #18181b; /* Cor de fundo para o estado de foco, ex: goat-gray-800/900 */
+    color: white !important; /* Garante que o texto permaneça branco */
+    outline: 2px solid #5315CB !important; /* O contorno roxo FORÇADO */
+    outline-offset: 2px;
+    box-shadow: none !important; /* Remove qualquer outro efeito de sombra de foco */
+  }
+
+  /* Regra para o item ATIVO (quando a página está selecionada) */
+  .sidebar-item.active {
+    @apply bg-goat-purple text-white;
+    color: white !important;
+  }
+
+  /* Regra de FOCO para o item ATIVO (melhora a acessibilidade) */
+  .sidebar-item.active:focus-visible {
+    outline: 2px solid white !important; /* Contorno branco para contrastar com o fundo roxo */
+    outline-offset: 2px;
+  }
+  
+  /* ===============================================
+     FIM DO BLOCO DE CORREÇÃO
+     =============================================== */
+
+  /* Botões Outline Globais (Corrige amarelo) */
   .btn-outline {
     @apply border-goat-gray-600 text-white transition-all duration-150;
     color: white !important;
@@ -111,63 +166,19 @@
 
   .btn-outline-danger {
     @apply text-red-400 border-red-800 transition-all duration-150;
-    color: #f87171 !important;
+    color: #f87171 !important; /* Vermelho */
   }
 
   .btn-outline-danger:hover {
     @apply bg-red-900/20 text-red-400;
     color: #f87171 !important;
   }
-
-  /* ===============================================
-     CARD COMPONENTS
-     =============================================== */
-  .card-dark {
-    @apply bg-goat-gray-800 border border-goat-gray-700 rounded-lg p-4;
-  }
-
-  /* ===============================================
-     SIDEBAR COMPONENTS
-     =============================================== */
-  .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-goat-gray-800;
-    color: white !important;
-    text-decoration: none !important;
-  }
-
-  .sidebar-item:focus-visible {
-    background-color: #18181b !important;
-    color: white !important;
-    outline: 2px solid #5315CB !important;
-    outline-offset: 2px;
-    box-shadow: none !important;
-  }
-
-  .sidebar-item.active {
-    @apply bg-goat-purple text-white;
-    color: white !important;
-  }
-
-  .sidebar-item.active:focus-visible {
-    outline: 2px solid white !important;
-    outline-offset: 2px;
-  }
-
-  /* ===============================================
-     BADGE HOVER FIXES
-     =============================================== */
-  .bg-goat-purple:hover {
-    background-color: #4c1d95 !important;
-  }
-
-  .bg-yellow-600:hover {
-    background-color: #b45309 !important;
-  }
 }
 
-/* ===============================================
-   TOOLTIP CORRECTIONS
-   =============================================== */
+/* ===============================
+✅ Corrige Tooltip Radix (Anti amarelo) - VERSÃO CORRIGIDA
+   Agora o estilo se aplica apenas a tooltips, sem afetar outros componentes.
+=============================== */
 [role='tooltip'] {
   background-color: #000 !important;
   color: #fff !important;
@@ -179,156 +190,41 @@
   border-radius: 6px !important;
 }
 
-/* Tooltip específico da sidebar */
-[data-sidebar="sidebar"] .bg-popover {
-  background-color: #171717 !important;
-  color: white !important;
-  border-width: 1px !important;
-  border-color: #404040 !important;
-}
-
-/* ===============================================
-   RADIX SELECT CORRECTIONS
-   =============================================== */
-
-/* Base styling para select content */
+/* ===============================
+✅ Corrige Radix Select (Dropdown de Status e Plano)
+   (Este bloco estava correto e foi mantido)
+=============================== */
 [data-radix-select-content-wrapper],
 [data-state="open"] > div[data-radix-popper-content-wrapper],
 .SelectContent,
-[data-radix-select-content] {
-  background-color: rgb(38, 38, 38) !important;
-  color: white !important;
-  padding: 0.25rem !important;
-}
-
-/* Select items base styling */
-[data-radix-select-content] [data-radix-select-item],
 .SelectItem,
-.expense-select-item,
 [role="option"] {
-  /* Layout */
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  
-  /* Spacing - padding simétrico */
-  padding: 0.75rem 1rem !important;
-  margin: 0.125rem 0.25rem !important;
-  
-  /* Dimensions */
-  width: calc(100% - 0.5rem) !important;
-  box-sizing: border-box !important;
-  
-  /* Styling */
-  background-color: transparent !important;
+  background-color: rgb(38, 38, 38) !important; /* bg-goat-gray-700 */
   color: white !important;
-  border-radius: 0.5rem !important;
-  border: none !important;
-  
-  /* Typography */
-  text-align: left !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  
-  /* Transition */
-  transition: background-color 0.15s ease !important;
-  
-  /* Reset */
-  list-style: none !important;
-  text-indent: 0 !important;
-  gap: 0 !important;
 }
 
-/* Hover e highlighted states */
-[data-radix-select-content] [data-radix-select-item]:hover,
-[data-radix-select-content] [data-radix-select-item][data-highlighted],
-.SelectItem:hover,
-.expense-select-item:hover,
-.expense-select-item[data-highlighted],
-[role="option"]:hover {
-  background-color: rgb(31, 31, 31) !important;
-  /* Mantém exatamente o mesmo padding */
-  padding: 0.75rem 1rem !important;
-  margin: 0.125rem 0.25rem !important;
-}
-
-/* Selected state */
-[data-radix-select-content] [data-radix-select-item][data-state="checked"],
-.SelectItem[data-state="checked"],
-.expense-select-item[data-state="checked"],
+[data-state="checked"] svg,
 [data-state="checked"] {
-  background-color: rgb(31, 31, 31) !important;
   color: white !important;
-  padding: 0.75rem 1rem !important;
-  margin: 0.125rem 0.25rem !important;
 }
 
-/* Text dentro dos items */
-[data-radix-select-content] [data-radix-select-item-text],
-.SelectItemText,
-[data-radix-select-item] > span,
-.expense-select-item > * {
-  margin: 0 !important;
-  padding: 0 !important;
-  text-align: left !important;
-  text-indent: 0 !important;
-  width: 100% !important;
-  line-height: normal !important;
-  flex: 1 !important;
+.SelectItem:hover,
+[role="option"]:hover {
+  background-color: rgb(31, 31, 31) !important; /* hover um pouco mais escuro */
 }
+
+/* Em seu arquivo: index.css (adicione no final de tudo) */
 
 /* ===============================================
-   RADIX SELECT INDICATOR REMOVAL
+   ✅ CORREÇÃO FINAL E DEFINITIVA: Tooltip da Sidebar
    =============================================== */
-[data-radix-select-item-indicator],
-[data-radix-select-item-indicator] *,
-.expense-select-item [data-radix-select-item-indicator],
-.expense-select-content [data-radix-select-item-indicator] {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  color: transparent !important;
-  background: transparent !important;
-  pointer-events: none !important;
-  position: static !important;
-  box-shadow: none !important;
-}
-
-/* Remove espaço reservado para o indicador */
-[data-radix-select-item-indicator] + *,
-[data-radix-select-item] > [data-radix-select-item-text] {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
-}
-
-/* ===============================================
-   CONTAINER FIXES
-   =============================================== */
-.expense-select-content {
-  padding: 0.25rem !important;
-}
-
-/* Remove espaçamento de qualquer elemento filho */
-[data-radix-select-content] > * {
-  margin: 0.125rem 0.25rem !important;
-}
-
-/* ===============================================
-   FINAL CLEANUP & PERFORMANCE
-   =============================================== */
-
-/* Garante que não há conflitos de z-index */
-[data-radix-select-content] {
-  z-index: 50 !important;
-}
-
-/* Remove animações desnecessárias em dispositivos com preferência por movimento reduzido */
-@media (prefers-reduced-motion: reduce) {
-  .sidebar-item,
-  .btn-primary,
-  .btn-outline,
-  .btn-outline-danger,
-  [data-radix-select-item] {
-    transition: none !important;
-  }
+/*
+  Esta regra mira especificamente no elemento com a classe .bg-popover
+  (o tooltip) APENAS quando ele está dentro do [data-sidebar="sidebar"].
+*/
+[data-sidebar="sidebar"] .bg-popover {
+  background-color: #171717 !important; /* Cor de --popover (cinza escuro) */
+  color: white !important;             /* Cor de --popover-foreground (branco) */
+  border-width: 1px !important;
+  border-color: #404040 !important;   /* Cor de --border (cinza médio) */
 }
