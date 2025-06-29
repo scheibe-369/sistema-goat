@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -75,62 +76,6 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     setFormData(prev => ({ ...prev, value: formatted }));
   };
 
-  // Alinhamento visual do Select e dos itens
-  const selectStyle = `
-    .lead-select-trigger {
-      background-color: #404040 !important;
-      border-color: #525252 !important;
-      color: white !important;
-      border-radius: 0.75rem !important;
-      min-height: 44px;
-      font-size: 1rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      transition: border-color 0.15s;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-    }
-    .lead-select-value,
-    .lead-select-value span {
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-    }
-    .lead-select-content {
-      background-color: #404040 !important;
-      border-color: #525252 !important;
-      border-radius: 0.75rem !important;
-      min-width: var(--radix-select-trigger-width) !important;
-      width: var(--radix-select-trigger-width) !important;
-      box-shadow: none !important;
-      margin-top: 0.2rem;
-      padding: 0.25rem 0;
-    }
-    .lead-select-item {
-      color: white !important;
-      background-color: transparent !important;
-      border-radius: 0.5rem !important;
-      font-weight: 500;
-      transition: background 0.1s;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      min-height: 40px;
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-    }
-    .lead-select-item[data-state="checked"], .lead-select-item:hover, .lead-select-item[data-highlighted] {
-      background-color: #525252 !important;
-    }
-    [data-radix-popper-content-wrapper] { background: transparent !important; }
-    .radix-select-overlay { display: none !important; }
-    /* Remove texto roxo do valor */
-    input#value, input#value::placeholder {
-      color: #fff !important;
-    }
-  `;
-
   // Helper para renderizar trigger com bolinha e texto (valor selecionado)
   const getStageSelected = () => {
     const selected = stages.find(s => s.id === formData.stage);
@@ -157,7 +102,6 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Novo Lead</DialogTitle>
         </DialogHeader>
@@ -196,18 +140,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           <div>
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
             <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
-              <SelectTrigger className="lead-select-trigger">
-                <SelectValue className="lead-select-value">{getStageSelected()}</SelectValue>
+              <SelectTrigger>
+                <SelectValue>{getStageSelected()}</SelectValue>
               </SelectTrigger>
-              <SelectContent className="lead-select-content">
+              <SelectContent>
                 {stages.map(stage => (
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="lead-select-item"
                   >
-                    <span className={`w-3 h-3 rounded-full ${stage.color}`} />
-                    <span className="whitespace-nowrap">{stage.name}</span>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`} />
+                      <span className="whitespace-nowrap">{stage.name}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -227,18 +172,19 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
           <div>
             <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
             <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
-              <SelectTrigger className="lead-select-trigger">
-                <SelectValue className="lead-select-value">{getTagSelected()}</SelectValue>
+              <SelectTrigger>
+                <SelectValue>{getTagSelected()}</SelectValue>
               </SelectTrigger>
-              <SelectContent className="lead-select-content">
+              <SelectContent>
                 {tags.map(tag => (
                   <SelectItem
                     key={tag.id}
                     value={tag.name}
-                    className="lead-select-item"
                   >
-                    <span className={`w-3 h-3 rounded-full ${tag.color}`} />
-                    <span className="whitespace-nowrap">{tag.name}</span>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${tag.color}`} />
+                      <span className="whitespace-nowrap">{tag.name}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

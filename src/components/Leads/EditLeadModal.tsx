@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -102,56 +103,31 @@ export function EditLeadModal({
     handleInputChange("value", formatted);
   };
 
-  // Estilo para remover o ícone de verificado e padronizar o dropdown
-  const selectStyle = `
-    .lead-select-trigger {
-      background-color: #404040 !important;
-      border: 1px solid #525252 !important;
-      color: #fff !important;
-      min-height: 44px;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: border 0.2s;
-    }
-    .lead-select-trigger:hover, .lead-select-trigger:focus {
-      border-color: #6b21d3 !important;
-      box-shadow: 0 0 0 1px #6b21d3 !important;
-    }
-    .lead-select-content {
-      background-color: #404040 !important;
-      border: 1px solid #525252 !important;
-      min-width: var(--radix-select-trigger-width, 220px) !important;
-      box-shadow: 0 8px 32px 0 #00000022;
-      margin-top: 5px;
-    }
-    .lead-select-item {
-      color: #fff !important;
-      background-color: transparent !important;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
-      transition: background 0.1s;
-    }
-    .lead-select-item:hover, .lead-select-item[data-highlighted] {
-      background-color: #525252 !important;
-      color: #fff !important;
-    }
-    .lead-select-item > [data-select-item-indicator],
-    .lead-select-item svg,
-    .lead-select-item [data-radix-select-item-indicator] {
-      display: none !important;
-    }
-  `;
+  const getStageSelected = () => {
+    const selected = stages.find(s => s.id === formData.stage);
+    if (!selected) return <span className="text-white">Selecione uma etapa</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+        {selected.name}
+      </span>
+    );
+  };
+
+  const getTagSelected = () => {
+    const selected = tags.find(t => t.name === formData.group);
+    if (!selected) return <span className="text-white">Selecione uma tag</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+        {selected.name}
+      </span>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
-        <style>{selectStyle}</style>
         <DialogHeader>
           <DialogTitle>Editar Lead</DialogTitle>
           <DialogDescription className="text-goat-gray-400">
@@ -194,23 +170,19 @@ export function EditLeadModal({
           <div>
             <Label className="text-white">Etapa</Label>
             <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
-              <SelectTrigger className="lead-select-trigger w-full flex items-center">
-                <div className="flex items-center gap-2">
-                  {stages.find((s) => s.id === formData.stage) && (
-                    <span className={`w-3 h-3 rounded-full ${stages.find((s) => s.id === formData.stage)?.color}`}></span>
-                  )}
-                  <SelectValue placeholder="Selecione uma etapa" />
-                </div>
+              <SelectTrigger>
+                <SelectValue>{getStageSelected()}</SelectValue>
               </SelectTrigger>
-              <SelectContent className="lead-select-content">
+              <SelectContent>
                 {stages.map((stage) => (
                   <SelectItem
                     key={stage.id}
                     value={stage.id}
-                    className="lead-select-item"
                   >
-                    <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
-                    {stage.name}
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
+                      {stage.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -241,23 +213,19 @@ export function EditLeadModal({
           <div>
             <Label className="text-white">Tag (Opcional)</Label>
             <Select value={formData.group || ""} onValueChange={(value) => handleInputChange("group", value)}>
-              <SelectTrigger className="lead-select-trigger w-full flex items-center">
-                <div className="flex items-center gap-2">
-                  {tags.find((t) => t.name === formData.group) && (
-                    <span className={`w-3 h-3 rounded-full ${tags.find((t) => t.name === formData.group)?.color}`}></span>
-                  )}
-                  <SelectValue placeholder="Selecione uma tag" />
-                </div>
+              <SelectTrigger>
+                <SelectValue>{getTagSelected()}</SelectValue>
               </SelectTrigger>
-              <SelectContent className="lead-select-content">
+              <SelectContent>
                 {tags.map((tag) => (
                   <SelectItem
                     key={tag.id}
                     value={tag.name}
-                    className="lead-select-item"
                   >
-                    <span className={`w-3 h-3 rounded-full ${tag.color}`}></span>
-                    {tag.name}
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${tag.color}`}></span>
+                      {tag.name}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
