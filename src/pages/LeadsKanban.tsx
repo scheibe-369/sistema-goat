@@ -541,7 +541,7 @@ export default function LeadsKanban() {
         lead={selectedLead}
         tags={tags}
         stages={stages}
-        onEditLead={handleUpdateLead}
+        onUpdateLead={handleUpdateLead}
       />
       <AddStageModal
         open={isAddStageModalOpen}

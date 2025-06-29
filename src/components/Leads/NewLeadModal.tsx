@@ -76,6 +76,29 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     setFormData(prev => ({ ...prev, value: formatted }));
   };
 
+  // Helper para renderizar trigger com bolinha e texto (valor selecionado)
+  const getStageSelected = () => {
+    const selected = stages.find(s => s.id === formData.stage);
+    if (!selected) return <span className="text-white">Selecione uma etapa</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+        {selected.name}
+      </span>
+    );
+  };
+
+  const getTagSelected = () => {
+    const selected = tags.find(t => t.name === formData.group);
+    if (!selected) return <span className="text-white">Selecione uma tag</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+        {selected.name}
+      </span>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
@@ -118,7 +141,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
             <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione uma etapa" />
+                <SelectValue>{getStageSelected()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {stages.map(stage => (
@@ -150,7 +173,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
             <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
             <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione uma tag" />
+                <SelectValue>{getTagSelected()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {tags.map(tag => (

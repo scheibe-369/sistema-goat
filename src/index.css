@@ -228,23 +228,3 @@
   border-width: 1px !important;
   border-color: #404040 !important;   /* Cor de --border (cinza médio) */
 }
-/* --- DropdownMenu (Radix/shadcn/ui) --- */
-[data-radix-dropdown-menu-content],
-.dropdown-content {
-  background-color: #404040 !important;
-  border: 1px solid #525252 !important;
-  border-radius: 0.75rem !important;
-  color: white !important;
-  min-width: 180px !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-[data-radix-dropdown-menu-item],
-.dropdown-item {
-  color: white !important;
-  background-color: transparent !important;
-  border-radius: 0.5rem !important;
-  font-weight: 500 !important;
-  padding: 0.75rem 1rem !important;
-}
