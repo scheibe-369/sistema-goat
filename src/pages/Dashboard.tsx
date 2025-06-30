@@ -47,33 +47,33 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
         {/* Quick Stats */}
         <div className="lg:col-span-2">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow animate-slide-up">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Resumo do Pipeline</h3>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50">
+              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50 dashboard-glow animate-pulse-soft">
                 <div className="text-2xl font-bold text-blue-400">5</div>
                 <div className="text-xs text-goat-gray-400">Sem atendimento</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50">
+              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50 dashboard-glow animate-pulse-soft" style={{animationDelay: '0.1s'}}>
                 <div className="text-2xl font-bold text-yellow-400">8</div>
                 <div className="text-xs text-goat-gray-400">Em atendimento</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50">
+              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50 dashboard-glow animate-pulse-soft" style={{animationDelay: '0.2s'}}>
                 <div className="text-2xl font-bold text-green-400">4</div>
                 <div className="text-xs text-goat-gray-400">Reunião agendada</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50">
+              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50 dashboard-glow animate-pulse-soft" style={{animationDelay: '0.3s'}}>
                 <div className="text-2xl font-bold text-purple-400">3</div>
                 <div className="text-xs text-goat-gray-400">Proposta enviada</div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50">
+              <div className="text-center p-4 rounded-lg bg-goat-gray-900/50 dashboard-glow animate-pulse-soft" style={{animationDelay: '0.4s'}}>
                 <div className="text-2xl font-bold text-gray-400">3</div>
                 <div className="text-xs text-goat-gray-400">Frio</div>
               </div>
@@ -82,13 +82,13 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts */}
-        <div>
-          <AlertCard />
+        <div className="animate-slide-up" style={{animationDelay: '0.2s'}}>
+          <AlertCard className="dashboard-glow" />
         </div>
       </div>
 
       {/* Recent Activity */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow">
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow animate-slide-up" style={{animationDelay: '0.3s'}}>
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-goat-purple" />
           <h3 className="text-lg font-semibold text-white">Atividade Recente</h3>
@@ -101,7 +101,7 @@ export default function Dashboard() {
             { action: "Pagamento recebido", client: "Consultoria ABC", time: "há 1 dia" },
             { action: "Reunião realizada", client: "Startup XYZ", time: "há 2 dias" },
           ].map((activity, index) => (
-            <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700">
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow animate-fade-in" style={{animationDelay: `${0.5 + index * 0.1}s`}}>
               <div>
                 <p className="text-white text-sm font-medium">{activity.action}</p>
                 <p className="text-goat-gray-400 text-xs">{activity.client}</p>

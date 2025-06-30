@@ -298,3 +298,23 @@
   outline: 2px solid #5315CB !important;
   outline-offset: -2px;
 }
+/* Barra de rolagem para Chrome, Edge e Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #171717; /* Fundo do track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5315CB;   /* Roxo GOAT */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7C3AED; /* Roxo mais claro ao hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;           /* "auto" ou "thin" */
+  scrollbar-color: #5315CB #171717; /* thumb, track */
+}
