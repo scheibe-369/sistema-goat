@@ -41,7 +41,7 @@ const Login = () => {
       if (success) {
         toast.success('Login realizado com sucesso!', {
           style: {
-            background: '#5315CB',
+            background: '#6829c0',
             color: 'white',
             border: '1px solid #8B5CF6',
           },

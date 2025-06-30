@@ -114,7 +114,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 border-radius: 4px;
               }
               .custom-scrollbar::-webkit-scrollbar-thumb {
-                background: #5315CB;
+                background: #6829c0;
                 border-radius: 4px;
               }
               .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -122,7 +122,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
               }
               .custom-scrollbar {
                 scrollbar-width: thin;
-                scrollbar-color: #5315CB #404040;
+                scrollbar-color: #6829c0 #404040;
               }
 
               /* Animações */
