@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,10 +53,10 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-md">
+      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Adicionar Nova Etapa</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-goat-gray-400">
             Crie uma nova etapa para organizar seus leads
           </DialogDescription>
         </DialogHeader>
@@ -70,7 +71,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
               value={stageName}
               onChange={(e) => setStageName(e.target.value)}
               placeholder="Ex: Negociação, Fechamento..."
-              className="bg-slate-700 border-slate-600 text-white placeholder:text-white/60 focus:placeholder:text-white/40"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
           </div>
@@ -78,18 +79,14 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
           <div>
             <Label className="text-white">Cor da Etapa</Label>
             <Select value={selectedColor} onValueChange={setSelectedColor}>
-              <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+              <SelectTrigger>
                 <SelectValue>
                   {getColorSelected()}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent>
                 {colorOptions.map((option) => (
-                  <SelectItem 
-                    key={option.value} 
-                    value={option.value}
-                    className="text-white hover:bg-slate-700"
-                  >
+                  <SelectItem key={option.value} value={option.value}>
                     <span className="flex items-center gap-2">
                       <span className={`w-3 h-3 rounded-full ${option.dot}`} />
                       {option.name}
@@ -103,7 +100,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
           <DialogFooter className="gap-2 pt-2 flex-row-reverse flex">
             <Button
               type="submit"
-              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-lg font-semibold h-12 border-0"
+              className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
             >
               Adicionar
             </Button>
