@@ -16,7 +16,7 @@
     --popover: 23 23 23;
     --popover-foreground: 255 255 255;
 
-    --primary: 83 21 203; /* #5315CB */
+    --primary: 83 21 203; /* #6829c0 */
     --primary-foreground: 255 255 255;
 
     --secondary: 38 38 38;
@@ -69,12 +69,12 @@
   }
 
   *:focus-visible {
-    outline: 2px solid #5315CB;
+    outline: 2px solid #6829c0;
     outline-offset: 2px;
   }
 
   button:focus-visible {
-    outline: 2px solid #5315CB;
+    outline: 2px solid #6829c0;
     outline-offset: 2px;
   }
 
@@ -131,7 +131,7 @@
   .sidebar-item:focus-visible {
     background-color: #18181b; /* Cor de fundo para o estado de foco, ex: goat-gray-800/900 */
     color: white !important; /* Garante que o texto permaneça branco */
-    outline: 2px solid #5315CB !important; /* O contorno roxo FORÇADO */
+    outline: 2px solid #6829c0 !important; /* O contorno roxo FORÇADO */
     outline-offset: 2px;
     box-shadow: none !important; /* Remove qualquer outro efeito de sombra de foco */
   }
@@ -295,7 +295,7 @@
 .dropdown-menu-item:focus,
 .select-item:focus {
   background-color: #525252 !important;
-  outline: 2px solid #5315CB !important;
+  outline: 2px solid #6829c0 !important;
   outline-offset: -2px;
 }
 /* Barra de rolagem para Chrome, Edge e Safari */
@@ -305,7 +305,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5315CB;   /* Roxo GOAT */
+  background: #6829c0;   /* Roxo GOAT */
   border-radius: 6px;
 }
 
@@ -316,5 +316,5 @@
 /* Firefox */
 * {
   scrollbar-width: thin;           /* "auto" ou "thin" */
-  scrollbar-color: #5315CB #171717; /* thumb, track */
+  scrollbar-color: #6829c0 #171717; /* thumb, track */
 }
