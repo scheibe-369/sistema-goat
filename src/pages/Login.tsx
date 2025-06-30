@@ -1,4 +1,3 @@
-
 'use client'
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -40,7 +39,13 @@ const Login = () => {
     try {
       const success = await login(email, password);
       if (success) {
-        toast.success('Login realizado com sucesso!');
+        toast.success('Login realizado com sucesso!', {
+          style: {
+            background: '#5315CB',
+            color: 'white',
+            border: '1px solid #8B5CF6',
+          },
+        });
       } else {
         toast.error('Email ou senha incorretos');
       }
