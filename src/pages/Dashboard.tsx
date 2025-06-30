@@ -13,41 +13,37 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="dashboard-glow">
-          <StatsCard
-            title="Faturamento Mensal"
-            value="R$ 45.230"
-            icon={DollarSign}
-            trend={{ value: 12.5, isPositive: true }}
-            description="Janeiro 2024"
-          />
-        </div>
-        <div className="dashboard-glow">
-          <StatsCard
-            title="Leads Ativos"
-            value="23"
-            icon={Users}
-            trend={{ value: 8.2, isPositive: true }}
-            description="Pipeline de vendas"
-          />
-        </div>
-        <div className="dashboard-glow">
-          <StatsCard
-            title="Contratos Ativos"
-            value="18"
-            icon={FileText}
-            trend={{ value: -2.1, isPositive: false }}
-            description="Clientes em andamento"
-          />
-        </div>
-        <div className="dashboard-glow">
-          <StatsCard
-            title="Mensagens Hoje"
-            value="47"
-            icon={MessageSquare}
-            description="WhatsApp Business"
-          />
-        </div>
+        <StatsCard
+          title="Faturamento Mensal"
+          value="R$ 45.230"
+          icon={DollarSign}
+          trend={{ value: 12.5, isPositive: true }}
+          description="Janeiro 2024"
+          className="dashboard-glow"
+        />
+        <StatsCard
+          title="Leads Ativos"
+          value="23"
+          icon={Users}
+          trend={{ value: 8.2, isPositive: true }}
+          description="Pipeline de vendas"
+          className="dashboard-glow"
+        />
+        <StatsCard
+          title="Contratos Ativos"
+          value="18"
+          icon={FileText}
+          trend={{ value: -2.1, isPositive: false }}
+          description="Clientes em andamento"
+          className="dashboard-glow"
+        />
+        <StatsCard
+          title="Mensagens Hoje"
+          value="47"
+          icon={MessageSquare}
+          description="WhatsApp Business"
+          className="dashboard-glow"
+        />
       </div>
 
       {/* Main Content */}
@@ -86,7 +82,7 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts */}
-        <div className="dashboard-glow">
+        <div>
           <AlertCard />
         </div>
       </div>
