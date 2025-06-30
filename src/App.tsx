@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { CRMLayout } from "./components/Layout/CRMLayout";
 import Dashboard from "./pages/Dashboard";
 import LeadsKanban from "./pages/LeadsKanban";
@@ -18,22 +20,30 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <CRMLayout>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/leads" element={<LeadsKanban />} />
-            <Route path="/contracts" element={<Contracts />} />
-            <Route path="/financial" element={<Financial />} />
-            <Route path="/conversations" element={<Conversations />} />
-            <Route path="/clients" element={<Clients />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="/login" element={<div />} />
+            <Route path="*" element={
+              <ProtectedRoute>
+                <CRMLayout>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/leads" element={<LeadsKanban />} />
+                    <Route path="/contracts" element={<Contracts />} />
+                    <Route path="/financial" element={<Financial />} />
+                    <Route path="/conversations" element={<Conversations />} />
+                    <Route path="/clients" element={<Clients />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </CRMLayout>
+              </ProtectedRoute>
+            } />
           </Routes>
-        </CRMLayout>
-      </BrowserRouter>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
