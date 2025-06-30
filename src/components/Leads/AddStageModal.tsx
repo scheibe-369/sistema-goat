@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +70,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
               value={stageName}
               onChange={(e) => setStageName(e.target.value)}
               placeholder="Ex: Negociação, Fechamento..."
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
               required
             />
           </div>
