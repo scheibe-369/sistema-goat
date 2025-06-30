@@ -1,4 +1,3 @@
-
 import { StatsCard } from "@/components/Dashboard/StatsCard";
 import { AlertCard } from "@/components/Dashboard/AlertCard";
 import { Card } from "@/components/ui/card";
@@ -20,6 +19,7 @@ export default function Dashboard() {
           icon={DollarSign}
           trend={{ value: 12.5, isPositive: true }}
           description="Janeiro 2024"
+          className="dashboard-glow"
         />
         <StatsCard
           title="Leads Ativos"
@@ -27,6 +27,7 @@ export default function Dashboard() {
           icon={Users}
           trend={{ value: 8.2, isPositive: true }}
           description="Pipeline de vendas"
+          className="dashboard-glow"
         />
         <StatsCard
           title="Contratos Ativos"
@@ -34,12 +35,14 @@ export default function Dashboard() {
           icon={FileText}
           trend={{ value: -2.1, isPositive: false }}
           description="Clientes em andamento"
+          className="dashboard-glow"
         />
         <StatsCard
           title="Mensagens Hoje"
           value="47"
           icon={MessageSquare}
           description="WhatsApp Business"
+          className="dashboard-glow"
         />
       </div>
 
@@ -47,7 +50,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick Stats */}
         <div className="lg:col-span-2">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow">
             <div className="flex items-center gap-2 mb-6">
               <TrendingUp className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Resumo do Pipeline</h3>
@@ -85,7 +88,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow">
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-goat-purple" />
           <h3 className="text-lg font-semibold text-white">Atividade Recente</h3>
