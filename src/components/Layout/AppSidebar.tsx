@@ -1,3 +1,4 @@
+// Em seu arquivo: AppSidebar.tsx (versão com tooltips reativados e sem sombras)
 
 import {
   Sidebar,
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Home, Filter, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -25,11 +25,6 @@ const menuItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-  };
 
   return (
     <div className="relative">
@@ -79,7 +74,7 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
-                        tooltip={item.title}
+                        tooltip={item.title} // <-- PROP ADICIONADA DE VOLTA
                         className={`flex items-center justify-center transition-colors duration-300 border border-transparent
                           w-12 h-12 rounded-full
                           ${
@@ -104,10 +99,9 @@ export function AppSidebar() {
           <SidebarMenu className="space-y-4 flex flex-col items-center">
             <SidebarMenuItem className="w-fit">
               <SidebarMenuButton
-                onClick={handleLogout}
-                tooltip="Sair"
+                tooltip="Sair" // <-- PROP ADICIONADA DE VOLTA
                 className={`flex items-center justify-center transition-colors duration-300 border border-transparent bg-red-600/90 text-white hover:bg-red-700
-                  w-12 h-12 rounded-full cursor-pointer`}
+                  w-12 h-12 rounded-full`}
               >
                 <LogOut className="w-5 h-5 text-white" />
               </SidebarMenuButton>
