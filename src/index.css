@@ -87,6 +87,29 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ======== NOVO: Padding menor padrão para o conteúdo ======== */
+  .main-content {
+    padding-left: 1.5rem;   /* Reduza para aproximar do sidebar */
+    padding-right: 1.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .main-content {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .main-content {
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+    }
+  }
+  /* ======== FIM do bloco novo ======== */
 }
 
 @layer components {
@@ -118,41 +141,31 @@
      =============================================== */
   .sidebar-item {
     @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-goat-gray-800;
-    
-    /* Força a cor do texto para branco e remove qualquer decoração de link */
     color: white !important;
     text-decoration: none !important;
   }
 
-  /*
-    Regra de FOCO - A mais importante para corrigir o amarelo.
-    Forçamos um contorno roxo e garantimos que o fundo e texto não mudem.
-  */
   .sidebar-item:focus-visible {
-    background-color: #18181b; /* Cor de fundo para o estado de foco, ex: goat-gray-800/900 */
-    color: white !important; /* Garante que o texto permaneça branco */
-    outline: 2px solid #6829c0 !important; /* O contorno roxo FORÇADO */
+    background-color: #18181b;
+    color: white !important;
+    outline: 2px solid #6829c0 !important;
     outline-offset: 2px;
-    box-shadow: none !important; /* Remove qualquer outro efeito de sombra de foco */
+    box-shadow: none !important;
   }
 
-  /* Regra para o item ATIVO (quando a página está selecionada) */
   .sidebar-item.active {
     @apply bg-goat-purple text-white;
     color: white !important;
   }
 
-  /* Regra de FOCO para o item ATIVO (melhora a acessibilidade) */
   .sidebar-item.active:focus-visible {
-    outline: 2px solid white !important; /* Contorno branco para contrastar com o fundo roxo */
+    outline: 2px solid white !important;
     outline-offset: 2px;
   }
-  
   /* ===============================================
      FIM DO BLOCO DE CORREÇÃO
      =============================================== */
 
-  /* Botões Outline Globais (Corrige amarelo) */
   .btn-outline {
     @apply border-goat-gray-600 text-white transition-all duration-150;
     color: white !important;
@@ -165,7 +178,7 @@
 
   .btn-outline-danger {
     @apply text-red-400 border-red-800 transition-all duration-150;
-    color: #f87171 !important; /* Vermelho */
+    color: #f87171 !important;
   }
 
   .btn-outline-danger:hover {
@@ -201,7 +214,6 @@
 
 /* ===============================
 ✅ Corrige Tooltip Radix (Anti amarelo) - VERSÃO CORRIGIDA
-   Agora o estilo se aplica apenas a tooltips, sem afetar outros componentes.
 =============================== */
 [role='tooltip'] {
   background-color: #000 !important;
@@ -216,7 +228,6 @@
 
 /* ===============================
 ✅ Corrige Radix Select (Dropdown de Status e Plano) - ATUALIZADO
-   Agora usando as novas cores padronizadas
 =============================== */
 [data-radix-select-content-wrapper],
 [data-state="open"] > div[data-radix-popper-content-wrapper],
@@ -224,8 +235,8 @@
 .SelectItem,
 [role="option"],
 [data-radix-dropdown-menu-content] {
-  background-color: #404040 !important; /* Nova cor padrão */
-  border-color: #525252 !important; /* Nova cor de borda */
+  background-color: #404040 !important;
+  border-color: #525252 !important;
   color: white !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
@@ -238,28 +249,9 @@
 .SelectItem:hover,
 [role="option"]:hover,
 [data-radix-dropdown-menu-item]:hover {
-  background-color: #525252 !important; /* Nova cor de hover */
+  background-color: #525252 !important;
 }
 
-/* ===============================================
-   ✅ CORREÇÃO FINAL E DEFINITIVA: Tooltip da Sidebar
-   =============================================== */
-/*
-  Esta regra mira especificamente no elemento com a classe .bg-popover
-  (o tooltip) APENAS quando ele está dentro do [data-sidebar="sidebar"].
-*/
-[data-sidebar="sidebar"] .bg-popover {
-  background-color: #171717 !important; /* Cor de --popover (cinza escuro) */
-  color: white !important;             /* Cor de --popover-foreground (branco) */
-  border-width: 1px !important;
-  border-color: #404040 !important;   /* Cor de --border (cinza médio) */
-}
-
-/* ===============================================
-   ✅ SELETORES ADICIONAIS PARA DROPDOWNS/SELECTS
-   Garantindo cobertura completa para diferentes componentes
-   =============================================== */
-/* Para dropdowns do Radix UI */
 [data-radix-dropdown-menu-content],
 [data-radix-select-content],
 .dropdown-menu,
@@ -270,7 +262,6 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* Para itens de dropdown/select */
 [data-radix-dropdown-menu-item],
 [data-radix-select-item],
 .dropdown-menu-item,
@@ -280,7 +271,6 @@
   transition: background-color 0.15s ease-in-out !important;
 }
 
-/* Hover state para itens */
 [data-radix-dropdown-menu-item]:hover,
 [data-radix-select-item]:hover,
 .dropdown-menu-item:hover,
@@ -289,7 +279,6 @@
   color: white !important;
 }
 
-/* Focus state para acessibilidade */
 [data-radix-dropdown-menu-item]:focus,
 [data-radix-select-item]:focus,
 .dropdown-menu-item:focus,
@@ -298,23 +287,21 @@
   outline: 2px solid #6829c0 !important;
   outline-offset: -2px;
 }
+
 /* Barra de rolagem para Chrome, Edge e Safari */
 ::-webkit-scrollbar {
   width: 8px;
-  background: #171717; /* Fundo do track */
+  background: #171717;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #6829c0;   /* Roxo GOAT */
+  background: #6829c0;
   border-radius: 6px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED; /* Roxo mais claro ao hover */
+  background: #7C3AED;
 }
-
 /* Firefox */
 * {
-  scrollbar-width: thin;           /* "auto" ou "thin" */
-  scrollbar-color: #6829c0 #171717; /* thumb, track */
+  scrollbar-width: thin;
+  scrollbar-color: #6829c0 #171717;
 }
