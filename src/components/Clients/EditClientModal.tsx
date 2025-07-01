@@ -33,7 +33,9 @@ interface EditClientModalProps {
   isOpen: boolean;
   client: Client | null;
   onClose: () => void;
-  onSave: (clientData: Client) => void;
+  onSave: (clientData: Omit<Client, 'id'>) => void;
+  onPlanColorChange: (planName: string, color: string) => void;
+  planColors: Record<string, string>;
 }
 
 export function EditClientModal({
@@ -41,6 +43,8 @@ export function EditClientModal({
   client,
   onClose,
   onSave,
+  onPlanColorChange,
+  planColors,
 }: EditClientModalProps) {
   const [formData, setFormData] = useState<Client>({
     id: 0,
