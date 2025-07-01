@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Clock, DollarSign, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Alert {
   id: string;
@@ -9,6 +10,10 @@ interface Alert {
   title: string;
   description: string;
   timestamp: string;
+}
+
+interface AlertCardProps {
+  className?: string;
 }
 
 const mockAlerts: Alert[] = [
@@ -61,9 +66,9 @@ const getAlertColor = (type: Alert['type']) => {
   }
 };
 
-export function AlertCard() {
+export function AlertCard({ className }: AlertCardProps) {
   return (
-    <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+    <Card className={cn("bg-goat-gray-800 border-goat-gray-700 p-6", className)}>
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle className="w-5 h-5 text-goat-purple" />
         <h3 className="text-lg font-semibold text-white">Alertas & Notificações</h3>

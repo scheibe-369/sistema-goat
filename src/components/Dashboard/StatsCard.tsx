@@ -1,6 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface StatsCardProps {
   title: string;
@@ -11,11 +12,12 @@ interface StatsCardProps {
     isPositive: boolean;
   };
   description?: string;
+  className?: string;
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, description }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, description, className }: StatsCardProps) {
   return (
-    <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 hover:border-goat-purple/50 transition-all duration-200">
+    <Card className={cn("bg-goat-gray-800 border-goat-gray-700 p-6 hover:border-goat-purple/50 transition-all duration-200", className)}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-goat-gray-400 text-sm font-medium">{title}</p>
