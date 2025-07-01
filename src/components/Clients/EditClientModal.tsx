@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -75,6 +76,22 @@ export function EditClientModal({
 
   const handleChange = (field: keyof Client, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    value = value.replace(/\D/g, '');
+    
+    const numValue = parseInt(value);
+    
+    if (numValue > 31) {
+      value = '31';
+    } else if (numValue < 1 && value !== '') {
+      value = '1';
+    }
+    
+    handleChange("paymentDay", value === '' ? 1 : parseInt(value));
   };
 
   if (!isOpen || !client) return null;
@@ -242,12 +259,11 @@ export function EditClientModal({
                 <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
                 <Input
                   id="paymentDay"
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={formData.paymentDay}
-                  onChange={(e) => handleChange("paymentDay", parseInt(e.target.value))}
+                  type="text"
+                  value={formData.paymentDay.toString()}
+                  onChange={handlePaymentDayChange}
                   className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  placeholder="1-31"
                 />
               </div>
 
