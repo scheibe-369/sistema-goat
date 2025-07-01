@@ -147,7 +147,7 @@ export default function Clients() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 px-0 animate-fade-in">
       <ClientsHeader onNewClient={() => setIsNewClientModalOpen(true)} />
       
       <ClientsSearch 
