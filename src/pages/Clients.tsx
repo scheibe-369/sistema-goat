@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
 import { EditClientModal } from "@/components/Clients/EditClientModal";
@@ -146,7 +147,7 @@ export default function Clients() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in -ml-6 md:-ml-8 lg:-ml-10">
+    <div className="space-y-6 animate-fade-in">
       <ClientsHeader onNewClient={() => setIsNewClientModalOpen(true)} />
       
       <ClientsSearch 
