@@ -182,7 +182,7 @@ export default function Conversations() {
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.client !== "";
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in -ml-4 md:-ml-6 lg:-ml-8">
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
