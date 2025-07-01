@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -49,14 +50,10 @@ export function NewConversationModal({
 
   return (
     <>
-      {/* ====================================================== */}
-      {/* TESTE: A DIV DO OVERLAY FOI TEMPORARIAMENTE COMENTADA */}
-      {/* ====================================================== */}
-      {/* <div 
+      <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
-      */}
       
       {/* Container do Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-scale-in">
