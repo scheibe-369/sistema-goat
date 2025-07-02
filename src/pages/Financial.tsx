@@ -9,11 +9,11 @@ import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useFinancialEntries } from "@/hooks/useFinancialEntries";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 export default function Financial() {
   const { data: clients = [] } = useClients();
-  const { data: contracts = [] } = useContracts();
+  const { data: contracts = [], refetch } = useContracts();
   const { expenses, createExpense, payExpense, deleteExpense, isLoading: expensesLoading, isPaying, isDeleting } = useExpenses();
   const { markAsPaid, isMarkingAsPaid, incomes, incomesLoading } = useFinancialEntries();
 
@@ -144,6 +144,14 @@ export default function Financial() {
     }
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
+
+  useEffect(() => {
+    const onFocus = () => {
+      refetch();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refetch]);
 
   return (
     <div className="space-y-6 animate-fade-in">
