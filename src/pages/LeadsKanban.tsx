@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -319,7 +320,7 @@ export default function LeadsKanban() {
               >
                 <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`}></div>
                 {tag.name}
-              </div>
+              </Button>
             ))}
           </div>
         </div>
