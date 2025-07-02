@@ -74,8 +74,23 @@ export const useExpenses = () => {
       if (!expenseData.category || typeof expenseData.category !== 'string') {
         throw new Error('Categoria obrigatória.');
       }
-      if (!expenseData.date || !/^\d{4}-\d{2}-\d{2}$/.test(expenseData.date)) {
-        throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD.');
+      // Garantir que a data esteja no formato YYYY-MM-DD
+      let dateFormatted = expenseData.date;
+      if (typeof dateFormatted === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+        // Tenta converter de DD/MM/YYYY ou outros formatos comuns
+        const parts = dateFormatted.split(/[\/-]/);
+        if (parts.length === 3) {
+          if (parts[0].length === 4) {
+            // Já está no formato YYYY-MM-DD
+            dateFormatted = dateFormatted;
+          } else {
+            // Provavelmente DD/MM/YYYY ou DD-MM-YYYY
+            dateFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+        }
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+        throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
       }
       if (!expenseData.status) {
         throw new Error('Status obrigatório.');
@@ -87,7 +102,7 @@ export const useExpenses = () => {
           description: expenseData.description,
           amount: expenseData.amount,
           category: expenseData.category,
-          date: expenseData.date,
+          date: dateFormatted,
           status: expenseData.status,
           type: 'expense',
           user_id: user.id,
