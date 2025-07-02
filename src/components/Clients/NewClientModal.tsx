@@ -57,11 +57,9 @@ export function NewClientModal({
 
   const defaultPlans = [
     "Vendas",
-    "Branding", 
+    "Branding",
+    "Landing Page",
     "Automação",
-    "Premium",
-    "Gold",
-    "Standard",
   ];
   const allPlans = [...defaultPlans, ...customPlans];
 

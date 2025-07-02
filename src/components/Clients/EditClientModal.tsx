@@ -11,8 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 interface Client {
   id: string;
@@ -73,10 +79,17 @@ export function EditClientModal({
     paymentDay: 1,
     tags: ["Ativo"],
     address: "",
-    plan: "",
+    plan: "Vendas",
     startDate: "",
     monthlyValue: "0,00",
   });
+
+  const planOptions = [
+    "Vendas",
+    "Branding", 
+    "Landing Page",
+    "Automação"
+  ];
 
   useEffect(() => {
     if (client) {
@@ -249,12 +262,28 @@ export function EditClientModal({
 
               <div className="space-y-2">
                 <Label htmlFor="plan" className="text-white">Plano</Label>
-                <Input
-                  id="plan"
-                  value={formData.plan || ""}
-                  onChange={(e) => handleChange("plan", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600"
+                    >
+                      {formData.plan || "Selecione um plano"}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-goat-gray-700 border-goat-gray-600">
+                    {planOptions.map((plan) => (
+                      <DropdownMenuItem
+                        key={plan}
+                        onClick={() => handleChange("plan", plan)}
+                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
+                      >
+                        {plan}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <div className="space-y-2">
