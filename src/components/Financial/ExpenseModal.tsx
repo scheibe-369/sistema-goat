@@ -63,9 +63,9 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       value: parseFloat(formData.value.replace(',', '.')),
       category: formData.category,
       date: formData.date,
-      status: 'Pendente',
-      isRecurring: formData.isRecurring,
-      recurrence: formData.isRecurring ? formData.recurrence : undefined
+      status: 'pending',
+      is_recurring: formData.isRecurring,
+      recurrence_type: formData.isRecurring ? formData.recurrence : undefined
     };
     onAddExpense(expense);
     setOpen(false);
@@ -124,10 +124,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
           <div>
             <Label htmlFor="category" className="text-white">Categoria *</Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                 <SelectItem value="Infraestrutura">Infraestrutura</SelectItem>
                 <SelectItem value="Tecnologia">Tecnologia</SelectItem>
                 <SelectItem value="Marketing">Marketing</SelectItem>
@@ -159,10 +159,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
             <div>
               <Label htmlFor="recurrence" className="text-white">Recorrência</Label>
               <Select value={formData.recurrence} onValueChange={(value) => setFormData({ ...formData, recurrence: value })}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
                   <SelectItem value="weekly">Semanal</SelectItem>
                   <SelectItem value="monthly">Mensal</SelectItem>
                   <SelectItem value="quarterly">Trimestral</SelectItem>

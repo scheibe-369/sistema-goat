@@ -52,7 +52,9 @@ export default function Financial() {
       category: expenseData.category,
       date: expenseData.date,
       status: 'pending',
-      type: 'expense', // Add the missing type property
+      type: 'expense',
+      is_recurring: expenseData.is_recurring,
+      recurrence_type: expenseData.recurrence_type
     };
     
     createExpense(expense);
@@ -62,7 +64,8 @@ export default function Financial() {
     markAsPaid({
       contractId: contract.client_id,
       amount: Number(contract.monthly_value || 0),
-      description: `Pagamento mensal - ${contract.client?.company || 'Cliente'}`
+      description: `Pagamento mensal - ${contract.client?.company || 'Cliente'}`,
+      contract: contract
     });
   };
 

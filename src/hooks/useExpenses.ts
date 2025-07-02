@@ -16,6 +16,8 @@ export interface Expense {
   client_id?: string;
   created_at?: string;
   updated_at?: string;
+  is_recurring?: boolean;
+  recurrence_type?: string;
 }
 
 export const useExpenses = () => {
@@ -51,7 +53,9 @@ export const useExpenses = () => {
         user_id: expense.user_id,
         client_id: expense.client_id,
         created_at: expense.created_at,
-        updated_at: expense.updated_at
+        updated_at: expense.updated_at,
+        is_recurring: expense.is_recurring || false,
+        recurrence_type: expense.recurrence_type
       })) as Expense[];
     },
     enabled: !!user?.id,
@@ -72,6 +76,8 @@ export const useExpenses = () => {
           type: 'expense',
           user_id: user.id,
           client_id: expenseData.client_id,
+          is_recurring: expenseData.is_recurring || false,
+          recurrence_type: expenseData.recurrence_type
         })
         .select()
         .single();
@@ -100,11 +106,48 @@ export const useExpenses = () => {
     },
   });
 
+  const calculateNextDate = (currentDate: string, recurrenceType: string) => {
+    const date = new Date(currentDate);
+    
+    switch (recurrenceType) {
+      case 'weekly':
+        date.setDate(date.getDate() + 7);
+        break;
+      case 'monthly':
+        date.setMonth(date.getMonth() + 1);
+        break;
+      case 'quarterly':
+        date.setMonth(date.getMonth() + 3);
+        break;
+      case 'yearly':
+        date.setFullYear(date.getFullYear() + 1);
+        break;
+      default:
+        date.setMonth(date.getMonth() + 1);
+    }
+    
+    return date.toISOString().split('T')[0];
+  };
+
   const payExpenseMutation = useMutation({
     mutationFn: async (expenseId: string) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      // First, get the expense details
+      const { data: expense, error: fetchError } = await supabase
+        .from('finances')
+        .select('*')
+        .eq('id', expenseId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching expense:', fetchError);
+        throw fetchError;
+      }
+
+      // Mark current expense as paid
+      const { data: updatedExpense, error: updateError } = await supabase
         .from('finances')
         .update({ status: 'paid' })
         .eq('id', expenseId)
@@ -112,18 +155,43 @@ export const useExpenses = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error paying expense:', error);
-        throw error;
+      if (updateError) {
+        console.error('Error paying expense:', updateError);
+        throw updateError;
       }
 
-      return data;
+      // If it's a recurring expense, create the next one
+      if (expense.is_recurring && expense.recurrence_type) {
+        const nextDate = calculateNextDate(expense.date, expense.recurrence_type);
+        
+        const { error: createError } = await supabase
+          .from('finances')
+          .insert({
+            description: expense.description,
+            amount: expense.amount,
+            category: expense.category,
+            date: nextDate,
+            status: 'pending',
+            type: 'expense',
+            user_id: user.id,
+            client_id: expense.client_id,
+            is_recurring: true,
+            recurrence_type: expense.recurrence_type
+          });
+
+        if (createError) {
+          console.error('Error creating next recurring expense:', createError);
+          // Don't throw here, as the payment was successful
+        }
+      }
+
+      return updatedExpense;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       toast({
         title: "Sucesso",
-        description: "Despesa marcada como paga!",
+        description: data.is_recurring ? "Despesa paga e próxima criada automaticamente!" : "Despesa marcada como paga!",
       });
     },
     onError: (error) => {
