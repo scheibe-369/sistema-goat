@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, Edit } from "lucide-react";
 
 interface Client {
   id: string;
@@ -187,7 +187,7 @@ export function EditClientModal({
       onClick={handleOverlayClick}
     >
       <div 
-        className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] border border-goat-gray-700 animate-scale-in"
+        className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] border border-goat-gray-700 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
@@ -214,13 +214,37 @@ export function EditClientModal({
           .animate-scale-in {
             animation: scale-in 0.2s ease-out;
           }
+          
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: #404040;
+            border-radius: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6829c0;
+            border-radius: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #6B21D3;
+          }
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #6829c0 #404040;
+          }
         `}</style>
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-goat-gray-700">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Editar Cliente</h2>
-            <p className="text-goat-gray-400 text-sm">Atualize os dados do cliente</p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-goat-purple rounded-lg flex items-center justify-center">
+              <Edit className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Editar Cliente</h2>
+              <p className="text-goat-gray-400 text-sm">Atualize os dados do cliente</p>
+            </div>
           </div>
           <Button
             onClick={onClose}
@@ -233,158 +257,231 @@ export function EditClientModal({
         </div>
 
         {/* Content with Custom Scrollbar */}
-        <div className="overflow-y-auto max-h-[calc(90vh-140px)]">
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="company" className="text-white">Nome da Empresa *</Label>
-                <Input
-                  id="company"
-                  value={formData.company}
-                  onChange={(e) => handleChange("company", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                  required
-                />
-              </div>
+        <div className="overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar">
+          <form onSubmit={handleSubmit} className="p-6 space-y-8">
+            {/* Informações Básicas */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                Informações Básicas
+              </h3>
 
-              <div className="space-y-2">
-                <Label htmlFor="cnpj" className="text-white">CNPJ *</Label>
-                <Input
-                  id="cnpj"
-                  value={formData.cnpj}
-                  onChange={(e) => handleChange("cnpj", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                  required
-                />
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="company" className="text-white">Nome da Empresa *</Label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(e) => handleChange("company", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="Ex: Tech Solutions LTDA"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="responsible" className="text-white">Responsável *</Label>
-                <Input
-                  id="responsible"
-                  value={formData.responsible}
-                  onChange={(e) => handleChange("responsible", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                  required
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cnpj" className="text-white">CNPJ *</Label>
+                  <Input
+                    id="cnpj"
+                    value={formData.cnpj}
+                    onChange={(e) => handleChange("cnpj", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="00.000.000/0000-00"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white">Telefone *</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                  required
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="responsible" className="text-white">Responsável *</Label>
+                  <Input
+                    id="responsible"
+                    value={formData.responsible}
+                    onChange={(e) => handleChange("responsible", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="Nome do responsável"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="email" className="text-white">E-mail *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange("email", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                  required
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-white">Telefone *</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="(11) 99999-9999"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="plan" className="text-white">Plano</Label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
-                      style={{
-                        color: "white",
-                        borderColor: "#525252",
-                      }}
-                    >
-                      {formData.plan || "Selecione um plano"}
-                      <ChevronDown className="h-4 w-4 opacity-50" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
-                    {planOptions.map((plan) => (
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="email" className="text-white">E-mail *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="cliente@empresa.com"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Plano e Valores */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                Plano e Valores
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="plan" className="text-white">Plano</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
+                        style={{
+                          color: "white",
+                          borderColor: "#525252",
+                        }}
+                      >
+                        {formData.plan || "Selecione um plano"}
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
+                      {planOptions.map((plan) => (
+                        <DropdownMenuItem
+                          key={plan}
+                          onClick={() => handleChange("plan", plan)}
+                          className="text-white hover:bg-goat-gray-600 cursor-pointer"
+                          style={{ color: "white" }}
+                        >
+                          {plan}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
+                  <Input
+                    id="monthlyValue"
+                    type="text"
+                    value={formData.monthlyValue}
+                    onChange={handleMonthlyValueChange}
+                    onBlur={handleMonthlyValueBlur}
+                    onFocus={(e) => {
+                      if (e.target.value === "0,00") {
+                        e.target.value = "";
+                        setFormData((prev) => ({ ...prev, monthlyValue: "" }));
+                      }
+                    }}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="0,00"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
+                  <Input
+                    id="paymentDay"
+                    type="text"
+                    value={formData.paymentDay.toString()}
+                    onChange={handlePaymentDayChange}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="1-31"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Status</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
+                        style={{
+                          color: "white",
+                          borderColor: "#525252",
+                        }}
+                      >
+                        {formData.tags[0]}
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
                       <DropdownMenuItem
-                        key={plan}
-                        onClick={() => handleChange("plan", plan)}
+                        onClick={() => handleChange("tags", ["Ativo"])}
                         className="text-white hover:bg-goat-gray-600 cursor-pointer"
                         style={{ color: "white" }}
                       >
-                        {plan}
+                        Ativo
                       </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuItem
+                        onClick={() => handleChange("tags", ["A vencer"])}
+                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
+                        style={{ color: "white" }}
+                      >
+                        A vencer
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleChange("tags", ["Vencido"])}
+                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
+                        style={{ color: "white" }}
+                      >
+                        Vencido
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
-                <Input
-                  id="monthlyValue"
-                  type="text"
-                  value={formData.monthlyValue}
-                  onChange={handleMonthlyValueChange}
-                  onBlur={handleMonthlyValueBlur}
-                  onFocus={(e) => {
-                    if (e.target.value === "0,00") {
-                      e.target.value = "";
-                      setFormData((prev) => ({ ...prev, monthlyValue: "" }));
-                    }
-                  }}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
-                  placeholder="0,00"
-                />
-              </div>
+            {/* Datas e Localização */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                Datas e Localização
+              </h3>
 
-              <div className="space-y-2">
-                <Label htmlFor="startDate" className="text-white">Data de Início</Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={formData.startDate || ""}
-                  onChange={(e) => handleChange("startDate", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                />
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-white">Data de Início</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={formData.startDate || ""}
+                    onChange={(e) => handleChange("startDate", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="contractEnd" className="text-white">Fim do Contrato</Label>
-                <Input
-                  id="contractEnd"
-                  type="date"
-                  value={formData.contractEnd}
-                  onChange={(e) => handleChange("contractEnd", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contractEnd" className="text-white">Fim do Contrato</Label>
+                  <Input
+                    id="contractEnd"
+                    type="date"
+                    value={formData.contractEnd}
+                    onChange={(e) => handleChange("contractEnd", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
-                <Input
-                  id="paymentDay"
-                  type="text"
-                  value={formData.paymentDay.toString()}
-                  onChange={handlePaymentDayChange}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
-                  placeholder="1-31"
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="address" className="text-white">Endereço</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
-                  className="bg-goat-gray-700 border-goat-gray-600 text-white resize-none focus:border-goat-purple focus:ring-goat-purple/20"
-                  rows={3}
-                />
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="address" className="text-white">Endereço</Label>
+                  <Textarea
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white resize-none focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    rows={3}
+                    placeholder="Endereço completo do cliente"
+                  />
+                </div>
               </div>
             </div>
 
