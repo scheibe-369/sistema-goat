@@ -482,7 +482,6 @@ export function NewClientModal({
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                     placeholder="0,00"
                   />
-
                 </div>
 
                 <div className="space-y-2">

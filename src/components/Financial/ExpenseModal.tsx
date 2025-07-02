@@ -110,6 +110,12 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               value={formData.value}
               onChange={handleValueChange}
               onBlur={handleValueBlur}
+              onFocus={(e) => {
+                if (e.target.value === "0,00") {
+                  e.target.value = "";
+                  setFormData((prev) => ({ ...prev, value: "" }));
+                }
+              }}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               placeholder="0,00"
               required
