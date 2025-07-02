@@ -139,7 +139,6 @@ export default function Financial() {
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <TrendingDown className="w-5 h-5 text-red-400" />
             <h3 className="text-lg font-semibold text-white">Despesas</h3>
           </div>
           <ExpenseModal onAddExpense={() => {}} />
