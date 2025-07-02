@@ -8,14 +8,15 @@ import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
+import { useExpenses } from "@/hooks/useExpenses";
 
 export default function Financial() {
   const { data: clients = [] } = useClients();
   const { data: contracts = [] } = useContracts();
+  const { expenses, createExpense, isLoading: expensesLoading } = useExpenses();
 
   // Calculate real financial data from database
   const transactions = [];
-  const expenses = [];
   
   // Calculate monthly revenue from active contracts
   const monthlyRevenue = contracts
@@ -41,6 +42,18 @@ export default function Financial() {
     durationInMonths: 12, // Default duration
     startMonth: contract.start_date ? contract.start_date.substring(0, 7) : new Date().toISOString().substring(0, 7)
   }));
+
+  const handleAddExpense = (expenseData: any) => {
+    const expense = {
+      description: expenseData.description,
+      amount: expenseData.value,
+      category: expenseData.category,
+      date: expenseData.date,
+      status: 'pending',
+    };
+    
+    createExpense(expense);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -141,13 +154,47 @@ export default function Financial() {
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-white">Despesas</h3>
           </div>
-          <ExpenseModal onAddExpense={() => {}} />
+          <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
         
-        <div className="text-center py-8">
-          <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-          <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
-        </div>
+        {expensesLoading ? (
+          <div className="text-center py-8">
+            <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-goat-gray-400">Carregando despesas...</p>
+          </div>
+        ) : expenses.length === 0 ? (
+          <div className="text-center py-8">
+            <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+            <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {expenses.map((expense) => (
+              <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                  <div>
+                    <h4 className="text-white font-medium mb-1">{expense.description}</h4>
+                    <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white`}>
+                      {expense.status === 'paid' ? 'Pago' : 'Pendente'}
+                    </Badge>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Valor</p>
+                    <p className="text-white font-semibold">{formatCurrency(Number(expense.amount))}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Categoria</p>
+                    <p className="text-white">{expense.category}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Data</p>
+                    <p className="text-white">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Projection Chart */}
