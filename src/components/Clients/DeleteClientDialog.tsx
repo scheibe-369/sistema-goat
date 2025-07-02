@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -5,16 +6,16 @@ import { useState } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
 
 interface Client {
-  id: number;
+  id: string;
   company: string;
-  cnpj: string;
-  responsible: string;
-  phone: string;
-  email: string;
-  contractEnd: string;
-  paymentDay: number;
-  tags: string[];
-  address: string;
+  cnpj?: string;
+  responsible?: string;
+  phone?: string;
+  email?: string;
+  contractEnd?: string;
+  paymentDay?: number;
+  tags?: string[];
+  address?: string;
   plan?: string;
   startDate?: string;
 }
@@ -139,27 +140,31 @@ export function DeleteClientDialog({
                   <p className="text-white font-medium">{client.company}</p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-goat-gray-400 text-sm">CNPJ:</span>
-                    <p className="text-white">{client.cnpj}</p>
+                {client.cnpj && client.responsible && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-goat-gray-400 text-sm">CNPJ:</span>
+                      <p className="text-white">{client.cnpj}</p>
+                    </div>
+                    <div>
+                      <span className="text-goat-gray-400 text-sm">Responsável:</span>
+                      <p className="text-white">{client.responsible}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-goat-gray-400 text-sm">Responsável:</span>
-                    <p className="text-white">{client.responsible}</p>
-                  </div>
-                </div>
+                )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-goat-gray-400 text-sm">Telefone:</span>
-                    <p className="text-white">{client.phone}</p>
+                {client.phone && client.email && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-goat-gray-400 text-sm">Telefone:</span>
+                      <p className="text-white">{client.phone}</p>
+                    </div>
+                    <div>
+                      <span className="text-goat-gray-400 text-sm">E-mail:</span>
+                      <p className="text-white text-sm break-all">{client.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-goat-gray-400 text-sm">E-mail:</span>
-                    <p className="text-white text-sm break-all">{client.email}</p>
-                  </div>
-                </div>
+                )}
 
                 {client.plan && (
                   <div className="grid grid-cols-2 gap-4">
@@ -167,18 +172,20 @@ export function DeleteClientDialog({
                       <span className="text-goat-gray-400 text-sm">Plano:</span>
                       <p className="text-white">{client.plan}</p>
                     </div>
-                    <div>
-                      <span className="text-goat-gray-400 text-sm">Status:</span>
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                        client.tags[0] === 'Ativo' 
-                          ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-                          : client.tags[0] === 'A vencer'
-                          ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30'
-                          : 'bg-red-600/20 text-red-400 border border-red-600/30'
-                      }`}>
-                        {client.tags[0]}
-                      </span>
-                    </div>
+                    {client.tags && client.tags.length > 0 && (
+                      <div>
+                        <span className="text-goat-gray-400 text-sm">Status:</span>
+                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                          client.tags[0] === 'Ativo' 
+                            ? 'bg-green-600/20 text-green-400 border border-green-600/30'
+                            : client.tags[0] === 'A vencer'
+                            ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30'
+                            : 'bg-red-600/20 text-red-400 border border-red-600/30'
+                        }`}>
+                          {client.tags[0]}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

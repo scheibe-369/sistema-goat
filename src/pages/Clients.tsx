@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
@@ -29,6 +30,23 @@ interface ClientData {
 
 // Interface para componentes que esperam formato específico
 interface ClientForComponent {
+  id: string;
+  company: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  email: string;
+  contractEnd: string;
+  paymentDay: number;
+  tags: string[];
+  address: string;
+  plan: string;
+  startDate: string;
+  planColor?: string;
+}
+
+// Interface para KPIs
+interface ClientForKPIs {
   id: string;
   company: string;
   cnpj: string;
@@ -150,6 +168,11 @@ export default function Clients() {
     planColor: planColors[client.plan || ''] || undefined,
   }));
 
+  // Transform for KPIs - same format but explicit typing
+  const clientsForKPIs: ClientForKPIs[] = transformedClients.map(client => ({
+    ...client
+  }));
+
   const filteredClients = transformedClients.filter(client => {
     const matchesSearch = client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          client.responsible.toLowerCase().includes(searchTerm.toLowerCase());
@@ -208,7 +231,7 @@ export default function Clients() {
         onFiltersOpen={() => setIsFiltersOpen(true)}
       />
 
-      <ClientsKPIs clients={transformedClients} />
+      <ClientsKPIs clients={clientsForKPIs} />
 
       <ClientsList 
         clients={filteredClients}
@@ -266,10 +289,7 @@ export default function Clients() {
 
       <DeleteClientDialog
         isOpen={!!deletingClient}
-        client={deletingClient ? {
-          id: deletingClient.id,
-          company: deletingClient.company,
-        } : null}
+        client={deletingClient}
         onClose={() => setDeletingClient(null)}
         onConfirm={handleDeleteClient}
       />
