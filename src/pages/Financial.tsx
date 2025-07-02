@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +9,13 @@ import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useFinancialEntries } from "@/hooks/useFinancialEntries";
+import { useState } from "react";
 
 export default function Financial() {
   const { data: clients = [] } = useClients();
   const { data: contracts = [] } = useContracts();
   const { expenses, createExpense, payExpense, deleteExpense, isLoading: expensesLoading, isPaying, isDeleting } = useExpenses();
-  const { markAsPaid, isMarkingAsPaid } = useFinancialEntries();
+  const { markAsPaid, isMarkingAsPaid, incomes, incomesLoading } = useFinancialEntries();
 
   // Calculate real financial data from database
   const transactions = [];
@@ -79,6 +79,21 @@ export default function Financial() {
     }
   };
 
+  // Filtros de status
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all');
+
+  // Filtrar lançamentos financeiros conforme status
+  const filteredIncomes = incomes.filter((income: any) => {
+    if (statusFilter === 'all') return true;
+    return income.status === statusFilter;
+  });
+
+  // Função para formatar referência mês/ano
+  const formatReference = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -90,52 +105,61 @@ export default function Financial() {
 
       <FinancialKPIs transactions={transactions} />
 
-      {/* Financial Entries */}
+      {/* Lançamentos Financeiros */}
       <Card className="bg-goat-gray-800 border-goat-gray-700">
-        <div className="p-6 border-b border-goat-gray-700">
-          <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-          <p className="text-goat-gray-400 text-sm mt-1">Baseado nos contratos cadastrados</p>
-        </div>
-
-        {contracts.length === 0 ? (
-          <div className="p-12 text-center">
-            <DollarSign className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Nenhum lançamento encontrado</h3>
-            <p className="text-goat-gray-400">Cadastre clientes com valores mensais para ver os lançamentos financeiros aqui.</p>
+        <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
+            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes e avulsas</p>
           </div>
+          <div className="flex gap-2">
+            <Button onClick={() => setStatusFilter('all')} className={statusFilter === 'all' ? 'bg-goat-purple text-white' : ''} size="sm">Todos</Button>
+            <Button onClick={() => setStatusFilter('pending')} className={statusFilter === 'pending' ? 'bg-yellow-600 text-white' : ''} size="sm">Em Aberto</Button>
+            <Button onClick={() => setStatusFilter('paid')} className={statusFilter === 'paid' ? 'bg-green-600 text-white' : ''} size="sm">Pagos</Button>
+          </div>
+        </div>
+        {incomesLoading ? (
+          <div className="p-12 text-center text-goat-gray-400">Carregando lançamentos...</div>
+        ) : filteredIncomes.length === 0 ? (
+          <div className="p-12 text-center text-goat-gray-400">Nenhum lançamento encontrado</div>
         ) : (
           <div className="space-y-3 p-6">
-            {contracts.map((contract) => (
-              <div key={contract.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+            {filteredIncomes.map((income: any) => (
+              <div key={income.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
-                    <h4 className="text-white font-medium mb-1">{contract.client?.company || 'Cliente não encontrado'}</h4>
-                    <Badge className={`${contract.status === 'active' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
-                      {contract.status === 'active' ? 'Ativo' : 'Inativo'}
-                    </Badge>
+                    <h4 className="text-white font-medium mb-1">{income.description}</h4>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${income.status === 'paid' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}`}>
+                      {income.status === 'paid' ? 'Pago' : 'Em aberto'}
+                    </span>
                   </div>
                   <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Valor Mensal</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(contract.monthly_value || 0))}</p>
+                    <p className="text-goat-gray-400 text-sm">Valor</p>
+                    <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Início</p>
-                    <p className="text-white">{contract.start_date ? new Date(contract.start_date).toLocaleDateString('pt-BR') : '-'}</p>
+                    <p className="text-goat-gray-400 text-sm">Referência</p>
+                    <p className="text-white">{formatReference(income.date)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Término</p>
-                    <p className="text-white">{contract.end_date ? new Date(contract.end_date).toLocaleDateString('pt-BR') : '-'}</p>
+                    <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
+                    <p className="text-white">{income.status === 'paid' ? new Date(income.date).toLocaleDateString('pt-BR') : '-'}</p>
                   </div>
                 </div>
                 <div className="ml-4">
-                  <Button
-                    onClick={() => handleMarkAsPaid(contract)}
-                    disabled={isMarkingAsPaid}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    size="sm"
-                  >
-                    {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
-                  </Button>
+                  {income.status === 'pending' && (
+                    <Button
+                      onClick={() => markAsPaid({ contractId: income.client_id, amount: income.amount, description: income.description, contract: { id: income.client_id, end_date: income.end_date, status: 'active' } })}
+                      disabled={isMarkingAsPaid}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
+                    </Button>
+                  )}
+                  {income.status === 'paid' && (
+                    <Button disabled size="sm" className="bg-green-600 text-white">Pago</Button>
+                  )}
                 </div>
               </div>
             ))}

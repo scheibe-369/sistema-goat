@@ -1,5 +1,4 @@
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -97,8 +96,30 @@ export const useFinancialEntries = () => {
     },
   });
 
+  // Buscar receitas (lancamentos financeiros)
+  const { data: incomes = [], isLoading: incomesLoading } = useQuery({
+    queryKey: ['financial-incomes', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('finances')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('type', 'income')
+        .order('date', { ascending: false });
+      if (error) {
+        console.error('Erro ao buscar receitas:', error);
+        throw error;
+      }
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   return {
     markAsPaid: markAsPaidMutation.mutate,
     isMarkingAsPaid: markAsPaidMutation.isPending,
+    incomes,
+    incomesLoading,
   };
 };
