@@ -116,7 +116,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
                   setFormData((prev) => ({ ...prev, value: "" }));
                 }
               }}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white/70"
               placeholder="0,00"
               required
             />
