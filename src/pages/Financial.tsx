@@ -60,10 +60,16 @@ export default function Financial() {
     });
 
   const handleAddExpense = (expenseData: any) => {
-    const amount = typeof expenseData.value === 'number' ? expenseData.value :
-      (typeof expenseData.value === 'string' ? parseFloat(expenseData.value.replace(',', '.')) : 0);
-    if (!expenseData.description || !amount || isNaN(amount) || !expenseData.category || !expenseData.date) {
-      alert('Preencha todos os campos obrigatórios: descrição, valor, categoria e data.');
+    let amount = 0;
+    if (typeof expenseData.value === 'number') {
+      amount = expenseData.value;
+    } else if (typeof expenseData.value === 'string') {
+      amount = parseFloat(expenseData.value.replace(',', '.'));
+    } else if (typeof expenseData.amount === 'number') {
+      amount = expenseData.amount;
+    }
+    if (!expenseData.description || !amount || isNaN(amount) || amount <= 0 || !expenseData.category || !expenseData.date) {
+      alert('Preencha todos os campos obrigatórios: descrição, valor (> 0), categoria e data.');
       return;
     }
     const expense = {
