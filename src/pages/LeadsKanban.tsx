@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -448,47 +447,40 @@ export default function LeadsKanban() {
 
       {/* Modals */}
       <TagsManagementModal
-        isOpen={isTagsModalOpen}
-        onClose={() => setIsTagsModalOpen(false)}
+        open={isTagsModalOpen}
+        onOpenChange={setIsTagsModalOpen}
         tags={tags}
-        onTagsChange={setTags}
+        onUpdateTags={setTags}
       />
 
       <EditLeadModal
-        isOpen={isEditLeadModalOpen}
+        open={isEditLeadModalOpen}
+        onOpenChange={setIsEditLeadModalOpen}
         lead={selectedLead}
-        onClose={() => {
-          setIsEditLeadModalOpen(false);
-          setSelectedLead(null);
-        }}
-        onSave={handleUpdateLead}
-        onDelete={handleDeleteLead}
+        onUpdateLead={handleUpdateLead}
         stages={stages}
         tags={tags}
       />
 
       <AddStageModal
-        isOpen={isAddStageModalOpen}
-        onClose={() => setIsAddStageModalOpen(false)}
-        onSave={handleAddStage}
+        open={isAddStageModalOpen}
+        onOpenChange={setIsAddStageModalOpen}
+        onAddStage={handleAddStage}
       />
 
       <NewLeadModal
-        isOpen={isNewLeadModalOpen}
-        onClose={() => setIsNewLeadModalOpen(false)}
-        onSave={handleAddLead}
+        open={isNewLeadModalOpen}
+        onOpenChange={setIsNewLeadModalOpen}
+        onAddLead={handleAddLead}
         stages={stages}
         tags={tags}
       />
 
       <EditStageModal
-        isOpen={isEditStageModalOpen}
+        open={isEditStageModalOpen}
+        onOpenChange={setIsEditStageModalOpen}
         stage={selectedStage}
-        onClose={() => {
-          setIsEditStageModalOpen(false);
-          setSelectedStage(null);
-        }}
-        onSave={handleUpdateStage}
+        onUpdateStage={handleUpdateStage}
       />
     </div>
   );
