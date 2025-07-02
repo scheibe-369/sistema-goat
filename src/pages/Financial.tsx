@@ -142,6 +142,73 @@ export default function Financial() {
           </div>
         </div>
       </Card>
+
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-white">Despesas</h3>
+          </div>
+          <ExpenseModal onAddExpense={handleAddExpense} />
+        </div>
+        {expensesLoading ? (
+          <div className="text-center py-8">
+            <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-goat-gray-400">Carregando despesas...</p>
+          </div>
+        ) : expenses.length === 0 ? (
+          <div className="text-center py-8">
+            <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+            <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {expenses.map((expense) => (
+              <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                  <div>
+                    <h4 className="text-white font-medium mb-1">{expense.description}</h4>
+                    <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white`}>
+                      {expense.status === 'paid' ? 'Pago' : 'Pendente'}
+                    </Badge>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Valor</p>
+                    <p className="text-white font-semibold">{formatCurrency(Number(expense.amount))}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Categoria</p>
+                    <p className="text-white">{expense.category}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-sm">Data</p>
+                    <p className="text-white">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 ml-4">
+                  {expense.status === 'pending' && (
+                    <Button
+                      onClick={() => handlePayExpense(expense.id)}
+                      disabled={isPaying}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      {isPaying ? 'Pagando...' : 'Pagar'}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => handleDeleteExpense(expense.id)}
+                    disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
+                  >
+                    {isDeleting ? 'Excluindo...' : 'Excluir'}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
