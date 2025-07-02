@@ -67,45 +67,6 @@ export default function Financial() {
 
       <FinancialKPIs transactions={transactions} />
 
-      {/* Revenue Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{formatCurrency(monthlyRevenue)}</p>
-              <p className="text-goat-gray-400 text-sm">Faturamento Mensal</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{contracts.filter(c => c.status === 'active').length}</p>
-              <p className="text-goat-gray-400 text-sm">Contratos Ativos</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-red-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{overdueContracts.length}</p>
-              <p className="text-goat-gray-400 text-sm">Contratos Vencidos</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
       {/* Financial Entries */}
       <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700">
