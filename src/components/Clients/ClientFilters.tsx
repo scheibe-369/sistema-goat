@@ -30,7 +30,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
   }, [filters]);
 
   const statusOptions = ["Ativo", "A vencer", "Vencido"];
-  const planOptions = ["Premium", "Gold", "Standard", "Vendas", "Branding", "Automação"];
+  const planOptions = ["Vendas", "Branding", "Landing Page", "Automação"];
 
   const handleStatusChange = (status: string, checked: boolean) => {
     setLocalFilters(prev => ({

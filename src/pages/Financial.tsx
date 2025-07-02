@@ -69,15 +69,19 @@ export default function Financial() {
 
   const handleAddExpense = (expenseData: any) => {
     let amount = 0;
+    // Aceita tanto 'value' quanto 'amount' e converte corretamente
     if (typeof expenseData.value === 'number') {
       amount = expenseData.value;
     } else if (typeof expenseData.value === 'string') {
       amount = parseFloat(expenseData.value.replace(',', '.'));
     } else if (typeof expenseData.amount === 'number') {
       amount = expenseData.amount;
+    } else if (typeof expenseData.amount === 'string') {
+      amount = parseFloat(expenseData.amount.replace(',', '.'));
     }
+    console.log('DEBUG - Dados recebidos para despesa:', expenseData, 'Valor convertido:', amount);
     if (!expenseData.description || !amount || isNaN(amount) || amount <= 0 || !expenseData.category || !expenseData.date) {
-      alert('Preencha todos os campos obrigatórios: descrição, valor (> 0), categoria e data.');
+      alert('Preencha todos os campos obrigatórios: descrição, valor (> 0), categoria e data. Valor informado: ' + expenseData.value);
       return;
     }
     const expense = {
