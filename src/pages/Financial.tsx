@@ -52,15 +52,8 @@ export default function Financial() {
       const projections = [];
       let paymentDate = new Date(firstPaymentDate);
       while (paymentDate <= end) {
-        // Só soma se o pagamento do mês for antes ou igual ao fim do contrato
-        if (
-          paymentDate < end ||
-          (
-            paymentDate.getFullYear() === end.getFullYear() &&
-            paymentDate.getMonth() === end.getMonth() &&
-            paymentDate.getDate() <= end.getDate()
-          )
-        ) {
+        // Só soma se o pagamento do mês não ultrapassa a data de término do contrato
+        if (paymentDate <= end) {
           projections.push({
             clientId: contract.client_id,
             clientName: contract.client?.company || 'Cliente não encontrado',
