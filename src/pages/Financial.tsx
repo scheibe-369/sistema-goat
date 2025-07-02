@@ -38,12 +38,20 @@ export default function Financial() {
     }).format(value);
   };
 
-  const contractProjections = contracts.map(contract => ({
-    clientName: contract.client?.company || 'Cliente não encontrado',
-    monthlyValue: Number(contract.monthly_value || 0),
-    durationInMonths: 12, // Default duration
-    startMonth: contract.start_date ? contract.start_date.substring(0, 7) : new Date().toISOString().substring(0, 7)
-  }));
+  const contractProjections = contracts
+    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date)
+    .map(contract => {
+      const start = new Date(contract.start_date);
+      const end = new Date(contract.end_date);
+      // Calcular a diferença em meses
+      const durationInMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+      return {
+        clientName: contract.client?.company || 'Cliente não encontrado',
+        monthlyValue: Number(contract.monthly_value),
+        durationInMonths,
+        startMonth: contract.start_date.substring(0, 7), // 'YYYY-MM'
+      };
+    });
 
   const handleAddExpense = (expenseData: any) => {
     const amount = typeof expenseData.value === 'number' ? expenseData.value :
