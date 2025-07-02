@@ -204,39 +204,65 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes previstas dos contratos</p>
+            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes e avulsas</p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
+            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
+            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
           </div>
         </div>
         <div className="p-6">
-          {futureIncomes.length === 0 ? (
+          {filteredIncomes.length === 0 ? (
             <div className="text-center py-8">
               <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-              <p className="text-goat-gray-400">Nenhum lançamento futuro previsto</p>
+              <p className="text-goat-gray-400">Nenhum lançamento encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {futureIncomes.map((income, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                  <div className="flex-1 grid grid-cols-4 gap-4 items-center">
-                    <div>
-                      <h4 className="text-white font-medium mb-1">{income.clientName}</h4>
-                      <Badge className="bg-blue-600 text-white">Previsto</Badge>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-sm">Valor</p>
-                      <p className="text-white font-semibold">{formatCurrency(Number(income.value))}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-sm">Data Prevista</p>
-                      <p className="text-white">{income.date.toLocaleDateString('pt-BR')}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-sm">Status</p>
-                      <p className="text-white">Previsto</p>
+              {filteredIncomes.map((income, idx) => {
+                const statusTag = getStatusTag(income);
+                return (
+                  <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                    <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                      <div>
+                        <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
+                        <div className="mt-1">
+                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${statusTag.color} text-white`}>
+                            {statusTag.label}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-goat-gray-400 text-sm">Valor</p>
+                        <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-goat-gray-400 text-sm">Referência</p>
+                        <p className="text-white">{formatReference(income.date)}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
+                        <p className="text-white">{income.status === 'paid' && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
+                      </div>
+                      <div className="flex justify-center">
+                        {income.status === 'pending' ? (
+                          <Button
+                            onClick={() => handleMarkAsPaid(income)}
+                            disabled={isMarkingAsPaid}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            size="sm"
+                          >
+                            Confirmar
+                          </Button>
+                        ) : (
+                          <Button disabled className="bg-green-600 text-white" size="sm">Pago</Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
