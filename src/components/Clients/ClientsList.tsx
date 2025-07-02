@@ -2,28 +2,54 @@
 import { Card } from "@/components/ui/card";
 import { ClientItem } from "./ClientItem";
 
-interface Client {
-  id: string;
-  company: string;
-  cnpj: string;
-  responsible: string;
-  phone: string;
-  email: string;
-  contractEnd: string;
-  paymentDay: number;
-  tags: string[];
-  address: string;
-  plan?: string;
-  startDate?: string;
-  planColor?: string;
-}
-
 interface ClientsListProps {
-  clients: Client[];
+  clients: Array<{
+    id: string;
+    company: string;
+    cnpj: string;
+    responsible: string;
+    phone: string;
+    email: string;
+    contractEnd: string;
+    paymentDay: number;
+    tags: string[];
+    address: string;
+    plan: string;
+    startDate: string;
+    planColor?: string;
+  }>;
   expandedClients: string[];
   onToggleExpanded: (clientId: string) => void;
-  onEditClient: (client: Client) => void;
-  onDeleteClient: (client: Client) => void;
+  onEditClient: (client: {
+    id: string;
+    company: string;
+    cnpj: string;
+    responsible: string;
+    phone: string;
+    email: string;
+    contractEnd: string;
+    paymentDay: number;
+    tags: string[];
+    address: string;
+    plan: string;
+    startDate: string;
+    planColor?: string;
+  }) => void;
+  onDeleteClient: (client: {
+    id: string;
+    company: string;
+    cnpj: string;
+    responsible: string;
+    phone: string;
+    email: string;
+    contractEnd: string;
+    paymentDay: number;
+    tags: string[];
+    address: string;
+    plan: string;
+    startDate: string;
+    planColor?: string;
+  }) => void;
   planColors?: Record<string, string>;
 }
 

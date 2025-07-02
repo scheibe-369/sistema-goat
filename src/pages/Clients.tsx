@@ -54,7 +54,7 @@ export default function Clients() {
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+  const [deletingClient, setDeletingClient] = useState<ClientForComponent | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilters, setActiveFilters] = useState({
     status: [] as string[],
@@ -221,10 +221,7 @@ export default function Clients() {
           }
         }}
         onDeleteClient={(client) => {
-          const supabaseClient = clients.find(c => c.id === client.id);
-          if (supabaseClient) {
-            setDeletingClient(supabaseClient);
-          }
+          setDeletingClient(client);
         }}
         planColors={planColors}
       />
