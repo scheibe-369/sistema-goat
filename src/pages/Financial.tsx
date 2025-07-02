@@ -94,6 +94,24 @@ export default function Financial() {
     return d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
   };
 
+  // Função para determinar status visual
+  const getStatusTag = (income: any) => {
+    if (income.status === 'paid') {
+      return { label: 'Pago', color: 'bg-green-600' };
+    }
+    // Se está pendente e a data de referência é anterior ao mês atual, está em atraso
+    const refDate = new Date(income.date);
+    const now = new Date();
+    if (
+      income.status === 'pending' &&
+      (refDate.getFullYear() < now.getFullYear() ||
+        (refDate.getFullYear() === now.getFullYear() && refDate.getMonth() < now.getMonth()))
+    ) {
+      return { label: 'Em atraso', color: 'bg-red-600' };
+    }
+    return { label: 'Em aberto', color: 'bg-yellow-600' };
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -113,9 +131,9 @@ export default function Financial() {
             <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes e avulsas</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setStatusFilter('all')} className={statusFilter === 'all' ? 'bg-goat-purple text-white' : ''} size="sm">Todos</Button>
-            <Button onClick={() => setStatusFilter('pending')} className={statusFilter === 'pending' ? 'bg-yellow-600 text-white' : ''} size="sm">Em Aberto</Button>
-            <Button onClick={() => setStatusFilter('paid')} className={statusFilter === 'paid' ? 'bg-green-600 text-white' : ''} size="sm">Pagos</Button>
+            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
+            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
+            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
           </div>
         </div>
         {incomesLoading ? (
@@ -124,45 +142,46 @@ export default function Financial() {
           <div className="p-12 text-center text-goat-gray-400">Nenhum lançamento encontrado</div>
         ) : (
           <div className="space-y-3 p-6">
-            {filteredIncomes.map((income: any) => (
-              <div key={income.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                  <div>
-                    <h4 className="text-white font-medium mb-1">{income.description}</h4>
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${income.status === 'paid' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}`}>
-                      {income.status === 'paid' ? 'Pago' : 'Em aberto'}
-                    </span>
+            {filteredIncomes.map((income: any) => {
+              const statusTag = getStatusTag(income);
+              return (
+                <div key={income.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                  <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-1">{income.description}</h4>
+                      <span className={`px-3 py-1 rounded text-xs font-bold ${statusTag.color} text-white`}>{statusTag.label}</span>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-xs mb-1">Valor</p>
+                      <p className="text-white font-semibold text-lg">{formatCurrency(Number(income.amount))}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-xs mb-1">Referência</p>
+                      <p className="text-white text-base">{formatReference(income.date)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-xs mb-1">Data de Pagamento</p>
+                      <p className="text-white text-base">{income.status === 'paid' ? new Date(income.date).toLocaleDateString('pt-BR') : '-'}</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Referência</p>
-                    <p className="text-white">{formatReference(income.date)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
-                    <p className="text-white">{income.status === 'paid' ? new Date(income.date).toLocaleDateString('pt-BR') : '-'}</p>
+                  <div className="ml-4 flex items-center">
+                    {(statusTag.label === 'Em aberto' || statusTag.label === 'Em atraso') && (
+                      <Button
+                        onClick={() => markAsPaid({ contractId: income.client_id, amount: income.amount, description: income.description, contract: { id: income.client_id, end_date: income.end_date, status: 'active' } })}
+                        disabled={isMarkingAsPaid}
+                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-6"
+                        size="sm"
+                      >
+                        {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
+                      </Button>
+                    )}
+                    {statusTag.label === 'Pago' && (
+                      <Button disabled size="sm" className="bg-green-600 text-white font-bold px-6">Pago</Button>
+                    )}
                   </div>
                 </div>
-                <div className="ml-4">
-                  {income.status === 'pending' && (
-                    <Button
-                      onClick={() => markAsPaid({ contractId: income.client_id, amount: income.amount, description: income.description, contract: { id: income.client_id, end_date: income.end_date, status: 'active' } })}
-                      disabled={isMarkingAsPaid}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      size="sm"
-                    >
-                      {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
-                    </Button>
-                  )}
-                  {income.status === 'paid' && (
-                    <Button disabled size="sm" className="bg-green-600 text-white">Pago</Button>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
