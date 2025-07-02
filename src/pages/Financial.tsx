@@ -221,6 +221,10 @@ export default function Financial() {
     })
     .filter(Boolean);
 
+  // Separar lançamentos em atraso dos demais
+  const overdueIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
+  const normalIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
+
   useEffect(() => {
     const onFocus = () => {
       refetch();
@@ -240,6 +244,46 @@ export default function Financial() {
 
       <FinancialKPIs transactions={transactions} />
 
+      {/* Pagamentos em Atraso */}
+      {overdueIncomes.length > 0 && (
+        <Card className="bg-red-950 border-red-700 mb-6">
+          <div className="p-6 border-b border-red-700 flex items-center gap-2">
+            <AlertCircle className="text-red-400 mr-2" />
+            <h3 className="text-lg font-semibold text-red-200">Pagamentos em Atraso</h3>
+          </div>
+          <div className="p-6">
+            {overdueIncomes.map((income, idx) => (
+              <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
+                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                  <div>
+                    <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
+                    <div className="mt-1">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white">Em atraso</span>
+                    </div>
+                    <p className="text-red-200 text-xs mt-2">Cliente comunicou dificuldade financeira</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-red-200 text-sm">Valor</p>
+                    <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-red-200 text-sm">Referência</p>
+                    <p className="text-white">{formatReference(income.date)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-red-200 text-sm">Data de Pagamento</p>
+                    <p className="text-white">-</p>
+                  </div>
+                  <div className="flex justify-center">
+                    <Button className="border border-red-400 text-red-400 bg-transparent hover:bg-red-900" size="sm">Contatar Cliente</Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       {/* Lançamentos Financeiros */}
       <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
@@ -249,14 +293,14 @@ export default function Financial() {
           </div>
         </div>
         <div className="p-6">
-          {nextIncomes.length === 0 ? (
+          {normalIncomes.length === 0 ? (
             <div className="text-center py-8">
               <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
               <p className="text-goat-gray-400">Nenhum lançamento encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {nextIncomes.map((income, idx) => {
+              {normalIncomes.map((income, idx) => {
                 const statusTag = getStatusTag(income);
                 return (
                   <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
@@ -265,7 +309,7 @@ export default function Financial() {
                         <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
                         <div className="mt-1">
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${statusTag.color} text-white`}>
-                            {income.isPredicted ? 'Previsto' : statusTag.label}
+                            {statusTag.label}
                           </span>
                         </div>
                       </div>
