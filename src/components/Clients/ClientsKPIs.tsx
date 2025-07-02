@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Building2, Calendar, UserX } from "lucide-react";
 
 interface Client {
-  id: number;
+  id: string;
   company: string;
   cnpj: string;
   responsible: string;

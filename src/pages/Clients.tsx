@@ -28,25 +28,8 @@ interface ClientData {
   monthlyValue?: number;
 }
 
-// Interface para componentes que esperam formato específico
+// Interface for components that expect specific format
 interface ClientForComponent {
-  id: string;
-  company: string;
-  cnpj: string;
-  responsible: string;
-  phone: string;
-  email: string;
-  contractEnd: string;
-  paymentDay: number;
-  tags: string[];
-  address: string;
-  plan: string;
-  startDate: string;
-  planColor?: string;
-}
-
-// Interface para KPIs
-interface ClientForKPIs {
   id: string;
   company: string;
   cnpj: string;
@@ -168,9 +151,20 @@ export default function Clients() {
     planColor: planColors[client.plan || ''] || undefined,
   }));
 
-  // Transform for KPIs - same format but explicit typing
-  const clientsForKPIs: ClientForKPIs[] = transformedClients.map(client => ({
-    ...client
+  // Transform for KPIs - same structure but simplified
+  const clientsForKPIs = transformedClients.map(client => ({
+    id: client.id,
+    company: client.company,
+    cnpj: client.cnpj,
+    responsible: client.responsible,
+    phone: client.phone,
+    email: client.email,
+    contractEnd: client.contractEnd,
+    paymentDay: client.paymentDay,
+    tags: client.tags,
+    address: client.address,
+    plan: client.plan,
+    startDate: client.startDate,
   }));
 
   const filteredClients = transformedClients.filter(client => {
