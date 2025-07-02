@@ -40,31 +40,31 @@ export default function Financial() {
 
   const contractProjections = contracts
     .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
-    .flatMap(contract => {
+    .map(contract => {
       const start = new Date(contract.start_date);
       const end = new Date(contract.end_date);
       const paymentDay = Number(contract.client.payment_day);
+      // Calcula a data do primeiro pagamento
       let firstPaymentDate = new Date(start);
       if (start.getDate() >= paymentDay) {
         firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
       }
-      // Montar todas as datas de pagamento mês a mês
-      const projections = [];
+      // Calcula a quantidade de pagamentos (duração em meses)
+      let durationInMonths = 0;
       let paymentDate = new Date(firstPaymentDate);
       while (paymentDate <= end) {
-        // Só soma se o pagamento do mês não ultrapassa a data de término do contrato
+        // Só conta se o pagamento do mês não ultrapassa a data de término do contrato
         if (paymentDate <= end) {
-          projections.push({
-            clientId: contract.client_id,
-            clientName: contract.client?.company || 'Cliente não encontrado',
-            monthlyValue: Number(contract.monthly_value),
-            monthKey: `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`,
-          });
+          durationInMonths++;
         }
-        // Próximo mês
         paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
       }
-      return projections;
+      return {
+        clientName: contract.client.company || 'Cliente não encontrado',
+        monthlyValue: Number(contract.monthly_value),
+        durationInMonths,
+        startMonth: `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`,
+      };
     });
 
   const handleAddExpense = (expenseData: any) => {
