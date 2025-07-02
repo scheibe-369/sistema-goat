@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
@@ -64,6 +63,23 @@ export const useExpenses = () => {
   const createExpenseMutation = useMutation({
     mutationFn: async (expenseData: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user?.id) throw new Error('User not authenticated');
+
+      // Validação extra dos campos obrigatórios
+      if (!expenseData.description || typeof expenseData.description !== 'string') {
+        throw new Error('Descrição obrigatória.');
+      }
+      if (typeof expenseData.amount !== 'number' || isNaN(expenseData.amount) || expenseData.amount <= 0) {
+        throw new Error('Valor da despesa deve ser um número maior que zero.');
+      }
+      if (!expenseData.category || typeof expenseData.category !== 'string') {
+        throw new Error('Categoria obrigatória.');
+      }
+      if (!expenseData.date || !/^\d{4}-\d{2}-\d{2}$/.test(expenseData.date)) {
+        throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD.');
+      }
+      if (!expenseData.status) {
+        throw new Error('Status obrigatório.');
+      }
 
       const { data, error } = await supabase
         .from('finances')
