@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,53 +44,8 @@ export default function Conversations() {
   });
   const { toast } = useToast();
 
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: 1,
-      client: "Tech Solutions LTDA",
-      phone: "+55 11 99999-9999",
-      lastMessage: "Olá, gostaria de saber mais sobre os serviços",
-      time: "10:30",
-      unread: 2,
-      tag: "Lead",
-      direction: "inbound",
-      stage: "Sem atendimento",
-      messages: [
-        { id: 1, text: "Olá, gostaria de saber mais sobre os serviços", time: "10:30", sender: "client" },
-        { id: 2, text: "Olá! Claro, vou te explicar sobre nossos serviços.", time: "10:32", sender: "user" }
-      ]
-    },
-    {
-      id: 2,
-      client: "Marketing Digital Pro",
-      phone: "+55 11 88888-8888",
-      lastMessage: "Perfeito, vamos agendar a reunião",
-      time: "09:15",
-      unread: 0,
-      tag: "Cliente",
-      direction: "outbound",
-      stage: "Em atendimento",
-      messages: [
-        { id: 1, text: "Boa tarde! Como está o projeto?", time: "09:10", sender: "user" },
-        { id: 2, text: "Está indo muito bem! Já temos os primeiros resultados.", time: "09:12", sender: "client" },
-        { id: 3, text: "Perfeito, vamos agendar a reunião", time: "09:15", sender: "client" }
-      ]
-    },
-    {
-      id: 3,
-      client: "Startup XYZ",
-      phone: "+55 11 77777-7777",
-      lastMessage: "Quando podemos conversar sobre o projeto?",
-      time: "Ontem",
-      unread: 1,
-      tag: "Lead",
-      direction: "inbound",
-      stage: "Reunião agendada",
-      messages: [
-        { id: 1, text: "Quando podemos conversar sobre o projeto?", time: "Ontem", sender: "client" }
-      ]
-    }
-  ]);
+  // Start with empty conversations - only real data from database
+  const [conversations, setConversations] = useState<Conversation[]>([]);
 
   const handleNewConversation = (client: string, phone: string) => {
     const newConversation: Conversation = {
@@ -137,32 +93,6 @@ export default function Conversations() {
       toast({
         title: "Mensagem enviada",
         description: "Sua mensagem foi enviada com sucesso",
-      });
-
-      setTimeout(() => {
-        simulateClientResponse(selectedConversation.id);
-      }, Math.random() * 3000 + 2000);
-    }
-  };
-
-  const simulateClientResponse = (conversationId: number) => {
-    const responses = ["Obrigado pela informação!", "Entendi, vou analisar isso.", "Perfeito, faz sentido."];
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    const currentTime = getCurrentTime();
-
-    setConversations(prev => prev.map(conv => {
-      if (conv.id === conversationId) {
-        const newMsg: Message = { id: conv.messages.length + 1, text: randomResponse, time: currentTime, sender: "client" };
-        return { ...conv, lastMessage: randomResponse, time: currentTime, messages: [...conv.messages, newMsg], unread: selectedConversation?.id === conversationId ? 0 : conv.unread + 1 };
-      }
-      return conv;
-    }));
-
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation(prev => {
-        if (!prev) return null;
-        const newMsg: Message = { id: prev.messages.length + 1, text: randomResponse, time: currentTime, sender: "client" };
-        return { ...prev, lastMessage: randomResponse, time: currentTime, messages: [...prev.messages, newMsg] };
       });
     }
   };
@@ -219,30 +149,44 @@ export default function Conversations() {
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
             </div>
-            <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {filteredConversations.map((conversation) => (
-                <div key={conversation.id} onClick={() => setSelectedConversation(conversation)} className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedConversation?.id === conversation.id ? 'bg-goat-purple/20 border-goat-purple/50' : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'}`}>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-medium text-sm truncate">{conversation.client}</h4>
-                      <p className="text-goat-gray-400 text-xs flex items-center gap-1"><Phone className="w-3 h-3 flex-shrink-0" /> {conversation.phone}</p>
+            
+            {filteredConversations.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+                <p className="text-goat-gray-400 mb-4">Nenhuma conversa encontrada</p>
+                <Button 
+                  onClick={() => setIsNewConversationModalOpen(true)}
+                  className="btn-primary"
+                >
+                  Iniciar Nova Conversa
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                {filteredConversations.map((conversation) => (
+                  <div key={conversation.id} onClick={() => setSelectedConversation(conversation)} className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedConversation?.id === conversation.id ? 'bg-goat-purple/20 border-goat-purple/50' : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'}`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-white font-medium text-sm truncate">{conversation.client}</h4>
+                        <p className="text-goat-gray-400 text-xs flex items-center gap-1"><Phone className="w-3 h-3 flex-shrink-0" /> {conversation.phone}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <Badge variant={conversation.tag === "Cliente" ? "default" : "secondary"} className={`text-xs ${conversation.tag === "Cliente" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-goat-gray-300"}`}>{conversation.tag}</Badge>
+                        {conversation.unread > 0 && (<Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">{conversation.unread}</Badge>)}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                      <Badge variant={conversation.tag === "Cliente" ? "default" : "secondary"} className={`text-xs ${conversation.tag === "Cliente" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-goat-gray-300"}`}>{conversation.tag}</Badge>
-                      {conversation.unread > 0 && (<Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">{conversation.unread}</Badge>)}
+                    <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">{conversation.lastMessage}</p>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
+                        <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">{conversation.stage}</Badge>
+                      </div>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"}`} />
                     </div>
                   </div>
-                  <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">{conversation.lastMessage}</p>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
-                      <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">{conversation.stage}</Badge>
-                    </div>
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"}`} />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 

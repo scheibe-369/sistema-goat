@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
+import { useContracts, useDeleteContract } from "@/hooks/useContracts";
 
 interface Contract {
   id: string;
@@ -17,49 +19,22 @@ interface Contract {
   status: 'active' | 'inactive' | 'expiring';
 }
 
-const mockContracts: Contract[] = [
-  {
-    id: '1',
-    client: 'Tech Innovations',
-    type: 'Marketing Digital Completo',
-    monthlyValue: 5000,
-    startDate: '2024-01-01',
-    endDate: '2026-12-31',
-    status: 'active'
-  },
-  {
-    id: '2',
-    client: 'E-commerce Plus',
-    type: 'Gestão de Redes Sociais',
-    monthlyValue: 3000,
-    startDate: '2023-06-01',
-    endDate: '2024-06-30',
-    status: 'expiring'
-  },
-  {
-    id: '3',
-    client: 'Startup XYZ',
-    type: 'Consultoria Estratégica',
-    monthlyValue: 8000,
-    startDate: '2024-02-01',
-    endDate: '2025-01-31',
-    status: 'active'
-  },
-  {
-    id: '4',
-    client: 'Consultoria Pro',
-    type: 'Branding e Identidade',
-    monthlyValue: 4500,
-    startDate: '2023-01-01',
-    endDate: '2023-12-31',
-    status: 'inactive'
-  }
-];
-
 export default function Contracts() {
-  const [contracts, setContracts] = useState<Contract[]>(mockContracts);
+  const { data: contractsData = [], isLoading, error } = useContracts();
+  const deleteContractMutation = useDeleteContract();
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [deletingContract, setDeletingContract] = useState<Contract | null>(null);
+
+  // Transform Supabase contracts to component format
+  const contracts: Contract[] = contractsData.map(contract => ({
+    id: contract.id,
+    client: contract.client?.company || 'Cliente não encontrado',
+    type: contract.type,
+    monthlyValue: Number(contract.monthly_value),
+    startDate: contract.start_date,
+    endDate: contract.end_date,
+    status: contract.status as 'active' | 'inactive' | 'expiring'
+  }));
 
   const getStatusBadge = (status: Contract['status']) => {
     switch (status) {
@@ -97,25 +72,49 @@ export default function Contracts() {
 
   const handleEditContract = (contractData: Omit<Contract, 'id'>) => {
     if (editingContract) {
-      setContracts(contracts.map(contract => 
-        contract.id === editingContract.id 
-          ? { ...contractData, id: editingContract.id }
-          : contract
-      ));
+      // This would update the contract via mutation
       setEditingContract(null);
     }
   };
 
-  const handleConfirmCancel = () => {
+  const handleConfirmCancel = async () => {
     if (deletingContract) {
-      setContracts(contracts.filter(contract => contract.id !== deletingContract.id));
-      setDeletingContract(null);
+      try {
+        await deleteContractMutation.mutateAsync(deletingContract.id);
+        setDeletingContract(null);
+      } catch (error) {
+        console.error('Error deleting contract:', error);
+      }
     }
   };
 
   const activeContracts = contracts.filter(c => c.status === 'active');
   const expiringContracts = contracts.filter(c => c.status === 'expiring');
   const inactiveContracts = contracts.filter(c => c.status === 'inactive');
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="h-8 bg-goat-gray-700 rounded animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 bg-goat-gray-700 rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="h-40 bg-goat-gray-700 rounded animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center py-12">
+          <p className="text-red-400">Erro ao carregar contratos: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -174,12 +173,12 @@ export default function Contracts() {
                     <p className="text-white text-sm opacity-80">{contract.type}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</p>
-                    <p className="text-white text-sm opacity-80">Valor mensal</p>
+                    <p className="text-red-300 text-sm">Valor</p>
+                    <p className="text-red-400 font-semibold">{formatCurrency(contract.monthlyValue)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-white font-semibold">{formatDate(contract.endDate)}</p>
-                    <p className="text-white text-sm opacity-80">Data de vencimento</p>
+                    <p className="text-red-300 text-sm">Data de vencimento</p>
+                    <p className="text-white">{formatDate(contract.endDate)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-white font-semibold">
@@ -200,47 +199,56 @@ export default function Contracts() {
           <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
           <p className="text-goat-gray-400 text-sm mt-1">Contratos são criados automaticamente a partir dos clientes</p>
         </div>
-        <div className="divide-y divide-goat-gray-700">
-          {contracts.map((contract) => (
-            <div key={contract.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-lg font-semibold text-white">{contract.client}</h4>
-                    {getStatusBadge(contract.status)}
+        
+        {contracts.length === 0 ? (
+          <div className="p-12 text-center">
+            <FileText className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">Nenhum contrato encontrado</h3>
+            <p className="text-goat-gray-400">Contratos são criados automaticamente quando você cadastra clientes com valores mensais.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-goat-gray-700">
+            {contracts.map((contract) => (
+              <div key={contract.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-lg font-semibold text-white">{contract.client}</h4>
+                      {getStatusBadge(contract.status)}
+                    </div>
+                    <p className="text-goat-gray-400 mb-3">{contract.type}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-goat-purple" />
+                        <span className="text-goat-gray-400">Valor mensal:</span>
+                        <span className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-goat-purple" />
+                        <span className="text-goat-gray-400">Início:</span>
+                        <span className="text-white">{formatDate(contract.startDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-goat-purple" />
+                        <span className="text-goat-gray-400">Término:</span>
+                        <span className="text-white">{formatDate(contract.endDate)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-goat-gray-400 mb-3">{contract.type}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-goat-purple" />
-                      <span className="text-goat-gray-400">Valor mensal:</span>
-                      <span className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-goat-purple" />
-                      <span className="text-goat-gray-400">Início:</span>
-                      <span className="text-white">{formatDate(contract.startDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-goat-purple" />
-                      <span className="text-goat-gray-400">Término:</span>
-                      <span className="text-white">{formatDate(contract.endDate)}</span>
-                    </div>
+                  <div className="flex items-center gap-2 ml-6">
+                    <Button
+                      size="sm"
+                      onClick={() => setDeletingContract(contract)}
+                      className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200"
+                    >
+                      Cancelar
+                    </Button>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 ml-6">
-                  <Button
-                    size="sm"
-                    onClick={() => setDeletingContract(contract)}
-                    className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200"
-                  >
-                    Cancelar
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       {/* Modals */}
