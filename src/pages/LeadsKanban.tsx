@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,18 +11,7 @@ import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface Lead {
-  id: string;
-  name: string;
-  company: string;
-  phone: string;
-  email?: string;
-  group?: string;
-  lastUpdate: string;
-  value?: string;
-  stage: string;
-}
+import { useLeads, Lead } from "@/hooks/useLeads";
 
 interface Tag {
   id: string;
@@ -33,23 +23,23 @@ interface Stage {
   id: string;
   name: string;
   color: string;
-  leads: Lead[];
 }
+
+// Stages predefinidas
+const DEFAULT_STAGES: Stage[] = [
+  { id: 'Sem atendimento', name: 'Sem atendimento', color: 'bg-gray-500' },
+  { id: 'Em atendimento', name: 'Em atendimento', color: 'bg-yellow-500' },
+  { id: 'Reunião agendada', name: 'Reunião agendada', color: 'bg-blue-500' },
+  { id: 'Proposta enviada', name: 'Proposta enviada', color: 'bg-purple-500' },
+  { id: 'Frio', name: 'Frio', color: 'bg-gray-400' }
+];
 
 const defaultTags: Tag[] = [];
 
-// Start with default stages but no leads
-const mockStages: Stage[] = [
-  { id: 'no-service', name: 'Sem atendimento', color: 'bg-gray-500', leads: [] },
-  { id: 'in-service', name: 'Em atendimento', color: 'bg-yellow-500', leads: [] },
-  { id: 'meeting-scheduled', name: 'Reunião agendada', color: 'bg-blue-500', leads: [] },
-  { id: 'proposal-sent', name: 'Proposta enviada', color: 'bg-purple-500', leads: [] },
-  { id: 'cold', name: 'Frio', color: 'bg-gray-400', leads: [] }
-];
-
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
-  const [stages, setStages] = useState(mockStages);
+  const { leads, isLoading, createLead, updateLead, deleteLead } = useLeads();
+  const [stages, setStages] = useState<Stage[]>(DEFAULT_STAGES);
   const [tags, setTags] = useState<Tag[]>(defaultTags);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
@@ -98,6 +88,7 @@ export default function LeadsKanban() {
     }
     document.body.style.cursor = "grabbing";
   };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
     e.preventDefault();
@@ -110,6 +101,7 @@ export default function LeadsKanban() {
     lastMoveX.current = e.pageX;
     lastMoveTime.current = now;
   };
+
   const handleMouseUp = () => {
     setIsDraggingScroll(false);
     document.body.style.cursor = "";
@@ -127,7 +119,6 @@ export default function LeadsKanban() {
     if (Math.abs(momentum) > 1) animate();
   };
 
-  // Touch
   const handleTouchStart = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
     setIsDraggingScroll(true);
@@ -140,6 +131,7 @@ export default function LeadsKanban() {
       momentumRef.current = null;
     }
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
     const x = e.touches[0].pageX - (kanbanRef.current.offsetLeft || 0);
@@ -151,6 +143,7 @@ export default function LeadsKanban() {
     touchLastX.current = e.touches[0].pageX;
     touchLastTime.current = now;
   };
+
   const handleTouchEnd = () => {
     setIsDraggingScroll(false);
 
@@ -178,43 +171,59 @@ export default function LeadsKanban() {
     setIsEditLeadModalOpen(true);
   };
 
-  const handleUpdateLead = (updatedLead: Lead) => {
-    setStages(prev => prev.map(stage => ({
-      ...stage,
-      leads: stage.leads.map(lead =>
-        lead.id === updatedLead.id ? updatedLead : lead
-      )
-    })));
+  const handleUpdateLead = async (updatedLead: Lead) => {
+    try {
+      await updateLead(updatedLead.id, {
+        name: updatedLead.name,
+        company: updatedLead.company,
+        phone: updatedLead.phone,
+        email: updatedLead.email,
+        stage: updatedLead.stage,
+        tags: updatedLead.tags,
+        value: updatedLead.value,
+        notes: updatedLead.notes,
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar lead:', error);
+    }
   };
 
-  const handleDeleteLead = (leadId: string) => {
-    setStages(prev => prev.map(stage => ({
-      ...stage,
-      leads: stage.leads.filter(lead => lead.id !== leadId)
-    })));
+  const handleDeleteLead = async (leadId: string) => {
+    try {
+      await deleteLead(leadId);
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error);
+    }
   };
 
   const handleAddStage = (newStageData: { name: string; color: string }) => {
     const newStage: Stage = {
-      id: `stage-${Date.now()}`,
+      id: newStageData.name,
       name: newStageData.name,
       color: newStageData.color,
-      leads: []
     };
     setStages(prev => [...prev, newStage]);
   };
 
-  const handleAddLead = (newLeadData: Omit<Lead, 'id' | 'lastUpdate'>) => {
-    const newLead: Lead = {
-      ...newLeadData,
-      id: `lead-${Date.now()}`,
-      lastUpdate: new Date().toISOString().split('T')[0]
-    };
-    setStages(prev => prev.map(stage =>
-      stage.id === newLeadData.stage
-        ? { ...stage, leads: [...stage.leads, newLead] }
-        : stage
-    ));
+  const handleAddLead = async (newLeadData: { name: string; company: string; phone: string; email?: string; stage: string; tags?: string[]; value?: number }) => {
+    try {
+      // Converter valor de string para número se necessário
+      const value = typeof newLeadData.value === 'string' 
+        ? parseFloat(newLeadData.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null
+        : newLeadData.value || null;
+
+      await createLead({
+        name: newLeadData.name,
+        company: newLeadData.company,
+        phone: newLeadData.phone,
+        email: newLeadData.email,
+        stage: newLeadData.stage,
+        tags: newLeadData.tags,
+        value: value,
+      });
+    } catch (error) {
+      console.error('Erro ao criar lead:', error);
+    }
   };
 
   const handleEditStage = (stage: Stage) => {
@@ -231,29 +240,50 @@ export default function LeadsKanban() {
     ));
   };
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination } = result;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-    const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
-    const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
-    const newStages = [...stages];
-    const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
-    movedLead.stage = destination.droppableId;
-    newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
-    setStages(newStages);
+
+    // Encontrar o lead sendo movido
+    const sourceStageLeads = getLeadsByStage(source.droppableId);
+    const movedLead = sourceStageLeads[source.index];
+    
+    if (movedLead) {
+      try {
+        await updateLead(movedLead.id, {
+          stage: destination.droppableId
+        });
+      } catch (error) {
+        console.error('Erro ao mover lead:', error);
+      }
+    }
+  };
+
+  const getLeadsByStage = (stageId: string) => {
+    return leads.filter(lead => lead.stage === stageId);
   };
 
   const getFilteredStages = () => {
-    if (activeFilter === 'all') return stages;
     return stages.map(stage => ({
       ...stage,
-      leads: stage.leads.filter(lead => lead.group === activeFilter)
+      leads: getLeadsByStage(stage.id).filter(lead => {
+        if (activeFilter === 'all') return true;
+        return lead.tags?.includes(activeFilter);
+      })
     }));
   };
-  const filteredStages = getFilteredStages();
 
-  const totalLeads = stages.reduce((total, stage) => total + stage.leads.length, 0);
+  const filteredStages = getFilteredStages();
+  const totalLeads = leads.length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-goat-dark flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
@@ -419,15 +449,21 @@ export default function LeadsKanban() {
                                   <div className="flex items-start justify-between">
                                     <h4 className="font-medium text-white text-sm">{lead.name}</h4>
                                   </div>
-                                  <p className="text-goat-gray-300 text-xs">{lead.company}</p>
-                                  <p className="text-goat-gray-400 text-xs">{lead.phone}</p>
+                                  {lead.company && <p className="text-goat-gray-300 text-xs">{lead.company}</p>}
+                                  {lead.phone && <p className="text-goat-gray-400 text-xs">{lead.phone}</p>}
                                   {lead.value && (
-                                    <p className="text-goat-purple font-semibold text-sm">{lead.value}</p>
+                                    <p className="text-goat-purple font-semibold text-sm">
+                                      R$ {lead.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                    </p>
                                   )}
-                                  {lead.group && (
-                                    <Badge className={`text-xs ${getGroupColor(lead.group)}`}>
-                                      {lead.group}
-                                    </Badge>
+                                  {lead.tags && lead.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1">
+                                      {lead.tags.map((tag, tagIndex) => (
+                                        <Badge key={tagIndex} className={`text-xs ${getGroupColor(tag)}`}>
+                                          {tag}
+                                        </Badge>
+                                      ))}
+                                    </div>
                                   )}
                                 </div>
                               </div>

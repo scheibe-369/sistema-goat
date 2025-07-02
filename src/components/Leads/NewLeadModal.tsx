@@ -11,57 +11,72 @@ interface Tag {
   name: string;
   color: string;
 }
+
 interface Stage {
   id: string;
   name: string;
   color: string;
 }
-interface Lead {
-  name: string;
-  company: string;
-  phone: string;
-  email?: string;
-  group?: string;
-  value?: string;
-  stage: string;
-}
+
 interface NewLeadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tags: Tag[];
   stages: Stage[];
-  onAddLead: (lead: Lead) => void;
+  onAddLead: (lead: {
+    name: string;
+    company: string;
+    phone: string;
+    email?: string;
+    stage: string;
+    tags?: string[];
+    value?: number;
+  }) => void;
 }
 
 export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
-  const [formData, setFormData] = useState<Lead>({
+  const [formData, setFormData] = useState({
     name: "",
     company: "",
     phone: "",
     email: "",
-    group: "",
-    value: "",
     stage: "",
+    tags: [] as string[],
+    value: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.company || !formData.phone || !formData.stage) return;
-    onAddLead(formData);
+
+    // Converter valor monetário
+    const value = formData.value 
+      ? parseFloat(formData.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || undefined
+      : undefined;
+
+    onAddLead({
+      name: formData.name,
+      company: formData.company,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      stage: formData.stage,
+      tags: formData.tags.length > 0 ? formData.tags : undefined,
+      value: value,
+    });
+
     setFormData({
       name: "",
       company: "",
       phone: "",
       email: "",
-      group: "",
-      value: "",
       stage: "",
+      tags: [],
+      value: "",
     });
     onOpenChange(false);
   };
 
   const formatCurrency = (value: string) => {
-    // Remove tudo que não é número
     const numbers = value.replace(/\D/g, "");
     if (!numbers) return "";
     const amount = parseInt(numbers) / 100;
@@ -76,7 +91,6 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     setFormData(prev => ({ ...prev, value: formatted }));
   };
 
-  // Helper para renderizar trigger com bolinha e texto (valor selecionado)
   const getStageSelected = () => {
     const selected = stages.find(s => s.id === formData.stage);
     if (!selected) return <span className="text-white">Selecione uma etapa</span>;
@@ -88,15 +102,13 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     );
   };
 
-  const getTagSelected = () => {
-    const selected = tags.find(t => t.name === formData.group);
-    if (!selected) return <span className="text-white">Selecione uma tag</span>;
-    return (
-      <span className="flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
-        {selected.name}
-      </span>
-    );
+  const handleTagToggle = (tagName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tagName)
+        ? prev.tags.filter(t => t !== tagName)
+        : [...prev.tags, tagName]
+    }));
   };
 
   return (
@@ -136,7 +148,6 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               required
             />
           </div>
-          {/* Select Etapa */}
           <div>
             <Label htmlFor="stage" className="text-white">Etapa *</Label>
             <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
@@ -145,10 +156,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectTrigger>
               <SelectContent>
                 {stages.map(stage => (
-                  <SelectItem
-                    key={stage.id}
-                    value={stage.id}
-                  >
+                  <SelectItem key={stage.id} value={stage.id}>
                     <span className="flex items-center gap-2">
                       <span className={`w-3 h-3 rounded-full ${stage.color}`} />
                       <span className="whitespace-nowrap">{stage.name}</span>
@@ -168,27 +176,27 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
-          {/* Select Tag */}
           <div>
-            <Label htmlFor="group" className="text-white">Tag (opcional)</Label>
-            <Select value={formData.group} onValueChange={value => setFormData(prev => ({ ...prev, group: value }))}>
-              <SelectTrigger>
-                <SelectValue>{getTagSelected()}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {tags.map(tag => (
-                  <SelectItem
-                    key={tag.id}
-                    value={tag.name}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${tag.color}`} />
-                      <span className="whitespace-nowrap">{tag.name}</span>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-white">Tags (opcional)</Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map(tag => (
+                <Button
+                  key={tag.id}
+                  type="button"
+                  size="sm"
+                  variant={formData.tags.includes(tag.name) ? "default" : "outline"}
+                  className={`text-xs ${
+                    formData.tags.includes(tag.name) 
+                      ? `${tag.color} text-white` 
+                      : 'text-white border-goat-gray-600'
+                  }`}
+                  onClick={() => handleTagToggle(tag.name)}
+                >
+                  <span className={`w-2 h-2 rounded-full ${tag.color} mr-1`}></span>
+                  {tag.name}
+                </Button>
+              ))}
+            </div>
           </div>
           <div>
             <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
