@@ -48,6 +48,10 @@ export default function Financial() {
   const handleAddExpense = (expenseData: any) => {
     const amount = typeof expenseData.value === 'number' ? expenseData.value :
       (typeof expenseData.value === 'string' ? parseFloat(expenseData.value.replace(',', '.')) : 0);
+    if (!expenseData.description || !amount || isNaN(amount) || !expenseData.category || !expenseData.date) {
+      alert('Preencha todos os campos obrigatórios: descrição, valor, categoria e data.');
+      return;
+    }
     const expense = {
       description: expenseData.description,
       amount,
@@ -133,133 +137,4 @@ export default function Financial() {
           </div>
           <div className="flex gap-2">
             <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
-            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
-          </div>
-        </div>
-        {incomesLoading ? (
-          <div className="p-12 text-center text-goat-gray-400">Carregando lançamentos...</div>
-        ) : filteredIncomes.length === 0 ? (
-          <div className="p-12 text-center text-goat-gray-400">Nenhum lançamento encontrado</div>
-        ) : (
-          <div className="space-y-3 p-6">
-            {filteredIncomes.map((income: any) => {
-              const statusTag = getStatusTag(income);
-              return (
-                <div key={income.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                  <div className="flex-1 grid grid-cols-4 gap-4 items-center">
-                    <div>
-                      <h4 className="text-white font-bold text-lg mb-1">{income.description}</h4>
-                      <span className={`px-3 py-1 rounded text-xs font-bold ${statusTag.color} text-white`}>{statusTag.label}</span>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-xs mb-1">Valor</p>
-                      <p className="text-white font-semibold text-lg">{formatCurrency(Number(income.amount))}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-xs mb-1">Referência</p>
-                      <p className="text-white text-base">{formatReference(income.date)}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-goat-gray-400 text-xs mb-1">Data de Pagamento</p>
-                      <p className="text-white text-base">{income.status === 'paid' ? new Date(income.date).toLocaleDateString('pt-BR') : '-'}</p>
-                    </div>
-                  </div>
-                  <div className="ml-4 flex items-center">
-                    {(statusTag.label === 'Em aberto' || statusTag.label === 'Em atraso') && (
-                      <Button
-                        onClick={() => markAsPaid({ contractId: income.client_id, amount: income.amount, description: income.description, contract: { id: income.client_id, end_date: income.end_date, status: 'active' } })}
-                        disabled={isMarkingAsPaid}
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold px-6"
-                        size="sm"
-                      >
-                        {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
-                      </Button>
-                    )}
-                    {statusTag.label === 'Pago' && (
-                      <Button disabled size="sm" className="bg-green-600 text-white font-bold px-6">Pago</Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
-
-      {/* Expenses */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-white">Despesas</h3>
-          </div>
-          <ExpenseModal onAddExpense={handleAddExpense} />
-        </div>
-        
-        {expensesLoading ? (
-          <div className="text-center py-8">
-            <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-goat-gray-400">Carregando despesas...</p>
-          </div>
-        ) : expenses.length === 0 ? (
-          <div className="text-center py-8">
-            <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-            <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {expenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                <div className="flex-1 grid grid-cols-4 gap-4 items-center">
-                  <div>
-                    <h4 className="text-white font-medium mb-1">{expense.description}</h4>
-                    <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white`}>
-                      {expense.status === 'paid' ? 'Pago' : 'Pendente'}
-                    </Badge>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(expense.amount))}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Categoria</p>
-                    <p className="text-white">{expense.category}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Data</p>
-                    <p className="text-white">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  {expense.status === 'pending' && (
-                    <Button
-                      onClick={() => handlePayExpense(expense.id)}
-                      disabled={isPaying}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      size="sm"
-                    >
-                      {isPaying ? 'Pagando...' : 'Pagar'}
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => handleDeleteExpense(expense.id)}
-                    disabled={isDeleting}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    size="sm"
-                  >
-                    {isDeleting ? 'Excluindo...' : 'Excluir'}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {/* Projection Chart */}
-      {contractProjections.length > 0 && (
-        <ProjectionChart contracts={contractProjections} />
-      )}
-    </div>
-  );
-}
+            <Button onClick={() => setStatusFilter('pending')} className={`
