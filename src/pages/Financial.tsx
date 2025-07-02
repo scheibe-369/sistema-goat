@@ -145,6 +145,37 @@ export default function Financial() {
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
 
+  // Gerar lançamentos futuros previstos dos contratos para os próximos 12 meses
+  const today = new Date();
+  const futureIncomes = contracts
+    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
+    .flatMap(contract => {
+      const start = new Date(contract.start_date);
+      const end = new Date(contract.end_date);
+      const paymentDay = Number(contract.client.payment_day);
+      let firstPaymentDate = new Date(start);
+      if (start.getDate() >= paymentDay) {
+        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+      }
+      const launches = [];
+      let paymentDate = new Date(firstPaymentDate);
+      let count = 0;
+      while (paymentDate <= end && count < 12) {
+        if (paymentDate >= today && paymentDate <= end) {
+          launches.push({
+            clientName: contract.client.company || 'Cliente não encontrado',
+            value: Number(contract.monthly_value),
+            date: new Date(paymentDate),
+            status: 'previsto',
+          });
+          count++;
+        }
+        paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      }
+      return launches;
+    })
+    .sort((a, b) => a.date - b.date);
+
   useEffect(() => {
     const onFocus = () => {
       refetch();
@@ -169,13 +200,41 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes e avulsas</p>
+            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes previstas dos contratos</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
-            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
-          </div>
+        </div>
+        <div className="p-6">
+          {futureIncomes.length === 0 ? (
+            <div className="text-center py-8">
+              <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+              <p className="text-goat-gray-400">Nenhum lançamento futuro previsto</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {futureIncomes.map((income, idx) => (
+                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                  <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                    <div>
+                      <h4 className="text-white font-medium mb-1">{income.clientName}</h4>
+                      <Badge className="bg-blue-600 text-white">Previsto</Badge>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-sm">Valor</p>
+                      <p className="text-white font-semibold">{formatCurrency(Number(income.value))}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-sm">Data Prevista</p>
+                      <p className="text-white">{income.date.toLocaleDateString('pt-BR')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-goat-gray-400 text-sm">Status</p>
+                      <p className="text-white">Previsto</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </Card>
 
