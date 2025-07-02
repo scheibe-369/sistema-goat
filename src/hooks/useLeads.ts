@@ -36,9 +36,15 @@ export function useLeads() {
   // Carregar leads do banco
   const fetchLeads = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+
       const { data, error } = await supabase
         .from('leads')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -58,9 +64,15 @@ export function useLeads() {
   // Criar novo lead
   const createLead = async (leadData: LeadInput) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+
       const { data, error } = await supabase
         .from('leads')
-        .insert([{
+        .insert({
+          user_id: user.id,
           name: leadData.name,
           company: leadData.company,
           phone: leadData.phone,
@@ -69,7 +81,7 @@ export function useLeads() {
           tags: leadData.tags || [],
           value: leadData.value || null,
           notes: leadData.notes || null,
-        }])
+        })
         .select()
         .single();
 
