@@ -46,17 +46,18 @@ export default function Financial() {
   }));
 
   const handleAddExpense = (expenseData: any) => {
+    const amount = typeof expenseData.value === 'number' ? expenseData.value :
+      (typeof expenseData.value === 'string' ? parseFloat(expenseData.value.replace(',', '.')) : 0);
     const expense = {
       description: expenseData.description,
-      amount: expenseData.value,
+      amount,
       category: expenseData.category,
       date: expenseData.date,
       status: 'pending',
       type: 'expense',
-      is_recurring: expenseData.is_recurring,
-      recurrence_type: expenseData.recurrence_type
+      is_recurring: expenseData.is_recurring ?? expenseData.isRecurring ?? false,
+      recurrence_type: expenseData.recurrence_type ?? expenseData.recurrence
     };
-    
     createExpense(expense);
   };
 
