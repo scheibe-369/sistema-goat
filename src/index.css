@@ -367,3 +367,36 @@
   scrollbar-width: thin;           /* "auto" ou "thin" */
   scrollbar-color: #6829c0 #171717; /* thumb, track */
 }
+/* ===============================================
+   ✅ Corrige Toast/Notificações/Alertas do sistema para tema GOAT
+   =============================================== */
+
+/* Genérico para qualquer toast/alert do sistema */
+.toast, .toast-success, .notification, .notification-success, .alert-success, .alert, .system-message,
+[data-state="success"], [data-state="open"].bg-yellow-400, [data-type="success"], .Toastify__toast--success {
+  background-color: #18181b !important;      /* Fundo escuro GOAT */
+  color: #fff !important;                    /* Texto branco */
+  border: 1px solid #6829c0 !important;      /* Borda roxa GOAT */
+  box-shadow: 0 4px 18px 0 #00000040 !important;
+}
+
+/* Para texto dentro de toasts, caso haja */
+.toast strong, .notification strong, .alert strong {
+  color: #fff !important;
+}
+
+/* Remove qualquer cor amarela que venha de libs */
+.toast, .toast-success, .notification-success, .alert-success,
+[data-state="success"], [data-type="success"], .Toastify__toast--success {
+  border-color: #6829c0 !important;
+}
+
+/* Se for o shadcn/ui (Radix), também pegue este caso */
+[data-state="open"].bg-yellow-400,
+[data-state="open"].border-yellow-400,
+.bg-yellow-400,
+.border-yellow-400 {
+  background-color: #18181b !important;
+  border-color: #6829c0 !important;
+  color: #fff !important;
+}
