@@ -25,7 +25,10 @@ interface Stage {
   color: string;
 }
 
-interface StageWithLeads extends Stage {
+interface StageWithLeads {
+  id: string;
+  name: string;
+  color: string;
   leads: Lead[];
 }
 
@@ -271,7 +274,9 @@ export default function LeadsKanban() {
 
   const getFilteredStages = (): StageWithLeads[] => {
     return stages.map(stage => ({
-      ...stage,
+      id: stage.id,
+      name: stage.name,
+      color: stage.color,
       leads: getLeadsByStage(stage.id).filter(lead => {
         if (activeFilter === 'all') return true;
         return lead.tags?.includes(activeFilter);
