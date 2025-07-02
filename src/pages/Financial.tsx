@@ -44,17 +44,14 @@ export default function Financial() {
       const start = new Date(contract.start_date);
       const end = new Date(contract.end_date);
       const paymentDay = Number(contract.client.payment_day);
-      // Calcular o mês do primeiro pagamento
       let firstPaymentDate = new Date(start);
       if (start.getDate() >= paymentDay) {
-        // Começou NO DIA ou DEPOIS do pagamento, só conta no mês seguinte
         firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
       }
-      // O mês de início da projeção é o mês do primeiro pagamento
       const startMonth = `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`;
-      // Calcular a diferença em meses a partir do primeiro pagamento
       const durationInMonths = (end.getFullYear() - firstPaymentDate.getFullYear()) * 12 + (end.getMonth() - firstPaymentDate.getMonth()) + 1;
       return {
+        clientId: contract.client_id,
         clientName: contract.client?.company || 'Cliente não encontrado',
         monthlyValue: Number(contract.monthly_value),
         durationInMonths: Math.max(durationInMonths, 0),

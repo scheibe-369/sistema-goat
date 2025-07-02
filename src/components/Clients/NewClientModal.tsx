@@ -491,6 +491,12 @@ export function NewClientModal({
                     type="text"
                     value={formData.paymentDay}
                     onChange={handlePaymentDayChange}
+                    onFocus={e => {
+                      if (e.target.value) {
+                        e.target.value = '';
+                        setFormData(prev => ({ ...prev, paymentDay: '' }));
+                      }
+                    }}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                     placeholder="1-31"
                   />
