@@ -22,7 +22,6 @@ interface Stage {
   id: string;
   name: string;
   color: string;
-  leads: any[];
 }
 
 interface EditStageModalProps {

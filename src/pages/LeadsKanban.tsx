@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,10 +24,7 @@ interface Stage {
   color: string;
 }
 
-interface StageWithLeads {
-  id: string;
-  name: string;
-  color: string;
+interface StageWithLeads extends Stage {
   leads: Lead[];
 }
 
