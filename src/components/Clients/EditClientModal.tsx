@@ -298,18 +298,23 @@ export function EditClientModal({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-between bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600"
+                      className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
+                      style={{
+                        color: "white",
+                        borderColor: "#525252",
+                      }}
                     >
                       {formData.plan || "Selecione um plano"}
                       <ChevronDown className="h-4 w-4 opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-goat-gray-700 border-goat-gray-600">
+                  <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
                     {planOptions.map((plan) => (
                       <DropdownMenuItem
                         key={plan}
                         onClick={() => handleChange("plan", plan)}
                         className="text-white hover:bg-goat-gray-600 cursor-pointer"
+                        style={{ color: "white" }}
                       >
                         {plan}
                       </DropdownMenuItem>
