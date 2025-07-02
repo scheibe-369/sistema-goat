@@ -246,9 +246,7 @@ export default function Financial() {
         )}
       </Card>
 
-      {contractProjections.length > 0 && (
-        <ProjectionChart contracts={contractProjections} />
-      )}
+      <ProjectionChart contracts={contractProjections} />
     </div>
   );
 }
