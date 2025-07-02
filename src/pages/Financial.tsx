@@ -39,17 +39,26 @@ export default function Financial() {
   };
 
   const contractProjections = contracts
-    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date)
+    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
     .map(contract => {
       const start = new Date(contract.start_date);
       const end = new Date(contract.end_date);
-      // Calcular a diferença em meses
-      const durationInMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+      const paymentDay = Number(contract.client.payment_day);
+      // Calcular o mês do primeiro pagamento
+      let firstPaymentDate = new Date(start);
+      if (paymentDay > start.getDate()) {
+        // Pula para o mês seguinte
+        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+      }
+      // O mês de início da projeção é o mês do primeiro pagamento
+      const startMonth = `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`;
+      // Calcular a diferença em meses a partir do primeiro pagamento
+      const durationInMonths = (end.getFullYear() - firstPaymentDate.getFullYear()) * 12 + (end.getMonth() - firstPaymentDate.getMonth()) + 1;
       return {
         clientName: contract.client?.company || 'Cliente não encontrado',
         monthlyValue: Number(contract.monthly_value),
-        durationInMonths,
-        startMonth: contract.start_date.substring(0, 7), // 'YYYY-MM'
+        durationInMonths: Math.max(durationInMonths, 0),
+        startMonth,
       };
     });
 
