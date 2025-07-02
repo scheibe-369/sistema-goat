@@ -65,7 +65,17 @@ export function NewClientModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Convert monthlyValue from Brazilian format to number
+    const monthlyValueNumber = parseFloat(formData.monthlyValue.replace(',', '.')) || 0;
+    
+    const clientData = {
+      ...formData,
+      monthlyValue: monthlyValueNumber,
+      paymentDay: parseInt(formData.paymentDay) || 1,
+    };
+    
+    onSave(clientData);
     setFormData({
       company: "",
       cnpj: "",
