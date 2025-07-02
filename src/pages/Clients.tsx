@@ -89,6 +89,8 @@ export default function Clients() {
         start_date: clientData.startDate || null,
         monthly_value: clientData.monthlyValue || 0,
       });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
       setIsNewClientModalOpen(false);
     } catch (error) {
       console.error('Error creating client:', error);
@@ -113,6 +115,7 @@ export default function Clients() {
           start_date: clientData.startDate || null,
           monthly_value: clientData.monthlyValue || 0,
         });
+        queryClient.invalidateQueries({ queryKey: ['clients'] });
         queryClient.invalidateQueries({ queryKey: ['contracts'] });
         setEditingClient(null);
       } catch (error) {
@@ -125,6 +128,8 @@ export default function Clients() {
     if (deletingClient) {
       try {
         await deleteClientMutation.mutateAsync(deletingClient.id);
+        queryClient.invalidateQueries({ queryKey: ['clients'] });
+        queryClient.invalidateQueries({ queryKey: ['contracts'] });
         setDeletingClient(null);
       } catch (error) {
         console.error('Error deleting client:', error);
