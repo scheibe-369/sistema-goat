@@ -180,6 +180,47 @@ export default function Financial() {
     })
     .sort((a, b) => a.date - b.date);
 
+  // Montar array com o próximo lançamento de cada cliente/contrato
+  const nextIncomes = contracts
+    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
+    .map(contract => {
+      // Buscar lançamentos reais pendentes desse contrato
+      const realPendings = incomes.filter(
+        (income: any) => income.client_id === contract.client_id && income.status === 'pending'
+      );
+      if (realPendings.length > 0) {
+        // Se existe lançamento real pendente, pega o mais próximo (menor data)
+        return realPendings.sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+      } else {
+        // Se não existe, calcula o próximo previsto
+        const start = new Date(contract.start_date);
+        const end = new Date(contract.end_date);
+        const paymentDay = Number(contract.client.payment_day);
+        let firstPaymentDate = new Date(start);
+        if (start.getDate() >= paymentDay) {
+          firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+        }
+        let paymentDate = new Date(firstPaymentDate);
+        const today = new Date();
+        while (paymentDate <= end) {
+          if (paymentDate >= today) {
+            return {
+              client: contract.client,
+              amount: contract.monthly_value,
+              date: paymentDate.toISOString().split('T')[0],
+              status: 'pending',
+              type: 'income',
+              isPredicted: true,
+            };
+          }
+          paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+        }
+        // Se não houver mais pagamentos previstos
+        return null;
+      }
+    })
+    .filter(Boolean);
+
   useEffect(() => {
     const onFocus = () => {
       refetch();
@@ -204,23 +245,18 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Receitas recorrentes e avulsas</p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
-            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
+            <p className="text-goat-gray-400 text-sm mt-1">Próximo lançamento de cada cliente</p>
           </div>
         </div>
         <div className="p-6">
-          {filteredIncomes.length === 0 ? (
+          {nextIncomes.length === 0 ? (
             <div className="text-center py-8">
               <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
               <p className="text-goat-gray-400">Nenhum lançamento encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredIncomes.map((income, idx) => {
+              {nextIncomes.map((income, idx) => {
                 const statusTag = getStatusTag(income);
                 return (
                   <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
@@ -229,7 +265,7 @@ export default function Financial() {
                         <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
                         <div className="mt-1">
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${statusTag.color} text-white`}>
-                            {statusTag.label}
+                            {income.isPredicted ? 'Previsto' : statusTag.label}
                           </span>
                         </div>
                       </div>
