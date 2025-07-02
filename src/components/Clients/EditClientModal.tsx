@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 interface Client {
-  id: number;
+  id: string;
   company: string;
   cnpj: string;
   responsible: string;
@@ -30,11 +30,26 @@ interface Client {
   monthlyValue?: string;
 }
 
+interface ClientData {
+  company: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  email: string;
+  contractEnd: string;
+  paymentDay: number;
+  tags: string[];
+  address: string;
+  plan?: string;
+  startDate?: string;
+  monthlyValue?: number;
+}
+
 interface EditClientModalProps {
   isOpen: boolean;
   client: Client | null;
   onClose: () => void;
-  onSave: (clientData: Omit<Client, 'id'>) => void;
+  onSave: (clientData: ClientData) => void;
   onPlanColorChange: (planName: string, color: string) => void;
   planColors: Record<string, string>;
 }
@@ -48,7 +63,7 @@ export function EditClientModal({
   planColors,
 }: EditClientModalProps) {
   const [formData, setFormData] = useState<Client>({
-    id: 0,
+    id: "",
     company: "",
     cnpj: "",
     responsible: "",
@@ -71,7 +86,26 @@ export function EditClientModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Convert monthlyValue from string to number for the callback
+    const monthlyValueNumber = parseFloat(formData.monthlyValue?.replace(',', '.') || '0');
+    
+    const clientData: ClientData = {
+      company: formData.company,
+      cnpj: formData.cnpj,
+      responsible: formData.responsible,
+      phone: formData.phone,
+      email: formData.email,
+      contractEnd: formData.contractEnd,
+      paymentDay: formData.paymentDay,
+      tags: formData.tags,
+      address: formData.address,
+      plan: formData.plan,
+      startDate: formData.startDate,
+      monthlyValue: monthlyValueNumber,
+    };
+    
+    onSave(clientData);
   };
 
   const handleChange = (field: keyof Client, value: any) => {

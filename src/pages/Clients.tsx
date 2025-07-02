@@ -28,6 +28,44 @@ interface ClientData {
   monthlyValue?: number;
 }
 
+// Interface para componentes que esperam formato específico
+interface ClientForComponent {
+  id: string;
+  company: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  email: string;
+  contractEnd: string;
+  paymentDay: number;
+  tags: string[];
+  address: string;
+  plan: string;
+  startDate: string;
+  planColor?: string;
+}
+
+interface EditClientForModal {
+  id: string;
+  company: string;
+  cnpj: string;
+  responsible: string;
+  phone: string;
+  email: string;
+  contractEnd: string;
+  paymentDay: number;
+  tags: string[];
+  address: string;
+  plan?: string;
+  startDate?: string;
+  monthlyValue?: string;
+}
+
+interface DeleteClientForDialog {
+  id: string;
+  company: string;
+}
+
 export default function Clients() {
   const { data: clients = [], isLoading, error } = useClients();
   const createClientMutation = useCreateClient();
@@ -118,7 +156,7 @@ export default function Clients() {
   };
 
   // Transform Supabase clients to component format
-  const transformedClients = clients.map(client => ({
+  const transformedClients: ClientForComponent[] = clients.map(client => ({
     id: client.id,
     company: client.company,
     cnpj: client.cnpj,
@@ -236,6 +274,7 @@ export default function Clients() {
           address: editingClient.address || '',
           plan: editingClient.plan || '',
           startDate: editingClient.start_date || '',
+          monthlyValue: editingClient.monthly_value?.toString() || '0,00',
         } : null}
         onClose={() => setEditingClient(null)}
         onSave={handleEditClient}
