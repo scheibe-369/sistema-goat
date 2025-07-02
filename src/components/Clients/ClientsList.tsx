@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { ClientItem } from "./ClientItem";
 
 interface Client {
-  id: number;
+  id: string;
   company: string;
   cnpj: string;
   responsible: string;
@@ -20,8 +20,8 @@ interface Client {
 
 interface ClientsListProps {
   clients: Client[];
-  expandedClients: number[];
-  onToggleExpanded: (clientId: number) => void;
+  expandedClients: string[];
+  onToggleExpanded: (clientId: string) => void;
   onEditClient: (client: Client) => void;
   onDeleteClient: (client: Client) => void;
   planColors?: Record<string, string>;

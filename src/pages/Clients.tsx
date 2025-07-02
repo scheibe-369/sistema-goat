@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
@@ -43,27 +42,6 @@ interface ClientForComponent {
   plan: string;
   startDate: string;
   planColor?: string;
-}
-
-interface EditClientForModal {
-  id: string;
-  company: string;
-  cnpj: string;
-  responsible: string;
-  phone: string;
-  email: string;
-  contractEnd: string;
-  paymentDay: number;
-  tags: string[];
-  address: string;
-  plan?: string;
-  startDate?: string;
-  monthlyValue?: string;
-}
-
-interface DeleteClientForDialog {
-  id: string;
-  company: string;
 }
 
 export default function Clients() {
