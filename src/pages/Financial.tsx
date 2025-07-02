@@ -217,6 +217,10 @@ export default function Financial() {
           </div>
         )}
       </Card>
+
+      {contractProjections.length > 0 && (
+        <ProjectionChart contracts={contractProjections} />
+      )}
     </div>
   );
 }
