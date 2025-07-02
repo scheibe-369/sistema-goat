@@ -1,3 +1,4 @@
+
 'use client'
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -5,12 +6,14 @@ import { Mail, Lock, Eye, EyeClosed, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("gabrielporceli.goat@gmail.com");
+  const [password, setPassword] = useState("Gab@21072000");
   const [isLoading, setIsLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
@@ -46,10 +49,10 @@ const Login = () => {
             border: '1px solid #8B5CF6',
           },
         });
-      } else {
-        toast.error('Email ou senha incorretos');
+        navigate('/');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast.error('Erro ao fazer login');
     } finally {
       setIsLoading(false);
@@ -69,7 +72,7 @@ const Login = () => {
         }}
       />
 
-      {/* Top radial glow */}
+      {/* Background glows */}
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[120vh] h-[60vh] rounded-b-[50%] bg-goat-purple/20 blur-[80px]" />
       <motion.div 
         className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[100vh] h-[60vh] rounded-b-full bg-goat-purple/15 blur-[60px]"
@@ -83,23 +86,6 @@ const Login = () => {
           repeatType: "mirror"
         }}
       />
-      <motion.div 
-        className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[90vh] h-[90vh] rounded-t-full bg-goat-purple/20 blur-[60px]"
-        animate={{ 
-          opacity: [0.3, 0.5, 0.3],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ 
-          duration: 6, 
-          repeat: Infinity,
-          repeatType: "mirror",
-          delay: 1
-        }}
-      />
-
-      {/* Animated glow spots */}
-      <div className="absolute left-1/4 top-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse opacity-40" />
-      <div className="absolute right-1/4 bottom-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse delay-1000 opacity-40" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -116,52 +102,6 @@ const Login = () => {
           whileHover={{ z: 10 }}
         >
           <div className="relative group">
-            {/* Card glow effect */}
-            <motion.div 
-              className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-70 transition-opacity duration-700"
-              animate={{
-                boxShadow: [
-                  "0 0 10px 2px rgba(83, 21, 203, 0.03)",
-                  "0 0 15px 5px rgba(83, 21, 203, 0.05)",
-                  "0 0 10px 2px rgba(83, 21, 203, 0.03)"
-                ],
-                opacity: [0.2, 0.4, 0.2]
-              }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity, 
-                ease: "easeInOut", 
-                repeatType: "mirror" 
-              }}
-            />
-
-            {/* Traveling light beam effect */}
-            <div className="absolute -inset-[1px] rounded-2xl overflow-hidden">
-              <motion.div 
-                className="absolute top-0 left-0 h-[3px] w-[50%] bg-gradient-to-r from-transparent via-goat-purple to-transparent opacity-70"
-                animate={{ 
-                  left: ["-50%", "100%"],
-                  opacity: [0.3, 0.7, 0.3]
-                }}
-                transition={{ 
-                  left: {
-                    duration: 2.5, 
-                    ease: "easeInOut", 
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  },
-                  opacity: {
-                    duration: 1.2,
-                    repeat: Infinity,
-                    repeatType: "mirror"
-                  }
-                }}
-              />
-            </div>
-
-            {/* Card border glow */}
-            <div className="absolute -inset-[0.5px] rounded-2xl bg-gradient-to-r from-goat-purple/20 via-goat-purple/30 to-goat-purple/20 opacity-0 group-hover:opacity-70 transition-opacity duration-500" />
-            
             {/* Glass card background */}
             <div className="relative bg-goat-dark/60 backdrop-blur-xl rounded-2xl p-6 border border-goat-gray-700/30 shadow-2xl overflow-hidden">
               {/* Logo and header */}
@@ -182,7 +122,7 @@ const Login = () => {
                   transition={{ delay: 0.2 }}
                   className="text-xl font-bold gradient-text"
                 >
-                  Bem-vindo
+                  Bem-vindo ao CRM GOAT
                 </motion.h1>
                 
                 <motion.p
@@ -212,12 +152,13 @@ const Login = () => {
                       
                       <Input
                         type="email"
-                        placeholder="Email (admin@goat.com)"
+                        placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setFocusedInput("email")}
                         onBlur={() => setFocusedInput(null)}
                         className="w-full bg-goat-gray-800/50 border-goat-gray-700 focus:border-goat-purple text-white placeholder:text-goat-gray-400 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-goat-gray-800/70"
+                        required
                       />
                     </div>
                   </motion.div>
@@ -236,12 +177,13 @@ const Login = () => {
                       
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Senha (123456)"
+                        placeholder="Senha"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setFocusedInput("password")}
                         onBlur={() => setFocusedInput(null)}
                         className="w-full bg-goat-gray-800/50 border-goat-gray-700 focus:border-goat-purple text-white placeholder:text-goat-gray-400 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-goat-gray-800/70"
+                        required
                       />
                       
                       <div 
@@ -319,9 +261,9 @@ const Login = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <p className="font-medium text-goat-gray-300 mb-1">Credenciais de Teste:</p>
-                  <p>Email: admin@goat.com</p>
-                  <p>Senha: 123456</p>
+                  <p className="font-medium text-goat-gray-300 mb-1">Credenciais Pré-carregadas:</p>
+                  <p>Email: gabrielporceli.goat@gmail.com</p>
+                  <p>Senha: Gab@21072000</p>
                 </motion.div>
               </form>
             </div>

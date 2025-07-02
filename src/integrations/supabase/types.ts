@@ -9,7 +9,301 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          address: string | null
+          cnpj: string
+          company: string
+          contract_end: string | null
+          created_at: string | null
+          email: string
+          id: string
+          monthly_value: number | null
+          payment_day: number | null
+          phone: string
+          plan: string | null
+          responsible: string
+          start_date: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          cnpj: string
+          company: string
+          contract_end?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          monthly_value?: number | null
+          payment_day?: number | null
+          phone: string
+          plan?: string | null
+          responsible: string
+          start_date?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          cnpj?: string
+          company?: string
+          contract_end?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          monthly_value?: number | null
+          payment_day?: number | null
+          phone?: string
+          plan?: string | null
+          responsible?: string
+          start_date?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          end_date: string
+          id: string
+          monthly_value: number
+          start_date: string
+          status: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          monthly_value: number
+          start_date: string
+          status?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          monthly_value?: number
+          start_date?: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          direction: string | null
+          id: string
+          last_message: string | null
+          phone: string
+          stage: string | null
+          tag: string | null
+          unread_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          last_message?: string | null
+          phone: string
+          stage?: string | null
+          tag?: string | null
+          unread_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          direction?: string | null
+          id?: string
+          last_message?: string | null
+          phone?: string
+          stage?: string | null
+          tag?: string | null
+          unread_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finances: {
+        Row: {
+          amount: number
+          category: string
+          client_id: string | null
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          status: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          client_id?: string | null
+          created_at?: string | null
+          date: string
+          description: string
+          id?: string
+          status?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          client_id?: string | null
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finances_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          client_id: string | null
+          company: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          source: string | null
+          stage: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+          value: number | null
+        }
+        Insert: {
+          client_id?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          stage?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          value?: number | null
+        }
+        Update: {
+          client_id?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          stage?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string | null
+          id: string
+          sender: string
+          text: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          sender: string
+          text: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          sender?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

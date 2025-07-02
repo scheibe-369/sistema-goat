@@ -1,51 +1,94 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface User {
-  email: string;
-  name: string;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event, session);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Usuário de teste
-    if (email === 'admin@goat.com' && password === '123456') {
-      const userData = { email, name: 'Admin GOAT' };
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      return true;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        toast.error('Erro ao fazer login: ' + error.message);
+        return false;
+      }
+
+      if (data.user) {
+        console.log('Login successful:', data.user);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Login exception:', error);
+      toast.error('Erro inesperado ao fazer login');
+      return false;
     }
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        toast.error('Erro ao fazer logout');
+      } else {
+        toast.success('Logout realizado com sucesso');
+      }
+    } catch (error) {
+      console.error('Logout exception:', error);
+      toast.error('Erro inesperado ao fazer logout');
+    }
   };
 
   const value = {
     user,
+    session,
     login,
     logout,
     isAuthenticated: !!user,
+    isLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
 import { EditClientModal } from "@/components/Clients/EditClientModal";
 import { ClientFilters } from "@/components/Clients/ClientFilters";
@@ -8,9 +9,11 @@ import { ClientsHeader } from "@/components/Clients/ClientsHeader";
 import { ClientsSearch } from "@/components/Clients/ClientsSearch";
 import { ClientsKPIs } from "@/components/Clients/ClientsKPIs";
 import { ClientsList } from "@/components/Clients/ClientsList";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Client {
-  id: number;
+type Client = Tables<'clients'>;
+
+interface ClientData {
   company: string;
   cnpj: string;
   responsible: string;
@@ -22,11 +25,16 @@ interface Client {
   address: string;
   plan?: string;
   startDate?: string;
-  planColor?: string;
+  monthlyValue?: number;
 }
 
 export default function Clients() {
-  const [expandedClients, setExpandedClients] = useState<number[]>([]);
+  const { data: clients = [], isLoading, error } = useClients();
+  const createClientMutation = useCreateClient();
+  const updateClientMutation = useUpdateClient();
+  const deleteClientMutation = useDeleteClient();
+
+  const [expandedClients, setExpandedClients] = useState<string[]>([]);
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -39,112 +47,140 @@ export default function Clients() {
     location: ""
   });
 
-  // Estado para armazenar as cores dos planos personalizados
   const [planColors, setPlanColors] = useState<Record<string, string>>({});
 
-  const [clients, setClients] = useState<Client[]>([
-    {
-      id: 1,
-      company: "Tech Solutions LTDA",
-      cnpj: "12.345.678/0001-90",
-      responsible: "João Silva",
-      phone: "+55 11 99999-9999",
-      email: "contato@techsolutions.com",
-      contractEnd: "2024-12-31",
-      paymentDay: 15,
-      tags: ["Ativo"],
-      address: "São Paulo, SP",
-      plan: "Premium",
-      startDate: "2024-01-01"
-    },
-    {
-      id: 2,
-      company: "Marketing Digital Pro",
-      cnpj: "98.765.432/0001-10",
-      responsible: "Maria Santos",
-      phone: "+55 11 88888-8888",
-      email: "maria@marketingpro.com",
-      contractEnd: "2024-08-15",
-      paymentDay: 5,
-      tags: ["A vencer"],
-      address: "Rio de Janeiro, RJ",
-      plan: "Gold",
-      startDate: "2023-08-15"
-    },
-    {
-      id: 3,
-      company: "Consultoria ABC",
-      cnpj: "11.222.333/0001-44",
-      responsible: "Pedro Costa",
-      phone: "+55 11 77777-7777",
-      email: "pedro@consultoriaabc.com",
-      contractEnd: "2025-01-31",
-      paymentDay: 10,
-      tags: ["Ativo"],
-      address: "Belo Horizonte, MG",
-      plan: "Standard",
-      startDate: "2024-02-01"
-    },
-  ]);
-
-  const toggleClientExpanded = (clientId: number) => {
+  const toggleClientExpanded = (clientId: string) => {
     setExpandedClients((prev) =>
       prev.includes(clientId) ? prev.filter((id) => id !== clientId) : [...prev, clientId]
     );
   };
 
-  const handleNewClient = (clientData: Omit<Client, 'id'>) => {
-    const newClient = {
-      ...clientData,
-      id: Math.max(...clients.map(c => c.id)) + 1
-    };
-    setClients([...clients, newClient]);
-    setIsNewClientModalOpen(false);
-  };
-
-  const handleEditClient = (clientData: Omit<Client, 'id'>) => {
-    if (editingClient) {
-      setClients(clients.map(client => 
-        client.id === editingClient.id 
-          ? { ...clientData, id: editingClient.id }
-          : client
-      ));
-      setEditingClient(null);
+  const handleNewClient = async (clientData: ClientData) => {
+    try {
+      await createClientMutation.mutateAsync({
+        company: clientData.company,
+        cnpj: clientData.cnpj,
+        responsible: clientData.responsible,
+        phone: clientData.phone,
+        email: clientData.email,
+        contract_end: clientData.contractEnd || null,
+        payment_day: clientData.paymentDay,
+        tags: clientData.tags,
+        address: clientData.address || null,
+        plan: clientData.plan || null,
+        start_date: clientData.startDate || null,
+        monthly_value: clientData.monthlyValue || 0,
+      });
+      setIsNewClientModalOpen(false);
+    } catch (error) {
+      console.error('Error creating client:', error);
     }
   };
 
-  const handleDeleteClient = (clientId: number) => {
-    setClients(clients.filter(client => client.id !== clientId));
-    setDeletingClient(null);
+  const handleEditClient = async (clientData: ClientData) => {
+    if (editingClient) {
+      try {
+        await updateClientMutation.mutateAsync({
+          id: editingClient.id,
+          company: clientData.company,
+          cnpj: clientData.cnpj,
+          responsible: clientData.responsible,
+          phone: clientData.phone,
+          email: clientData.email,
+          contract_end: clientData.contractEnd || null,
+          payment_day: clientData.paymentDay,
+          tags: clientData.tags,
+          address: clientData.address || null,
+          plan: clientData.plan || null,
+          start_date: clientData.startDate || null,
+          monthly_value: clientData.monthlyValue || 0,
+        });
+        setEditingClient(null);
+      } catch (error) {
+        console.error('Error updating client:', error);
+      }
+    }
+  };
+
+  const handleDeleteClient = async () => {
+    if (deletingClient) {
+      try {
+        await deleteClientMutation.mutateAsync(deletingClient.id);
+        setDeletingClient(null);
+      } catch (error) {
+        console.error('Error deleting client:', error);
+      }
+    }
   };
 
   const handlePlanColorChange = (planName: string, color: string) => {
     setPlanColors(prev => ({ ...prev, [planName]: color }));
   };
 
-  const filteredClients = clients.filter(client => {
-    // Search term filter
+  // Transform Supabase clients to component format
+  const transformedClients = clients.map(client => ({
+    id: client.id,
+    company: client.company,
+    cnpj: client.cnpj,
+    responsible: client.responsible,
+    phone: client.phone,
+    email: client.email,
+    contractEnd: client.contract_end || '',
+    paymentDay: client.payment_day || 1,
+    tags: client.tags || [],
+    address: client.address || '',
+    plan: client.plan || '',
+    startDate: client.start_date || '',
+    planColor: planColors[client.plan || ''] || undefined,
+  }));
+
+  const filteredClients = transformedClients.filter(client => {
     const matchesSearch = client.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          client.responsible.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Status filter
     const matchesStatus = activeFilters.status.length === 0 || 
                          client.tags.some(tag => activeFilters.status.includes(tag));
 
-    // Plan filter
     const matchesPlan = activeFilters.plan.length === 0 || 
                        (client.plan && activeFilters.plan.includes(client.plan));
 
-    // Location filter
     const matchesLocation = !activeFilters.location || 
                            client.address.toLowerCase().includes(activeFilters.location.toLowerCase());
 
-    // Contract period filter
     const matchesPeriod = (!activeFilters.contractPeriod.start || client.contractEnd >= activeFilters.contractPeriod.start) &&
                          (!activeFilters.contractPeriod.end || client.contractEnd <= activeFilters.contractPeriod.end);
 
     return matchesSearch && matchesStatus && matchesPlan && matchesLocation && matchesPeriod;
   });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="h-8 bg-goat-gray-700 rounded animate-pulse" />
+        <div className="h-12 bg-goat-gray-700 rounded animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 bg-goat-gray-700 rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-20 bg-goat-gray-700 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center py-12">
+          <p className="text-red-400">Erro ao carregar clientes: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -156,14 +192,24 @@ export default function Clients() {
         onFiltersOpen={() => setIsFiltersOpen(true)}
       />
 
-      <ClientsKPIs clients={clients} />
+      <ClientsKPIs clients={transformedClients} />
 
       <ClientsList 
         clients={filteredClients}
         expandedClients={expandedClients}
         onToggleExpanded={toggleClientExpanded}
-        onEditClient={setEditingClient}
-        onDeleteClient={setDeletingClient}
+        onEditClient={(client) => {
+          const supabaseClient = clients.find(c => c.id === client.id);
+          if (supabaseClient) {
+            setEditingClient(supabaseClient);
+          }
+        }}
+        onDeleteClient={(client) => {
+          const supabaseClient = clients.find(c => c.id === client.id);
+          if (supabaseClient) {
+            setDeletingClient(supabaseClient);
+          }
+        }}
         planColors={planColors}
       />
 
@@ -177,7 +223,20 @@ export default function Clients() {
 
       <EditClientModal 
         isOpen={!!editingClient}
-        client={editingClient}
+        client={editingClient ? {
+          id: editingClient.id,
+          company: editingClient.company,
+          cnpj: editingClient.cnpj,
+          responsible: editingClient.responsible,
+          phone: editingClient.phone,
+          email: editingClient.email,
+          contractEnd: editingClient.contract_end || '',
+          paymentDay: editingClient.payment_day || 1,
+          tags: editingClient.tags || [],
+          address: editingClient.address || '',
+          plan: editingClient.plan || '',
+          startDate: editingClient.start_date || '',
+        } : null}
         onClose={() => setEditingClient(null)}
         onSave={handleEditClient}
         onPlanColorChange={handlePlanColorChange}
@@ -193,9 +252,12 @@ export default function Clients() {
 
       <DeleteClientDialog
         isOpen={!!deletingClient}
-        client={deletingClient}
+        client={deletingClient ? {
+          id: deletingClient.id,
+          company: deletingClient.company,
+        } : null}
         onClose={() => setDeletingClient(null)}
-        onConfirm={() => deletingClient && handleDeleteClient(deletingClient.id)}
+        onConfirm={handleDeleteClient}
       />
     </div>
   );
