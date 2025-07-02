@@ -9,11 +9,13 @@ import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useFinancialEntries } from "@/hooks/useFinancialEntries";
 
 export default function Financial() {
   const { data: clients = [] } = useClients();
   const { data: contracts = [] } = useContracts();
-  const { expenses, createExpense, isLoading: expensesLoading } = useExpenses();
+  const { expenses, createExpense, payExpense, deleteExpense, isLoading: expensesLoading, isPaying, isDeleting } = useExpenses();
+  const { markAsPaid, isMarkingAsPaid } = useFinancialEntries();
 
   // Calculate real financial data from database
   const transactions = [];
@@ -54,6 +56,24 @@ export default function Financial() {
     };
     
     createExpense(expense);
+  };
+
+  const handleMarkAsPaid = (contract: any) => {
+    markAsPaid({
+      contractId: contract.client_id,
+      amount: Number(contract.monthly_value || 0),
+      description: `Pagamento mensal - ${contract.client?.company || 'Cliente'}`
+    });
+  };
+
+  const handlePayExpense = (expenseId: string) => {
+    payExpense(expenseId);
+  };
+
+  const handleDeleteExpense = (expenseId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir esta despesa?')) {
+      deleteExpense(expenseId);
+    }
   };
 
   return (
@@ -104,6 +124,16 @@ export default function Financial() {
                     <p className="text-white">{contract.end_date ? new Date(contract.end_date).toLocaleDateString('pt-BR') : '-'}</p>
                   </div>
                 </div>
+                <div className="ml-4">
+                  <Button
+                    onClick={() => handleMarkAsPaid(contract)}
+                    disabled={isMarkingAsPaid}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    {isMarkingAsPaid ? 'Confirmando...' : 'Confirmar'}
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -152,6 +182,26 @@ export default function Financial() {
                     <p className="text-goat-gray-400 text-sm">Data</p>
                     <p className="text-white">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
                   </div>
+                </div>
+                <div className="flex gap-2 ml-4">
+                  {expense.status === 'pending' && (
+                    <Button
+                      onClick={() => handlePayExpense(expense.id)}
+                      disabled={isPaying}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      {isPaying ? 'Pagando...' : 'Pagar'}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => handleDeleteExpense(expense.id)}
+                    disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    size="sm"
+                  >
+                    {isDeleting ? 'Excluindo...' : 'Excluir'}
+                  </Button>
                 </div>
               </div>
             ))}

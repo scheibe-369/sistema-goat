@@ -100,10 +100,82 @@ export const useExpenses = () => {
     },
   });
 
+  const payExpenseMutation = useMutation({
+    mutationFn: async (expenseId: string) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('finances')
+        .update({ status: 'paid' })
+        .eq('id', expenseId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error paying expense:', error);
+        throw error;
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Sucesso",
+        description: "Despesa marcada como paga!",
+      });
+    },
+    onError: (error) => {
+      console.error('Error paying expense:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao pagar despesa. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: async (expenseId: string) => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('finances')
+        .delete()
+        .eq('id', expenseId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting expense:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Sucesso",
+        description: "Despesa excluída com sucesso!",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting expense:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir despesa. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     expenses,
     isLoading,
     createExpense: createExpenseMutation.mutate,
     isCreating: createExpenseMutation.isPending,
+    payExpense: payExpenseMutation.mutate,
+    isPaying: payExpenseMutation.isPending,
+    deleteExpense: deleteExpenseMutation.mutate,
+    isDeleting: deleteExpenseMutation.isPending,
   };
 };
