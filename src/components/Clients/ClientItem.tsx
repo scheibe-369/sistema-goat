@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Phone, Mail, Calendar, MapPin, ChevronDown, ChevronRight } from "lucide-react";
 
 interface Client {
-  id: number;
+  id: string;
   company: string;
   cnpj: string;
   responsible: string;
