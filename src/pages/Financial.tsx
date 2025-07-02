@@ -46,8 +46,8 @@ export default function Financial() {
       const paymentDay = Number(contract.client.payment_day);
       // Calcular o mês do primeiro pagamento
       let firstPaymentDate = new Date(start);
-      if (paymentDay > start.getDate()) {
-        // Pula para o mês seguinte
+      if (start.getDate() > paymentDay) {
+        // Começou DEPOIS do dia de pagamento, só conta no mês seguinte
         firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
       }
       // O mês de início da projeção é o mês do primeiro pagamento
