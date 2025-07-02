@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -367,36 +368,72 @@
   scrollbar-width: thin;           /* "auto" ou "thin" */
   scrollbar-color: #6829c0 #171717; /* thumb, track */
 }
+
 /* ===============================================
-   ✅ Corrige Toast/Notificações/Alertas do sistema para tema GOAT
+   ✅ MENSAGENS DO SISTEMA - TEMA GOAT ROXO E BRANCO
+   Forçando todas as mensagens de sistema a usar o padrão correto
    =============================================== */
 
-/* Genérico para qualquer toast/alert do sistema */
-.toast, .toast-success, .notification, .notification-success, .alert-success, .alert, .system-message,
-[data-state="success"], [data-state="open"].bg-yellow-400, [data-type="success"], .Toastify__toast--success {
-  background-color: #18181b !important;      /* Fundo escuro GOAT */
-  color: #fff !important;                    /* Texto branco */
-  border: 1px solid #6829c0 !important;      /* Borda roxa GOAT */
-  box-shadow: 0 4px 18px 0 #00000040 !important;
+/* Toast/Notificações genéricas */
+.toast, 
+.toast-success, 
+.notification, 
+.notification-success, 
+.alert-success, 
+.alert, 
+.system-message,
+[data-state="success"], 
+[data-state="open"], 
+[data-type="success"], 
+.Toastify__toast--success,
+.Toastify__toast,
+[data-sonner-toast],
+[data-sonner-toast][data-type="success"] {
+  background-color: #262626 !important;      /* Fundo cinza escuro GOAT */
+  color: #ffffff !important;                 /* Texto branco */
+  border: 1px solid #5315CB !important;     /* Borda roxa GOAT */
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Para texto dentro de toasts, caso haja */
-.toast strong, .notification strong, .alert strong {
-  color: #fff !important;
+/* Para texto dentro de toasts */
+.toast *, 
+.notification *, 
+.alert *,
+[data-sonner-toast] *,
+.Toastify__toast * {
+  color: #ffffff !important;
 }
 
-/* Remove qualquer cor amarela que venha de libs */
-.toast, .toast-success, .notification-success, .alert-success,
-[data-state="success"], [data-type="success"], .Toastify__toast--success {
-  border-color: #6829c0 !important;
-}
-
-/* Se for o shadcn/ui (Radix), também pegue este caso */
-[data-state="open"].bg-yellow-400,
-[data-state="open"].border-yellow-400,
+/* Remove qualquer cor amarela que venha de libs externas */
 .bg-yellow-400,
-.border-yellow-400 {
-  background-color: #18181b !important;
-  border-color: #6829c0 !important;
-  color: #fff !important;
+.border-yellow-400,
+.text-yellow-400,
+.bg-yellow-500,
+.border-yellow-500,
+.text-yellow-500 {
+  background-color: #262626 !important;
+  border-color: #5315CB !important;
+  color: #ffffff !important;
+}
+
+/* Sonner toast específico */
+[data-sonner-toast] {
+  background-color: #262626 !important;
+  border: 1px solid #5315CB !important;
+  color: #ffffff !important;
+}
+
+[data-sonner-toast] [data-title] {
+  color: #ffffff !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: #ffffff !important;
+}
+
+/* Success icons */
+[data-sonner-toast] [data-icon] svg,
+.toast svg,
+.notification svg {
+  color: #5315CB !important;
 }
