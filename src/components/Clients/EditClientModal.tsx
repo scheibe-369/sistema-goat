@@ -233,6 +233,40 @@ export function EditClientModal({
             scrollbar-width: thin;
             scrollbar-color: #6829c0 #404040;
           }
+          
+          /* Estilos customizados para dropdowns */
+          .dropdown-trigger {
+            background-color: #404040 !important;
+            border-color: #525252 !important;
+            color: white !important;
+          }
+          
+          .dropdown-trigger:hover {
+            background-color: #404040 !important;
+            color: white !important;
+          }
+          
+          .dropdown-content {
+            background-color: #404040 !important;
+            border-color: #525252 !important;
+            min-width: var(--radix-dropdown-menu-trigger-width) !important;
+            width: var(--radix-dropdown-menu-trigger-width) !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            position: relative !important;
+            left: 0 !important;
+            right: auto !important;
+            margin: 4px 0 0 0 !important;
+            transform: none !important;
+          }
+          
+          .dropdown-item {
+            color: white !important;
+            background-color: transparent !important;
+          }
+          
+          .dropdown-item:hover {
+            background-color: #525252 !important;
+          }
         `}</style>
 
         {/* Header */}
@@ -342,23 +376,18 @@ export function EditClientModal({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
-                        style={{
-                          color: "white",
-                          borderColor: "#525252",
-                        }}
+                        className="dropdown-trigger w-full justify-between"
                       >
                         {formData.plan || "Selecione um plano"}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
+                    <DropdownMenuContent className="dropdown-content">
                       {planOptions.map((plan) => (
                         <DropdownMenuItem
                           key={plan}
                           onClick={() => handleChange("plan", plan)}
-                          className="text-white hover:bg-goat-gray-600 cursor-pointer"
-                          style={{ color: "white" }}
+                          className="dropdown-item cursor-pointer"
                         >
                           {plan}
                         </DropdownMenuItem>
@@ -404,35 +433,28 @@ export function EditClientModal({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between bg-goat-gray-700 border border-[#525252] text-white hover:bg-goat-gray-600 focus:border-[#525252] focus:ring-0 focus:outline-none"
-                        style={{
-                          color: "white",
-                          borderColor: "#525252",
-                        }}
+                        className="dropdown-trigger w-full justify-between"
                       >
                         {formData.tags[0]}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-goat-gray-700 border-[#525252]">
+                    <DropdownMenuContent className="dropdown-content">
                       <DropdownMenuItem
                         onClick={() => handleChange("tags", ["Ativo"])}
-                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
-                        style={{ color: "white" }}
+                        className="dropdown-item cursor-pointer"
                       >
                         Ativo
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleChange("tags", ["A vencer"])}
-                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
-                        style={{ color: "white" }}
+                        className="dropdown-item cursor-pointer"
                       >
                         A vencer
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleChange("tags", ["Vencido"])}
-                        className="text-white hover:bg-goat-gray-600 cursor-pointer"
-                        style={{ color: "white" }}
+                        className="dropdown-item cursor-pointer"
                       >
                         Vencido
                       </DropdownMenuItem>
