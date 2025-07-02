@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
@@ -10,6 +9,7 @@ import { ClientsSearch } from "@/components/Clients/ClientsSearch";
 import { ClientsKPIs } from "@/components/Clients/ClientsKPIs";
 import { ClientsList } from "@/components/Clients/ClientsList";
 import { Tables } from "@/integrations/supabase/types";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Client = Tables<'clients'>;
 
@@ -50,6 +50,7 @@ export default function Clients() {
   const createClientMutation = useCreateClient();
   const updateClientMutation = useUpdateClient();
   const deleteClientMutation = useDeleteClient();
+  const queryClient = useQueryClient();
 
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
@@ -112,6 +113,7 @@ export default function Clients() {
           start_date: clientData.startDate || null,
           monthly_value: clientData.monthlyValue || 0,
         });
+        queryClient.invalidateQueries({ queryKey: ['contracts'] });
         setEditingClient(null);
       } catch (error) {
         console.error('Error updating client:', error);
