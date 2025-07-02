@@ -35,7 +35,7 @@ const AppRoutes = () => {
         path="/login" 
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
       />
-      <Route path="/" element={
+      <Route path="/*" element={
         <ProtectedRoute>
           <CRMLayout>
             <Routes>
@@ -50,7 +50,6 @@ const AppRoutes = () => {
           </CRMLayout>
         </ProtectedRoute>
       } />
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
