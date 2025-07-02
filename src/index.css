@@ -367,162 +367,36 @@
   scrollbar-width: thin;           /* "auto" ou "thin" */
   scrollbar-color: #6829c0 #171717; /* thumb, track */
 }
-
 /* ===============================================
-   ✅ MENSAGENS DO SISTEMA - TEMA GOAT ROXO
-   Todas as mensagens do sistema com texto e bordas roxas #6829c0
+   ✅ Corrige Toast/Notificações/Alertas do sistema para tema GOAT
    =============================================== */
 
-/* Genérico para qualquer toast/alert/mensagem do sistema */
-.toast, 
-.toast-success, 
-.toast-error,
-.toast-warning,
-.toast-info,
-.notification, 
-.notification-success,
-.notification-error,
-.notification-warning,
-.notification-info,
-.alert,
-.alert-success, 
-.alert-error,
-.alert-warning,
-.alert-info,
-.system-message,
-.message,
-.snackbar,
-[data-state="success"], 
-[data-state="error"],
-[data-state="warning"],
-[data-state="info"],
-[data-state="open"],
-[data-type="success"], 
-[data-type="error"],
-[data-type="warning"],
-[data-type="info"],
-.Toastify__toast,
-.Toastify__toast--success,
-.Toastify__toast--error,
-.Toastify__toast--warning,
-.Toastify__toast--info {
+/* Genérico para qualquer toast/alert do sistema */
+.toast, .toast-success, .notification, .notification-success, .alert-success, .alert, .system-message,
+[data-state="success"], [data-state="open"].bg-yellow-400, [data-type="success"], .Toastify__toast--success {
   background-color: #18181b !important;      /* Fundo escuro GOAT */
-  color: #6829c0 !important;                 /* Texto roxo GOAT */
+  color: #fff !important;                    /* Texto branco */
   border: 1px solid #6829c0 !important;      /* Borda roxa GOAT */
-  box-shadow: 0 4px 18px 0 rgba(104, 41, 192, 0.2) !important; /* Sombra roxa suave */
+  box-shadow: 0 4px 18px 0 #00000040 !important;
 }
 
-/* Para texto dentro de mensagens, garantindo cor roxa */
-.toast *, 
-.notification *, 
-.alert *,
-.system-message *,
-.message *,
-.snackbar *,
-.Toastify__toast * {
-  color: #6829c0 !important;
+/* Para texto dentro de toasts, caso haja */
+.toast strong, .notification strong, .alert strong {
+  color: #fff !important;
 }
 
-/* Para títulos e textos em negrito */
-.toast strong, 
-.toast h1, .toast h2, .toast h3, .toast h4, .toast h5, .toast h6,
-.notification strong,
-.notification h1, .notification h2, .notification h3, .notification h4, .notification h5, .notification h6,
-.alert strong,
-.alert h1, .alert h2, .alert h3, .alert h4, .alert h5, .alert h6,
-.system-message strong,
-.system-message h1, .system-message h2, .system-message h3, .system-message h4, .system-message h5, .system-message h6,
-.Toastify__toast strong,
-.Toastify__toast h1, .Toastify__toast h2, .Toastify__toast h3, .Toastify__toast h4, .Toastify__toast h5, .Toastify__toast h6 {
-  color: #6829c0 !important;
-  font-weight: 600 !important;
-}
-
-/* Para botões dentro das mensagens */
-.toast button,
-.notification button,
-.alert button,
-.system-message button,
-.message button,
-.snackbar button,
-.Toastify__toast button {
-  color: #6829c0 !important;
+/* Remove qualquer cor amarela que venha de libs */
+.toast, .toast-success, .notification-success, .alert-success,
+[data-state="success"], [data-type="success"], .Toastify__toast--success {
   border-color: #6829c0 !important;
-  background-color: transparent !important;
 }
 
-.toast button:hover,
-.notification button:hover,
-.alert button:hover,
-.system-message button:hover,
-.message button:hover,
-.snackbar button:hover,
-.Toastify__toast button:hover {
-  background-color: rgba(104, 41, 192, 0.1) !important;
-  color: #6829c0 !important;
-}
-
-/* Para ícones dentro das mensagens */
-.toast svg,
-.notification svg,
-.alert svg,
-.system-message svg,
-.message svg,
-.snackbar svg,
-.Toastify__toast svg {
-  color: #6829c0 !important;
-  fill: #6829c0 !important;
-}
-
-/* Remove qualquer cor amarela, verde ou vermelha que venha de libs */
-.bg-yellow-400,
-.border-yellow-400,
-.text-yellow-400,
-.bg-green-400,
-.border-green-400,
-.text-green-400,
-.bg-red-400,
-.border-red-400,
-.text-red-400 {
-  background-color: #18181b !important;
-  border-color: #6829c0 !important;
-  color: #6829c0 !important;
-}
-
-/* Para elementos específicos do shadcn/ui */
+/* Se for o shadcn/ui (Radix), também pegue este caso */
 [data-state="open"].bg-yellow-400,
 [data-state="open"].border-yellow-400,
-[data-state="open"].bg-green-400,
-[data-state="open"].border-green-400,
-[data-state="open"].bg-red-400,
-[data-state="open"].border-red-400 {
+.bg-yellow-400,
+.border-yellow-400 {
   background-color: #18181b !important;
   border-color: #6829c0 !important;
-  color: #6829c0 !important;
-}
-
-/* Para React Hot Toast e outras libs similares */
-.react-hot-toast,
-.react-hot-toast > div {
-  background-color: #18181b !important;
-  color: #6829c0 !important;
-  border: 1px solid #6829c0 !important;
-}
-
-/* Para mensagens de formulário */
-.form-message,
-.form-error,
-.form-success,
-.field-error,
-.field-success,
-.validation-message {
-  color: #6829c0 !important;
-  border-color: #6829c0 !important;
-}
-
-/* Para overlays e backdops de modais com mensagens */
-.toast-overlay,
-.notification-overlay,
-.alert-overlay {
-  background-color: rgba(104, 41, 192, 0.05) !important;
+  color: #fff !important;
 }
