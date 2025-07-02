@@ -422,7 +422,7 @@ export default function LeadsKanban() {
                     variant="ghost"
                     size="sm"
                     className="text-goat-gray-400 hover:text-white p-1"
-                    onClick={() => handleEditStage(stage)}
+                    onClick={() => handleEditStage({ id: stage.id, name: stage.name, color: stage.color })}
                   >
                     <EllipsisVertical className="w-4 h-4" />
                   </Button>
