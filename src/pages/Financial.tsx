@@ -38,24 +38,41 @@ export default function Financial() {
     }).format(value);
   };
 
-  const contractProjections = useMemo(() => {
-    return contracts
-      .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client)
-      .map(contract => {
-        const start = new Date(contract.start_date);
-        const end = new Date(contract.end_date);
-        const durationInMonths =
-          (end.getFullYear() - start.getFullYear()) * 12 +
-          (end.getMonth() - start.getMonth()) +
-          1;
-        return {
-          clientName: contract.client.company || 'Cliente não encontrado',
-          monthlyValue: Number(contract.monthly_value),
-          durationInMonths,
-          startMonth: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`,
-        };
-      });
-  }, [contracts]);
+  const contractProjections = contracts
+    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
+    .flatMap(contract => {
+      const start = new Date(contract.start_date);
+      const end = new Date(contract.end_date);
+      const paymentDay = Number(contract.client.payment_day);
+      let firstPaymentDate = new Date(start);
+      if (start.getDate() >= paymentDay) {
+        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+      }
+      // Montar todas as datas de pagamento mês a mês
+      const projections = [];
+      let paymentDate = new Date(firstPaymentDate);
+      while (paymentDate <= end) {
+        // Só soma se o pagamento do mês for antes ou igual ao fim do contrato
+        if (
+          paymentDate < end ||
+          (
+            paymentDate.getFullYear() === end.getFullYear() &&
+            paymentDate.getMonth() === end.getMonth() &&
+            paymentDate.getDate() <= end.getDate()
+          )
+        ) {
+          projections.push({
+            clientId: contract.client_id,
+            clientName: contract.client?.company || 'Cliente não encontrado',
+            monthlyValue: Number(contract.monthly_value),
+            monthKey: `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`,
+          });
+        }
+        // Próximo mês
+        paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      }
+      return projections;
+    });
 
   const handleAddExpense = (expenseData: any) => {
     let amount = 0;
