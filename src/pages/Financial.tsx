@@ -50,6 +50,7 @@ export default function Financial() {
       category: expenseData.category,
       date: expenseData.date,
       status: 'pending',
+      type: 'expense', // Add the missing type property
     };
     
     createExpense(expense);

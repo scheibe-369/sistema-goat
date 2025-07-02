@@ -141,6 +141,38 @@ export function EditClientModal({
     handleChange("paymentDay", value === '' ? 1 : parseInt(value));
   };
 
+  const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    value = value.replace(/[^\d,]/g, '');
+    const parts = value.split(',');
+    if (parts.length > 2) {
+      value = parts[0] + ',' + parts.slice(1).join('');
+    }
+    if (parts[1] && parts[1].length > 2) {
+      value = parts[0] + ',' + parts[1].substring(0, 2);
+    }
+    handleChange("monthlyValue", value);
+  };
+
+  const handleMonthlyValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    if (value === '' || value === '0' || value === '0,') {
+      handleChange("monthlyValue", '0,00');
+      return;
+    }
+    if (!value.includes(',')) {
+      value = value + ',00';
+    } else {
+      const parts = value.split(',');
+      if (!parts[1] || parts[1] === '') {
+        value = parts[0] + ',00';
+      } else if (parts[1].length === 1) {
+        value = parts[0] + ',' + parts[1] + '0';
+      }
+    }
+    handleChange("monthlyValue", value);
+  };
+
   if (!isOpen || !client) return null;
 
   const handleOverlayClick = (e: React.MouseEvent) => {
