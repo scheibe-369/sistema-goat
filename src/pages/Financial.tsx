@@ -97,13 +97,14 @@ export default function Financial() {
     createExpense(expense);
   };
 
-  const handleMarkAsPaid = (contract: any) => {
-    markAsPaid({
-      contractId: contract.client_id,
-      amount: Number(contract.monthly_value || 0),
-      description: `Pagamento mensal - ${contract.client?.company || 'Cliente'}`,
-      contract: contract
-    });
+  // Estado local para controle otimista dos pagamentos
+  const [optimisticPaidIds, setOptimisticPaidIds] = useState<string[]>([]);
+
+  // Função otimista para marcar como pago e já mostrar próxima fatura
+  const handleOptimisticMarkAsPaid = async (income: any) => {
+    setOptimisticPaidIds((prev) => [...prev, income.id]);
+    await handleMarkAsPaid(income);
+    setOptimisticPaidIds((prev) => prev.filter((id) => id !== income.id));
   };
 
   const handlePayExpense = (expenseId: string) => {
@@ -225,6 +226,22 @@ export default function Financial() {
   const overdueIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
   const normalIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
 
+  // Aplicar filtro de status
+  const filteredNormalIncomes = normalIncomes.filter((income: any) => {
+    if (statusFilter === 'all') return true;
+    const tag = getStatusTag(income).label;
+    if (statusFilter === 'pending') return tag === 'Em aberto';
+    if (statusFilter === 'paid') return tag === 'Pago';
+    return true;
+  });
+  const filteredOverdueIncomes = overdueIncomes.filter((income: any) => {
+    if (statusFilter === 'all') return true;
+    const tag = getStatusTag(income).label;
+    if (statusFilter === 'pending') return tag === 'Em atraso';
+    if (statusFilter === 'paid') return false;
+    return true;
+  });
+
   useEffect(() => {
     const onFocus = () => {
       refetch();
@@ -245,14 +262,14 @@ export default function Financial() {
       <FinancialKPIs transactions={transactions} />
 
       {/* Pagamentos em Atraso */}
-      {overdueIncomes.length > 0 && (
+      {filteredOverdueIncomes.length > 0 && (
         <Card className="bg-red-950 border-red-700 mb-6">
           <div className="p-6 border-b border-red-700 flex items-center gap-2">
             <AlertCircle className="text-red-400 mr-2" />
             <h3 className="text-lg font-semibold text-red-200">Pagamentos em Atraso</h3>
           </div>
           <div className="p-6">
-            {overdueIncomes.map((income, idx) => (
+            {filteredOverdueIncomes.map((income, idx) => (
               <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
@@ -291,17 +308,26 @@ export default function Financial() {
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
             <p className="text-goat-gray-400 text-sm mt-1">Próximo lançamento de cada cliente</p>
           </div>
+          <div className="flex gap-2">
+            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
+            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
+            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
+          </div>
         </div>
         <div className="p-6">
-          {normalIncomes.length === 0 ? (
+          {filteredNormalIncomes.length === 0 ? (
             <div className="text-center py-8">
               <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
               <p className="text-goat-gray-400">Nenhum lançamento encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {normalIncomes.map((income, idx) => {
-                const statusTag = getStatusTag(income);
+              {filteredNormalIncomes.map((income, idx) => {
+                // Se foi pago otimisticamente, mostra como pago
+                const isOptimisticPaid = income.id && optimisticPaidIds.includes(income.id);
+                const statusTag = isOptimisticPaid
+                  ? { label: 'Pago', color: 'bg-green-800' }
+                  : getStatusTag(income);
                 return (
                   <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                     <div className="flex-1 grid grid-cols-5 gap-4 items-center">
@@ -323,12 +349,12 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
-                        <p className="text-white">{income.status === 'paid' && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
+                        <p className="text-white">{(income.status === 'paid' || isOptimisticPaid) && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
                       </div>
                       <div className="flex justify-center">
-                        {income.status === 'pending' ? (
+                        {(income.status === 'pending' && !isOptimisticPaid) ? (
                           <Button
-                            onClick={() => handleMarkAsPaid(income)}
+                            onClick={() => handleOptimisticMarkAsPaid(income)}
                             disabled={isMarkingAsPaid}
                             className="bg-green-600 hover:bg-green-700 text-white"
                             size="sm"
@@ -336,7 +362,7 @@ export default function Financial() {
                             Confirmar
                           </Button>
                         ) : (
-                          <Button disabled className="bg-green-600 text-white" size="sm">Pago</Button>
+                          <Button disabled className="bg-green-800 text-white" size="sm">Pago</Button>
                         )}
                       </div>
                     </div>
