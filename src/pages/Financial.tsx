@@ -154,81 +154,59 @@ export default function Financial() {
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
 
-  // Gerar lançamentos futuros previstos dos contratos para os próximos 12 meses
-  const today = new Date();
-  const futureIncomes = contracts
+  // Montar array com lançamentos reais + previstos dos contratos
+  const allIncomes = [...incomes];
+  
+  // Adicionar lançamentos previstos dos contratos que não tem lançamento real ainda
+  contracts
     .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
-    .flatMap(contract => {
+    .forEach(contract => {
       const start = new Date(contract.start_date);
       const end = new Date(contract.end_date);
       const paymentDay = Number(contract.client.payment_day);
-      let firstPaymentDate = new Date(start);
-      if (start.getDate() >= paymentDay) {
-        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+      const today = new Date();
+      
+      let paymentDate = new Date(start);
+      paymentDate.setDate(paymentDay);
+      
+      // Se a data do primeiro pagamento já passou neste mês, vai para o próximo
+      if (paymentDate < start) {
+        paymentDate.setMonth(paymentDate.getMonth() + 1);
       }
-      const launches = [];
-      let paymentDate = new Date(firstPaymentDate);
-      let count = 0;
-      while (paymentDate <= end && count < 12) {
-        if (paymentDate >= today && paymentDate <= end) {
-          launches.push({
-            clientName: contract.client.company || 'Cliente não encontrado',
-            value: Number(contract.monthly_value),
-            date: new Date(paymentDate),
-            status: 'previsto',
-          });
-          count++;
-        }
-        paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      
+      // Verificar se já existe lançamento real para este mês
+      const currentMonthKey = `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`;
+      const hasRealEntry = incomes.some((income: any) => {
+        const incomeDate = new Date(income.date);
+        const incomeMonthKey = `${incomeDate.getFullYear()}-${String(incomeDate.getMonth() + 1).padStart(2, '0')}`;
+        return income.client_id === contract.client_id && incomeMonthKey === currentMonthKey;
+      });
+      
+      // Se não tem lançamento real para este mês e está no período do contrato, criar previsto
+      if (!hasRealEntry && paymentDate <= end && paymentDate >= today) {
+        allIncomes.push({
+          id: null as any, // Indica que é previsto
+          client: contract.client,
+          amount: contract.monthly_value,
+          date: paymentDate.toISOString().split('T')[0],
+          status: 'pending',
+          type: 'income',
+          isPredicted: true,
+          description: `Pagamento mensal - ${contract.client.company || 'Cliente'}`,
+          client_id: contract.client_id,
+          category: 'Receita',
+          created_at: null,
+          updated_at: null,
+          user_id: '',
+          is_recurring: false,
+          recurrence_type: null
+        } as any);
       }
-      return launches;
-    })
-    .sort((a, b) => a.date - b.date);
-
-  // Montar array com o próximo lançamento de cada cliente/contrato
-  const nextIncomes = contracts
-    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
-    .map(contract => {
-      // Buscar lançamentos reais pendentes desse contrato
-      const realPendings = incomes.filter(
-        (income: any) => income.client_id === contract.client_id && income.status === 'pending'
-      );
-      if (realPendings.length > 0) {
-        // Se existe lançamento real pendente, pega o mais próximo (menor data)
-        return realPendings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-      } else {
-        // Se não existe, calcula o próximo previsto
-        const start = new Date(contract.start_date);
-        const end = new Date(contract.end_date);
-        const paymentDay = Number(contract.client.payment_day);
-        let firstPaymentDate = new Date(start);
-        if (start.getDate() >= paymentDay) {
-          firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
-        }
-        let paymentDate = new Date(firstPaymentDate);
-        const today = new Date();
-        while (paymentDate <= end) {
-          if (paymentDate >= today) {
-            return {
-              client: contract.client,
-              amount: contract.monthly_value,
-              date: paymentDate.toISOString().split('T')[0],
-              status: 'pending',
-              type: 'income',
-              isPredicted: true,
-            };
-          }
-          paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
-        }
-        // Se não houver mais pagamentos previstos
-        return null;
-      }
-    })
-    .filter(Boolean);
+    });
 
   // Separar lançamentos em atraso dos demais
-  const overdueIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
-  const normalIncomes = nextIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
+  const overdueIncomes = allIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
+  const normalIncomes = allIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
 
   // Aplicar filtro de status
   const filteredNormalIncomes = normalIncomes.filter((income: any) => {

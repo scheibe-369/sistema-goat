@@ -424,7 +424,7 @@ export function EditClientModal({
                     onFocus={e => {
                       if (e.target.value) {
                         e.target.value = '';
-                        setFormData(prev => ({ ...prev, paymentDay: '' }));
+                        setFormData(prev => ({ ...prev, paymentDay: 0 }));
                       }
                     }}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"

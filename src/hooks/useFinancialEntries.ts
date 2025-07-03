@@ -15,75 +15,125 @@ export const useFinancialEntries = () => {
   };
 
   const markAsPaidMutation = useMutation({
-    mutationFn: async ({ contractId, amount, description, contract }: { 
-      contractId: string; 
-      amount: number; 
-      description: string;
-      contract: any;
-    }) => {
+    mutationFn: async (data: any) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      // Create a financial entry for the current payment
-      const { data, error } = await supabase
-        .from('finances')
-        .insert({
-          description: description,
-          amount: amount,
-          category: 'Receita',
-          date: new Date().toISOString().split('T')[0],
-          status: 'paid',
-          type: 'income',
-          user_id: user.id,
-          client_id: contractId,
-        })
-        .select()
-        .single();
+      console.log('DEBUG - Marcando como pago:', data);
+      
+      let result;
+      
+      if (data.id) {
+        // Update existing entry
+        const { data: updatedEntry, error } = await supabase
+          .from('finances')
+          .update({ status: 'paid' })
+          .eq('id', data.id)
+          .eq('user_id', user.id)
+          .select()
+          .single();
 
-      if (error) {
-        console.error('Error creating financial entry:', error);
-        throw error;
-      }
+        if (error) throw error;
+        result = updatedEntry;
+        
+        // For existing entries, check if we need to create next month's entry
+        if (data.type === 'income') {
+          const nextMonthDate = calculateNextMonthDate(data.date);
+          
+          // Check if there's a related contract and if we should create next payment
+          const { data: contracts } = await supabase
+            .from('contracts')
+            .select('*, client:clients(*)')
+            .eq('client_id', data.client_id)
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .single();
+          
+          if (contracts && contracts.end_date) {
+            const contractEndDate = new Date(contracts.end_date);
+            const nextMonthDateObj = new Date(nextMonthDate);
+            
+            if (nextMonthDateObj <= contractEndDate) {
+              console.log('DEBUG - Criando próxima mensalidade automática');
+              const { error: nextError } = await supabase
+                .from('finances')
+                .insert({
+                  description: `Pagamento mensal - ${contracts.client?.company || 'Cliente'}`,
+                  amount: data.amount,
+                  category: 'Receita',
+                  date: nextMonthDate,
+                  status: 'pending',
+                  type: 'income',
+                  user_id: user.id,
+                  client_id: data.client_id,
+                });
 
-      // If contract is active and hasn't ended, create next month's entry
-      if (contract && contract.status === 'active' && contract.end_date) {
-        const nextMonthDate = calculateNextMonthDate(new Date().toISOString().split('T')[0]);
-        const contractEndDate = new Date(contract.end_date);
-        const nextMonthDateObj = new Date(nextMonthDate);
+              if (nextError) {
+                console.error('Error creating next payment:', nextError);
+              }
+            }
+          }
+        }
+      } else {
+        // Create new entry for predicted payment
+        const { data: newEntry, error } = await supabase
+          .from('finances')
+          .insert({
+            description: data.description,
+            amount: data.amount,
+            category: 'Receita',
+            date: data.contract?.date || new Date().toISOString().split('T')[0],
+            status: 'paid',
+            type: 'income',
+            user_id: user.id,
+            client_id: data.contractId,
+          })
+          .select()
+          .single();
 
-        // Only create if next month is before or on contract end date
-        if (nextMonthDateObj <= contractEndDate) {
-          const { error: nextError } = await supabase
-            .from('finances')
-            .insert({
-              description: `${description} - Próxima mensalidade`,
-              amount: amount,
-              category: 'Receita',
-              date: nextMonthDate,
-              status: 'pending',
-              type: 'income',
-              user_id: user.id,
-              client_id: contractId,
-            });
+        if (error) throw error;
+        result = newEntry;
 
-          if (nextError) {
-            console.error('Error creating next month entry:', nextError);
-            // Don't throw here, as the current payment was successful
+        // Create next month's entry if this is from a contract
+        if (data.contract && data.contract.client) {
+          const contract = data.contract;
+          const paymentDate = new Date(contract.date);
+          const nextPaymentDate = new Date(paymentDate);
+          nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+          
+          // Check if next payment is still within contract period
+          const contractEndDate = new Date(contract.client.contract_end || contract.client.contractEnd);
+          
+          if (nextPaymentDate <= contractEndDate) {
+            console.log('DEBUG - Criando próxima mensalidade prevista');
+            const { error: nextError } = await supabase
+              .from('finances')
+              .insert({
+                description: `Pagamento mensal - ${contract.client.company || 'Cliente'}`,
+                amount: contract.amount,
+                category: 'Receita',
+                date: nextPaymentDate.toISOString().split('T')[0],
+                status: 'pending',
+                type: 'income',
+                user_id: user.id,
+                client_id: data.contractId,
+              });
+
+            if (nextError) {
+              console.error('Error creating next payment:', nextError);
+            }
           }
         }
       }
 
-      return data;
+      return result;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      
-      const isRecurring = variables.contract && variables.contract.status === 'active' && 
-                         new Date(calculateNextMonthDate(new Date().toISOString().split('T')[0])) <= new Date(variables.contract.end_date);
+      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
       
       toast({
         title: "Sucesso",
-        description: isRecurring ? "Pagamento registrado e próxima mensalidade criada!" : "Pagamento registrado com sucesso!",
+        description: "Pagamento registrado com sucesso! Próxima mensalidade criada automaticamente.",
       });
     },
     onError: (error) => {
