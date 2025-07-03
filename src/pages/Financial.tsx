@@ -380,55 +380,68 @@ export default function Financial() {
           <div className="space-y-3">
             {expenses.map((expense) => (
               <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                <div className="flex-1 grid grid-cols-4 gap-4 items-center">
+                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                  {/* Coluna 1: Descrição e categoria */}
                   <div>
                     <h4 className="text-white font-medium mb-1">{expense.description}</h4>
-                    <div className="flex gap-2 mt-1">
+                    <p className="text-goat-gray-400 text-sm">{expense.category}</p>
+                  </div>
+                  {/* Coluna 2: Data */}
+                  <div className="text-center">
+                    <p className="text-goat-gray-400 text-xs">Data</p>
+                    <p className="text-white text-base">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                  {/* Coluna 3: Recorrência */}
+                  <div className="text-center">
+                    {expense.is_recurring ? (
+                      <Badge className="bg-goat-purple text-white rounded-md">
+                        {expense.recurrence_type === 'monthly' && 'Mensal'}
+                        {expense.recurrence_type === 'yearly' && 'Anual'}
+                        {expense.recurrence_type === 'quarterly' && 'Trimestral'}
+                        {expense.recurrence_type === 'semesterly' && 'Semestral'}
+                        {!['monthly','yearly','quarterly','semesterly'].includes(expense.recurrence_type) && expense.recurrence_type?.charAt(0).toUpperCase() + expense.recurrence_type?.slice(1)}
+                      </Badge>
+                    ) : null}
+                  </div>
+                  {/* Coluna 4: Valor + status */}
+                  <div className="text-center">
+                    <p className="text-white font-semibold text-lg">{formatCurrency(Number(expense.amount))}</p>
+                    <div className="mt-1">
                       <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white rounded-md`}>
                         {expense.status === 'paid' ? 'Pago' : 'Pendente'}
                       </Badge>
-                      {expense.is_recurring && (
-                        <Badge className="bg-goat-purple text-white rounded-md">{expense.recurrence_type === 'monthly' ? 'Mensal' : expense.recurrence_type?.charAt(0).toUpperCase() + expense.recurrence_type?.slice(1)}</Badge>
-                      )}
                     </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(expense.amount))}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Categoria</p>
-                    <p className="text-white">{expense.category}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-goat-gray-400 text-sm">Data</p>
-                    <p className="text-white">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 ml-4">
-                  {expense.status === 'pending' ? (
+                  {/* Coluna 5: Botões */}
+                  <div className="flex justify-center gap-2">
+                    {expense.status === 'pending' ? (
+                      <Button
+                        onClick={() => handlePayExpense(expense.id)}
+                        disabled={isPaying}
+                        className="bg-green-600 hover:bg-green-700 text-white rounded-md px-6 py-2"
+                        size="sm"
+                      >
+                        {isPaying ? 'Pagando...' : 'Pagar'}
+                      </Button>
+                    ) : (
+                      <Button disabled className="bg-green-800 text-white rounded-md px-6 py-2" size="sm">Pago</Button>
+                    )}
                     <Button
-                      onClick={() => handlePayExpense(expense.id)}
-                      disabled={isPaying}
-                      className="bg-green-600 hover:bg-green-700 text-white rounded-md px-6 py-2"
+                      onClick={() => handleDeleteExpense(expense.id)}
+                      disabled={isDeleting}
+                      className="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2"
                       size="sm"
                     >
-                      {isPaying ? 'Pagando...' : 'Pagar'}
+                      {isDeleting ? 'Excluindo...' : 'Excluir'}
                     </Button>
-                  ) : (
-                    <Button disabled className="bg-green-800 text-white rounded-md px-6 py-2" size="sm">Pago</Button>
-                  )}
-                  <Button
-                    onClick={() => handleDeleteExpense(expense.id)}
-                    disabled={isDeleting}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2"
-                    size="sm"
-                  >
-                    {isDeleting ? 'Excluindo...' : 'Excluir'}
-                  </Button>
+                  </div>
                 </div>
               </div>
             ))}
+            <div className="flex justify-between items-center mt-6">
+              <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
+              <span className="text-white font-normal text-lg">{formatCurrency(expenses.filter(e => e.status === 'pending').reduce((acc, e) => acc + Number(e.amount), 0))}</span>
+            </div>
           </div>
         )}
       </Card>
