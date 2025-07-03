@@ -41,7 +41,7 @@ export const useExpenses = () => {
         throw error;
       }
 
-      return data.map(expense => ({
+      return (data || []).map(expense => ({
         id: expense.id,
         description: expense.description,
         amount: expense.amount,

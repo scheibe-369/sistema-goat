@@ -172,6 +172,8 @@ export type Database = {
           date: string
           description: string
           id: string
+          is_recurring: boolean | null
+          recurrence_type: string | null
           status: string | null
           type: string
           updated_at: string | null
@@ -185,6 +187,8 @@ export type Database = {
           date: string
           description: string
           id?: string
+          is_recurring?: boolean | null
+          recurrence_type?: string | null
           status?: string | null
           type: string
           updated_at?: string | null
@@ -198,6 +202,8 @@ export type Database = {
           date?: string
           description?: string
           id?: string
+          is_recurring?: boolean | null
+          recurrence_type?: string | null
           status?: string | null
           type?: string
           updated_at?: string | null

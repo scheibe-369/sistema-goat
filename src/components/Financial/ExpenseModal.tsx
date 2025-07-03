@@ -31,7 +31,15 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('DEBUG - Dados do formulário:', formData);
+    
     if (!formData.description || !formData.value || !formData.category || !formData.date) {
+      console.error('Campos obrigatórios não preenchidos:', { 
+        description: formData.description, 
+        value: formData.value, 
+        category: formData.category, 
+        date: formData.date 
+      });
       alert('Preencha todos os campos obrigatórios');
       return;
     }
@@ -39,7 +47,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     // Convert value from string to number
     const numericValue = parseFloat(formData.value.replace(',', '.'));
     
+    console.log('DEBUG - Valor convertido:', numericValue);
+    
     if (isNaN(numericValue) || numericValue <= 0) {
+      console.error('Valor inválido:', numericValue);
       alert('Valor deve ser um número válido maior que zero');
       return;
     }
@@ -55,6 +66,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       recurrence_type: formData.isRecurring ? formData.recurrence : undefined
     };
 
+    console.log('DEBUG - Despesa a ser criada:', expense);
     onAddExpense(expense);
     setOpen(false);
     

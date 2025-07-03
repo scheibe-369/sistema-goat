@@ -104,10 +104,7 @@ export default function Financial() {
         contractId: income.client.id,
         amount: Number(income.amount),
         description: `Pagamento mensal - ${income.client.company || 'Cliente'}`,
-        date: income.date,
-        status: 'paid',
-        type: 'income',
-        client_id: income.client.id,
+        contract: income,
       });
     }
   };
@@ -198,7 +195,7 @@ export default function Financial() {
       );
       if (realPendings.length > 0) {
         // Se existe lançamento real pendente, pega o mais próximo (menor data)
-        return realPendings.sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+        return realPendings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
       } else {
         // Se não existe, calcula o próximo previsto
         const start = new Date(contract.start_date);
@@ -280,7 +277,7 @@ export default function Financial() {
               <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
-                    <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
+                    <h4 className="text-white font-medium mb-1">{(income as any).client?.company || (income as any).description || 'Cliente'}</h4>
                     <div className="mt-1">
                       <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white">Em atraso</span>
                     </div>
@@ -331,15 +328,16 @@ export default function Financial() {
             <div className="space-y-3">
               {filteredNormalIncomes.map((income, idx) => {
                 // Se foi pago otimisticamente, mostra como pago
-                const isOptimisticPaid = income.id && optimisticPaidIds.includes(income.id);
+                const incomeItem = income as any;
+                const isOptimisticPaid = incomeItem.id && optimisticPaidIds.includes(incomeItem.id);
                 const statusTag = isOptimisticPaid
                   ? { label: 'Pago', color: 'bg-green-800' }
-                  : getStatusTag(income);
+                  : getStatusTag(incomeItem);
                 return (
                   <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                     <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                       <div>
-                        <h4 className="text-white font-medium mb-1">{income.client?.company || income.description || 'Cliente'}</h4>
+                        <h4 className="text-white font-medium mb-1">{incomeItem.client?.company || incomeItem.description || 'Cliente'}</h4>
                         <div className="mt-1">
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${statusTag.color} text-white`}>
                             {statusTag.label}
@@ -348,20 +346,20 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Valor</p>
-                        <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
+                        <p className="text-white font-semibold">{formatCurrency(Number(incomeItem.amount))}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Referência</p>
-                        <p className="text-white">{formatReference(income.date)}</p>
+                        <p className="text-white">{formatReference(incomeItem.date)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
-                        <p className="text-white">{(income.status === 'paid' || isOptimisticPaid) && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
+                        <p className="text-white">{(incomeItem.status === 'paid' || isOptimisticPaid) && incomeItem.updated_at ? new Date(incomeItem.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
                       </div>
                       <div className="flex justify-center">
-                        {(income.status === 'pending' && !isOptimisticPaid) ? (
+                        {(incomeItem.status === 'pending' && !isOptimisticPaid) ? (
                           <Button
-                            onClick={() => handleMarkAsPaid(income)}
+                            onClick={() => handleMarkAsPaid(incomeItem)}
                             disabled={isMarkingAsPaid}
                             className="bg-green-600 hover:bg-green-700 text-white"
                             size="sm"
