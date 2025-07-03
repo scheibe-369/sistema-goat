@@ -100,11 +100,23 @@ export default function Financial() {
   // Estado local para controle otimista dos pagamentos
   const [optimisticPaidIds, setOptimisticPaidIds] = useState<string[]>([]);
 
-  // Função otimista para marcar como pago e já mostrar próxima fatura
-  const handleOptimisticMarkAsPaid = async (income: any) => {
-    setOptimisticPaidIds((prev) => [...prev, income.id]);
-    await handleMarkAsPaid(income);
-    setOptimisticPaidIds((prev) => prev.filter((id) => id !== income.id));
+  // Função para marcar como pago (real ou previsto)
+  const handleMarkAsPaid = async (income: any) => {
+    if (income.id) {
+      // Lançamento real: marcar como pago
+      await markAsPaid(income.id);
+    } else {
+      // Lançamento previsto: criar lançamento real e marcar como pago
+      await markAsPaid({
+        contractId: income.client.id,
+        amount: Number(income.amount),
+        description: `Pagamento mensal - ${income.client.company || 'Cliente'}`,
+        date: income.date,
+        status: 'paid',
+        type: 'income',
+        client_id: income.client.id,
+      });
+    }
   };
 
   const handlePayExpense = (expenseId: string) => {
@@ -354,7 +366,7 @@ export default function Financial() {
                       <div className="flex justify-center">
                         {(income.status === 'pending' && !isOptimisticPaid) ? (
                           <Button
-                            onClick={() => handleOptimisticMarkAsPaid(income)}
+                            onClick={() => handleMarkAsPaid(income)}
                             disabled={isMarkingAsPaid}
                             className="bg-green-600 hover:bg-green-700 text-white"
                             size="sm"
