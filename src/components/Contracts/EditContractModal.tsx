@@ -1,14 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useUpdateClient } from '@/hooks/useClients';
 
 interface Contract {
   id: string;
   client: string;
+  client_id: string;
   type: string;
   monthlyValue: number;
   startDate: string;
@@ -26,17 +27,20 @@ interface EditContractModalProps {
 export function EditContractModal({ isOpen, contract, onClose, onSave }: EditContractModalProps) {
   const [formData, setFormData] = useState({
     client: '',
+    client_id: '',
     type: '',
     monthlyValue: 0,
     startDate: '',
     endDate: '',
     status: 'active' as Contract['status']
   });
+  const updateClient = useUpdateClient();
 
   useEffect(() => {
     if (contract) {
       setFormData({
         client: contract.client,
+        client_id: contract.client_id,
         type: contract.type,
         monthlyValue: contract.monthlyValue,
         startDate: contract.startDate,
@@ -46,8 +50,11 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
     }
   }, [contract]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.status === 'inactive' && formData.client_id) {
+      await updateClient.mutateAsync({ id: formData.client_id, status: 'inactive' });
+    }
     onSave(formData);
   };
 

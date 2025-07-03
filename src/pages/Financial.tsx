@@ -88,6 +88,10 @@ export default function Financial() {
       };
     });
 
+  const faturamentoGeral = contractProjections.reduce(
+    (total, c) => total + c.monthlyValue * c.durationInMonths, 0
+  );
+
   const handleAddExpense = (expenseData: any) => {
     console.log('DEBUG - Dados recebidos para despesa:', expenseData);
     
@@ -245,6 +249,25 @@ export default function Financial() {
     return true;
   });
 
+  // Cálculo dos KPIs
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const receitasMes = incomes
+    .filter(i => {
+      const d = new Date(i.date);
+      return i.status === 'paid' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    })
+    .reduce((sum, i) => sum + Number(i.amount), 0);
+  const despesasMes = expenses
+    .filter(e => {
+      const d = new Date(e.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    })
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const lucroMes = receitasMes - despesasMes;
+
   useEffect(() => {
     const onFocus = () => {
       refetch();
@@ -262,7 +285,13 @@ export default function Financial() {
         </div>
       </div>
 
-      <FinancialKPIs transactions={transactions} />
+      <FinancialKPIs
+        totalReceitas={faturamentoGeral}
+        receitasMes={receitasMes}
+        despesasMes={despesasMes}
+        lucroMes={lucroMes}
+        transactions={transactions}
+      />
 
       {/* Pagamentos em Atraso */}
       {filteredOverdueIncomes.length > 0 && (

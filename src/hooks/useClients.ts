@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
@@ -77,6 +76,15 @@ export const useUpdateClient = () => {
       if (error) {
         console.error('Error updating client:', error);
         throw error;
+      }
+
+      // Se ativou o cliente (tags: 'Ativo' ou 'A Vencer'), ativa todos os contratos dele
+      if (updates.tags && (updates.tags.includes('Ativo') || updates.tags.includes('A Vencer'))) {
+        await supabase
+          .from('contracts')
+          .update({ status: 'active' })
+          .in('status', ['inactive', 'expiring'])
+          .eq('client_id', id);
       }
 
       return data;

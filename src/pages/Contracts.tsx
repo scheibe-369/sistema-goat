@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,11 +6,13 @@ import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
-import { useContracts, useDeleteContract } from "@/hooks/useContracts";
+import { useContracts, useDeleteContract, useUpdateContract } from "@/hooks/useContracts";
+import { useUpdateClient } from "@/hooks/useClients";
 
 interface Contract {
   id: string;
   client: string;
+  client_id: string;
   type: string;
   monthlyValue: number;
   startDate: string;
@@ -22,6 +23,8 @@ interface Contract {
 export default function Contracts() {
   const { data: contractsData = [], isLoading, error } = useContracts();
   const deleteContractMutation = useDeleteContract();
+  const updateContractMutation = useUpdateContract();
+  const updateClientMutation = useUpdateClient();
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [deletingContract, setDeletingContract] = useState<Contract | null>(null);
 
@@ -29,6 +32,7 @@ export default function Contracts() {
   const contracts: Contract[] = contractsData.map(contract => ({
     id: contract.id,
     client: contract.client?.company || 'Cliente não encontrado',
+    client_id: contract.client_id || contract.client?.id || '',
     type: contract.type,
     monthlyValue: Number(contract.monthly_value),
     startDate: contract.start_date,
@@ -80,10 +84,13 @@ export default function Contracts() {
   const handleConfirmCancel = async () => {
     if (deletingContract) {
       try {
-        await deleteContractMutation.mutateAsync(deletingContract.id);
+        await updateContractMutation.mutateAsync({ id: deletingContract.id, status: 'inactive' });
+        if (deletingContract.client_id) {
+          await updateClientMutation.mutateAsync({ id: deletingContract.client_id, tags: ['Inativo'] });
+        }
         setDeletingContract(null);
       } catch (error) {
-        console.error('Error deleting contract:', error);
+        console.error('Error updating contract or client:', error);
       }
     }
   };
