@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -100,7 +99,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder-white"
               placeholder="Ex: Aluguel escritório"
               required
             />
@@ -113,7 +112,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               type="text"
               value={formData.value}
               onChange={handleValueChange}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder-white"
               placeholder="0,00"
               required
             />

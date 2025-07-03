@@ -317,7 +317,7 @@ export default function Financial() {
                       <div>
                         <h4 className="text-white font-medium mb-1">{incomeItem.client?.company || incomeItem.description || 'Cliente'}</h4>
                         <div className="mt-1">
-                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${statusTag.color} text-white`}>
+                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusTag.color} text-white`}>
                             {statusTag.label}
                           </span>
                         </div>
@@ -383,16 +383,12 @@ export default function Financial() {
                 <div className="flex-1 grid grid-cols-4 gap-4 items-center">
                   <div>
                     <h4 className="text-white font-medium mb-1">{expense.description}</h4>
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white text-xs`}>
+                    <div className="flex gap-2 mt-1">
+                      <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white rounded-md`}>
                         {expense.status === 'paid' ? 'Pago' : 'Pendente'}
                       </Badge>
                       {expense.is_recurring && (
-                        <Badge className="bg-goat-purple text-white text-xs">
-                          {expense.recurrence_type === 'weekly' ? 'Semanal' : 
-                           expense.recurrence_type === 'monthly' ? 'Mensal' :
-                           expense.recurrence_type === 'quarterly' ? 'Trimestral' : 'Anual'}
-                        </Badge>
+                        <Badge className="bg-goat-purple text-white rounded-md">{expense.recurrence_type === 'monthly' ? 'Mensal' : expense.recurrence_type?.charAt(0).toUpperCase() + expense.recurrence_type?.slice(1)}</Badge>
                       )}
                     </div>
                   </div>
@@ -410,20 +406,22 @@ export default function Financial() {
                   </div>
                 </div>
                 <div className="flex gap-2 ml-4">
-                  {expense.status === 'pending' && (
+                  {expense.status === 'pending' ? (
                     <Button
                       onClick={() => handlePayExpense(expense.id)}
                       disabled={isPaying}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-green-600 hover:bg-green-700 text-white rounded-md px-6 py-2"
                       size="sm"
                     >
                       {isPaying ? 'Pagando...' : 'Pagar'}
                     </Button>
+                  ) : (
+                    <Button disabled className="bg-green-800 text-white rounded-md px-6 py-2" size="sm">Pago</Button>
                   )}
                   <Button
                     onClick={() => handleDeleteExpense(expense.id)}
                     disabled={isDeleting}
-                    className="bg-red-600 hover:bg-red-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2"
                     size="sm"
                   >
                     {isDeleting ? 'Excluindo...' : 'Excluir'}
