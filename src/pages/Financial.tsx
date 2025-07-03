@@ -18,7 +18,28 @@ export default function Financial() {
   const { markAsPaid, isMarkingAsPaid, incomes, incomesLoading } = useFinancialEntries();
 
   // Calculate real financial data from database
-  const transactions = [];
+  const transactions = [
+    // Receitas (incomes)
+    ...incomes.map((income) => ({
+      id: income.id,
+      description: income.description,
+      value: Number(income.amount),
+      type: 'receita',
+      category: income.category,
+      date: income.date,
+      status: income.status,
+    })),
+    // Despesas
+    ...expenses.map((expense) => ({
+      id: expense.id,
+      description: expense.description,
+      value: Number(expense.amount),
+      type: 'despesa',
+      category: expense.category,
+      date: expense.date,
+      status: expense.status,
+    })),
+  ];
   
   // Calculate monthly revenue from active contracts
   const monthlyRevenue = contracts
