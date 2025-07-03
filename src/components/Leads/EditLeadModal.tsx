@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -211,26 +210,36 @@ export function EditLeadModal({
           </div>
 
           <div>
-            <Label className="text-white">Tags (Opcional)</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {tags.map(tag => (
-                <Button
-                  key={tag.id}
-                  type="button"
-                  size="sm"
-                  variant={formData.tags.includes(tag.name) ? "default" : "outline"}
-                  className={`text-xs ${
-                    formData.tags.includes(tag.name) 
-                      ? `${tag.color} text-white` 
-                      : 'text-white border-goat-gray-600'
-                  }`}
-                  onClick={() => handleTagToggle(tag.name)}
-                >
-                  <span className={`w-2 h-2 rounded-full ${tag.color} mr-1`}></span>
-                  {tag.name}
-                </Button>
-              ))}
-            </div>
+            <Label htmlFor="tag" className="text-white">Tag (opcional)</Label>
+            <Select
+              value={formData.tags[0] || ""}
+              onValueChange={value => setFormData(prev => ({ ...prev, tags: value ? [value] : [] }))}
+            >
+              <SelectTrigger>
+                <SelectValue>
+                  {(() => {
+                    const selected = tags.find(t => t.name === formData.tags[0]);
+                    if (!selected) return <span className="text-white">Selecione uma tag</span>;
+                    return (
+                      <span className="flex items-center gap-2">
+                        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+                        {selected.name}
+                      </span>
+                    );
+                  })()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {tags.map(tag => (
+                  <SelectItem key={tag.id} value={tag.name}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${tag.color}`} />
+                      {tag.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
