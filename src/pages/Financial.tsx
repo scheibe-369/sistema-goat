@@ -68,32 +68,25 @@ export default function Financial() {
     });
 
   const handleAddExpense = (expenseData: any) => {
-    let amount = 0;
-    // Aceita tanto 'value' quanto 'amount' e converte corretamente
-    if (typeof expenseData.value === 'number') {
-      amount = expenseData.value;
-    } else if (typeof expenseData.value === 'string') {
-      amount = parseFloat(expenseData.value.replace(',', '.'));
-    } else if (typeof expenseData.amount === 'number') {
-      amount = expenseData.amount;
-    } else if (typeof expenseData.amount === 'string') {
-      amount = parseFloat(expenseData.amount.replace(',', '.'));
-    }
-    console.log('DEBUG - Dados recebidos para despesa:', expenseData, 'Valor convertido:', amount);
-    if (!expenseData.description || !amount || isNaN(amount) || amount <= 0 || !expenseData.category || !expenseData.date) {
-      alert('Preencha todos os campos obrigatórios: descrição, valor (> 0), categoria e data. Valor informado: ' + expenseData.value);
+    console.log('DEBUG - Dados recebidos para despesa:', expenseData);
+    
+    if (!expenseData.description || !expenseData.amount || isNaN(expenseData.amount) || expenseData.amount <= 0 || !expenseData.category || !expenseData.date) {
+      console.error('Dados inválidos para despesa:', expenseData);
       return;
     }
+
     const expense = {
       description: expenseData.description,
-      amount,
+      amount: expenseData.amount,
       category: expenseData.category,
       date: expenseData.date,
       status: 'pending',
       type: 'expense',
-      is_recurring: expenseData.is_recurring ?? expenseData.isRecurring ?? false,
-      recurrence_type: expenseData.recurrence_type ?? expenseData.recurrence
+      is_recurring: expenseData.is_recurring || false,
+      recurrence_type: expenseData.recurrence_type
     };
+    
+    console.log('DEBUG - Criando despesa:', expense);
     createExpense(expense);
   };
 
@@ -120,11 +113,13 @@ export default function Financial() {
   };
 
   const handlePayExpense = (expenseId: string) => {
+    console.log('DEBUG - Pagando despesa:', expenseId);
     payExpense(expenseId);
   };
 
   const handleDeleteExpense = (expenseId: string) => {
     if (window.confirm('Tem certeza que deseja excluir esta despesa?')) {
+      console.log('DEBUG - Excluindo despesa:', expenseId);
       deleteExpense(expenseId);
     }
   };
@@ -386,6 +381,7 @@ export default function Financial() {
         </div>
       </Card>
 
+      {/* Despesas Section */}
       <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -393,6 +389,7 @@ export default function Financial() {
           </div>
           <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
+        
         {expensesLoading ? (
           <div className="text-center py-8">
             <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -410,9 +407,18 @@ export default function Financial() {
                 <div className="flex-1 grid grid-cols-4 gap-4 items-center">
                   <div>
                     <h4 className="text-white font-medium mb-1">{expense.description}</h4>
-                    <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white`}>
-                      {expense.status === 'paid' ? 'Pago' : 'Pendente'}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white text-xs`}>
+                        {expense.status === 'paid' ? 'Pago' : 'Pendente'}
+                      </Badge>
+                      {expense.is_recurring && (
+                        <Badge className="bg-goat-purple text-white text-xs">
+                          {expense.recurrence_type === 'weekly' ? 'Semanal' : 
+                           expense.recurrence_type === 'monthly' ? 'Mensal' :
+                           expense.recurrence_type === 'quarterly' ? 'Trimestral' : 'Anual'}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="text-center">
                     <p className="text-goat-gray-400 text-sm">Valor</p>
