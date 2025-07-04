@@ -275,8 +275,7 @@ export default function LeadsKanban() {
       value: localLead.value ? parseFloat(localLead.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null : null,
       notes: null,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      user_id: ''
+      updated_at: new Date().toISOString()
     };
   };
 
@@ -615,7 +614,7 @@ export default function LeadsKanban() {
         </div>
       </DragDropContext>
 
-      {/* Modals - Keep existing */}
+      {/* Modals */}
       <TagsManagementModal
         open={isTagsModalOpen}
         onOpenChange={setIsTagsModalOpen}
