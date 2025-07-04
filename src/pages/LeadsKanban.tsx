@@ -11,8 +11,7 @@ import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLeads } from "@/hooks/useLeads";
-import type { Lead as DatabaseLead } from "@/hooks/useLeads";
+import { useLeads, type Lead } from "@/hooks/useLeads";
 
 interface LocalLead {
   id: string;
@@ -143,7 +142,7 @@ export default function LeadsKanban() {
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditStageModalOpen, setIsEditStageModalOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<LocalLead | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
@@ -263,16 +262,53 @@ export default function LeadsKanban() {
     return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
   };
 
+  // Helper function to convert LocalLead to Lead for editing
+  const convertLocalLeadToLead = (localLead: LocalLead): Lead => {
+    return {
+      id: localLead.id,
+      name: localLead.name,
+      company: localLead.company,
+      phone: localLead.phone,
+      email: localLead.email || null,
+      stage: localLead.stage,
+      tags: localLead.group ? [localLead.group] : null,
+      value: localLead.value ? parseFloat(localLead.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null : null,
+      notes: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      client_id: null,
+      source: null,
+      user_id: ''
+    };
+  };
+
+  // Helper function to convert Lead back to LocalLead
+  const convertLeadToLocalLead = (lead: Lead): LocalLead => {
+    return {
+      id: lead.id,
+      name: lead.name,
+      company: lead.company || '',
+      phone: lead.phone || '',
+      email: lead.email || undefined,
+      stage: lead.stage || '',
+      group: lead.tags?.[0] || undefined,
+      value: lead.value ? `R$ ${lead.value.toLocaleString('pt-BR')}` : undefined,
+      lastUpdate: new Date(lead.updated_at).toISOString().split('T')[0]
+    };
+  };
+
   const handleEditLead = (lead: LocalLead) => {
-    setSelectedLead(lead);
+    const dbLead = convertLocalLeadToLead(lead);
+    setSelectedLead(dbLead);
     setIsEditLeadModalOpen(true);
   };
 
-  const handleUpdateLead = (updatedLead: LocalLead) => {
+  const handleUpdateLead = (updatedLead: Lead) => {
+    const localLead = convertLeadToLocalLead(updatedLead);
     setStages(prev => prev.map(stage => ({
       ...stage,
       leads: stage.leads.map(lead =>
-        lead.id === updatedLead.id ? updatedLead : lead
+        lead.id === localLead.id ? localLead : lead
       )
     })));
   };
