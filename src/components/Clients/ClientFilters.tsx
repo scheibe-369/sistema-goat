@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
+import { usePlansContext } from "@/contexts/PlansContext";
 
 interface FilterState {
   status: string[];
@@ -24,13 +25,14 @@ interface ClientFiltersProps {
 
 export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: ClientFiltersProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
+  const { getPlanNames, isLoading: plansLoading } = usePlansContext();
 
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
 
   const statusOptions = ["Ativo", "A vencer", "Vencido"];
-  const planOptions = ["Vendas", "Branding", "Landing Page", "Automação"];
+  const planOptions = getPlanNames();
 
   const handleStatusChange = (status: string, checked: boolean) => {
     setLocalFilters(prev => ({
@@ -202,24 +204,28 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                   Tipo de Plano
                 </h3>
                 
-                <div className="space-y-3">
-                  {planOptions.map((plan) => (
-                    <div key={plan} className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`plan-${plan}`}
-                        checked={localFilters.plan.includes(plan)}
-                        onCheckedChange={(checked) => handlePlanChange(plan, checked as boolean)}
-                        className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
-                      />
-                      <Label 
-                        htmlFor={`plan-${plan}`} 
-                        className="text-white cursor-pointer hover:text-goat-purple transition-colors"
-                      >
-                        {plan}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+                {plansLoading ? (
+                  <div className="text-white/70">Carregando planos...</div>
+                ) : (
+                  <div className="space-y-3">
+                    {planOptions.map((plan) => (
+                      <div key={plan} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`plan-${plan}`}
+                          checked={localFilters.plan.includes(plan)}
+                          onCheckedChange={(checked) => handlePlanChange(plan, checked as boolean)}
+                          className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
+                        />
+                        <Label 
+                          htmlFor={`plan-${plan}`} 
+                          className="text-white cursor-pointer hover:text-goat-purple transition-colors"
+                        >
+                          {plan}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Período do Fim de Contrato */}

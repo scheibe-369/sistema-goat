@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import { Plus, X, ChevronDown } from "lucide-react";
 import { ColorPicker } from "./ColorPicker";
+import { usePlansContext } from "@/contexts/PlansContext";
 
 interface NewClientModalProps {
   isOpen: boolean;
@@ -35,13 +36,16 @@ export function NewClientModal({
   onPlanColorChange,
   planColors = {}
 }: NewClientModalProps) {
+  const { getPlanNames, createPlan, getPlanByName } = usePlansContext();
+  const planOptions = getPlanNames();
+
   const [formData, setFormData] = useState({
     company: "",
     cnpj: "",
     responsible: "",
     phone: "",
     email: "",
-    plan: "Vendas",
+    plan: planOptions[0] || "Vendas",
     contractEnd: "",
     startDate: "",
     paymentDay: "1",
@@ -50,18 +54,9 @@ export function NewClientModal({
     tags: ["Ativo"],
   });
 
-  const [customPlans, setCustomPlans] = useState<string[]>([]);
   const [newPlanName, setNewPlanName] = useState("");
   const [newPlanColor, setNewPlanColor] = useState("bg-purple-600 text-white hover:bg-purple-700");
   const [showAddPlan, setShowAddPlan] = useState(false);
-
-  const defaultPlans = [
-    "Vendas",
-    "Branding",
-    "Landing Page",
-    "Automação",
-  ];
-  const allPlans = [...defaultPlans, ...customPlans];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +77,7 @@ export function NewClientModal({
       responsible: "",
       phone: "",
       email: "",
-      plan: "Vendas",
+      plan: planOptions[0] || "Vendas",
       contractEnd: "",
       startDate: "",
       paymentDay: "1",
@@ -151,27 +146,28 @@ export function NewClientModal({
     handleChange("paymentDay", value);
   };
 
-  const handleAddCustomPlan = () => {
-    if (newPlanName.trim() && !allPlans.includes(newPlanName.trim())) {
-      setCustomPlans((prev) => [...prev, newPlanName.trim()]);
-      setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
-      
-      // Salvar a cor do plano
-      if (onPlanColorChange) {
-        onPlanColorChange(newPlanName.trim(), newPlanColor);
+  const handleAddCustomPlan = async () => {
+    if (newPlanName.trim() && !planOptions.includes(newPlanName.trim())) {
+      try {
+        await createPlan({
+          name: newPlanName.trim(),
+          color: newPlanColor,
+        });
+        
+        setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
+        
+        setNewPlanName("");
+        setNewPlanColor("bg-purple-600 text-white hover:bg-purple-700");
+        setShowAddPlan(false);
+      } catch (error) {
+        console.error('Error creating plan:', error);
       }
-      
-      setNewPlanName("");
-      setNewPlanColor("bg-purple-600 text-white hover:bg-purple-700");
-      setShowAddPlan(false);
     }
   };
 
-  const handleRemoveCustomPlan = (planToRemove: string) => {
-    setCustomPlans((prev) => prev.filter((plan) => plan !== planToRemove));
-    if (formData.plan === planToRemove) {
-      setFormData((prev) => ({ ...prev, plan: "Vendas" }));
-    }
+  const getPlanColor = (planName: string) => {
+    const plan = getPlanByName(planName);
+    return plan?.color || 'bg-purple-600 text-white hover:bg-purple-700';
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -436,7 +432,7 @@ export function NewClientModal({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="dropdown-content">
-                      {allPlans.map((plan) => (
+                      {planOptions.map((plan) => (
                         <DropdownMenuItem
                           key={plan}
                           onClick={() => handleChange("plan", plan)}
@@ -444,20 +440,6 @@ export function NewClientModal({
                         >
                           <div className="flex items-center justify-between w-full">
                             <span>{plan}</span>
-                            {customPlans.includes(plan) && (
-                              <Button
-                                type="button"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleRemoveCustomPlan(plan);
-                                }}
-                                className="bg-red-600/20 hover:bg-red-600/30 text-red-400 h-5 w-5 p-0 ml-2"
-                              >
-                                <X className="w-3 h-3" />
-                              </Button>
-                            )}
                           </div>
                         </DropdownMenuItem>
                       ))}

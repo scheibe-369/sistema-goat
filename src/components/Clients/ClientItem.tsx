@@ -1,6 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Phone, Mail, Calendar, MapPin, ChevronDown, ChevronRight } from "lucide-react";
+import { usePlansContext } from "@/contexts/PlansContext";
 
 interface Client {
   id: string;
@@ -28,6 +30,8 @@ interface ClientItemProps {
 }
 
 export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDelete, planColors = {} }: ClientItemProps) {
+  const { getPlanByName } = usePlansContext();
+
   const getTagColor = (tag: string) => {
     switch (tag.toLowerCase()) {
       case "ativo":
@@ -48,11 +52,18 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
   };
 
   const getPlanColor = (plan: string) => {
+    // First try to get from the plans context (dynamic plans)
+    const planFromContext = getPlanByName(plan);
+    if (planFromContext && planFromContext.color) {
+      return planFromContext.color;
+    }
+
+    // Fallback to legacy planColors prop
     if (planColors[plan]) {
       return planColors[plan];
     }
     
-    // Cores padrão para planos conhecidos
+    // Default colors for known plans
     switch (plan.toLowerCase()) {
       case "vendas":
         return "bg-blue-600 text-white hover:bg-blue-700";
@@ -60,6 +71,8 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
         return "bg-pink-600 text-white hover:bg-pink-700";
       case "automação":
         return "bg-purple-600 text-white hover:bg-purple-700";
+      case "landing page":
+        return "bg-green-600 text-white hover:bg-green-700";
       case "premium":
         return "bg-goat-purple text-white hover:bg-goat-purple";
       case "gold":

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
 import { X, ChevronDown, Edit } from "lucide-react";
+import { usePlansContext } from "@/contexts/PlansContext";
 
 interface Client {
   id: string;
@@ -67,6 +68,9 @@ export function EditClientModal({
   onPlanColorChange,
   planColors,
 }: EditClientModalProps) {
+  const { getPlanNames } = usePlansContext();
+  const planOptions = getPlanNames();
+  
   const [formData, setFormData] = useState<Client>({
     id: "",
     company: "",
@@ -78,17 +82,10 @@ export function EditClientModal({
     paymentDay: 1,
     tags: ["Ativo"],
     address: "",
-    plan: "Vendas",
+    plan: planOptions[0] || "Vendas",
     startDate: "",
     monthlyValue: "0,00",
   });
-
-  const planOptions = [
-    "Vendas",
-    "Branding", 
-    "Landing Page",
-    "Automação"
-  ];
 
   useEffect(() => {
     if (client) {
