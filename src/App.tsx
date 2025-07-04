@@ -14,7 +14,7 @@ import Financial from "./pages/Financial"
 import Contracts from "./pages/Contracts"
 import NotFound from "./pages/NotFound"
 import { CRMLayout } from "./components/Layout/CRMLayout"
-import { ProtectedRoute } from "./components/ProtectedRoute"
+import ProtectedRoute from "./components/ProtectedRoute"
 import { PlansProvider } from "./contexts/PlansContext"
 
 const queryClient = new QueryClient()
