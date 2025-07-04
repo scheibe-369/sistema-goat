@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
-import { useContracts, useUpdateContract } from "@/hooks/useContracts";
 import { NewClientModal } from "@/components/Clients/NewClientModal";
 import { EditClientModal } from "@/components/Clients/EditClientModal";
 import { ClientFilters } from "@/components/Clients/ClientFilters";
@@ -52,8 +51,6 @@ export default function Clients() {
   const updateClientMutation = useUpdateClient();
   const deleteClientMutation = useDeleteClient();
   const queryClient = useQueryClient();
-  const { data: contracts = [] } = useContracts();
-  const updateContractMutation = useUpdateContract();
 
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
@@ -118,15 +115,6 @@ export default function Clients() {
           start_date: clientData.startDate || null,
           monthly_value: clientData.monthlyValue || 0,
         });
-        // Atualizar contratos associados
-        const contratosDoCliente = contracts.filter(contract => contract.client_id === editingClient.id);
-        for (const contrato of contratosDoCliente) {
-          await updateContractMutation.mutateAsync({
-            id: contrato.id,
-            monthly_value: clientData.monthlyValue || 0,
-            end_date: clientData.contractEnd || contrato.end_date,
-          });
-        }
         queryClient.invalidateQueries({ queryKey: ['clients'] });
         queryClient.invalidateQueries({ queryKey: ['contracts'] });
         setEditingClient(null);
