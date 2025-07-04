@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -277,7 +276,6 @@ export default function LeadsKanban() {
       notes: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      source: null,
       user_id: ''
     };
   };
