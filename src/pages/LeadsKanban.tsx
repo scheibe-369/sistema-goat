@@ -11,8 +11,10 @@ import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLeads } from "@/hooks/useLeads";
+import type { Lead as DatabaseLead } from "@/hooks/useLeads";
 
-interface Lead {
+interface LocalLead {
   id: string;
   name: string;
   company: string;
@@ -34,7 +36,7 @@ interface Stage {
   id: string;
   name: string;
   color: string;
-  leads: Lead[];
+  leads: LocalLead[];
 }
 
 const defaultTags: Tag[] = [
@@ -141,7 +143,7 @@ export default function LeadsKanban() {
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditStageModalOpen, setIsEditStageModalOpen] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLead, setSelectedLead] = useState<LocalLead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
@@ -229,7 +231,7 @@ export default function LeadsKanban() {
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
-    const x = e.touches[0].pageX - (kanbanRef.current.offsetLeft || 0);
+    const x = e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0);
     const walk = (x - touchStartX) * 1.1;
     kanbanRef.current.scrollLeft = touchScrollLeft - walk;
 
@@ -261,12 +263,12 @@ export default function LeadsKanban() {
     return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
   };
 
-  const handleEditLead = (lead: Lead) => {
+  const handleEditLead = (lead: LocalLead) => {
     setSelectedLead(lead);
     setIsEditLeadModalOpen(true);
   };
 
-  const handleUpdateLead = (updatedLead: Lead) => {
+  const handleUpdateLead = (updatedLead: LocalLead) => {
     setStages(prev => prev.map(stage => ({
       ...stage,
       leads: stage.leads.map(lead =>
@@ -292,12 +294,27 @@ export default function LeadsKanban() {
     setStages(prev => [...prev, newStage]);
   };
 
-  const handleAddLead = (newLeadData: Omit<Lead, 'id' | 'lastUpdate'>) => {
-    const newLead: Lead = {
-      ...newLeadData,
+  const handleAddLead = (newLeadData: {
+    name: string;
+    company: string;
+    phone: string;
+    email?: string;
+    stage: string;
+    tags?: string[];
+    value?: number;
+  }) => {
+    const newLead: LocalLead = {
       id: `lead-${Date.now()}`,
+      name: newLeadData.name,
+      company: newLeadData.company,
+      phone: newLeadData.phone,
+      email: newLeadData.email,
+      stage: newLeadData.stage,
+      group: newLeadData.tags?.[0],
+      value: newLeadData.value ? `R$ ${newLeadData.value.toLocaleString('pt-BR')}` : undefined,
       lastUpdate: new Date().toISOString().split('T')[0]
     };
+    
     setStages(prev => prev.map(stage =>
       stage.id === newLeadData.stage
         ? { ...stage, leads: [...stage.leads, newLead] }

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,11 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.status === 'inactive' && formData.client_id) {
-      await updateClient.mutateAsync({ id: formData.client_id, status: 'inactive' });
+      // Update client tags to reflect inactive status
+      await updateClient.mutateAsync({ 
+        id: formData.client_id, 
+        tags: ['Inativo']
+      });
     }
     onSave(formData);
   };
