@@ -6,8 +6,7 @@ import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
-import { useContracts, useDeleteContract, useUpdateContract } from "@/hooks/useContracts";
-import { useUpdateClient } from "@/hooks/useClients";
+import { useContracts, useUpdateContract } from "@/hooks/useContracts";
 
 interface Contract {
   id: string;
@@ -22,9 +21,7 @@ interface Contract {
 
 export default function Contracts() {
   const { data: contractsData = [], isLoading, error } = useContracts();
-  const deleteContractMutation = useDeleteContract();
   const updateContractMutation = useUpdateContract();
-  const updateClientMutation = useUpdateClient();
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [deletingContract, setDeletingContract] = useState<Contract | null>(null);
 
@@ -76,7 +73,6 @@ export default function Contracts() {
 
   const handleEditContract = (contractData: Omit<Contract, 'id'>) => {
     if (editingContract) {
-      // This would update the contract via mutation
       setEditingContract(null);
     }
   };
@@ -85,12 +81,9 @@ export default function Contracts() {
     if (deletingContract) {
       try {
         await updateContractMutation.mutateAsync({ id: deletingContract.id, status: 'inactive' });
-        if (deletingContract.client_id) {
-          await updateClientMutation.mutateAsync({ id: deletingContract.client_id, tags: ['Inativo'] });
-        }
         setDeletingContract(null);
       } catch (error) {
-        console.error('Error updating contract or client:', error);
+        console.error('Error updating contract:', error);
       }
     }
   };
@@ -204,7 +197,7 @@ export default function Contracts() {
       <Card className="bg-goat-gray-800 border-goat-gray-700">
         <div className="p-6 border-b border-goat-gray-700">
           <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
-          <p className="text-goat-gray-400 text-sm mt-1">Contratos são criados automaticamente a partir dos clientes</p>
+          <p className="text-goat-gray-400 text-sm mt-1">Status sincronizado automaticamente com os clientes</p>
         </div>
         
         {contracts.length === 0 ? (
