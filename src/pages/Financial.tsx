@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -92,23 +91,9 @@ export default function Financial() {
     createExpense(expense);
   };
 
-  // Estado local para controle otimista dos pagamentos
-  const [optimisticPaidIds, setOptimisticPaidIds] = useState<string[]>([]);
-
-  // Função para marcar como pago (real ou previsto)
+  // Função para marcar como pago
   const handleMarkAsPaid = async (income: any) => {
-    if (income.id) {
-      // Lançamento real: marcar como pago
-      await markAsPaid(income.id);
-    } else {
-      // Lançamento previsto: criar lançamento real e marcar como pago
-      await markAsPaid({
-        contractId: income.client.id,
-        amount: Number(income.amount),
-        description: `Pagamento mensal - ${income.client.company || 'Cliente'}`,
-        contract: income,
-      });
-    }
+    await markAsPaid(income);
   };
 
   const handlePayExpense = (expenseId: string) => {
@@ -156,59 +141,9 @@ export default function Financial() {
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
 
-  // Montar array com lançamentos reais + previstos dos contratos
-  const allIncomes = [...incomes];
-  
-  // Adicionar lançamentos previstos dos contratos que não tem lançamento real ainda
-  contracts
-    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
-    .forEach(contract => {
-      const start = new Date(contract.start_date);
-      const end = new Date(contract.end_date);
-      const paymentDay = Number(contract.client.payment_day);
-      const today = new Date();
-      
-      let paymentDate = new Date(start);
-      paymentDate.setDate(paymentDay);
-      
-      // Se a data do primeiro pagamento já passou neste mês, vai para o próximo
-      if (paymentDate < start) {
-        paymentDate.setMonth(paymentDate.getMonth() + 1);
-      }
-      
-      // Verificar se já existe lançamento real para este mês
-      const currentMonthKey = `${paymentDate.getFullYear()}-${String(paymentDate.getMonth() + 1).padStart(2, '0')}`;
-      const hasRealEntry = incomes.some((income: any) => {
-        const incomeDate = new Date(income.date);
-        const incomeMonthKey = `${incomeDate.getFullYear()}-${String(incomeDate.getMonth() + 1).padStart(2, '0')}`;
-        return income.client_id === contract.client_id && incomeMonthKey === currentMonthKey;
-      });
-      
-      // Se não tem lançamento real para este mês e está no período do contrato, criar previsto
-      if (!hasRealEntry && paymentDate <= end && paymentDate >= today) {
-        allIncomes.push({
-          id: null as any, // Indica que é previsto
-          client: contract.client,
-          amount: contract.monthly_value,
-          date: paymentDate.toISOString().split('T')[0],
-          status: 'pending',
-          type: 'income',
-          isPredicted: true,
-          description: `Pagamento mensal - ${contract.client.company || 'Cliente'}`,
-          client_id: contract.client_id,
-          category: 'Receita',
-          created_at: null,
-          updated_at: null,
-          user_id: '',
-          is_recurring: false,
-          recurrence_type: null
-        } as any);
-      }
-    });
-
   // Separar lançamentos em atraso dos demais
-  const overdueIncomes = allIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
-  const normalIncomes = allIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
+  const overdueIncomes = filteredIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
+  const normalIncomes = filteredIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
 
   // Aplicar filtro de status
   const filteredNormalIncomes = normalIncomes.filter((income: any) => {
@@ -278,14 +213,13 @@ export default function Financial() {
           </div>
           <div className="p-6">
             {filteredOverdueIncomes.map((income, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
+              <div key={income.id || idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
-                    <h4 className="text-white font-medium mb-1">{(income as any).client?.company || (income as any).description || 'Cliente'}</h4>
+                    <h4 className="text-white font-medium mb-1">{income.description}</h4>
                     <div className="mt-1">
                       <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white">Em atraso</span>
                     </div>
-                    <p className="text-red-200 text-xs mt-2">Cliente comunicou dificuldade financeira</p>
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Valor</p>
@@ -300,7 +234,14 @@ export default function Financial() {
                     <p className="text-white">-</p>
                   </div>
                   <div className="flex justify-center">
-                    <Button className="border border-red-400 text-red-400 bg-transparent hover:bg-red-900" size="sm">Contatar Cliente</Button>
+                    <Button
+                      onClick={() => handleMarkAsPaid(income)}
+                      disabled={isMarkingAsPaid}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      Confirmar
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -314,7 +255,7 @@ export default function Financial() {
         <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Próximo lançamento de cada cliente</p>
+            <p className="text-goat-gray-400 text-sm mt-1">Todos os lançamentos do sistema</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
@@ -331,17 +272,12 @@ export default function Financial() {
           ) : (
             <div className="space-y-3">
               {filteredNormalIncomes.map((income, idx) => {
-                // Se foi pago otimisticamente, mostra como pago
-                const incomeItem = income as any;
-                const isOptimisticPaid = incomeItem.id && optimisticPaidIds.includes(incomeItem.id);
-                const statusTag = isOptimisticPaid
-                  ? { label: 'Pago', color: 'bg-green-800' }
-                  : getStatusTag(incomeItem);
+                const statusTag = getStatusTag(income);
                 return (
-                  <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                  <div key={income.id || idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                     <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                       <div>
-                        <h4 className="text-white font-medium mb-1">{incomeItem.client?.company || incomeItem.description || 'Cliente'}</h4>
+                        <h4 className="text-white font-medium mb-1">{income.description}</h4>
                         <div className="mt-1">
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusTag.color} text-white`}>
                             {statusTag.label}
@@ -350,20 +286,20 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Valor</p>
-                        <p className="text-white font-semibold">{formatCurrency(Number(incomeItem.amount))}</p>
+                        <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Referência</p>
-                        <p className="text-white">{formatReference(incomeItem.date)}</p>
+                        <p className="text-white">{formatReference(income.date)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
-                        <p className="text-white">{(incomeItem.status === 'paid' || isOptimisticPaid) && incomeItem.updated_at ? new Date(incomeItem.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
+                        <p className="text-white">{income.status === 'paid' && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
                       </div>
                       <div className="flex justify-center">
-                        {(incomeItem.status === 'pending' && !isOptimisticPaid) ? (
+                        {income.status === 'pending' ? (
                           <Button
-                            onClick={() => handleMarkAsPaid(incomeItem)}
+                            onClick={() => handleMarkAsPaid(income)}
                             disabled={isMarkingAsPaid}
                             className="bg-green-600 hover:bg-green-700 text-white"
                             size="sm"

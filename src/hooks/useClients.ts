@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
+import { generateFinancialEntriesForClient } from './useGenerateFinancialEntries';
 
 type Client = Tables<'clients'>;
 type ClientInsert = TablesInsert<'clients'>;
@@ -46,12 +47,18 @@ export const useCreateClient = () => {
         throw error;
       }
 
+      // Gerar lançamentos financeiros automaticamente se cliente tem dados de contrato
+      if (client.monthly_value && client.contract_end && client.payment_day) {
+        await generateFinancialEntriesForClient(data.id, user.id);
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['finances'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente criado com sucesso!');
     },
@@ -85,6 +92,7 @@ export const useUpdateClient = () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['finances'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente atualizado com sucesso!');
     },
@@ -114,6 +122,7 @@ export const useDeleteClient = () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['finances'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente excluído com sucesso!');
     },
