@@ -117,9 +117,14 @@ export default function Financial() {
     return income.status === statusFilter;
   });
 
-  // Função para formatar referência mês/ano
-  const formatReference = (date: string) => {
-    const d = new Date(date);
+  // Função para formatar referência mês/ano (agora usando o campo category)
+  const formatReference = (income: any) => {
+    // Se já tem referência no campo category, usar ela
+    if (income.category && income.category !== 'Receita') {
+      return income.category;
+    }
+    // Fallback para formato antigo
+    const d = new Date(income.date);
     return d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
   };
 
@@ -227,7 +232,7 @@ export default function Financial() {
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Referência</p>
-                    <p className="text-white">{formatReference(income.date)}</p>
+                    <p className="text-white">{formatReference(income)}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Data de Pagamento</p>
@@ -290,7 +295,7 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Referência</p>
-                        <p className="text-white">{formatReference(income.date)}</p>
+                        <p className="text-white">{formatReference(income)}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>

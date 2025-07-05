@@ -3,17 +3,12 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { generateNextFinancialEntry } from "./useGenerateFinancialEntries";
 
 export const useFinancialEntries = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  const calculateNextMonthDate = (currentDate: string) => {
-    const date = new Date(currentDate);
-    date.setMonth(date.getMonth() + 1);
-    return date.toISOString().split('T')[0];
-  };
 
   const markAsPaidMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -36,8 +31,8 @@ export const useFinancialEntries = () => {
         if (error) throw error;
         result = updatedEntry;
         
-        // Para lançamentos existentes, não criar próximo automaticamente
-        // pois todos os lançamentos futuros já foram criados na criação do cliente
+        // Gerar próximo lançamento se necessário
+        await generateNextFinancialEntry(updatedEntry, user.id);
         
       } else {
         // Create new entry for predicted payment
@@ -46,7 +41,7 @@ export const useFinancialEntries = () => {
           .insert({
             description: data.description,
             amount: data.amount,
-            category: 'Receita',
+            category: data.category || 'Receita',
             date: data.contract?.date || new Date().toISOString().split('T')[0],
             status: 'paid',
             type: 'income',
