@@ -1,4 +1,3 @@
-
 'use client'
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -49,7 +48,7 @@ const Login = () => {
             border: '1px solid #8B5CF6',
           },
         });
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
