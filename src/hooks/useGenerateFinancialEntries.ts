@@ -5,7 +5,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
   try {
     console.log('DEBUG - Gerando lançamentos financeiros para cliente:', clientId);
 
-    // Buscar dados do cliente e contrato
+    // Buscar dados do cliente
     const { data: client, error: clientError } = await supabase
       .from('clients')
       .select('*')
@@ -18,15 +18,9 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       return;
     }
 
-    const { data: contract, error: contractError } = await supabase
-      .from('contracts')
-      .select('*')
-      .eq('client_id', clientId)
-      .eq('user_id', userId)
-      .single();
-
-    if (contractError || !contract) {
-      console.error('Erro ao buscar contrato:', contractError);
+    // Verificar se o cliente tem dados necessários para gerar lançamentos
+    if (!client.monthly_value || !client.contract_end || !client.payment_day) {
+      console.log('DEBUG - Cliente não tem dados suficientes para gerar lançamentos financeiros');
       return;
     }
 
@@ -43,8 +37,8 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
     }
 
     // Gerar todos os lançamentos futuros
-    const startDate = new Date(contract.start_date);
-    const endDate = new Date(contract.end_date);
+    const startDate = new Date(client.start_date || new Date());
+    const endDate = new Date(client.contract_end);
     const paymentDay = client.payment_day || 1;
     
     const financialEntries = [];
@@ -75,7 +69,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
         client_id: clientId,
         user_id: userId,
         name: client.company,
-        amount: contract.monthly_value,
+        amount: client.monthly_value,
         due_date: entryDate,
         reference: reference,
         status: 'pending',
@@ -94,6 +88,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
 
       if (insertError) {
         console.error('Erro ao inserir lançamentos financeiros:', insertError);
+        throw insertError;
       } else {
         console.log('DEBUG - Lançamentos financeiros criados com sucesso');
       }
@@ -101,6 +96,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
 
   } catch (error) {
     console.error('Erro ao gerar lançamentos financeiros:', error);
+    throw error;
   }
 };
 
@@ -122,5 +118,6 @@ export const updateFinancialEntriesForClient = async (clientId: string, userId: 
 
   } catch (error) {
     console.error('Erro ao atualizar lançamentos financeiros:', error);
+    throw error;
   }
 };

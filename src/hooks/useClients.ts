@@ -13,9 +13,13 @@ export const useClients = () => {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('clients')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -54,7 +58,12 @@ export const useCreateClient = () => {
       // Gerar lançamentos financeiros automaticamente se cliente tem dados de contrato
       if (client.monthly_value && client.contract_end && client.payment_day) {
         console.log('DEBUG - Gerando lançamentos financeiros para cliente criado');
-        await generateFinancialEntriesForClient(data.id, user.id);
+        try {
+          await generateFinancialEntriesForClient(data.id, user.id);
+        } catch (finError) {
+          console.error('Erro ao gerar lançamentos financeiros:', finError);
+          // Não falhar a criação do cliente por causa dos lançamentos
+        }
       }
 
       return data;
@@ -87,6 +96,7 @@ export const useUpdateClient = () => {
         .from('clients')
         .update(updates)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -100,7 +110,12 @@ export const useUpdateClient = () => {
       // Atualizar lançamentos financeiros se dados do contrato foram alterados
       if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
         console.log('DEBUG - Atualizando lançamentos financeiros para cliente editado');
-        await updateFinancialEntriesForClient(id, user.id);
+        try {
+          await updateFinancialEntriesForClient(id, user.id);
+        } catch (finError) {
+          console.error('Erro ao atualizar lançamentos financeiros:', finError);
+          // Não falhar a atualização do cliente por causa dos lançamentos
+        }
       }
 
       return data;
@@ -124,10 +139,14 @@ export const useDeleteClient = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('clients')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error deleting client:', error);

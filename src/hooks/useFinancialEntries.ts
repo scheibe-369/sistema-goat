@@ -10,10 +10,13 @@ export const useFinancialEntries = () => {
   const { toast } = useToast();
 
   // Buscar lançamentos financeiros
-  const { data: financialEntries = [], isLoading: financialEntriesLoading } = useQuery({
+  const { data: financialEntries = [], isLoading: financialEntriesLoading, refetch } = useQuery({
     queryKey: ['financial-entries', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
+      
+      console.log('DEBUG - Buscando lançamentos financeiros para usuário:', user.id);
+      
       const { data, error } = await supabase
         .from('financial_entries')
         .select(`
@@ -32,7 +35,9 @@ export const useFinancialEntries = () => {
         console.error('Erro ao buscar lançamentos financeiros:', error);
         throw error;
       }
-      return data;
+      
+      console.log('DEBUG - Lançamentos financeiros encontrados:', data?.length || 0);
+      return data || [];
     },
     enabled: !!user?.id,
   });
@@ -55,12 +60,16 @@ export const useFinancialEntries = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao marcar como pago:', error);
+        throw error;
+      }
       
       return updatedEntry;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
+      refetch();
       
       toast({
         title: "Sucesso",
@@ -82,5 +91,6 @@ export const useFinancialEntries = () => {
     financialEntriesLoading,
     markAsPaid: markAsPaidMutation.mutate,
     isMarkingAsPaid: markAsPaidMutation.isPending,
+    refetch,
   };
 };
