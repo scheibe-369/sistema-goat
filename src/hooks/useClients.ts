@@ -52,21 +52,9 @@ export const useCreateClient = () => {
       console.log('DEBUG - Cliente criado:', data);
 
       // Gerar lançamentos financeiros automaticamente se cliente tem dados de contrato
-      try {
-        if (client.monthly_value && client.contract_end && client.payment_day) {
-          console.log('DEBUG - Gerando lançamentos financeiros para cliente criado');
-          await generateFinancialEntriesForClient(data.id, user.id);
-          console.log('DEBUG - Lançamentos financeiros gerados com sucesso');
-        } else {
-          console.log('DEBUG - Cliente não tem dados completos para gerar lançamentos:', {
-            monthly_value: client.monthly_value,
-            contract_end: client.contract_end,
-            payment_day: client.payment_day
-          });
-        }
-      } catch (financialError) {
-        console.error('Erro ao gerar lançamentos financeiros:', financialError);
-        // Não falhar a criação do cliente se houver erro nos lançamentos
+      if (client.monthly_value && client.contract_end && client.payment_day) {
+        console.log('DEBUG - Gerando lançamentos financeiros para cliente criado');
+        await generateFinancialEntriesForClient(data.id, user.id);
       }
 
       return data;
@@ -110,14 +98,9 @@ export const useUpdateClient = () => {
       console.log('DEBUG - Cliente atualizado:', data);
 
       // Atualizar lançamentos financeiros se dados do contrato foram alterados
-      try {
-        if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
-          console.log('DEBUG - Atualizando lançamentos financeiros para cliente editado');
-          await updateFinancialEntriesForClient(id, user.id);
-        }
-      } catch (financialError) {
-        console.error('Erro ao atualizar lançamentos financeiros:', financialError);
-        // Não falhar a atualização do cliente se houver erro nos lançamentos
+      if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
+        console.log('DEBUG - Atualizando lançamentos financeiros para cliente editado');
+        await updateFinancialEntriesForClient(id, user.id);
       }
 
       return data;
