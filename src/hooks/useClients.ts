@@ -36,6 +36,8 @@ export const useCreateClient = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      console.log('DEBUG - Criando cliente com dados:', client);
+
       const { data, error } = await supabase
         .from('clients')
         .insert({ ...client, user_id: user.id })
@@ -47,8 +49,11 @@ export const useCreateClient = () => {
         throw error;
       }
 
+      console.log('DEBUG - Cliente criado:', data);
+
       // Gerar lançamentos financeiros automaticamente se cliente tem dados de contrato
       if (client.monthly_value && client.contract_end && client.payment_day) {
+        console.log('DEBUG - Gerando lançamentos financeiros para cliente criado');
         await generateFinancialEntriesForClient(data.id, user.id);
       }
 
@@ -76,6 +81,8 @@ export const useUpdateClient = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      console.log('DEBUG - Atualizando cliente:', id, updates);
+
       const { data, error } = await supabase
         .from('clients')
         .update(updates)
@@ -88,8 +95,11 @@ export const useUpdateClient = () => {
         throw error;
       }
 
+      console.log('DEBUG - Cliente atualizado:', data);
+
       // Atualizar lançamentos financeiros se dados do contrato foram alterados
       if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
+        console.log('DEBUG - Atualizando lançamentos financeiros para cliente editado');
         await updateFinancialEntriesForClient(id, user.id);
       }
 
@@ -99,7 +109,7 @@ export const useUpdateClient = () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations') });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente atualizado com sucesso!');
     },
     onError: (error) => {
