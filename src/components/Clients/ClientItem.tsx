@@ -27,8 +27,10 @@ interface Client {
 
 interface ClientItemProps {
   client: Client;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
   onEdit: (client: Client) => void;
-  onDelete: (id: string) => void;
+  onDelete: (client: Client) => void;
   planColor?: string;
   onPlanColorChange?: (planName: string, color: string) => void;
   planColors?: Record<string, string>;
@@ -36,6 +38,8 @@ interface ClientItemProps {
 
 export function ClientItem({ 
   client, 
+  isExpanded,
+  onToggleExpanded,
   onEdit, 
   onDelete, 
   planColor = "bg-purple-600", 
@@ -44,7 +48,6 @@ export function ClientItem({
 }: ClientItemProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const formatCurrency = (value: number | null | undefined) => {
     if (!value) return "R$ 0,00";
@@ -91,7 +94,7 @@ export function ClientItem({
   };
 
   const handleConfirmDelete = () => {
-    onDelete(client.id);
+    onDelete(client);
     setIsDeleteDialogOpen(false);
   };
 
@@ -122,7 +125,7 @@ export function ClientItem({
           </div>
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={onToggleExpanded}
               variant="ghost"
               size="sm"
               className="text-goat-gray-400 hover:text-white"
@@ -229,7 +232,21 @@ export function ClientItem({
       <EditClientModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        client={client}
+        client={{
+          id: client.id,
+          company: client.company,
+          cnpj: client.cnpj,
+          responsible: client.responsible,
+          phone: client.phone,
+          email: client.email,
+          contractEnd: client.contract_end || '',
+          paymentDay: client.payment_day || 1,
+          tags: client.tags || [],
+          address: client.address || '',
+          plan: client.plan || '',
+          startDate: client.start_date || '',
+          monthlyValue: client.monthly_value?.toString() || '0,00',
+        }}
         onSave={handleSaveEdit}
         onPlanColorChange={onPlanColorChange}
         planColors={planColors}
@@ -239,7 +256,7 @@ export function ClientItem({
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        clientName={client.company}
+        client={client}
       />
     </>
   );
