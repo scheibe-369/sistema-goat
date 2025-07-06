@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -100,11 +99,18 @@ export default function Financial() {
   };
 
   // Filtros de status
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('all');
 
   // Filtrar lançamentos financeiros conforme status
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
   const filteredFinancialEntries = financialEntries.filter((entry: any) => {
     if (statusFilter === 'all') return true;
+    if (statusFilter === 'currentMonth') {
+      const d = new Date(entry.due_date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }
     return entry.status === statusFilter;
   });
 
@@ -130,10 +136,6 @@ export default function Financial() {
   const normalEntries = filteredFinancialEntries.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso');
 
   // Cálculo dos KPIs
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
   const receitasMes = financialEntries
     .filter(entry => {
       const d = new Date(entry.due_date);
@@ -228,17 +230,10 @@ export default function Financial() {
             <p className="text-goat-gray-400 text-sm mt-1">Todos os lançamentos do sistema</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => generateMissingEntries()}
-              disabled={isGeneratingEntries}
-              className="bg-green-600 hover:bg-green-700 text-white"
-              size="sm"
-            >
-              {isGeneratingEntries ? 'Gerando...' : 'Gerar Lançamentos'}
-            </Button>
             <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
             <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
             <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
+            <Button onClick={() => setStatusFilter('currentMonth')} className={`${statusFilter === 'currentMonth' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Mês Atual</Button>
           </div>
         </div>
         <div className="p-6">
