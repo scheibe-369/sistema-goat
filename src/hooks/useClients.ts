@@ -99,7 +99,7 @@ export const useUpdateClient = () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
       queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations') });
       toast.success('Cliente atualizado com sucesso!');
     },
     onError: (error) => {

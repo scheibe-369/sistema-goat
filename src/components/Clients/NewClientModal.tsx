@@ -46,10 +46,10 @@ export function NewClientModal({
     phone: "",
     email: "",
     plan: planOptions[0] || "Vendas",
-    contractEnd: "",
-    startDate: "",
-    paymentDay: "1",
-    monthlyValue: "0,00",
+    contract_end: "",
+    start_date: "",
+    payment_day: "1",
+    monthly_value: "0,00",
     address: "",
     tags: ["Ativo"],
   });
@@ -62,13 +62,24 @@ export function NewClientModal({
     e.preventDefault();
     
     // Convert monthlyValue from Brazilian format to number
-    const monthlyValueNumber = parseFloat(formData.monthlyValue.replace(',', '.')) || 0;
+    const monthlyValueNumber = parseFloat(formData.monthly_value.replace(',', '.')) || 0;
     
     const clientData = {
-      ...formData,
-      monthlyValue: monthlyValueNumber,
-      paymentDay: parseInt(formData.paymentDay) || 1,
+      company: formData.company,
+      cnpj: formData.cnpj,
+      responsible: formData.responsible,
+      phone: formData.phone,
+      email: formData.email,
+      plan: formData.plan,
+      contract_end: formData.contract_end,
+      start_date: formData.start_date,
+      payment_day: parseInt(formData.payment_day) || 1,
+      monthly_value: monthlyValueNumber,
+      address: formData.address,
+      tags: formData.tags,
     };
+    
+    console.log('DEBUG - Dados do cliente sendo enviados:', clientData);
     
     onSave(clientData);
     setFormData({
@@ -78,10 +89,10 @@ export function NewClientModal({
       phone: "",
       email: "",
       plan: planOptions[0] || "Vendas",
-      contractEnd: "",
-      startDate: "",
-      paymentDay: "1",
-      monthlyValue: "0,00",
+      contract_end: "",
+      start_date: "",
+      payment_day: "1",
+      monthly_value: "0,00",
       address: "",
       tags: ["Ativo"],
     });
@@ -95,7 +106,7 @@ export function NewClientModal({
     let value = e.target.value;
     
     if (value === '' || value === '0' || value === '0,') {
-      handleChange("monthlyValue", "0,00");
+      handleChange("monthly_value", "0,00");
       return;
     }
     
@@ -110,7 +121,7 @@ export function NewClientModal({
       }
     }
     
-    handleChange("monthlyValue", value);
+    handleChange("monthly_value", value);
   };
 
   const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +138,7 @@ export function NewClientModal({
       value = parts[0] + ',' + parts[1].substring(0, 2);
     }
     
-    handleChange("monthlyValue", value);
+    handleChange("monthly_value", value);
   };
 
   const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,7 +154,7 @@ export function NewClientModal({
       value = '1';
     }
     
-    handleChange("paymentDay", value);
+    handleChange("payment_day", value);
   };
 
   const handleAddCustomPlan = async () => {
@@ -448,17 +459,17 @@ export function NewClientModal({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
+                  <Label htmlFor="monthly_value" className="text-white">Valor Mensal (R$)</Label>
                   <Input
-                    id="monthlyValue"
+                    id="monthly_value"
                     type="text"
-                    value={formData.monthlyValue}
+                    value={formData.monthly_value}
                     onChange={handleMonthlyValueChange}
                     onBlur={handleMonthlyValueBlur}
                     onFocus={(e) => {
                       if (e.target.value === "0,00") {
                         e.target.value = "";
-                        setFormData((prev) => ({ ...prev, monthlyValue: "" }));
+                        setFormData((prev) => ({ ...prev, monthly_value: "" }));
                       }
                     }}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
@@ -467,16 +478,16 @@ export function NewClientModal({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="paymentDay" className="text-white">Dia de Pagamento</Label>
+                  <Label htmlFor="payment_day" className="text-white">Dia de Pagamento</Label>
                   <Input
-                    id="paymentDay"
+                    id="payment_day"
                     type="text"
-                    value={formData.paymentDay}
+                    value={formData.payment_day}
                     onChange={handlePaymentDayChange}
                     onFocus={e => {
                       if (e.target.value) {
                         e.target.value = '';
-                        setFormData(prev => ({ ...prev, paymentDay: '' }));
+                        setFormData(prev => ({ ...prev, payment_day: '' }));
                       }
                     }}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
@@ -529,23 +540,23 @@ export function NewClientModal({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-white">Data de Início</Label>
+                  <Label htmlFor="start_date" className="text-white">Data de Início</Label>
                   <Input
-                    id="startDate"
+                    id="start_date"
                     type="date"
-                    value={formData.startDate}
-                    onChange={(e) => handleChange("startDate", e.target.value)}
+                    value={formData.start_date}
+                    onChange={(e) => handleChange("start_date", e.target.value)}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contractEnd" className="text-white">Fim do Contrato</Label>
+                  <Label htmlFor="contract_end" className="text-white">Fim do Contrato</Label>
                   <Input
-                    id="contractEnd"
+                    id="contract_end"
                     type="date"
-                    value={formData.contractEnd}
-                    onChange={(e) => handleChange("contractEnd", e.target.value)}
+                    value={formData.contract_end}
+                    onChange={(e) => handleChange("contract_end", e.target.value)}
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
                   />
                 </div>
