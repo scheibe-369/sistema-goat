@@ -16,7 +16,7 @@ export default function Financial() {
   const { data: clients = [] } = useClients();
   const { data: contracts = [], refetch } = useContracts();
   const { expenses, createExpense, payExpense, deleteExpense, isLoading: expensesLoading, isPaying, isDeleting } = useExpenses();
-  const { financialEntries, financialEntriesLoading, markAsPaid, isMarkingAsPaid } = useFinancialEntries();
+  const { financialEntries, financialEntriesLoading, markAsPaid, isMarkingAsPaid, generateMissingEntries, isGeneratingEntries } = useFinancialEntries();
 
   // Calculate monthly revenue from active contracts
   const monthlyRevenue = contracts
@@ -228,6 +228,14 @@ export default function Financial() {
             <p className="text-goat-gray-400 text-sm mt-1">Todos os lançamentos do sistema</p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              onClick={() => generateMissingEntries()}
+              disabled={isGeneratingEntries}
+              className="bg-green-600 hover:bg-green-700 text-white"
+              size="sm"
+            >
+              {isGeneratingEntries ? 'Gerando...' : 'Gerar Lançamentos'}
+            </Button>
             <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
             <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
             <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>

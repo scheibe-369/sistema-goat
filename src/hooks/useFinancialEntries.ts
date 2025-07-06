@@ -3,6 +3,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { generateFinancialEntriesForClient } from "./useGenerateFinancialEntries";
 
 export const useFinancialEntries = () => {
   const { user } = useAuth();
@@ -86,11 +87,76 @@ export const useFinancialEntries = () => {
     },
   });
 
+  // Gerar lançamentos financeiros para clientes que não os têm
+  const generateMissingEntriesMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) throw new Error('User not authenticated');
+
+      console.log('DEBUG - Verificando clientes sem lançamentos financeiros');
+      
+      // Buscar todos os clientes do usuário
+      const { data: clients, error: clientsError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (clientsError) {
+        console.error('Erro ao buscar clientes:', clientsError);
+        throw clientsError;
+      }
+
+      let generatedCount = 0;
+      
+      for (const client of clients || []) {
+        // Verificar se o cliente tem dados necessários
+        if (client.monthly_value && client.contract_end && client.payment_day) {
+          // Verificar se já tem lançamentos financeiros
+          const { data: existingEntries } = await supabase
+            .from('financial_entries')
+            .select('id')
+            .eq('client_id', client.id)
+            .eq('user_id', user.id);
+
+          if (!existingEntries || existingEntries.length === 0) {
+            console.log(`DEBUG - Gerando lançamentos para cliente: ${client.company}`);
+            try {
+              await generateFinancialEntriesForClient(client.id, user.id);
+              generatedCount++;
+            } catch (error) {
+              console.error(`Erro ao gerar lançamentos para ${client.company}:`, error);
+            }
+          }
+        }
+      }
+
+      return generatedCount;
+    },
+    onSuccess: (generatedCount) => {
+      queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
+      refetch();
+      
+      toast({
+        title: "Sucesso",
+        description: `${generatedCount} lançamentos financeiros foram gerados!`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error generating missing entries:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao gerar lançamentos financeiros. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     financialEntries,
     financialEntriesLoading,
     markAsPaid: markAsPaidMutation.mutate,
     isMarkingAsPaid: markAsPaidMutation.isPending,
+    generateMissingEntries: generateMissingEntriesMutation.mutate,
+    isGeneratingEntries: generateMissingEntriesMutation.isPending,
     refetch,
   };
 };
