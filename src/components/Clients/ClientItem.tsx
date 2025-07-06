@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Phone, Mail, Calendar, MapPin, ChevronDown, ChevronRight } from "lucide-react";
@@ -18,6 +17,7 @@ interface Client {
   plan?: string;
   startDate?: string;
   planColor?: string;
+  monthlyValue?: string;
 }
 
 interface ClientItemProps {
@@ -190,7 +190,27 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
                 <div className="flex-1">
                   <span className="text-goat-gray-400 text-sm block">Fim do contrato:</span>
                   <span className="text-white font-medium">
-                    {new Date(client.contractEnd).toLocaleDateString("pt-BR")}
+                    {client.contractEnd ? new Date(client.contractEnd).toLocaleDateString("pt-BR") : 'Não definido'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Calendar className="w-4 h-4 text-goat-purple" />
+                <div className="flex-1">
+                  <span className="text-goat-gray-400 text-sm block">Início do contrato:</span>
+                  <span className="text-white font-medium">
+                    {client.startDate ? new Date(client.startDate).toLocaleDateString("pt-BR") : 'Não definido'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Calendar className="w-4 h-4 text-goat-purple" />
+                <div className="flex-1">
+                  <span className="text-goat-gray-400 text-sm block">Valor mensal:</span>
+                  <span className="text-white font-medium">
+                    R$ {client.monthlyValue ? parseFloat(client.monthlyValue).toFixed(2).replace('.', ',') : '0,00'}
                   </span>
                 </div>
               </div>

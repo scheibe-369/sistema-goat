@@ -43,6 +43,7 @@ interface ClientForComponent {
   plan: string;
   startDate: string;
   planColor?: string;
+  monthlyValue: string;
 }
 
 export default function Clients() {
@@ -73,33 +74,24 @@ export default function Clients() {
     );
   };
 
-  const handleNewClient = async (clientData: ClientData) => {
-    try {
-      await createClientMutation.mutateAsync({
-        company: clientData.company,
-        cnpj: clientData.cnpj,
-        responsible: clientData.responsible,
-        phone: clientData.phone,
-        email: clientData.email,
-        contract_end: clientData.contractEnd || null,
-        payment_day: clientData.paymentDay,
-        tags: clientData.tags,
-        address: clientData.address || null,
-        plan: clientData.plan || null,
-        start_date: clientData.startDate || null,
-        monthly_value: clientData.monthlyValue || 0,
-      });
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
-      queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      setIsNewClientModalOpen(false);
-    } catch (error) {
-      console.error('Error creating client:', error);
-    }
-  };
-
   const handleEditClient = async (clientData: ClientData) => {
     if (editingClient) {
       try {
+        // Convert empty strings to null for date fields and ensure proper date format
+        const formatDateForDatabase = (dateString: string) => {
+          if (!dateString || dateString.trim() === '') return null;
+          // Ensure the date is in YYYY-MM-DD format
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) return null;
+          return date.toISOString().split('T')[0];
+        };
+        
+        const contractEnd = formatDateForDatabase(clientData.contractEnd);
+        const startDate = formatDateForDatabase(clientData.startDate);
+        
+        console.log('DEBUG - Dados recebidos do modal de edição:', clientData);
+        console.log('DEBUG - Datas formatadas:', { contractEnd, startDate });
+        
         await updateClientMutation.mutateAsync({
           id: editingClient.id,
           company: clientData.company,
@@ -107,12 +99,12 @@ export default function Clients() {
           responsible: clientData.responsible,
           phone: clientData.phone,
           email: clientData.email,
-          contract_end: clientData.contractEnd || null,
+          contract_end: contractEnd,
           payment_day: clientData.paymentDay,
           tags: clientData.tags,
           address: clientData.address || null,
           plan: clientData.plan || null,
-          start_date: clientData.startDate || null,
+          start_date: startDate,
           monthly_value: clientData.monthlyValue || 0,
         });
         queryClient.invalidateQueries({ queryKey: ['clients'] });
@@ -142,21 +134,30 @@ export default function Clients() {
   };
 
   // Transform Supabase clients to component format
-  const transformedClients: ClientForComponent[] = clients.map(client => ({
-    id: client.id,
-    company: client.company,
-    cnpj: client.cnpj,
-    responsible: client.responsible,
-    phone: client.phone,
-    email: client.email,
-    contractEnd: client.contract_end || '',
-    paymentDay: client.payment_day || 1,
-    tags: client.tags || [],
-    address: client.address || '',
-    plan: client.plan || '',
-    startDate: client.start_date || '',
-    planColor: planColors[client.plan || ''] || undefined,
-  }));
+  const transformedClients: ClientForComponent[] = clients.map(client => {
+    // Convert monthly_value from number to Brazilian currency format
+    const formatCurrency = (value: number | null) => {
+      if (value === null || value === undefined) return '0,00';
+      return value.toFixed(2).replace('.', ',');
+    };
+
+    return {
+      id: client.id,
+      company: client.company,
+      cnpj: client.cnpj,
+      responsible: client.responsible,
+      phone: client.phone,
+      email: client.email,
+      contractEnd: client.contract_end || '',
+      paymentDay: client.payment_day || 1,
+      tags: client.tags || [],
+      address: client.address || '',
+      plan: client.plan || '',
+      startDate: client.start_date || '',
+      planColor: planColors[client.plan || ''] || undefined,
+      monthlyValue: formatCurrency(client.monthly_value),
+    };
+  });
 
   // Transform for KPIs - same structure but simplified
   const clientsForKPIs = transformedClients.map(client => ({
@@ -253,7 +254,44 @@ export default function Clients() {
       <NewClientModal 
         isOpen={isNewClientModalOpen}
         onClose={() => setIsNewClientModalOpen(false)}
-        onSave={handleNewClient}
+        onSave={async (clientData: {
+          company: string;
+          cnpj: string;
+          responsible: string;
+          phone: string;
+          email: string;
+          plan: string;
+          contract_end: string | null;
+          start_date: string | null;
+          payment_day: number;
+          monthly_value: number;
+          address: string;
+          tags: string[];
+        }) => {
+          try {
+            console.log('DEBUG - Dados recebidos do modal:', clientData);
+            
+            await createClientMutation.mutateAsync({
+              company: clientData.company,
+              cnpj: clientData.cnpj,
+              responsible: clientData.responsible,
+              phone: clientData.phone,
+              email: clientData.email,
+              contract_end: clientData.contract_end,
+              payment_day: clientData.payment_day,
+              tags: clientData.tags,
+              address: clientData.address || null,
+              plan: clientData.plan || null,
+              start_date: clientData.start_date,
+              monthly_value: clientData.monthly_value || 0,
+            });
+            queryClient.invalidateQueries({ queryKey: ['clients'] });
+            queryClient.invalidateQueries({ queryKey: ['contracts'] });
+            setIsNewClientModalOpen(false);
+          } catch (error) {
+            console.error('Error creating client:', error);
+          }
+        }}
         onPlanColorChange={handlePlanColorChange}
         planColors={planColors}
       />
@@ -273,7 +311,7 @@ export default function Clients() {
           address: editingClient.address || '',
           plan: editingClient.plan || '',
           startDate: editingClient.start_date || '',
-          monthlyValue: editingClient.monthly_value?.toString() || '0,00',
+          monthlyValue: editingClient.monthly_value ? editingClient.monthly_value.toFixed(2).replace('.', ',') : '0,00',
         } : null}
         onClose={() => setEditingClient(null)}
         onSave={handleEditClient}

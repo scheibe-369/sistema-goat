@@ -33,7 +33,7 @@ interface Client {
   address: string;
   plan?: string;
   startDate?: string;
-  monthlyValue?: string;
+  monthlyValue: string;
 }
 
 interface ClientData {
@@ -99,20 +99,46 @@ export function EditClientModal({
     // Convert monthlyValue from string to number for the callback
     const monthlyValueNumber = parseFloat(formData.monthlyValue?.replace(',', '.') || '0');
     
+    // Convert empty strings to null for date fields and ensure proper date format
+    const formatDateForDatabase = (dateString: string) => {
+      if (!dateString || dateString.trim() === '') return null;
+      // Ensure the date is in YYYY-MM-DD format
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString().split('T')[0];
+    };
+    
+    const contractEnd = formatDateForDatabase(formData.contractEnd || '');
+    const startDate = formatDateForDatabase(formData.startDate || '');
+    
     const clientData: ClientData = {
       company: formData.company,
       cnpj: formData.cnpj,
       responsible: formData.responsible,
       phone: formData.phone,
       email: formData.email,
-      contractEnd: formData.contractEnd,
+      contractEnd: contractEnd || '',
       paymentDay: formData.paymentDay,
       tags: formData.tags,
       address: formData.address,
       plan: formData.plan,
-      startDate: formData.startDate,
+      startDate: startDate || '',
       monthlyValue: monthlyValueNumber,
     };
+    
+    console.log('DEBUG - Dados do cliente sendo enviados para edição:', clientData);
+    console.log('DEBUG - Tipos dos dados:', {
+      contractEnd: typeof clientData.contractEnd,
+      startDate: typeof clientData.startDate,
+      monthlyValue: typeof clientData.monthlyValue,
+      paymentDay: typeof clientData.paymentDay
+    });
+    console.log('DEBUG - Valores dos dados:', {
+      contractEnd: clientData.contractEnd,
+      startDate: clientData.startDate,
+      monthlyValue: clientData.monthlyValue,
+      paymentDay: clientData.paymentDay
+    });
     
     onSave(clientData);
   };

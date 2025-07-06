@@ -24,7 +24,20 @@ import { usePlansContext } from "@/contexts/PlansContext";
 interface NewClientModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (clientData: any) => void;
+  onSave: (clientData: {
+    company: string;
+    cnpj: string;
+    responsible: string;
+    phone: string;
+    email: string;
+    plan: string;
+    contract_end: string | null;
+    start_date: string | null;
+    payment_day: number;
+    monthly_value: number;
+    address: string;
+    tags: string[];
+  }) => void;
   onPlanColorChange?: (planName: string, color: string) => void;
   planColors?: Record<string, string>;
 }
@@ -64,6 +77,18 @@ export function NewClientModal({
     // Convert monthlyValue from Brazilian format to number
     const monthlyValueNumber = parseFloat(formData.monthly_value.replace(',', '.')) || 0;
     
+    // Convert empty strings to null for date fields and ensure proper date format
+    const formatDateForDatabase = (dateString: string) => {
+      if (!dateString || dateString.trim() === '') return null;
+      // Ensure the date is in YYYY-MM-DD format
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return null;
+      return date.toISOString().split('T')[0];
+    };
+    
+    const contractEnd = formatDateForDatabase(formData.contract_end);
+    const startDate = formatDateForDatabase(formData.start_date);
+    
     const clientData = {
       company: formData.company,
       cnpj: formData.cnpj,
@@ -71,8 +96,8 @@ export function NewClientModal({
       phone: formData.phone,
       email: formData.email,
       plan: formData.plan,
-      contract_end: formData.contract_end,
-      start_date: formData.start_date,
+      contract_end: contractEnd,
+      start_date: startDate,
       payment_day: parseInt(formData.payment_day) || 1,
       monthly_value: monthlyValueNumber,
       address: formData.address,
@@ -80,6 +105,18 @@ export function NewClientModal({
     };
     
     console.log('DEBUG - Dados do cliente sendo enviados:', clientData);
+    console.log('DEBUG - Tipos dos dados:', {
+      contract_end: typeof clientData.contract_end,
+      start_date: typeof clientData.start_date,
+      monthly_value: typeof clientData.monthly_value,
+      payment_day: typeof clientData.payment_day
+    });
+    console.log('DEBUG - Valores dos dados:', {
+      contract_end: clientData.contract_end,
+      start_date: clientData.start_date,
+      monthly_value: clientData.monthly_value,
+      payment_day: clientData.payment_day
+    });
     
     onSave(clientData);
     setFormData({

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
@@ -41,6 +40,12 @@ export const useCreateClient = () => {
       if (!user) throw new Error('User not authenticated');
 
       console.log('DEBUG - Criando cliente com dados:', client);
+      console.log('DEBUG - Tipos dos dados:', {
+        contract_end: typeof client.contract_end,
+        start_date: typeof client.start_date,
+        monthly_value: typeof client.monthly_value,
+        payment_day: typeof client.payment_day
+      });
 
       const { data, error } = await supabase
         .from('clients')
@@ -54,6 +59,12 @@ export const useCreateClient = () => {
       }
 
       console.log('DEBUG - Cliente criado:', data);
+      console.log('DEBUG - Dados salvos no banco:', {
+        contract_end: data.contract_end,
+        start_date: data.start_date,
+        monthly_value: data.monthly_value,
+        payment_day: data.payment_day
+      });
 
       // Gerar lançamentos financeiros automaticamente se cliente tem dados de contrato
       if (client.monthly_value && client.contract_end && client.payment_day) {
@@ -91,6 +102,12 @@ export const useUpdateClient = () => {
       if (!user) throw new Error('User not authenticated');
 
       console.log('DEBUG - Atualizando cliente:', id, updates);
+      console.log('DEBUG - Tipos dos dados de atualização:', {
+        contract_end: typeof updates.contract_end,
+        start_date: typeof updates.start_date,
+        monthly_value: typeof updates.monthly_value,
+        payment_day: typeof updates.payment_day
+      });
 
       const { data, error } = await supabase
         .from('clients')
@@ -106,6 +123,12 @@ export const useUpdateClient = () => {
       }
 
       console.log('DEBUG - Cliente atualizado:', data);
+      console.log('DEBUG - Dados atualizados no banco:', {
+        contract_end: data.contract_end,
+        start_date: data.start_date,
+        monthly_value: data.monthly_value,
+        payment_day: data.payment_day
+      });
 
       // Atualizar lançamentos financeiros se dados do contrato foram alterados
       if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
