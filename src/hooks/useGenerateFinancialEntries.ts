@@ -32,11 +32,10 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
 
     // Verificar se já existem lançamentos para este cliente
     const { data: existingEntries } = await supabase
-      .from('finances')
+      .from('financial_entries')
       .select('id')
       .eq('client_id', clientId)
-      .eq('user_id', userId)
-      .eq('type', 'income');
+      .eq('user_id', userId);
 
     if (existingEntries && existingEntries.length > 0) {
       console.log('DEBUG - Lançamentos já existem para este cliente');
@@ -73,14 +72,13 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       const reference = `${monthNames[currentDate.getMonth()]} de ${currentDate.getFullYear()}`;
       
       financialEntries.push({
-        description: client.company, // Apenas o nome do cliente
-        amount: contract.monthly_value,
-        category: reference, // Usar category para armazenar a referência mês/ano
-        date: entryDate,
-        status: 'pending',
-        type: 'income',
-        user_id: userId,
         client_id: clientId,
+        user_id: userId,
+        name: client.company,
+        amount: contract.monthly_value,
+        due_date: entryDate,
+        reference: reference,
+        status: 'pending',
       });
 
       // Próximo mês
@@ -91,7 +89,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       console.log(`DEBUG - Criando ${financialEntries.length} lançamentos financeiros`);
       
       const { error: insertError } = await supabase
-        .from('finances')
+        .from('financial_entries')
         .insert(financialEntries);
 
       if (insertError) {
@@ -106,85 +104,23 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
   }
 };
 
-// Nova função para gerar próximo lançamento após confirmação de pagamento
-export const generateNextFinancialEntry = async (currentEntry: any, userId: string) => {
+// Função para atualizar lançamentos quando cliente for editado
+export const updateFinancialEntriesForClient = async (clientId: string, userId: string) => {
   try {
-    console.log('DEBUG - Gerando próximo lançamento após pagamento:', currentEntry);
+    console.log('DEBUG - Atualizando lançamentos financeiros para cliente:', clientId);
 
-    // Buscar dados do cliente e contrato
-    const { data: client, error: clientError } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', currentEntry.client_id)
+    // Remover lançamentos futuros (não pagos)
+    await supabase
+      .from('financial_entries')
+      .delete()
+      .eq('client_id', clientId)
       .eq('user_id', userId)
-      .single();
+      .eq('status', 'pending');
 
-    if (clientError || !client) {
-      console.error('Erro ao buscar cliente:', clientError);
-      return;
-    }
-
-    const { data: contract, error: contractError } = await supabase
-      .from('contracts')
-      .select('*')
-      .eq('client_id', currentEntry.client_id)
-      .eq('user_id', userId)
-      .single();
-
-    if (contractError || !contract) {
-      console.error('Erro ao buscar contrato:', contractError);
-      return;
-    }
-
-    // Calcular próxima data de pagamento
-    const currentDate = new Date(currentEntry.date);
-    const nextDate = new Date(currentDate);
-    nextDate.setMonth(nextDate.getMonth() + 1);
-    
-    const endDate = new Date(contract.end_date);
-    
-    // Verificar se a próxima data está dentro do período do contrato
-    if (nextDate <= endDate) {
-      // Verificar se já existe lançamento para esta data
-      const { data: existingEntry } = await supabase
-        .from('finances')
-        .select('id')
-        .eq('client_id', currentEntry.client_id)
-        .eq('user_id', userId)
-        .eq('date', nextDate.toISOString().split('T')[0])
-        .eq('type', 'income')
-        .single();
-
-      if (!existingEntry) {
-        // Criar referência do mês/ano em português
-        const monthNames = [
-          'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
-        ];
-        const reference = `${monthNames[nextDate.getMonth()]} de ${nextDate.getFullYear()}`;
-        
-        const { error: insertError } = await supabase
-          .from('finances')
-          .insert({
-            description: client.company, // Apenas o nome do cliente
-            amount: contract.monthly_value,
-            category: reference, // Usar category para armazenar a referência mês/ano
-            date: nextDate.toISOString().split('T')[0],
-            status: 'pending',
-            type: 'income',
-            user_id: userId,
-            client_id: currentEntry.client_id,
-          });
-
-        if (insertError) {
-          console.error('Erro ao inserir próximo lançamento:', insertError);
-        } else {
-          console.log('DEBUG - Próximo lançamento criado com sucesso');
-        }
-      }
-    }
+    // Gerar novos lançamentos
+    await generateFinancialEntriesForClient(clientId, userId);
 
   } catch (error) {
-    console.error('Erro ao gerar próximo lançamento:', error);
+    console.error('Erro ao atualizar lançamentos financeiros:', error);
   }
 };

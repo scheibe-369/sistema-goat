@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,18 +16,12 @@ export default function Financial() {
   const { data: clients = [] } = useClients();
   const { data: contracts = [], refetch } = useContracts();
   const { expenses, createExpense, payExpense, deleteExpense, isLoading: expensesLoading, isPaying, isDeleting } = useExpenses();
-  const { markAsPaid, isMarkingAsPaid, incomes, incomesLoading } = useFinancialEntries();
+  const { financialEntries, financialEntriesLoading, markAsPaid, isMarkingAsPaid } = useFinancialEntries();
 
   // Calculate monthly revenue from active contracts
   const monthlyRevenue = contracts
     .filter(contract => contract.status === 'active')
     .reduce((total, contract) => total + (contract.monthly_value || 0), 0);
-
-  // Calculate overdue payments from contracts
-  const overdueContracts = contracts.filter(contract => 
-    contract.status === 'inactive' || 
-    (contract.end_date && new Date(contract.end_date) < new Date())
-  );
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -41,16 +36,13 @@ export default function Financial() {
       const start = new Date(contract.start_date);
       const end = new Date(contract.end_date);
       const paymentDay = Number(contract.client.payment_day);
-      // Calcula a data do primeiro pagamento
       let firstPaymentDate = new Date(start);
       if (start.getDate() >= paymentDay) {
         firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
       }
-      // Calcula a quantidade de pagamentos (duração em meses)
       let durationInMonths = 0;
       let paymentDate = new Date(firstPaymentDate);
       while (paymentDate <= end) {
-        // Só conta se o pagamento do mês não ultrapassa a data de término do contrato
         if (paymentDate <= end) {
           durationInMonths++;
         }
@@ -91,9 +83,8 @@ export default function Financial() {
     createExpense(expense);
   };
 
-  // Função para marcar como pago
-  const handleMarkAsPaid = async (income: any) => {
-    await markAsPaid(income);
+  const handleMarkAsPaid = async (entryId: string) => {
+    await markAsPaid(entryId);
   };
 
   const handlePayExpense = (expenseId: string) => {
@@ -112,77 +103,51 @@ export default function Financial() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all');
 
   // Filtrar lançamentos financeiros conforme status
-  const filteredIncomes = incomes.filter((income: any) => {
+  const filteredFinancialEntries = financialEntries.filter((entry: any) => {
     if (statusFilter === 'all') return true;
-    return income.status === statusFilter;
+    return entry.status === statusFilter;
   });
 
-  // Função para formatar referência mês/ano (agora usando o campo category)
-  const formatReference = (income: any) => {
-    // Se já tem referência no campo category, usar ela
-    if (income.category && income.category !== 'Receita') {
-      return income.category;
-    }
-    // Fallback para formato antigo
-    const d = new Date(income.date);
-    return d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
-  };
-
   // Função para determinar status visual
-  const getStatusTag = (income: any) => {
-    if (income.status === 'paid') {
+  const getStatusTag = (entry: any) => {
+    if (entry.status === 'paid') {
       return { label: 'Pago', color: 'bg-green-600' };
     }
-    // Se está pendente e a data de referência é anterior ao mês atual, está em atraso
-    const refDate = new Date(income.date);
+    // Se está pendente e a data de vencimento é anterior ao dia atual, está em atraso
+    const dueDate = new Date(entry.due_date);
     const now = new Date();
-    if (
-      income.status === 'pending' &&
-      (refDate.getFullYear() < now.getFullYear() ||
-        (refDate.getFullYear() === now.getFullYear() && refDate.getMonth() < now.getMonth()))
-    ) {
+    now.setHours(0, 0, 0, 0); // Reset time for comparison
+    dueDate.setHours(0, 0, 0, 0);
+    
+    if (entry.status === 'pending' && dueDate < now) {
       return { label: 'Em atraso', color: 'bg-red-600' };
     }
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
 
   // Separar lançamentos em atraso dos demais
-  const overdueIncomes = filteredIncomes.filter((income: any) => getStatusTag(income).label === 'Em atraso');
-  const normalIncomes = filteredIncomes.filter((income: any) => getStatusTag(income).label !== 'Em atraso');
-
-  // Aplicar filtro de status
-  const filteredNormalIncomes = normalIncomes.filter((income: any) => {
-    if (statusFilter === 'all') return true;
-    const tag = getStatusTag(income).label;
-    if (statusFilter === 'pending') return tag === 'Em aberto';
-    if (statusFilter === 'paid') return tag === 'Pago';
-    return true;
-  });
-  const filteredOverdueIncomes = overdueIncomes.filter((income: any) => {
-    if (statusFilter === 'all') return true;
-    const tag = getStatusTag(income).label;
-    if (statusFilter === 'pending') return tag === 'Em atraso';
-    if (statusFilter === 'paid') return false;
-    return true;
-  });
+  const overdueEntries = filteredFinancialEntries.filter((entry: any) => getStatusTag(entry).label === 'Em atraso');
+  const normalEntries = filteredFinancialEntries.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso');
 
   // Cálculo dos KPIs
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  const receitasMes = incomes
-    .filter(i => {
-      const d = new Date(i.date);
-      return i.status === 'paid' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  const receitasMes = financialEntries
+    .filter(entry => {
+      const d = new Date(entry.due_date);
+      return entry.status === 'paid' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
-    .reduce((sum, i) => sum + Number(i.amount), 0);
+    .reduce((sum, entry) => sum + Number(entry.amount), 0);
+    
   const despesasMes = expenses
     .filter(e => {
       const d = new Date(e.date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
     .reduce((sum, e) => sum + Number(e.amount), 0);
+    
   const lucroMes = receitasMes - despesasMes;
 
   useEffect(() => {
@@ -210,37 +175,37 @@ export default function Financial() {
       />
 
       {/* Pagamentos em Atraso */}
-      {filteredOverdueIncomes.length > 0 && (
+      {overdueEntries.length > 0 && (
         <Card className="bg-red-950 border-red-700 mb-6">
           <div className="p-6 border-b border-red-700 flex items-center gap-2">
             <AlertCircle className="text-red-400 mr-2" />
             <h3 className="text-lg font-semibold text-red-200">Pagamentos em Atraso</h3>
           </div>
           <div className="p-6">
-            {filteredOverdueIncomes.map((income, idx) => (
-              <div key={income.id || idx} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
+            {overdueEntries.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
-                    <h4 className="text-white font-medium mb-1">{income.description}</h4>
+                    <h4 className="text-white font-medium mb-1">{entry.name}</h4>
                     <div className="mt-1">
                       <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white">Em atraso</span>
                     </div>
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
+                    <p className="text-white font-semibold">{formatCurrency(Number(entry.amount))}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Referência</p>
-                    <p className="text-white">{formatReference(income)}</p>
+                    <p className="text-white">{entry.reference}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-200 text-sm">Data de Pagamento</p>
-                    <p className="text-white">-</p>
+                    <p className="text-red-200 text-sm">Vencimento</p>
+                    <p className="text-white">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="flex justify-center">
                     <Button
-                      onClick={() => handleMarkAsPaid(income)}
+                      onClick={() => handleMarkAsPaid(entry.id)}
                       disabled={isMarkingAsPaid}
                       className="bg-green-600 hover:bg-green-700 text-white"
                       size="sm"
@@ -269,20 +234,25 @@ export default function Financial() {
           </div>
         </div>
         <div className="p-6">
-          {filteredNormalIncomes.length === 0 ? (
+          {financialEntriesLoading ? (
+            <div className="text-center py-8">
+              <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-goat-gray-400">Carregando lançamentos...</p>
+            </div>
+          ) : normalEntries.length === 0 ? (
             <div className="text-center py-8">
               <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
               <p className="text-goat-gray-400">Nenhum lançamento encontrado</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredNormalIncomes.map((income, idx) => {
-                const statusTag = getStatusTag(income);
+              {normalEntries.map((entry) => {
+                const statusTag = getStatusTag(entry);
                 return (
-                  <div key={income.id || idx} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
+                  <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                     <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                       <div>
-                        <h4 className="text-white font-medium mb-1">{income.description}</h4>
+                        <h4 className="text-white font-medium mb-1">{entry.name}</h4>
                         <div className="mt-1">
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusTag.color} text-white`}>
                             {statusTag.label}
@@ -291,20 +261,20 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Valor</p>
-                        <p className="text-white font-semibold">{formatCurrency(Number(income.amount))}</p>
+                        <p className="text-white font-semibold">{formatCurrency(Number(entry.amount))}</p>
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Referência</p>
-                        <p className="text-white">{formatReference(income)}</p>
+                        <p className="text-white">{entry.reference}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-goat-gray-400 text-sm">Data de Pagamento</p>
-                        <p className="text-white">{income.status === 'paid' && income.updated_at ? new Date(income.updated_at).toLocaleDateString('pt-BR') : '-'}</p>
+                        <p className="text-goat-gray-400 text-sm">Vencimento</p>
+                        <p className="text-white">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</p>
                       </div>
                       <div className="flex justify-center">
-                        {income.status === 'pending' ? (
+                        {entry.status === 'pending' ? (
                           <Button
-                            onClick={() => handleMarkAsPaid(income)}
+                            onClick={() => handleMarkAsPaid(entry.id)}
                             disabled={isMarkingAsPaid}
                             className="bg-green-600 hover:bg-green-700 text-white"
                             size="sm"
@@ -348,17 +318,14 @@ export default function Financial() {
             {expenses.map((expense) => (
               <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
-                  {/* Coluna 1: Descrição e categoria */}
                   <div>
                     <h4 className="text-white font-medium mb-1">{expense.description}</h4>
                     <p className="text-goat-gray-400 text-sm">{expense.category}</p>
                   </div>
-                  {/* Coluna 2: Data */}
                   <div className="text-center">
                     <p className="text-goat-gray-400 text-xs">Data</p>
                     <p className="text-white text-base">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
                   </div>
-                  {/* Coluna 3: Recorrência */}
                   <div className="text-center">
                     {expense.is_recurring ? (
                       <Badge className="bg-goat-purple text-white rounded-md">
@@ -370,7 +337,6 @@ export default function Financial() {
                       </Badge>
                     ) : null}
                   </div>
-                  {/* Coluna 4: Valor + status */}
                   <div className="text-center">
                     <p className="text-white font-semibold text-lg">{formatCurrency(Number(expense.amount))}</p>
                     <div className="mt-1">
@@ -379,7 +345,6 @@ export default function Financial() {
                       </Badge>
                     </div>
                   </div>
-                  {/* Coluna 5: Botões */}
                   <div className="flex justify-center gap-2">
                     {expense.status === 'pending' ? (
                       <Button

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
-import { generateFinancialEntriesForClient } from './useGenerateFinancialEntries';
+import { generateFinancialEntriesForClient, updateFinancialEntriesForClient } from './useGenerateFinancialEntries';
 
 type Client = Tables<'clients'>;
 type ClientInsert = TablesInsert<'clients'>;
@@ -57,8 +57,7 @@ export const useCreateClient = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      queryClient.invalidateQueries({ queryKey: ['finances'] });
-      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente criado com sucesso!');
     },
@@ -74,6 +73,9 @@ export const useUpdateClient = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: ClientUpdate & { id: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('clients')
         .update(updates)
@@ -86,13 +88,17 @@ export const useUpdateClient = () => {
         throw error;
       }
 
+      // Atualizar lançamentos financeiros se dados do contrato foram alterados
+      if (updates.monthly_value !== undefined || updates.contract_end !== undefined || updates.payment_day !== undefined) {
+        await updateFinancialEntriesForClient(id, user.id);
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      queryClient.invalidateQueries({ queryKey: ['finances'] });
-      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente atualizado com sucesso!');
     },
@@ -121,8 +127,7 @@ export const useDeleteClient = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['contracts'] });
-      queryClient.invalidateQueries({ queryKey: ['finances'] });
-      queryClient.invalidateQueries({ queryKey: ['financial-incomes'] });
+      queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       toast.success('Cliente excluído com sucesso!');
     },
