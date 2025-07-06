@@ -29,31 +29,59 @@ export default function Financial() {
     }).format(value);
   };
 
-  const contractProjections = contracts
-    .filter(contract => contract.monthly_value && contract.start_date && contract.end_date && contract.client && contract.client.payment_day)
-    .map(contract => {
-      const start = new Date(contract.start_date);
-      const end = new Date(contract.end_date);
-      const paymentDay = Number(contract.client.payment_day);
-      let firstPaymentDate = new Date(start);
-      if (start.getDate() >= paymentDay) {
-        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+  // Filtro correto para contratos e clientes elegíveis para o gráfico
+  const contratosElegiveis = contracts.filter(contract => {
+    // Contrato deve ser 'active' ou 'expiring'
+    const statusContrato = contract.status;
+    if (statusContrato !== 'active' && statusContrato !== 'expiring') return false;
+    // Cliente deve existir e estar 'Ativo' ou 'A vencer'
+    const cliente = contract.client;
+    if (!cliente) return false;
+    const tags = (cliente.tags || []);
+    // Normaliza para evitar problemas de maiúsculas/minúsculas
+    const tagsLower = tags.map(t => t.toLowerCase());
+    if (!tagsLower.includes('ativo'.toLowerCase()) && !tagsLower.includes('a vencer'.toLowerCase())) return false;
+    // Precisa ter valores essenciais
+    return contract.monthly_value && contract.start_date && contract.end_date && cliente.payment_day;
+  });
+
+  // Nova lógica de projeção mensal
+  const contractProjections = contratosElegiveis.map(contract => {
+    const start = new Date(contract.start_date);
+    const end = new Date(contract.end_date);
+    const paymentDay = Number(contract.client.payment_day);
+    // Lógica do primeiro pagamento
+    let firstPaymentDate = new Date(start);
+    if (start.getDate() >= paymentDay) {
+      // Se começou depois ou no dia do pagamento, só paga no mês seguinte
+      firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+    }
+    firstPaymentDate.setDate(paymentDay);
+    // Corrige se o dia não existe no mês
+    if (firstPaymentDate.getDate() !== paymentDay) {
+      // Ex: pagamento dia 31 em fevereiro
+      firstPaymentDate.setDate(0); // último dia do mês
+    }
+    // Calcula todos os meses de pagamento dentro da vigência
+    let durationInMonths = 0;
+    let paymentDate = new Date(firstPaymentDate);
+    while (paymentDate <= end) {
+      if (paymentDate >= firstPaymentDate && paymentDate <= end) {
+        durationInMonths++;
       }
-      let durationInMonths = 0;
-      let paymentDate = new Date(firstPaymentDate);
-      while (paymentDate <= end) {
-        if (paymentDate <= end) {
-          durationInMonths++;
-        }
-        paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      // Corrige se o dia não existe no mês
+      if (paymentDate.getDate() !== paymentDay) {
+        paymentDate.setDate(0);
       }
-      return {
-        clientName: contract.client.company || 'Cliente não encontrado',
-        monthlyValue: Number(contract.monthly_value),
-        durationInMonths,
-        startMonth: `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`,
-      };
-    });
+    }
+    return {
+      clientName: contract.client.company || 'Cliente não encontrado',
+      monthlyValue: Number(contract.monthly_value),
+      durationInMonths,
+      startMonth: `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`,
+    };
+  });
 
   const faturamentoGeral = contractProjections.reduce(
     (total, c) => total + c.monthlyValue * c.durationInMonths, 0
@@ -105,7 +133,29 @@ export default function Financial() {
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
-  const filteredFinancialEntries = financialEntries.filter((entry: any) => {
+
+  // Filtro para lançamentos financeiros de clientes com contratos ativos/a vencer e dentro da vigência
+  const financialEntriesElegiveis = financialEntries.filter(entry => {
+    // Encontrar todos os contratos ativos/a vencer para o cliente deste lançamento
+    const contratosElegiveis = contracts.filter(contract =>
+      contract.client_id === entry.client_id &&
+      (contract.status === 'active' || contract.status === 'expiring')
+    );
+
+    // Se não houver contrato elegível, não exibe o lançamento
+    if (contratosElegiveis.length === 0) return false;
+
+    // Verifica se a data de vencimento do lançamento está dentro do período de algum contrato elegível
+    const dueDate = new Date(entry.due_date);
+    return contratosElegiveis.some(contract => {
+      const start = new Date(contract.start_date);
+      const end = new Date(contract.end_date);
+      return dueDate >= start && dueDate <= end;
+    });
+  });
+
+  // Usar esse array filtrado para exibir os lançamentos financeiros
+  const filteredFinancialEntries = financialEntriesElegiveis.filter((entry: any) => {
     if (statusFilter === 'all') return true;
     if (statusFilter === 'currentMonth') {
       const d = new Date(entry.due_date);
