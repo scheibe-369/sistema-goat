@@ -80,7 +80,6 @@ export function ClientItem({
   };
 
   const handleEdit = () => {
-    onEdit(client);
     setIsEditModalOpen(true);
   };
 
@@ -88,7 +87,24 @@ export function ClientItem({
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSaveEdit = (updatedClient: Client) => {
+  const handleSaveEdit = (clientData: any) => {
+    // Convert ClientData to Client by adding the id
+    const updatedClient: Client = {
+      id: client.id, // Keep the original client id
+      company: clientData.company,
+      cnpj: clientData.cnpj,
+      responsible: clientData.responsible,
+      phone: clientData.phone,
+      email: clientData.email,
+      contract_end: clientData.contractEnd,
+      start_date: clientData.startDate,
+      payment_day: clientData.paymentDay,
+      monthly_value: clientData.monthlyValue,
+      address: clientData.address,
+      plan: clientData.plan,
+      tags: clientData.tags,
+    };
+    
     onEdit(updatedClient);
     setIsEditModalOpen(false);
   };
