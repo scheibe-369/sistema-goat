@@ -5,7 +5,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
   try {
     console.log('DEBUG - Gerando lançamentos financeiros para cliente:', clientId);
 
-    // Buscar dados do cliente e contrato
+    // Buscar dados do cliente
     const { data: client, error: clientError } = await supabase
       .from('clients')
       .select('*')
@@ -18,15 +18,15 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       return;
     }
 
-    const { data: contract, error: contractError } = await supabase
-      .from('contracts')
-      .select('*')
-      .eq('client_id', clientId)
-      .eq('user_id', userId)
-      .single();
+    console.log('DEBUG - Dados do cliente encontrado:', client);
 
-    if (contractError || !contract) {
-      console.error('Erro ao buscar contrato:', contractError);
+    // Verificar se o cliente tem dados necessários para gerar lançamentos
+    if (!client.monthly_value || !client.contract_end || !client.payment_day) {
+      console.log('DEBUG - Cliente não tem dados suficientes para gerar lançamentos:', {
+        monthly_value: client.monthly_value,
+        contract_end: client.contract_end,
+        payment_day: client.payment_day
+      });
       return;
     }
 
@@ -43,13 +43,13 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
     }
 
     // Gerar todos os lançamentos futuros
-    const startDate = new Date(contract.start_date);
-    const endDate = new Date(contract.end_date);
-    const paymentDay = client.payment_day || 1;
+    const startDate = client.start_date ? new Date(client.start_date) : new Date();
+    const endDate = new Date(client.contract_end);
+    const paymentDay = client.payment_day;
     
     const financialEntries = [];
     
-    // Começar do mês seguinte ao início do contrato ou do mesmo mês se o dia de pagamento ainda não passou
+    // Começar do mês atual ou seguinte
     let currentDate = new Date(startDate);
     
     // Se o dia de pagamento do mês atual já passou, começar do próximo mês
@@ -59,6 +59,8 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
     
     // Ajustar para o dia de pagamento
     currentDate.setDate(paymentDay);
+
+    console.log('DEBUG - Gerando lançamentos de', currentDate, 'até', endDate);
 
     // Gerar lançamentos mensais até o fim do contrato
     while (currentDate <= endDate) {
@@ -75,32 +77,37 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
         client_id: clientId,
         user_id: userId,
         name: client.company,
-        amount: contract.monthly_value,
+        amount: client.monthly_value,
         due_date: entryDate,
         reference: reference,
         status: 'pending',
       });
 
-      // Próximo mês
+      // Próximo mês, mantendo o mesmo dia
       currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
     if (financialEntries.length > 0) {
-      console.log(`DEBUG - Criando ${financialEntries.length} lançamentos financeiros`);
+      console.log(`DEBUG - Criando ${financialEntries.length} lançamentos financeiros:`, financialEntries);
       
-      const { error: insertError } = await supabase
+      const { data, error: insertError } = await supabase
         .from('financial_entries')
-        .insert(financialEntries);
+        .insert(financialEntries)
+        .select();
 
       if (insertError) {
         console.error('Erro ao inserir lançamentos financeiros:', insertError);
+        throw insertError;
       } else {
-        console.log('DEBUG - Lançamentos financeiros criados com sucesso');
+        console.log('DEBUG - Lançamentos financeiros criados com sucesso:', data);
       }
+    } else {
+      console.log('DEBUG - Nenhum lançamento financeiro para criar');
     }
 
   } catch (error) {
     console.error('Erro ao gerar lançamentos financeiros:', error);
+    throw error;
   }
 };
 
@@ -110,17 +117,22 @@ export const updateFinancialEntriesForClient = async (clientId: string, userId: 
     console.log('DEBUG - Atualizando lançamentos financeiros para cliente:', clientId);
 
     // Remover lançamentos futuros (não pagos)
-    await supabase
+    const { error: deleteError } = await supabase
       .from('financial_entries')
       .delete()
       .eq('client_id', clientId)
       .eq('user_id', userId)
       .eq('status', 'pending');
 
+    if (deleteError) {
+      console.error('Erro ao remover lançamentos antigos:', deleteError);
+    }
+
     // Gerar novos lançamentos
     await generateFinancialEntriesForClient(clientId, userId);
 
   } catch (error) {
     console.error('Erro ao atualizar lançamentos financeiros:', error);
+    throw error;
   }
 };
