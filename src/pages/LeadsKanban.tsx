@@ -12,6 +12,7 @@ import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeads, type Lead } from "@/hooks/useLeads";
+import { useToast } from "@/hooks/use-toast";
 
 interface Tag {
   id: string;
@@ -41,6 +42,7 @@ const defaultStages: Stage[] = [
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
   const { leads, isLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
+  const { toast } = useToast();
   const [stages, setStages] = useState<Stage[]>(defaultStages);
   const [tags, setTags] = useState<Tag[]>(defaultTags);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
@@ -51,6 +53,14 @@ export default function LeadsKanban() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
+
+  // Estado local otimista para drag and drop
+  const [optimisticLeads, setOptimisticLeads] = useState<Lead[]>([]);
+
+  // Sincronizar leads do hook com estado otimista
+  useEffect(() => {
+    setOptimisticLeads(leads);
+  }, [leads]);
 
   // ========== Momentum Scroll ==============
   const kanbanRef = useRef<HTMLDivElement>(null);
@@ -244,16 +254,53 @@ export default function LeadsKanban() {
     
     if (source.droppableId === destination.droppableId) return;
 
+    // Encontrar o lead que foi movido
+    const leadToMove = optimisticLeads.find(lead => lead.id === draggableId);
+    if (!leadToMove) return;
+
+    // Guardar a etapa anterior para possível rollback
+    const previousStage = leadToMove.stage;
+
+    // OPTIMISTIC UI: Atualizar imediatamente o estado local
+    setOptimisticLeads(prevLeads => 
+      prevLeads.map(lead => 
+        lead.id === draggableId 
+          ? { ...lead, stage: destination.droppableId }
+          : lead
+      )
+    );
+
     try {
+      // Tentar atualizar no Supabase
       await updateLeadStage(draggableId, destination.droppableId);
+      
+      // Se chegou até aqui, deu certo - não precisa fazer nada
+      console.log('Lead movido com sucesso para:', destination.droppableId);
+      
     } catch (error) {
       console.error('Erro ao mover lead:', error);
+      
+      // ROLLBACK: Reverter para a etapa anterior em caso de erro
+      setOptimisticLeads(prevLeads => 
+        prevLeads.map(lead => 
+          lead.id === draggableId 
+            ? { ...lead, stage: previousStage }
+            : lead
+        )
+      );
+
+      // Mostrar feedback de erro
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível mover o lead. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
-  // Organizar leads por etapas
+  // Organizar leads por etapas usando o estado otimista
   const getLeadsByStage = (stageId: string) => {
-    return leads.filter(lead => lead.stage === stageId);
+    return optimisticLeads.filter(lead => lead.stage === stageId);
   };
 
   // Filtrar leads por grupo/tag
