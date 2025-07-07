@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -229,11 +230,11 @@ export default function Financial() {
       {/* Pagamentos em Atraso */}
       {overdueEntries.length > 0 && (
         <Card className="bg-red-950 border-red-700 mb-6">
-          <div className="p-6 border-b border-red-700 flex items-center gap-2">
+          <div className="p-6 flex items-center gap-2">
             <AlertCircle className="text-red-400 mr-2" />
             <h3 className="text-lg font-semibold text-red-200">Pagamentos em Atraso</h3>
           </div>
-          <div className="p-6">
+          <div className="p-6 pt-0">
             {overdueEntries.map((entry) => (
               <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
@@ -259,7 +260,7 @@ export default function Financial() {
                     <Button
                       onClick={() => handleMarkAsPaid(entry.id)}
                       disabled={isMarkingAsPaid}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-red-600 hover:bg-red-700 text-white"
                       size="sm"
                     >
                       Confirmar
