@@ -13,18 +13,6 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeads, type Lead } from "@/hooks/useLeads";
 
-interface LocalLead {
-  id: string;
-  name: string;
-  company: string;
-  phone: string;
-  email?: string;
-  group?: string;
-  lastUpdate: string;
-  value?: string;
-  stage: string;
-}
-
 interface Tag {
   id: string;
   name: string;
@@ -35,7 +23,6 @@ interface Stage {
   id: string;
   name: string;
   color: string;
-  leads: LocalLead[];
 }
 
 const defaultTags: Tag[] = [
@@ -43,99 +30,18 @@ const defaultTags: Tag[] = [
   { id: '2', name: 'Networking', color: 'bg-blue-600' },
 ];
 
-const mockStages: Stage[] = [
-  {
-    id: 'no-service',
-    name: 'Sem atendimento',
-    color: 'bg-gray-500',
-    leads: [
-      {
-        id: '1',
-        name: 'João Silva',
-        company: 'Tech Innovations',
-        phone: '(11) 99999-9999',
-        email: 'joao@tech.com',
-        group: 'Clientes GOAT',
-        lastUpdate: '2024-01-15',
-        value: 'R$ 5.000',
-        stage: 'no-service'
-      },
-      {
-        id: '2',
-        name: 'Maria Santos',
-        company: 'Digital Marketing',
-        phone: '(11) 88888-8888',
-        email: 'maria@digital.com',
-        group: 'Networking',
-        lastUpdate: '2024-01-14',
-        stage: 'no-service'
-      }
-    ]
-  },
-  {
-    id: 'in-service',
-    name: 'Em atendimento',
-    color: 'bg-yellow-500',
-    leads: [
-      {
-        id: '3',
-        name: 'Pedro Costa',
-        company: 'E-commerce Plus',
-        phone: '(11) 77777-7777',
-        email: 'pedro@ecommerce.com',
-        group: 'Clientes GOAT',
-        lastUpdate: '2024-01-16',
-        value: 'R$ 8.000',
-        stage: 'in-service'
-      }
-    ]
-  },
-  {
-    id: 'meeting-scheduled',
-    name: 'Reunião agendada',
-    color: 'bg-blue-500',
-    leads: [
-      {
-        id: '4',
-        name: 'Ana Oliveira',
-        company: 'Startup XYZ',
-        phone: '(11) 66666-6666',
-        email: 'ana@startup.com',
-        group: 'Networking',
-        lastUpdate: '2024-01-17',
-        stage: 'meeting-scheduled'
-      }
-    ]
-  },
-  {
-    id: 'proposal-sent',
-    name: 'Proposta enviada',
-    color: 'bg-purple-500',
-    leads: [
-      {
-        id: '5',
-        name: 'Carlos Ferreira',
-        company: 'Consultoria Pro',
-        phone: '(11) 55555-5555',
-        email: 'carlos@consultoria.com',
-        group: 'Clientes GOAT',
-        lastUpdate: '2024-01-18',
-        value: 'R$ 12.000',
-        stage: 'proposal-sent'
-      }
-    ]
-  },
-  {
-    id: 'cold',
-    name: 'Frio',
-    color: 'bg-gray-400',
-    leads: []
-  }
+const defaultStages: Stage[] = [
+  { id: 'no-service', name: 'Sem atendimento', color: 'bg-gray-500' },
+  { id: 'in-service', name: 'Em atendimento', color: 'bg-yellow-500' },
+  { id: 'meeting-scheduled', name: 'Reunião agendada', color: 'bg-blue-500' },
+  { id: 'proposal-sent', name: 'Proposta enviada', color: 'bg-purple-500' },
+  { id: 'cold', name: 'Frio', color: 'bg-gray-400' }
 ];
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
-  const [stages, setStages] = useState(mockStages);
+  const { leads, isLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
+  const [stages, setStages] = useState<Stage[]>(defaultStages);
   const [tags, setTags] = useState<Tag[]>(defaultTags);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
@@ -255,66 +161,42 @@ export default function LeadsKanban() {
     if (Math.abs(momentum) > 1) animate();
   };
 
-  // =============== Kanban Logic ===============
+  // Utility functions
   const getGroupColor = (group: string) => {
     const tag = tags.find(t => t.name === group);
     if (tag) return `${tag.color} text-white hover:${tag.color}`;
     return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
   };
 
-  // Helper function to convert LocalLead to Lead for editing
-  const convertLocalLeadToLead = (localLead: LocalLead): Lead => {
-    return {
-      id: localLead.id,
-      name: localLead.name,
-      company: localLead.company,
-      phone: localLead.phone,
-      email: localLead.email || null,
-      stage: localLead.stage,
-      tags: localLead.group ? [localLead.group] : null,
-      value: localLead.value ? parseFloat(localLead.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null : null,
-      notes: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-  };
-
-  // Helper function to convert Lead back to LocalLead
-  const convertLeadToLocalLead = (lead: Lead): LocalLead => {
-    return {
-      id: lead.id,
-      name: lead.name,
-      company: lead.company || '',
-      phone: lead.phone || '',
-      email: lead.email || undefined,
-      stage: lead.stage || '',
-      group: lead.tags?.[0] || undefined,
-      value: lead.value ? `R$ ${lead.value.toLocaleString('pt-BR')}` : undefined,
-      lastUpdate: new Date(lead.updated_at).toISOString().split('T')[0]
-    };
-  };
-
-  const handleEditLead = (lead: LocalLead) => {
-    const dbLead = convertLocalLeadToLead(lead);
-    setSelectedLead(dbLead);
+  // Lead handlers using Supabase
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
     setIsEditLeadModalOpen(true);
   };
 
-  const handleUpdateLead = (updatedLead: Lead) => {
-    const localLead = convertLeadToLocalLead(updatedLead);
-    setStages(prev => prev.map(stage => ({
-      ...stage,
-      leads: stage.leads.map(lead =>
-        lead.id === localLead.id ? localLead : lead
-      )
-    })));
+  const handleUpdateLead = async (updatedLead: Lead) => {
+    try {
+      await updateLead(updatedLead.id, {
+        name: updatedLead.name,
+        company: updatedLead.company,
+        phone: updatedLead.phone,
+        email: updatedLead.email,
+        stage: updatedLead.stage,
+        tags: updatedLead.tags,
+        value: updatedLead.value,
+        notes: updatedLead.notes,
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar lead:', error);
+    }
   };
 
-  const handleDeleteLead = (leadId: string) => {
-    setStages(prev => prev.map(stage => ({
-      ...stage,
-      leads: stage.leads.filter(lead => lead.id !== leadId)
-    })));
+  const handleDeleteLead = async (leadId: string) => {
+    try {
+      await deleteLead(leadId);
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error);
+    }
   };
 
   const handleAddStage = (newStageData: { name: string; color: string }) => {
@@ -322,12 +204,11 @@ export default function LeadsKanban() {
       id: `stage-${Date.now()}`,
       name: newStageData.name,
       color: newStageData.color,
-      leads: []
     };
     setStages(prev => [...prev, newStage]);
   };
 
-  const handleAddLead = (newLeadData: {
+  const handleAddLead = async (newLeadData: {
     name: string;
     company: string;
     phone: string;
@@ -336,23 +217,11 @@ export default function LeadsKanban() {
     tags?: string[];
     value?: number;
   }) => {
-    const newLead: LocalLead = {
-      id: `lead-${Date.now()}`,
-      name: newLeadData.name,
-      company: newLeadData.company,
-      phone: newLeadData.phone,
-      email: newLeadData.email,
-      stage: newLeadData.stage,
-      group: newLeadData.tags?.[0],
-      value: newLeadData.value ? `R$ ${newLeadData.value.toLocaleString('pt-BR')}` : undefined,
-      lastUpdate: new Date().toISOString().split('T')[0]
-    };
-    
-    setStages(prev => prev.map(stage =>
-      stage.id === newLeadData.stage
-        ? { ...stage, leads: [...stage.leads, newLead] }
-        : stage
-    ));
+    try {
+      await createLead(newLeadData);
+    } catch (error) {
+      console.error('Erro ao criar lead:', error);
+    }
   };
 
   const handleEditStage = (stage: Stage) => {
@@ -369,29 +238,37 @@ export default function LeadsKanban() {
     ));
   };
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
-    const { source, destination } = result;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-    const sourceStageIndex = stages.findIndex(stage => stage.id === source.droppableId);
-    const destStageIndex = stages.findIndex(stage => stage.id === destination.droppableId);
-    const newStages = [...stages];
-    const [movedLead] = newStages[sourceStageIndex].leads.splice(source.index, 1);
-    movedLead.stage = destination.droppableId;
-    newStages[destStageIndex].leads.splice(destination.index, 0, movedLead);
-    setStages(newStages);
+    const { source, destination, draggableId } = result;
+    
+    if (source.droppableId === destination.droppableId) return;
+
+    try {
+      await updateLeadStage(draggableId, destination.droppableId);
+    } catch (error) {
+      console.error('Erro ao mover lead:', error);
+    }
   };
 
-  const getFilteredStages = () => {
-    if (activeFilter === 'all') return stages;
-    return stages.map(stage => ({
-      ...stage,
-      leads: stage.leads.filter(lead => lead.group === activeFilter)
-    }));
+  // Organizar leads por etapas
+  const getLeadsByStage = (stageId: string) => {
+    return leads.filter(lead => lead.stage === stageId);
   };
-  const filteredStages = getFilteredStages();
 
-  // ================ JSX =====================
+  // Filtrar leads por grupo/tag
+  const getFilteredLeads = (stageLeads: Lead[]) => {
+    if (activeFilter === 'all') return stageLeads;
+    return stageLeads.filter(lead => lead.tags?.includes(activeFilter));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-white">Carregando leads...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
@@ -486,131 +363,136 @@ export default function LeadsKanban() {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {filteredStages.map((stage) => (
-            <div key={stage.id} className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
-              isMobile ? 'w-72' : 'w-80'
-            }`}>
-              {/* Stage Header - Responsive */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}></div>
-                  <h3 className="font-semibold text-white text-sm sm:text-base">{stage.name}</h3>
-                  <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
-                    {stage.leads.length}
-                  </Badge>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
-                  onClick={() => handleEditStage(stage)}
-                >
-                  <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                </Button>
-              </div>
-
-              {/* Lead Cards - Responsive */}
-              <Droppable droppableId={stage.id}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${
-                      snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
-                    }`}
-                  >
-                    {stage.leads.map((lead, index) => (
-                      <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
-                            data-drag-card
-                          >
-                            <ContextMenu>
-                              <ContextMenuTrigger>
-                                <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                  <div className="space-y-2 sm:space-y-3">
-                                    {/* Lead Header - Responsive */}
-                                    <div className="flex items-start justify-between">
-                                      <div className="flex-1 min-w-0">
-                                        <h4 className="font-semibold text-white text-sm truncate">{lead.name}</h4>
-                                        <p className="text-goat-gray-400 text-xs truncate">{lead.company}</p>
-                                      </div>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ml-2"
-                                        onClick={() => handleEditLead(lead)}
-                                      >
-                                        <MoreVertical className="w-3 h-3" />
-                                      </Button>
-                                    </div>
-                                    
-                                    {/* Group Badge - Responsive */}
-                                    {lead.group && (
-                                      <Badge className={`text-xs ${getGroupColor(lead.group)} truncate max-w-full`}>
-                                        {lead.group}
-                                      </Badge>
-                                    )}
-                                    
-                                    {/* Value - Show on mobile too but smaller */}
-                                    {lead.value && (
-                                      <div className="text-goat-purple font-semibold text-xs sm:text-sm">
-                                        {lead.value}
-                                      </div>
-                                    )}
-                                    
-                                    {/* Last Update - Responsive */}
-                                    <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                      <Calendar className="w-3 h-3 flex-shrink-0" />
-                                      <span className="truncate">
-                                        {isMobile 
-                                          ? new Date(lead.lastUpdate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-                                          : `Atualizado em ${new Date(lead.lastUpdate).toLocaleDateString('pt-BR')}`
-                                        }
-                                      </span>
-                                    </div>
-                                  </div>
-                                </Card>
-                              </ContextMenuTrigger>
-                              <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                <ContextMenuItem
-                                  onClick={() => handleEditLead(lead)}
-                                  className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
-                                >
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Editar Lead
-                                </ContextMenuItem>
-                                <ContextMenuItem
-                                  onClick={() => handleDeleteLead(lead.id)}
-                                  className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Excluir Lead
-                                </ContextMenuItem>
-                              </ContextMenuContent>
-                            </ContextMenu>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                    {/* Empty State - Responsive */}
-                    {stage.leads.length === 0 && (
-                      <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
-                        <p className="text-goat-gray-400 text-xs sm:text-sm">
-                          {isMobile ? "Arraste leads" : "Arraste leads para cá"}
-                        </p>
-                      </div>
-                    )}
+          {stages.map((stage) => {
+            const stageLeads = getLeadsByStage(stage.id);
+            const filteredLeads = getFilteredLeads(stageLeads);
+            
+            return (
+              <div key={stage.id} className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
+                isMobile ? 'w-72' : 'w-80'
+              }`}>
+                {/* Stage Header - Responsive */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}></div>
+                    <h3 className="font-semibold text-white text-sm sm:text-base">{stage.name}</h3>
+                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
+                      {filteredLeads.length}
+                    </Badge>
                   </div>
-                )}
-              </Droppable>
-            </div>
-          ))}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
+                    onClick={() => handleEditStage(stage)}
+                  >
+                    <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </Button>
+                </div>
+
+                {/* Lead Cards - Responsive */}
+                <Droppable droppableId={stage.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${
+                        snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
+                      }`}
+                    >
+                      {filteredLeads.map((lead, index) => (
+                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
+                              data-drag-card
+                            >
+                              <ContextMenu>
+                                <ContextMenuTrigger>
+                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                    <div className="space-y-2 sm:space-y-3">
+                                      {/* Lead Header - Responsive */}
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-semibold text-white text-sm truncate">{lead.name}</h4>
+                                          <p className="text-goat-gray-400 text-xs truncate">{lead.company}</p>
+                                        </div>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ml-2"
+                                          onClick={() => handleEditLead(lead)}
+                                        >
+                                          <MoreVertical className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                      
+                                      {/* Group Badge - Responsive */}
+                                      {lead.tags && lead.tags.length > 0 && (
+                                        <Badge className={`text-xs ${getGroupColor(lead.tags[0])} truncate max-w-full`}>
+                                          {lead.tags[0]}
+                                        </Badge>
+                                      )}
+                                      
+                                      {/* Value - Show on mobile too but smaller */}
+                                      {lead.value && (
+                                        <div className="text-goat-purple font-semibold text-xs sm:text-sm">
+                                          R$ {lead.value.toLocaleString('pt-BR')}
+                                        </div>
+                                      )}
+                                      
+                                      {/* Last Update - Responsive */}
+                                      <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                                        <span className="truncate">
+                                          {isMobile 
+                                            ? new Date(lead.updated_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+                                            : `Atualizado em ${new Date(lead.updated_at).toLocaleDateString('pt-BR')}`
+                                          }
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </Card>
+                                </ContextMenuTrigger>
+                                <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                  <ContextMenuItem
+                                    onClick={() => handleEditLead(lead)}
+                                    className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
+                                  >
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Editar Lead
+                                  </ContextMenuItem>
+                                  <ContextMenuItem
+                                    onClick={() => handleDeleteLead(lead.id)}
+                                    className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Excluir Lead
+                                  </ContextMenuItem>
+                                </ContextMenuContent>
+                              </ContextMenu>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      {/* Empty State - Responsive */}
+                      {filteredLeads.length === 0 && (
+                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
+                          <p className="text-goat-gray-400 text-xs sm:text-sm">
+                            {isMobile ? "Arraste leads" : "Arraste leads para cá"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            );
+          })}
         </div>
       </DragDropContext>
 

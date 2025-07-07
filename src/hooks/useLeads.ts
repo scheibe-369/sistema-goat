@@ -159,8 +159,59 @@ export function useLeads() {
     }
   };
 
+  // Atualizar etapa do lead (para drag and drop)
+  const updateLeadStage = async (id: string, newStage: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .update({ stage: newStage })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLeads(prev => prev.map(lead => lead.id === id ? data : lead));
+      return data;
+    } catch (error) {
+      console.error('Erro ao atualizar etapa do lead:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar a etapa do lead',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  // Configurar real-time subscriptions
   useEffect(() => {
     fetchLeads();
+
+    const { data: { user } } = supabase.auth.getUser();
+    
+    if (user) {
+      const channel = supabase
+        .channel('leads-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'leads',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Lead change detected:', payload);
+            fetchLeads(); // Recarregar leads quando houver mudanças
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, []);
 
   return {
@@ -169,6 +220,7 @@ export function useLeads() {
     createLead,
     updateLead,
     deleteLead,
+    updateLeadStage,
     refetch: fetchLeads,
   };
 }
