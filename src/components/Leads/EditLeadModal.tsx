@@ -248,7 +248,7 @@ export function EditLeadModal({
               value={formData.notes || ""}
               onChange={(e) => handleInputChange("notes", e.target.value)}
               placeholder="Observações sobre o lead"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
             />
           </div>
 
