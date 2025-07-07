@@ -17,6 +17,7 @@ interface ClientsListProps {
     plan: string;
     startDate: string;
     planColor?: string;
+    monthlyValue: string;
   }>;
   expandedClients: string[];
   onToggleExpanded: (clientId: string) => void;
@@ -34,6 +35,7 @@ interface ClientsListProps {
     plan: string;
     startDate: string;
     planColor?: string;
+    monthlyValue: string;
   }) => void;
   onDeleteClient: (client: {
     id: string;
@@ -49,6 +51,7 @@ interface ClientsListProps {
     plan: string;
     startDate: string;
     planColor?: string;
+    monthlyValue: string;
   }) => void;
   planColors?: Record<string, string>;
 }
