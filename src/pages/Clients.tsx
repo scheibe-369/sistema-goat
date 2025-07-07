@@ -246,7 +246,22 @@ export default function Clients() {
           }
         }}
         onDeleteClient={(client) => {
-          setDeletingClient(client);
+          const { id, company, cnpj, responsible, phone, email, contractEnd, paymentDay, tags, address, plan, startDate, monthlyValue } = client;
+          setDeletingClient({
+            id,
+            company,
+            cnpj,
+            responsible,
+            phone,
+            email,
+            contractEnd,
+            paymentDay,
+            tags,
+            address,
+            plan,
+            startDate,
+            monthlyValue,
+          });
         }}
         planColors={planColors}
       />

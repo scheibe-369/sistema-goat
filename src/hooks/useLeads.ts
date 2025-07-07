@@ -188,30 +188,38 @@ export function useLeads() {
   useEffect(() => {
     fetchLeads();
 
-    const { data: { user } } = supabase.auth.getUser();
-    
-    if (user) {
-      const channel = supabase
-        .channel('leads-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'leads',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('Lead change detected:', payload);
-            fetchLeads(); // Recarregar leads quando houver mudanças
-          }
-        )
-        .subscribe();
+    const setupSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const channel = supabase
+          .channel('leads-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'leads',
+              filter: `user_id=eq.${user.id}`
+            },
+            (payload) => {
+              console.log('Lead change detected:', payload);
+              fetchLeads(); // Recarregar leads quando houver mudanças
+            }
+          )
+          .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      }
+    };
+
+    const subscription = setupSubscription();
+    
+    return () => {
+      subscription.then(cleanup => cleanup && cleanup());
+    };
   }, []);
 
   return {
