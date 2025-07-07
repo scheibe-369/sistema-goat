@@ -201,6 +201,51 @@ export default function LeadsKanban() {
     }
   };
 
+  // Nova função para atualizar apenas as tags de um lead
+  const handleUpdateLeadTags = async (leadId: string, newTags: string[]) => {
+    const previousTags = optimisticLeads.find(lead => lead.id === leadId)?.tags || [];
+    
+    // OPTIMISTIC UI: Atualizar imediatamente o estado local
+    setOptimisticLeads(prevLeads => 
+      prevLeads.map(lead => 
+        lead.id === leadId 
+          ? { ...lead, tags: newTags }
+          : lead
+      )
+    );
+
+    try {
+      // Tentar atualizar no Supabase
+      await updateLead(leadId, { tags: newTags });
+      
+      console.log('Tags atualizadas com sucesso:', newTags);
+      
+      toast({
+        title: 'Sucesso',
+        description: 'Tags atualizadas com sucesso',
+      });
+      
+    } catch (error) {
+      console.error('Erro ao atualizar tags do lead:', error);
+      
+      // ROLLBACK: Reverter para as tags anteriores em caso de erro
+      setOptimisticLeads(prevLeads => 
+        prevLeads.map(lead => 
+          lead.id === leadId 
+            ? { ...lead, tags: previousTags }
+            : lead
+        )
+      );
+
+      // Mostrar feedback de erro
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar as tags. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleDeleteLead = async (leadId: string) => {
     try {
       await deleteLead(leadId);
