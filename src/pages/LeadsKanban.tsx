@@ -201,51 +201,6 @@ export default function LeadsKanban() {
     }
   };
 
-  // Nova função para atualizar apenas as tags de um lead
-  const handleUpdateLeadTags = async (leadId: string, newTags: string[]) => {
-    const previousTags = optimisticLeads.find(lead => lead.id === leadId)?.tags || [];
-    
-    // OPTIMISTIC UI: Atualizar imediatamente o estado local
-    setOptimisticLeads(prevLeads => 
-      prevLeads.map(lead => 
-        lead.id === leadId 
-          ? { ...lead, tags: newTags }
-          : lead
-      )
-    );
-
-    try {
-      // Tentar atualizar no Supabase
-      await updateLead(leadId, { tags: newTags });
-      
-      console.log('Tags atualizadas com sucesso:', newTags);
-      
-      toast({
-        title: 'Sucesso',
-        description: 'Tags atualizadas com sucesso',
-      });
-      
-    } catch (error) {
-      console.error('Erro ao atualizar tags do lead:', error);
-      
-      // ROLLBACK: Reverter para as tags anteriores em caso de erro
-      setOptimisticLeads(prevLeads => 
-        prevLeads.map(lead => 
-          lead.id === leadId 
-            ? { ...lead, tags: previousTags }
-            : lead
-        )
-      );
-
-      // Mostrar feedback de erro
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível atualizar as tags. Tente novamente.',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleDeleteLead = async (leadId: string) => {
     try {
       await deleteLead(leadId);
@@ -522,42 +477,12 @@ export default function LeadsKanban() {
                                         </Button>
                                       </div>
                                       
-                                       {/* Group Badge - Responsive */}
-                                       {lead.tags && lead.tags.length > 0 && (
-                                         <div className="flex flex-wrap gap-1">
-                                           {lead.tags.map((tag) => (
-                                             <Badge 
-                                               key={tag}
-                                               className={`text-xs ${getGroupColor(tag)} truncate max-w-full cursor-pointer hover:opacity-80`}
-                                               onClick={(e) => {
-                                                 e.stopPropagation();
-                                                 const newTags = lead.tags?.filter(t => t !== tag) || [];
-                                                 handleUpdateLeadTags(lead.id, newTags);
-                                               }}
-                                             >
-                                               {tag} ×
-                                             </Badge>
-                                           ))}
-                                         </div>
-                                       )}
-                                       
-                                       {/* Botão para adicionar tag */}
-                                       <div className="flex flex-wrap gap-1">
-                                         {tags.filter(tag => !lead.tags?.includes(tag.name)).slice(0, 2).map((tag) => (
-                                           <Badge 
-                                             key={tag.id}
-                                             variant="outline"
-                                             className="text-xs border-goat-gray-600 text-goat-gray-400 hover:bg-goat-gray-700 cursor-pointer"
-                                             onClick={(e) => {
-                                               e.stopPropagation();
-                                               const newTags = [...(lead.tags || []), tag.name];
-                                               handleUpdateLeadTags(lead.id, newTags);
-                                             }}
-                                           >
-                                             + {tag.name}
-                                           </Badge>
-                                         ))}
-                                       </div>
+                                      {/* Group Badge - Responsive */}
+                                      {lead.tags && lead.tags.length > 0 && (
+                                        <Badge className={`text-xs ${getGroupColor(lead.tags[0])} truncate max-w-full`}>
+                                          {lead.tags[0]}
+                                        </Badge>
+                                      )}
                                       
                                       {/* Value - Show on mobile too but smaller */}
                                       {lead.value && (

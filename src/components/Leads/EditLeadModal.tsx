@@ -1,13 +1,10 @@
-
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { Lead } from "@/hooks/useLeads";
 
 interface Tag {
@@ -31,44 +28,49 @@ interface EditLeadModalProps {
   onUpdateLead: (lead: Lead) => void;
 }
 
-export function EditLeadModal({ 
-  open, 
-  onOpenChange, 
-  lead, 
-  tags, 
-  stages, 
-  onUpdateLead 
+export function EditLeadModal({
+  open,
+  onOpenChange,
+  lead,
+  tags,
+  stages,
+  onUpdateLead,
 }: EditLeadModalProps) {
   const [formData, setFormData] = useState({
-    name: '',
-    company: '',
-    phone: '',
-    email: '',
-    stage: '',
+    name: "",
+    company: "",
+    phone: "",
+    email: "",
+    stage: "",
     tags: [] as string[],
-    value: '',
-    notes: '',
+    value: "",
+    notes: "",
   });
 
-  // Atualizar form quando lead mudar
   useEffect(() => {
     if (lead) {
       setFormData({
-        name: lead.name || '',
-        company: lead.company || '',
-        phone: lead.phone || '',
-        email: lead.email || '',
-        stage: lead.stage || '',
+        name: lead.name || "",
+        company: lead.company || "",
+        phone: lead.phone || "",
+        email: lead.email || "",
+        stage: lead.stage || "",
         tags: lead.tags || [],
-        value: lead.value ? lead.value.toString() : '',
-        notes: lead.notes || '',
+        value: lead.value ? `R$ ${lead.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "",
+        notes: lead.notes || "",
       });
     }
   }, [lead]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!lead) return;
+  const handleSave = () => {
+    if (!lead || !formData.name.trim() || !formData.company.trim() || !formData.phone.trim() || !formData.stage) {
+      return;
+    }
+
+    // Converter valor monetário
+    const value = formData.value 
+      ? parseFloat(formData.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null
+      : null;
 
     const updatedLead: Lead = {
       ...lead,
@@ -77,178 +79,193 @@ export function EditLeadModal({
       phone: formData.phone,
       email: formData.email || null,
       stage: formData.stage,
-      tags: formData.tags,
-      value: formData.value ? parseFloat(formData.value) : null,
+      tags: formData.tags.length > 0 ? formData.tags : null,
+      value: value,
       notes: formData.notes || null,
+      updated_at: new Date().toISOString(),
     };
 
     onUpdateLead(updatedLead);
     onOpenChange(false);
   };
 
-  const handleAddTag = (tagName: string) => {
-    if (!formData.tags.includes(tagName)) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagName]
-      }));
-    }
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleRemoveTag = (tagName: string) => {
+  const formatCurrency = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (!numbers) return "";
+    const amount = parseInt(numbers) / 100;
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount);
+  };
+
+  const handleValueChange = (value: string) => {
+    const formatted = formatCurrency(value);
+    handleInputChange("value", formatted);
+  };
+
+  const getStageSelected = () => {
+    const selected = stages.find(s => s.id === formData.stage);
+    if (!selected) return <span className="text-white">Selecione uma etapa</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+        {selected.name}
+      </span>
+    );
+  };
+
+  const handleTagToggle = (tagName: string) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagName)
+      tags: prev.tags.includes(tagName)
+        ? prev.tags.filter(t => t !== tagName)
+        : [...prev.tags, tagName]
     }));
-  };
-
-  const getTagColor = (tagName: string) => {
-    const tag = tags.find(t => t.name === tagName);
-    return tag ? tag.color : 'bg-gray-600';
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-2xl">
+      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Lead</DialogTitle>
+          <DialogDescription className="text-goat-gray-400">
+            Altere as informações do lead
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Nome *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="company">Empresa</Label>
-              <Input
-                id="company"
-                value={formData.company}
-                onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="phone">Telefone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="stage">Etapa</Label>
-              <Select value={formData.stage} onValueChange={(value) => setFormData(prev => ({ ...prev, stage: value }))}>
-                <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
-                  <SelectValue placeholder="Selecione uma etapa" />
-                </SelectTrigger>
-                <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                  {stages.map((stage) => (
-                    <SelectItem key={stage.id} value={stage.id} className="text-white hover:bg-goat-gray-600">
-                      {stage.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="value">Valor (R$)</Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.01"
-                value={formData.value}
-                onChange={(e) => setFormData(prev => ({ ...prev, value: e.target.value }))}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              />
-            </div>
-          </div>
-
+        <div className="space-y-4">
           <div>
-            <Label>Tags</Label>
-            <div className="space-y-2">
-              {/* Tags selecionadas */}
-              <div className="flex flex-wrap gap-2">
-                {formData.tags.map((tagName) => (
-                  <Badge 
-                    key={tagName} 
-                    className={`${getTagColor(tagName)} text-white hover:bg-opacity-80 cursor-pointer`}
-                    onClick={() => handleRemoveTag(tagName)}
-                  >
-                    {tagName}
-                    <X className="w-3 h-3 ml-1" />
-                  </Badge>
-                ))}
-              </div>
-              
-              {/* Tags disponíveis */}
-              <div className="flex flex-wrap gap-2">
-                {tags.filter(tag => !formData.tags.includes(tag.name)).map((tag) => (
-                  <Badge 
-                    key={tag.id}
-                    variant="outline"
-                    className="border-goat-gray-600 text-goat-gray-300 hover:bg-goat-gray-700 cursor-pointer"
-                    onClick={() => handleAddTag(tag.name)}
-                  >
-                    + {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+            <Label className="text-white">Nome</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Nome do lead"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              rows={3}
             />
           </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="border-goat-gray-600 text-white hover:bg-goat-gray-700"
+          <div>
+            <Label className="text-white">Empresa</Label>
+            <Input
+              value={formData.company}
+              onChange={(e) => handleInputChange("company", e.target.value)}
+              placeholder="Nome da empresa"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+            />
+          </div>
+
+          <div>
+            <Label className="text-white">Telefone</Label>
+            <Input
+              value={formData.phone}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              placeholder="(11) 99999-9999"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+            />
+          </div>
+
+          <div>
+            <Label className="text-white">Etapa</Label>
+            <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
+              <SelectTrigger>
+                <SelectValue>{getStageSelected()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.id}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
+                      {stage.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-white">Email (Opcional)</Label>
+            <Input
+              value={formData.email || ""}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              placeholder="email@exemplo.com"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+            />
+          </div>
+
+          <div>
+            <Label className="text-white">Valor (Opcional)</Label>
+            <Input
+              value={formData.value || ""}
+              onChange={(e) => handleValueChange(e.target.value)}
+              placeholder="R$ 0,00"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              inputMode="decimal"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="tag" className="text-white">Tag (opcional)</Label>
+            <Select
+              value={formData.tags[0] || ""}
+              onValueChange={value => setFormData(prev => ({ ...prev, tags: value ? [value] : [] }))}
             >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit"
-              className="bg-goat-purple hover:bg-goat-purple/80 text-white"
-            >
+              <SelectTrigger>
+                <SelectValue>
+                  {(() => {
+                    const selected = tags.find(t => t.name === formData.tags[0]);
+                    if (!selected) return <span className="text-white">Selecione uma tag</span>;
+                    return (
+                      <span className="flex items-center gap-2">
+                        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+                        {selected.name}
+                      </span>
+                    );
+                  })()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {tags.map(tag => (
+                  <SelectItem key={tag.id} value={tag.name}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${tag.color}`} />
+                      {tag.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-white">Observações (Opcional)</Label>
+            <Input
+              value={formData.notes || ""}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Observações sobre o lead"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button onClick={handleSave} className="btn-primary flex-1">
+              <Save className="w-4 h-4 mr-2" />
               Salvar
             </Button>
+            <Button
+              onClick={() => onOpenChange(false)}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancelar
+            </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
