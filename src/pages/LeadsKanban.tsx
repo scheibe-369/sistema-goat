@@ -522,12 +522,42 @@ export default function LeadsKanban() {
                                         </Button>
                                       </div>
                                       
-                                      {/* Group Badge - Responsive */}
-                                      {lead.tags && lead.tags.length > 0 && (
-                                        <Badge className={`text-xs ${getGroupColor(lead.tags[0])} truncate max-w-full`}>
-                                          {lead.tags[0]}
-                                        </Badge>
-                                      )}
+                                       {/* Group Badge - Responsive */}
+                                       {lead.tags && lead.tags.length > 0 && (
+                                         <div className="flex flex-wrap gap-1">
+                                           {lead.tags.map((tag) => (
+                                             <Badge 
+                                               key={tag}
+                                               className={`text-xs ${getGroupColor(tag)} truncate max-w-full cursor-pointer hover:opacity-80`}
+                                               onClick={(e) => {
+                                                 e.stopPropagation();
+                                                 const newTags = lead.tags?.filter(t => t !== tag) || [];
+                                                 handleUpdateLeadTags(lead.id, newTags);
+                                               }}
+                                             >
+                                               {tag} ×
+                                             </Badge>
+                                           ))}
+                                         </div>
+                                       )}
+                                       
+                                       {/* Botão para adicionar tag */}
+                                       <div className="flex flex-wrap gap-1">
+                                         {tags.filter(tag => !lead.tags?.includes(tag.name)).slice(0, 2).map((tag) => (
+                                           <Badge 
+                                             key={tag.id}
+                                             variant="outline"
+                                             className="text-xs border-goat-gray-600 text-goat-gray-400 hover:bg-goat-gray-700 cursor-pointer"
+                                             onClick={(e) => {
+                                               e.stopPropagation();
+                                               const newTags = [...(lead.tags || []), tag.name];
+                                               handleUpdateLeadTags(lead.id, newTags);
+                                             }}
+                                           >
+                                             + {tag.name}
+                                           </Badge>
+                                         ))}
+                                       </div>
                                       
                                       {/* Value - Show on mobile too but smaller */}
                                       {lead.value && (
