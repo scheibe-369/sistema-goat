@@ -78,7 +78,7 @@ export default function LeadsKanban() {
     };
   }, []);
 
-  // Mouse
+  // Mouse handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
@@ -93,6 +93,7 @@ export default function LeadsKanban() {
     }
     document.body.style.cursor = "grabbing";
   };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
     e.preventDefault();
@@ -105,6 +106,7 @@ export default function LeadsKanban() {
     lastMoveX.current = e.pageX;
     lastMoveTime.current = now;
   };
+
   const handleMouseUp = () => {
     setIsDraggingScroll(false);
     document.body.style.cursor = "";
@@ -122,7 +124,7 @@ export default function LeadsKanban() {
     if (Math.abs(momentum) > 1) animate();
   };
 
-  // Touch
+  // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
     setIsDraggingScroll(true);
@@ -135,6 +137,7 @@ export default function LeadsKanban() {
       momentumRef.current = null;
     }
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDraggingScroll || !kanbanRef.current) return;
     const x = e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0);
@@ -146,6 +149,7 @@ export default function LeadsKanban() {
     touchLastX.current = e.touches[0].pageX;
     touchLastTime.current = now;
   };
+
   const handleTouchEnd = () => {
     setIsDraggingScroll(false);
 
@@ -298,94 +302,6 @@ export default function LeadsKanban() {
   const getFilteredLeads = (stageLeads: Lead[]) => {
     if (activeFilter === 'all') return stageLeads;
     return stageLeads.filter(lead => lead.tags?.includes(activeFilter));
-  };
-
-  // Mouse handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
-    setIsDraggingScroll(true);
-    setStartX(e.pageX - (kanbanRef.current?.offsetLeft || 0));
-    setScrollLeft(kanbanRef.current?.scrollLeft || 0);
-    lastMoveX.current = e.pageX;
-    lastMoveTime.current = Date.now();
-    if (momentumRef.current) {
-      cancelAnimationFrame(momentumRef.current);
-      momentumRef.current = null;
-    }
-    document.body.style.cursor = "grabbing";
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingScroll || !kanbanRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - (kanbanRef.current.offsetLeft || 0);
-    const walk = (x - startX) * 1.2;
-    kanbanRef.current.scrollLeft = scrollLeft - walk;
-
-    const now = Date.now();
-    velocity.current = (e.pageX - lastMoveX.current) / (now - lastMoveTime.current + 1e-6);
-    lastMoveX.current = e.pageX;
-    lastMoveTime.current = now;
-  };
-
-  const handleMouseUp = () => {
-    setIsDraggingScroll(false);
-    document.body.style.cursor = "";
-    if (!kanbanRef.current) return;
-
-    let momentum = velocity.current * 50;
-    const deceleration = 0.93;
-
-    function animate() {
-      if (Math.abs(momentum) < 0.2) return;
-      kanbanRef.current!.scrollLeft -= momentum;
-      momentum *= deceleration;
-      momentumRef.current = requestAnimationFrame(animate);
-    }
-    if (Math.abs(momentum) > 1) animate();
-  };
-
-  // Touch handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
-    setIsDraggingScroll(true);
-    setTouchStartX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
-    setTouchScrollLeft(kanbanRef.current?.scrollLeft || 0);
-    touchLastX.current = e.touches[0].pageX;
-    touchLastTime.current = Date.now();
-    if (momentumRef.current) {
-      cancelAnimationFrame(momentumRef.current);
-      momentumRef.current = null;
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDraggingScroll || !kanbanRef.current) return;
-    const x = e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0);
-    const walk = (x - touchStartX) * 1.1;
-    kanbanRef.current.scrollLeft = touchScrollLeft - walk;
-
-    const now = Date.now();
-    touchVelocity.current = (e.touches[0].pageX - touchLastX.current) / (now - touchLastTime.current + 1e-6);
-    touchLastX.current = e.touches[0].pageX;
-    touchLastTime.current = now;
-  };
-
-  const handleTouchEnd = () => {
-    setIsDraggingScroll(false);
-
-    let momentum = touchVelocity.current * 70;
-    const deceleration = 0.92;
-
-    function animate() {
-      if (!kanbanRef.current) return;
-      if (Math.abs(momentum) < 0.3) return;
-      kanbanRef.current.scrollLeft -= momentum;
-      momentum *= deceleration;
-      momentumRef.current = requestAnimationFrame(animate);
-    }
-    if (Math.abs(momentum) > 1) animate();
   };
 
   if (leadsLoading || tagsLoading) {
