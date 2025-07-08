@@ -1,16 +1,12 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
+import { Plus, X } from "lucide-react";
+import { Tag } from "@/hooks/useTags";
 
 interface Stage {
   id: string;
@@ -34,7 +30,13 @@ interface NewLeadModalProps {
   }) => void;
 }
 
-export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: NewLeadModalProps) {
+export function NewLeadModal({
+  open,
+  onOpenChange,
+  tags,
+  stages,
+  onAddLead,
+}: NewLeadModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -45,9 +47,10 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     value: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.company || !formData.phone || !formData.stage) return;
+  const handleSubmit = () => {
+    if (!formData.name.trim() || !formData.company.trim() || !formData.phone.trim() || !formData.stage) {
+      return;
+    }
 
     // Converter valor monetário
     const value = formData.value 
@@ -64,6 +67,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
       value: value,
     });
 
+    // Reset form
     setFormData({
       name: "",
       company: "",
@@ -74,6 +78,10 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
       value: "",
     });
     onOpenChange(false);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const formatCurrency = (value: string) => {
@@ -88,7 +96,7 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
 
   const handleValueChange = (value: string) => {
     const formatted = formatCurrency(value);
-    setFormData(prev => ({ ...prev, value: formatted }));
+    handleInputChange("value", formatted);
   };
 
   const getStageSelected = () => {
@@ -102,82 +110,89 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
     );
   };
 
-  const handleTagToggle = (tagName: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tagName)
-        ? prev.tags.filter(t => t !== tagName)
-        : [...prev.tags, tagName]
-    }));
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">Novo Lead</DialogTitle>
+          <DialogTitle>Novo Lead</DialogTitle>
+          <DialogDescription className="text-goat-gray-400">
+            Adicione um novo lead ao funil
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <div className="space-y-4">
           <div>
-            <Label htmlFor="name" className="text-white">Nome *</Label>
+            <Label className="text-white">Nome *</Label>
             <Input
-              id="name"
               value={formData.name}
-              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Nome do lead"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              required
             />
           </div>
+
           <div>
-            <Label htmlFor="company" className="text-white">Empresa *</Label>
+            <Label className="text-white">Empresa *</Label>
             <Input
-              id="company"
               value={formData.company}
-              onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))}
+              onChange={(e) => handleInputChange("company", e.target.value)}
+              placeholder="Nome da empresa"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              required
             />
           </div>
+
           <div>
-            <Label htmlFor="phone" className="text-white">Telefone *</Label>
+            <Label className="text-white">Telefone *</Label>
             <Input
-              id="phone"
               value={formData.phone}
-              onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) => handleInputChange("phone", e.target.value)}
+              placeholder="(11) 99999-9999"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              required
             />
           </div>
+
           <div>
-            <Label htmlFor="stage" className="text-white">Etapa *</Label>
-            <Select value={formData.stage} onValueChange={value => setFormData(prev => ({ ...prev, stage: value }))}>
+            <Label className="text-white">Etapa *</Label>
+            <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
               <SelectTrigger>
                 <SelectValue>{getStageSelected()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {stages.map(stage => (
+                {stages.map((stage) => (
                   <SelectItem key={stage.id} value={stage.id}>
                     <span className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${stage.color}`} />
-                      <span className="whitespace-nowrap">{stage.name}</span>
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
+                      {stage.name}
                     </span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
           <div>
-            <Label htmlFor="email" className="text-white">Email (opcional)</Label>
+            <Label className="text-white">Email (Opcional)</Label>
             <Input
-              id="email"
-              type="email"
               value={formData.email}
-              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              placeholder="email@exemplo.com"
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
+
           <div>
-            <Label htmlFor="tag" className="text-white">Tag (opcional)</Label>
+            <Label className="text-white">Valor (Opcional)</Label>
+            <Input
+              value={formData.value}
+              onChange={(e) => handleValueChange(e.target.value)}
+              placeholder="R$ 0,00"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              inputMode="decimal"
+            />
+          </div>
+
+          <div>
+            <Label className="text-white">Tag (Opcional)</Label>
             <Select
               value={formData.tags[0] || ""}
               onValueChange={value => setFormData(prev => ({ ...prev, tags: value ? [value] : [] }))}
@@ -208,30 +223,21 @@ export function NewLeadModal({ open, onOpenChange, tags, stages, onAddLead }: Ne
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label htmlFor="value" className="text-white">Valor (opcional)</Label>
-            <Input
-              id="value"
-              value={formData.value || ""}
-              onChange={e => handleValueChange(e.target.value)}
-              placeholder="R$ 0,00"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
-              inputMode="decimal"
-            />
-          </div>
-          <DialogFooter className="gap-2">
+
+          <div className="flex gap-3 pt-4">
+            <Button onClick={handleSubmit} className="btn-primary flex-1">
+              <Plus className="w-4 h-4 mr-2" />
+              Criar Lead
+            </Button>
             <Button
-              type="button"
               onClick={() => onOpenChange(false)}
-              className="bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
             >
+              <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
-            <Button type="submit" className="btn-primary">
-              Adicionar Lead
-            </Button>
-          </DialogFooter>
-        </form>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

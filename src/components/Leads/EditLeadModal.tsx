@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,12 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, X } from "lucide-react";
 import { Lead } from "@/hooks/useLeads";
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
+import { Tag } from "@/hooks/useTags";
 
 interface Stage {
   id: string;
@@ -117,15 +113,6 @@ export function EditLeadModal({
         {selected.name}
       </span>
     );
-  };
-
-  const handleTagToggle = (tagName: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tagName)
-        ? prev.tags.filter(t => t !== tagName)
-        : [...prev.tags, tagName]
-    }));
   };
 
   return (

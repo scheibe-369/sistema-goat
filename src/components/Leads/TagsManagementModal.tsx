@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,18 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Save, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
+import { useTags, type Tag } from "@/hooks/useTags";
 
 interface TagsManagementModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  tags: Tag[];
-  onUpdateTags: (tags: Tag[]) => void;
 }
 
 const defaultColors = [
@@ -31,38 +25,64 @@ const defaultColors = [
   "bg-orange-600"
 ];
 
-export function TagsManagementModal({ open, onOpenChange, tags, onUpdateTags }: TagsManagementModalProps) {
+export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalProps) {
+  const { tags, isLoading, createTag, updateTag, deleteTag } = useTags();
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState(defaultColors[0]);
   const [isCreating, setIsCreating] = useState(false);
 
-  const handleCreateTag = () => {
+  const handleCreateTag = async () => {
     if (!newTagName.trim()) return;
-    const newTag: Tag = {
-      id: Date.now().toString(),
-      name: newTagName.trim(),
-      color: newTagColor
-    };
-    onUpdateTags([...tags, newTag]);
-    setNewTagName("");
-    setNewTagColor(defaultColors[0]);
-    setIsCreating(false);
+    
+    try {
+      await createTag({
+        name: newTagName.trim(),
+        color: newTagColor
+      });
+      setNewTagName("");
+      setNewTagColor(defaultColors[0]);
+      setIsCreating(false);
+    } catch (error) {
+      console.error('Erro ao criar tag:', error);
+    }
   };
 
   const handleEditTag = (tag: Tag) => setEditingTag({ ...tag });
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingTag || !editingTag.name.trim()) return;
-    const updatedTags = tags.map(tag => tag.id === editingTag.id ? editingTag : tag);
-    onUpdateTags(updatedTags);
-    setEditingTag(null);
+    
+    try {
+      await updateTag(editingTag.id, {
+        name: editingTag.name.trim(),
+        color: editingTag.color
+      });
+      setEditingTag(null);
+    } catch (error) {
+      console.error('Erro ao editar tag:', error);
+    }
   };
 
-  const handleDeleteTag = (tagId: string) => {
-    const updatedTags = tags.filter(tag => tag.id !== tagId);
-    onUpdateTags(updatedTags);
+  const handleDeleteTag = async (tagId: string) => {
+    try {
+      await deleteTag(tagId);
+    } catch (error) {
+      console.error('Erro ao deletar tag:', error);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-2xl">
+          <div className="flex items-center justify-center py-8">
+            <div className="text-white">Carregando tags...</div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

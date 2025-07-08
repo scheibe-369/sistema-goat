@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,24 +13,14 @@ import { EditStageModal } from "@/components/Leads/EditStageModal";
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeads, type Lead } from "@/hooks/useLeads";
+import { useTags, type Tag } from "@/hooks/useTags";
 import { useToast } from "@/hooks/use-toast";
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
 
 interface Stage {
   id: string;
   name: string;
   color: string;
 }
-
-const defaultTags: Tag[] = [
-  { id: '1', name: 'Clientes GOAT', color: 'bg-purple-600' },
-  { id: '2', name: 'Networking', color: 'bg-blue-600' },
-];
 
 const defaultStages: Stage[] = [
   { id: 'no-service', name: 'Sem atendimento', color: 'bg-gray-500' },
@@ -41,10 +32,10 @@ const defaultStages: Stage[] = [
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
-  const { leads, isLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
+  const { leads, isLoading: leadsLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
+  const { tags, isLoading: tagsLoading } = useTags();
   const { toast } = useToast();
   const [stages, setStages] = useState<Stage[]>(defaultStages);
-  const [tags, setTags] = useState<Tag[]>(defaultTags);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
@@ -309,10 +300,98 @@ export default function LeadsKanban() {
     return stageLeads.filter(lead => lead.tags?.includes(activeFilter));
   };
 
-  if (isLoading) {
+  // Mouse handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
+    setIsDraggingScroll(true);
+    setStartX(e.pageX - (kanbanRef.current?.offsetLeft || 0));
+    setScrollLeft(kanbanRef.current?.scrollLeft || 0);
+    lastMoveX.current = e.pageX;
+    lastMoveTime.current = Date.now();
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
+    document.body.style.cursor = "grabbing";
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingScroll || !kanbanRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - (kanbanRef.current.offsetLeft || 0);
+    const walk = (x - startX) * 1.2;
+    kanbanRef.current.scrollLeft = scrollLeft - walk;
+
+    const now = Date.now();
+    velocity.current = (e.pageX - lastMoveX.current) / (now - lastMoveTime.current + 1e-6);
+    lastMoveX.current = e.pageX;
+    lastMoveTime.current = now;
+  };
+
+  const handleMouseUp = () => {
+    setIsDraggingScroll(false);
+    document.body.style.cursor = "";
+    if (!kanbanRef.current) return;
+
+    let momentum = velocity.current * 50;
+    const deceleration = 0.93;
+
+    function animate() {
+      if (Math.abs(momentum) < 0.2) return;
+      kanbanRef.current!.scrollLeft -= momentum;
+      momentum *= deceleration;
+      momentumRef.current = requestAnimationFrame(animate);
+    }
+    if (Math.abs(momentum) > 1) animate();
+  };
+
+  // Touch handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
+    setIsDraggingScroll(true);
+    setTouchStartX(e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0));
+    setTouchScrollLeft(kanbanRef.current?.scrollLeft || 0);
+    touchLastX.current = e.touches[0].pageX;
+    touchLastTime.current = Date.now();
+    if (momentumRef.current) {
+      cancelAnimationFrame(momentumRef.current);
+      momentumRef.current = null;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingScroll || !kanbanRef.current) return;
+    const x = e.touches[0].pageX - (kanbanRef.current?.offsetLeft || 0);
+    const walk = (x - touchStartX) * 1.1;
+    kanbanRef.current.scrollLeft = touchScrollLeft - walk;
+
+    const now = Date.now();
+    touchVelocity.current = (e.touches[0].pageX - touchLastX.current) / (now - touchLastTime.current + 1e-6);
+    touchLastX.current = e.touches[0].pageX;
+    touchLastTime.current = now;
+  };
+
+  const handleTouchEnd = () => {
+    setIsDraggingScroll(false);
+
+    let momentum = touchVelocity.current * 70;
+    const deceleration = 0.92;
+
+    function animate() {
+      if (!kanbanRef.current) return;
+      if (Math.abs(momentum) < 0.3) return;
+      kanbanRef.current.scrollLeft -= momentum;
+      momentum *= deceleration;
+      momentumRef.current = requestAnimationFrame(animate);
+    }
+    if (Math.abs(momentum) > 1) animate();
+  };
+
+  if (leadsLoading || tagsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-white">Carregando leads...</div>
+        <div className="text-white">Carregando...</div>
       </div>
     );
   }
@@ -547,8 +626,6 @@ export default function LeadsKanban() {
       <TagsManagementModal
         open={isTagsModalOpen}
         onOpenChange={setIsTagsModalOpen}
-        tags={tags}
-        onUpdateTags={setTags}
       />
       <EditLeadModal
         open={isEditLeadModalOpen}
