@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,7 @@ import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useFinancialEntries } from "@/hooks/useFinancialEntries";
+import { DeleteExpenseDialog } from "@/components/Financial/DeleteExpenseDialog";
 import { useState, useMemo, useEffect } from "react";
 
 export default function Financial() {
@@ -120,11 +120,25 @@ export default function Financial() {
     payExpense(expenseId);
   };
 
-  const handleDeleteExpense = (expenseId: string) => {
-    if (window.confirm('Tem certeza que deseja excluir esta despesa?')) {
-      console.log('DEBUG - Excluindo despesa:', expenseId);
-      deleteExpense(expenseId);
-    }
+  // Add state for the delete confirmation modal
+  const [deleteExpenseDialog, setDeleteExpenseDialog] = useState<{
+    open: boolean;
+    expenseId: string;
+    expenseDescription: string;
+  }>({
+    open: false,
+    expenseId: "",
+    expenseDescription: ""
+  });
+
+  const confirmDeleteExpense = () => {
+    console.log('DEBUG - Excluindo despesa:', deleteExpenseDialog.expenseId);
+    deleteExpense(deleteExpenseDialog.expenseId);
+    setDeleteExpenseDialog({
+      open: false,
+      expenseId: "",
+      expenseDescription: ""
+    });
   };
 
   // Filtros de status
@@ -413,7 +427,7 @@ export default function Financial() {
                       <Button disabled className="bg-green-800 text-white rounded-md px-6 py-2" size="sm">Pago</Button>
                     )}
                     <Button
-                      onClick={() => handleDeleteExpense(expense.id)}
+                      onClick={() => handleDeleteExpense(expense.id, expense.description)}
                       disabled={isDeleting}
                       className="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2"
                       size="sm"
@@ -433,6 +447,13 @@ export default function Financial() {
       </Card>
 
       <ProjectionChart contracts={contractProjections} />
+
+      <DeleteExpenseDialog
+        open={deleteExpenseDialog.open}
+        onOpenChange={(open) => setDeleteExpenseDialog(prev => ({ ...prev, open }))}
+        onConfirm={confirmDeleteExpense}
+        expenseDescription={deleteExpenseDialog.expenseDescription}
+      />
     </div>
   );
 }
