@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,28 +13,15 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeads, type Lead } from "@/hooks/useLeads";
 import { useTags, type Tag } from "@/hooks/useTags";
+import { useStages, type Stage } from "@/hooks/useStages";
 import { useToast } from "@/hooks/use-toast";
-
-interface Stage {
-  id: string;
-  name: string;
-  color: string;
-}
-
-const defaultStages: Stage[] = [
-  { id: 'no-service', name: 'Sem atendimento', color: 'bg-gray-500' },
-  { id: 'in-service', name: 'Em atendimento', color: 'bg-yellow-500' },
-  { id: 'meeting-scheduled', name: 'Reunião agendada', color: 'bg-blue-500' },
-  { id: 'proposal-sent', name: 'Proposta enviada', color: 'bg-purple-500' },
-  { id: 'cold', name: 'Frio', color: 'bg-gray-400' }
-];
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
   const { leads, isLoading: leadsLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
   const { tags, isLoading: tagsLoading } = useTags();
+  const { stages, isLoading: stagesLoading, createStage, updateStage, deleteStage } = useStages();
   const { toast } = useToast();
-  const [stages, setStages] = useState<Stage[]>(defaultStages);
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
@@ -204,13 +190,12 @@ export default function LeadsKanban() {
     }
   };
 
-  const handleAddStage = (newStageData: { name: string; color: string }) => {
-    const newStage: Stage = {
-      id: `stage-${Date.now()}`,
-      name: newStageData.name,
-      color: newStageData.color,
-    };
-    setStages(prev => [...prev, newStage]);
+  const handleAddStage = async (newStageData: { name: string; color: string }) => {
+    try {
+      await createStage(newStageData);
+    } catch (error) {
+      console.error('Erro ao criar etapa:', error);
+    }
   };
 
   const handleAddLead = async (newLeadData: {
@@ -234,13 +219,21 @@ export default function LeadsKanban() {
     setIsEditStageModalOpen(true);
   };
 
-  const handleUpdateStage = (updatedStage: { name: string; color: string }) => {
+  const handleUpdateStage = async (updatedStage: { name: string; color: string }) => {
     if (!selectedStage) return;
-    setStages(prev => prev.map(stage =>
-      stage.id === selectedStage.id
-        ? { ...stage, name: updatedStage.name, color: updatedStage.color }
-        : stage
-    ));
+    try {
+      await updateStage(selectedStage.id, updatedStage);
+    } catch (error) {
+      console.error('Erro ao atualizar etapa:', error);
+    }
+  };
+
+  const handleDeleteStage = async (stageId: string) => {
+    try {
+      await deleteStage(stageId);
+    } catch (error) {
+      console.error('Erro ao deletar etapa:', error);
+    }
   };
 
   const handleDragEnd = async (result: DropResult) => {
@@ -304,7 +297,7 @@ export default function LeadsKanban() {
     return stageLeads.filter(lead => lead.tags?.includes(activeFilter));
   };
 
-  if (leadsLoading || tagsLoading) {
+  if (leadsLoading || tagsLoading || stagesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-white">Carregando...</div>
@@ -422,14 +415,36 @@ export default function LeadsKanban() {
                       {filteredLeads.length}
                     </Badge>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
-                    onClick={() => handleEditStage(stage)}
-                  >
-                    <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
+                  <ContextMenu>
+                    <ContextMenuTrigger>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
+                        onClick={() => handleEditStage(stage)}
+                      >
+                        <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </Button>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                      <ContextMenuItem
+                        onClick={() => handleEditStage(stage)}
+                        className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar Etapa
+                      </ContextMenuItem>
+                      {!stage.is_default && (
+                        <ContextMenuItem
+                          onClick={() => handleDeleteStage(stage.id)}
+                          className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Excluir Etapa
+                        </ContextMenuItem>
+                      )}
+                    </ContextMenuContent>
+                  </ContextMenu>
                 </div>
 
                 {/* Lead Cards - Responsive */}

@@ -392,6 +392,39 @@ export type Database = {
         }
         Relationships: []
       }
+      stages: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           color: string
@@ -425,6 +458,10 @@ export type Database = {
     }
     Functions: {
       create_default_plans_for_user: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
+      create_default_stages_for_user: {
         Args: { user_uuid: string }
         Returns: undefined
       }

@@ -17,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface Stage {
-  id: string;
-  name: string;
-  color: string;
-}
+import { Stage } from "@/hooks/useStages";
 
 interface EditStageModalProps {
   open: boolean;
@@ -97,7 +92,13 @@ export function EditStageModal({
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               placeholder="Digite o nome da etapa"
               required
+              disabled={stage.is_default}
             />
+            {stage.is_default && (
+              <p className="text-xs text-goat-gray-400 mt-1">
+                Etapas padrão não podem ter o nome alterado
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor="stageColor" className="text-white">
