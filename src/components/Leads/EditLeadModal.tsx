@@ -117,7 +117,7 @@ export function EditLeadModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Lead</DialogTitle>
           <DialogDescription className="text-goat-gray-400">
