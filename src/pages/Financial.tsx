@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -130,6 +131,14 @@ export default function Financial() {
     expenseId: "",
     expenseDescription: ""
   });
+
+  const handleDeleteExpense = (expenseId: string, expenseDescription: string) => {
+    setDeleteExpenseDialog({
+      open: true,
+      expenseId,
+      expenseDescription
+    });
+  };
 
   const confirmDeleteExpense = () => {
     console.log('DEBUG - Excluindo despesa:', deleteExpenseDialog.expenseId);
