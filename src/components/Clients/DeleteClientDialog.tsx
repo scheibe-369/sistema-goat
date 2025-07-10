@@ -58,7 +58,7 @@ export function DeleteClientDialog({
       onClick={handleOverlayClick}
     >
       <div 
-        className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-sm border border-goat-gray-700 animate-scale-in"
+        className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-goat-gray-700 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
@@ -136,18 +136,18 @@ export function DeleteClientDialog({
               <div className="grid grid-cols-1 gap-2">
                 <div>
                   <span className="text-goat-gray-400 text-xs">Empresa:</span>
-                  <p className="text-white font-medium text-sm">{client.company}</p>
+                  <p className="text-white font-medium text-sm truncate">{client.company}</p>
                 </div>
                 
                 {client.cnpj && client.responsible && (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-goat-gray-400 text-xs">CNPJ:</span>
-                      <p className="text-white text-xs">{client.cnpj}</p>
+                      <p className="text-white text-xs truncate">{client.cnpj}</p>
                     </div>
                     <div>
                       <span className="text-goat-gray-400 text-xs">Responsável:</span>
-                      <p className="text-white text-xs">{client.responsible}</p>
+                      <p className="text-white text-xs truncate">{client.responsible}</p>
                     </div>
                   </div>
                 )}
@@ -156,11 +156,11 @@ export function DeleteClientDialog({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-goat-gray-400 text-xs">Telefone:</span>
-                      <p className="text-white text-xs">{client.phone}</p>
+                      <p className="text-white text-xs truncate">{client.phone}</p>
                     </div>
                     <div>
                       <span className="text-goat-gray-400 text-xs">E-mail:</span>
-                      <p className="text-white text-xs break-all">{client.email}</p>
+                      <p className="text-white text-xs truncate" title={client.email}>{client.email}</p>
                     </div>
                   </div>
                 )}
@@ -169,7 +169,7 @@ export function DeleteClientDialog({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-goat-gray-400 text-xs">Plano:</span>
-                      <p className="text-white text-xs">{client.plan}</p>
+                      <p className="text-white text-xs truncate">{client.plan}</p>
                     </div>
                     {client.tags && client.tags.length > 0 && (
                       <div>
