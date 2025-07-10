@@ -174,7 +174,7 @@ export function DeleteClientDialog({
                     {client.tags && client.tags.length > 0 && (
                       <div>
                         <span className="text-goat-gray-400 text-xs">Status:</span>
-                        <div className="mt-1">
+                        <div className="mt-0.5">
                           <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${
                             client.tags[0] === 'Ativo' 
                               ? 'bg-green-600/20 text-green-400 border border-green-600/30'
