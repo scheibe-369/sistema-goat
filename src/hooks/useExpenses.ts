@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
@@ -75,29 +76,12 @@ export const useExpenses = () => {
         throw new Error('Categoria obrigatória.');
       }
       
-      // Validate and format date - ensure it's in YYYY-MM-DD format
+      // Garantir que a data está no formato correto (YYYY-MM-DD)
       let dateFormatted = expenseData.date;
-      if (typeof dateFormatted === 'string') {
-        // If it's already in YYYY-MM-DD format, keep it as is
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
-          // Date is already in correct format, no conversion needed
-        } else {
-          // Try to parse other formats
-          const parts = dateFormatted.split(/[\/-]/);
-          if (parts.length === 3) {
-            if (parts[0].length === 4) {
-              // Already YYYY-MM-DD
-              dateFormatted = dateFormatted;
-            } else {
-              // Probably DD/MM/YYYY or DD-MM-YYYY
-              dateFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-            }
-          }
-        }
-      }
-      
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
-        throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
+      if (typeof dateFormatted === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+        // Data já está no formato correto
+      } else {
+        throw new Error('Data deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
       }
       
       if (!expenseData.status) {
@@ -112,9 +96,9 @@ export const useExpenses = () => {
         status: expenseData.status,
         type: 'expense',
         user_id: user.id,
-        client_id: expenseData.client_id,
+        client_id: expenseData.client_id || null,
         is_recurring: expenseData.is_recurring || false,
-        recurrence_type: expenseData.recurrence_type
+        recurrence_type: expenseData.recurrence_type || null
       });
 
       const { data, error } = await supabase
@@ -123,13 +107,13 @@ export const useExpenses = () => {
           description: expenseData.description,
           amount: expenseData.amount,
           category: expenseData.category,
-          date: dateFormatted, // Use the formatted date string directly
+          date: dateFormatted,
           status: expenseData.status,
           type: 'expense',
           user_id: user.id,
-          client_id: expenseData.client_id,
+          client_id: expenseData.client_id || null,
           is_recurring: expenseData.is_recurring || false,
-          recurrence_type: expenseData.recurrence_type
+          recurrence_type: expenseData.recurrence_type || null
         })
         .select()
         .single();
@@ -159,7 +143,7 @@ export const useExpenses = () => {
   });
 
   const calculateNextDate = (currentDate: string, recurrenceType: string) => {
-    const date = new Date(currentDate + 'T00:00:00'); // Ensure local timezone
+    const date = new Date(currentDate + 'T00:00:00');
     
     switch (recurrenceType) {
       case 'weekly':
@@ -178,7 +162,6 @@ export const useExpenses = () => {
         date.setMonth(date.getMonth() + 1);
     }
     
-    // Return in YYYY-MM-DD format
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
