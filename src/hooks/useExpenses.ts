@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
@@ -65,6 +64,9 @@ export const useExpenses = () => {
     mutationFn: async (expenseData: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      console.log('DEBUG useExpenses - Dados recebidos:', expenseData);
+      console.log('DEBUG useExpenses - Data recebida:', expenseData.date);
+
       // Validação extra dos campos obrigatórios
       if (!expenseData.description || typeof expenseData.description !== 'string') {
         throw new Error('Descrição obrigatória.');
@@ -76,10 +78,10 @@ export const useExpenses = () => {
         throw new Error('Categoria obrigatória.');
       }
       
-      // Garantir que a data está no formato correto (YYYY-MM-DD)
-      let dateFormatted = expenseData.date;
-      if (typeof dateFormatted === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
-        // Data já está no formato correto
+      // A data deve estar no formato YYYY-MM-DD exatamente como vem do input
+      let dateToSave = expenseData.date;
+      if (typeof dateToSave === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateToSave)) {
+        console.log('DEBUG useExpenses - Data válida no formato correto:', dateToSave);
       } else {
         throw new Error('Data deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
       }
@@ -88,11 +90,12 @@ export const useExpenses = () => {
         throw new Error('Status obrigatório.');
       }
 
-      console.log('DEBUG - Enviando para Supabase:', {
+      console.log('DEBUG useExpenses - Data que será salva no banco:', dateToSave);
+      console.log('DEBUG useExpenses - Enviando para Supabase:', {
         description: expenseData.description,
         amount: expenseData.amount,
         category: expenseData.category,
-        date: dateFormatted,
+        date: dateToSave,
         status: expenseData.status,
         type: 'expense',
         user_id: user.id,
@@ -107,7 +110,7 @@ export const useExpenses = () => {
           description: expenseData.description,
           amount: expenseData.amount,
           category: expenseData.category,
-          date: dateFormatted,
+          date: dateToSave, // Usa a data exatamente como recebida
           status: expenseData.status,
           type: 'expense',
           user_id: user.id,
@@ -123,6 +126,7 @@ export const useExpenses = () => {
         throw error;
       }
 
+      console.log('DEBUG useExpenses - Despesa criada no banco:', data);
       return data;
     },
     onSuccess: () => {
@@ -143,7 +147,12 @@ export const useExpenses = () => {
   });
 
   const calculateNextDate = (currentDate: string, recurrenceType: string) => {
-    const date = new Date(currentDate + 'T00:00:00');
+    // Usar a data exatamente como está no formato YYYY-MM-DD
+    const [year, month, day] = currentDate.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month - 1 porque Date usa meses de 0-11
+    
+    console.log('DEBUG calculateNextDate - Data atual:', currentDate);
+    console.log('DEBUG calculateNextDate - Date object criado:', date);
     
     switch (recurrenceType) {
       case 'weekly':
@@ -162,7 +171,9 @@ export const useExpenses = () => {
         date.setMonth(date.getMonth() + 1);
     }
     
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const nextDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    console.log('DEBUG calculateNextDate - Próxima data calculada:', nextDate);
+    return nextDate;
   };
 
   const payExpenseMutation = useMutation({

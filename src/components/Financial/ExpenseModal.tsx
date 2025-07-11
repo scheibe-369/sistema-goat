@@ -36,7 +36,8 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('DEBUG - Dados do formulário:', formData);
+    console.log('DEBUG ExpenseModal - Dados do formulário:', formData);
+    console.log('DEBUG ExpenseModal - Data selecionada:', formData.date);
     
     if (!formData.description || !formData.value || !formData.category || !formData.date) {
       console.error('Campos obrigatórios não preenchidos:', { 
@@ -52,7 +53,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     // Convert value from string to number
     const numericValue = parseFloat(formData.value.replace(',', '.'));
     
-    console.log('DEBUG - Valor convertido:', numericValue);
+    console.log('DEBUG ExpenseModal - Valor convertido:', numericValue);
     
     if (isNaN(numericValue) || numericValue <= 0) {
       console.error('Valor inválido:', numericValue);
@@ -64,14 +65,16 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: formData.description,
       amount: numericValue,
       category: formData.category,
-      date: formData.date, // Keep the date exactly as selected (YYYY-MM-DD format)
+      date: formData.date, // Mantém a data exatamente como selecionada no input
       status: 'pending',
       type: 'expense',
       is_recurring: formData.isRecurring,
       recurrence_type: formData.isRecurring ? formData.recurrence : undefined
     };
 
-    console.log('DEBUG - Despesa a ser criada:', expense);
+    console.log('DEBUG ExpenseModal - Despesa a ser enviada:', expense);
+    console.log('DEBUG ExpenseModal - Data que será enviada:', expense.date);
+    
     onAddExpense(expense);
     setOpen(false);
     
@@ -147,7 +150,10 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={(e) => {
+                console.log('DEBUG ExpenseModal - Nova data selecionada:', e.target.value);
+                setFormData({ ...formData, date: e.target.value });
+              }}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
