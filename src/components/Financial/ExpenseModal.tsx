@@ -17,7 +17,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     description: '',
     value: '',
     category: '',
-    date: new Date().toLocaleDateString('sv-SE'), // Formato YYYY-MM-DD sem problemas de timezone
+    date: new Date().toISOString().split('T')[0],
     isRecurring: false,
     recurrence: 'monthly'
   });
@@ -74,7 +74,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: '',
       value: '',
       category: '',
-      date: new Date().toLocaleDateString('sv-SE'), // Formato YYYY-MM-DD sem problemas de timezone
+      date: new Date().toISOString().split('T')[0],
       isRecurring: false,
       recurrence: 'monthly'
     });
