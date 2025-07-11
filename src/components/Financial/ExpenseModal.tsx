@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,16 @@ interface ExpenseModalProps {
 
 export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const [open, setOpen] = useState(false);
+  
+  // Initialize with today's date in YYYY-MM-DD format (local timezone)
+  const today = new Date();
+  const initialDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
   const [formData, setFormData] = useState({
     description: '',
     value: '',
     category: '',
-    date: new Date().toISOString().split('T')[0],
+    date: initialDate,
     isRecurring: false,
     recurrence: 'monthly'
   });
@@ -58,7 +64,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: formData.description,
       amount: numericValue,
       category: formData.category,
-      date: formData.date,
+      date: formData.date, // Keep the date exactly as selected (YYYY-MM-DD format)
       status: 'pending',
       type: 'expense',
       is_recurring: formData.isRecurring,
@@ -74,7 +80,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: '',
       value: '',
       category: '',
-      date: new Date().toISOString().split('T')[0],
+      date: initialDate,
       isRecurring: false,
       recurrence: 'monthly'
     });

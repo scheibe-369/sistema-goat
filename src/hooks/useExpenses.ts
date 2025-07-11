@@ -74,27 +74,48 @@ export const useExpenses = () => {
       if (!expenseData.category || typeof expenseData.category !== 'string') {
         throw new Error('Categoria obrigatória.');
       }
-      // Garantir que a data esteja no formato YYYY-MM-DD
+      
+      // Validate and format date - ensure it's in YYYY-MM-DD format
       let dateFormatted = expenseData.date;
-      if (typeof dateFormatted === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
-        // Tenta converter de DD/MM/YYYY ou outros formatos comuns
-        const parts = dateFormatted.split(/[\/-]/);
-        if (parts.length === 3) {
-          if (parts[0].length === 4) {
-            // Já está no formato YYYY-MM-DD
-            dateFormatted = dateFormatted;
-          } else {
-            // Provavelmente DD/MM/YYYY ou DD-MM-YYYY
-            dateFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      if (typeof dateFormatted === 'string') {
+        // If it's already in YYYY-MM-DD format, keep it as is
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+          // Date is already in correct format, no conversion needed
+        } else {
+          // Try to parse other formats
+          const parts = dateFormatted.split(/[\/-]/);
+          if (parts.length === 3) {
+            if (parts[0].length === 4) {
+              // Already YYYY-MM-DD
+              dateFormatted = dateFormatted;
+            } else {
+              // Probably DD/MM/YYYY or DD-MM-YYYY
+              dateFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
           }
         }
       }
+      
       if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
         throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
       }
+      
       if (!expenseData.status) {
         throw new Error('Status obrigatório.');
       }
+
+      console.log('DEBUG - Enviando para Supabase:', {
+        description: expenseData.description,
+        amount: expenseData.amount,
+        category: expenseData.category,
+        date: dateFormatted,
+        status: expenseData.status,
+        type: 'expense',
+        user_id: user.id,
+        client_id: expenseData.client_id,
+        is_recurring: expenseData.is_recurring || false,
+        recurrence_type: expenseData.recurrence_type
+      });
 
       const { data, error } = await supabase
         .from('finances')
@@ -102,7 +123,7 @@ export const useExpenses = () => {
           description: expenseData.description,
           amount: expenseData.amount,
           category: expenseData.category,
-          date: dateFormatted,
+          date: dateFormatted, // Use the formatted date string directly
           status: expenseData.status,
           type: 'expense',
           user_id: user.id,
@@ -138,7 +159,7 @@ export const useExpenses = () => {
   });
 
   const calculateNextDate = (currentDate: string, recurrenceType: string) => {
-    const date = new Date(currentDate);
+    const date = new Date(currentDate + 'T00:00:00'); // Ensure local timezone
     
     switch (recurrenceType) {
       case 'weekly':
@@ -157,7 +178,8 @@ export const useExpenses = () => {
         date.setMonth(date.getMonth() + 1);
     }
     
-    return date.toISOString().split('T')[0];
+    // Return in YYYY-MM-DD format
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
   const payExpenseMutation = useMutation({
