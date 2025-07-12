@@ -64,9 +64,6 @@ export const useExpenses = () => {
     mutationFn: async (expenseData: Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      console.log('DEBUG useExpenses - Dados recebidos:', expenseData);
-      console.log('DEBUG useExpenses - Data recebida:', expenseData.date);
-
       // Validação extra dos campos obrigatórios
       if (!expenseData.description || typeof expenseData.description !== 'string') {
         throw new Error('Descrição obrigatória.');
@@ -77,32 +74,27 @@ export const useExpenses = () => {
       if (!expenseData.category || typeof expenseData.category !== 'string') {
         throw new Error('Categoria obrigatória.');
       }
-      
-      // A data deve estar no formato YYYY-MM-DD exatamente como vem do input
-      let dateToSave = expenseData.date;
-      if (typeof dateToSave === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateToSave)) {
-        console.log('DEBUG useExpenses - Data válida no formato correto:', dateToSave);
-      } else {
-        throw new Error('Data deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
+      // Garantir que a data esteja no formato YYYY-MM-DD
+      let dateFormatted = expenseData.date;
+      if (typeof dateFormatted === 'string' && !/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+        // Tenta converter de DD/MM/YYYY ou outros formatos comuns
+        const parts = dateFormatted.split(/[\/-]/);
+        if (parts.length === 3) {
+          if (parts[0].length === 4) {
+            // Já está no formato YYYY-MM-DD
+            dateFormatted = dateFormatted;
+          } else {
+            // Provavelmente DD/MM/YYYY ou DD-MM-YYYY
+            dateFormatted = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+        }
       }
-      
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFormatted)) {
+        throw new Error('Data obrigatória e deve estar no formato YYYY-MM-DD. Valor recebido: ' + expenseData.date);
+      }
       if (!expenseData.status) {
         throw new Error('Status obrigatório.');
       }
-
-      console.log('DEBUG useExpenses - Data que será salva no banco:', dateToSave);
-      console.log('DEBUG useExpenses - Enviando para Supabase:', {
-        description: expenseData.description,
-        amount: expenseData.amount,
-        category: expenseData.category,
-        date: dateToSave,
-        status: expenseData.status,
-        type: 'expense',
-        user_id: user.id,
-        client_id: expenseData.client_id || null,
-        is_recurring: expenseData.is_recurring || false,
-        recurrence_type: expenseData.recurrence_type || null
-      });
 
       const { data, error } = await supabase
         .from('finances')
@@ -110,13 +102,13 @@ export const useExpenses = () => {
           description: expenseData.description,
           amount: expenseData.amount,
           category: expenseData.category,
-          date: dateToSave, // Usa a data exatamente como recebida
+          date: dateFormatted,
           status: expenseData.status,
           type: 'expense',
           user_id: user.id,
-          client_id: expenseData.client_id || null,
+          client_id: expenseData.client_id,
           is_recurring: expenseData.is_recurring || false,
-          recurrence_type: expenseData.recurrence_type || null
+          recurrence_type: expenseData.recurrence_type
         })
         .select()
         .single();
@@ -126,7 +118,6 @@ export const useExpenses = () => {
         throw error;
       }
 
-      console.log('DEBUG useExpenses - Despesa criada no banco:', data);
       return data;
     },
     onSuccess: () => {
@@ -147,12 +138,7 @@ export const useExpenses = () => {
   });
 
   const calculateNextDate = (currentDate: string, recurrenceType: string) => {
-    // Usar a data exatamente como está no formato YYYY-MM-DD
-    const [year, month, day] = currentDate.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // month - 1 porque Date usa meses de 0-11
-    
-    console.log('DEBUG calculateNextDate - Data atual:', currentDate);
-    console.log('DEBUG calculateNextDate - Date object criado:', date);
+    const date = new Date(currentDate);
     
     switch (recurrenceType) {
       case 'weekly':
@@ -171,9 +157,7 @@ export const useExpenses = () => {
         date.setMonth(date.getMonth() + 1);
     }
     
-    const nextDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    console.log('DEBUG calculateNextDate - Próxima data calculada:', nextDate);
-    return nextDate;
+    return date.toISOString().split('T')[0];
   };
 
   const payExpenseMutation = useMutation({

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,16 +13,11 @@ interface ExpenseModalProps {
 
 export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const [open, setOpen] = useState(false);
-  
-  // Initialize with today's date in YYYY-MM-DD format (local timezone)
-  const today = new Date();
-  const initialDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  
   const [formData, setFormData] = useState({
     description: '',
     value: '',
     category: '',
-    date: initialDate,
+    date: new Date().toISOString().split('T')[0],
     isRecurring: false,
     recurrence: 'monthly'
   });
@@ -36,8 +30,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('DEBUG ExpenseModal - Dados do formulário:', formData);
-    console.log('DEBUG ExpenseModal - Data selecionada:', formData.date);
+    console.log('DEBUG - Dados do formulário:', formData);
     
     if (!formData.description || !formData.value || !formData.category || !formData.date) {
       console.error('Campos obrigatórios não preenchidos:', { 
@@ -53,7 +46,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
     // Convert value from string to number
     const numericValue = parseFloat(formData.value.replace(',', '.'));
     
-    console.log('DEBUG ExpenseModal - Valor convertido:', numericValue);
+    console.log('DEBUG - Valor convertido:', numericValue);
     
     if (isNaN(numericValue) || numericValue <= 0) {
       console.error('Valor inválido:', numericValue);
@@ -65,16 +58,14 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: formData.description,
       amount: numericValue,
       category: formData.category,
-      date: formData.date, // Mantém a data exatamente como selecionada no input
+      date: formData.date,
       status: 'pending',
       type: 'expense',
       is_recurring: formData.isRecurring,
       recurrence_type: formData.isRecurring ? formData.recurrence : undefined
     };
 
-    console.log('DEBUG ExpenseModal - Despesa a ser enviada:', expense);
-    console.log('DEBUG ExpenseModal - Data que será enviada:', expense.date);
-    
+    console.log('DEBUG - Despesa a ser criada:', expense);
     onAddExpense(expense);
     setOpen(false);
     
@@ -83,7 +74,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
       description: '',
       value: '',
       category: '',
-      date: initialDate,
+      date: new Date().toISOString().split('T')[0],
       isRecurring: false,
       recurrence: 'monthly'
     });
@@ -150,10 +141,7 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
               id="date"
               type="date"
               value={formData.date}
-              onChange={(e) => {
-                console.log('DEBUG ExpenseModal - Nova data selecionada:', e.target.value);
-                setFormData({ ...formData, date: e.target.value });
-              }}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               className="bg-goat-gray-700 border-goat-gray-600 text-white"
               required
             />
