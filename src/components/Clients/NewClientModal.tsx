@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Plus, X, ChevronDown } from "lucide-react";
 import { ColorPicker } from "./ColorPicker";
 import { usePlansContext } from "@/contexts/PlansContext";
+import ReactDOM from "react-dom";
 
 interface NewClientModalProps {
   isOpen: boolean;
@@ -226,9 +227,10 @@ export function NewClientModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+  return ReactDOM.createPortal(
+    <div
+      style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+      className="flex items-center justify-center animate-fade-in"
       onClick={handleOverlayClick}
     >
       <div 
@@ -631,6 +633,7 @@ export function NewClientModal({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

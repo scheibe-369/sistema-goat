@@ -19,6 +19,7 @@ import {
 import { useState, useEffect } from "react";
 import { X, ChevronDown, Edit } from "lucide-react";
 import { usePlansContext } from "@/contexts/PlansContext";
+import ReactDOM from "react-dom";
 
 interface Client {
   id: string;
@@ -203,9 +204,10 @@ export function EditClientModal({
     }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+      style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+      className="flex items-center justify-center animate-fade-in"
       onClick={handleOverlayClick}
     >
       <div 
@@ -554,6 +556,7 @@ export function EditClientModal({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

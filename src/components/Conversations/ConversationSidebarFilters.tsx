@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
+import ReactDOM from "react-dom";
 
 interface FilterState {
   stages: string[];
@@ -75,16 +76,16 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
 
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <>
       {/* Custom Overlay with blur */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
+        style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
       
       {/* Filters Panel - Slide from right */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md animate-slide-in-right">
+      <div className="fixed inset-y-0 right-0 z-[1000000] w-full max-w-md animate-slide-in-right">
         <div 
           className="h-full bg-goat-gray-800 shadow-2xl border-l border-goat-gray-700 flex flex-col"
           onClick={(e) => e.stopPropagation()}
@@ -250,6 +251,7 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
