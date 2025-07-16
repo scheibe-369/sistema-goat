@@ -217,8 +217,15 @@ export default function Financial() {
   };
 
   // Separar lançamentos em atraso dos demais
-  const overdueEntries = filteredFinancialEntries.filter((entry: any) => getStatusTag(entry).label === 'Em atraso');
-  const normalEntries = filteredFinancialEntries.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso');
+  const overdueEntries = financialEntriesElegiveis.filter((entry: any) => getStatusTag(entry).label === 'Em atraso');
+  const normalEntries = financialEntriesElegiveis.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso').filter((entry: any) => {
+    if (statusFilter === 'all') return true;
+    if (statusFilter === 'currentMonth') {
+      const d = new Date(entry.due_date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }
+    return entry.status === statusFilter;
+  });
 
   // Cálculo dos KPIs
   const receitasMes = financialEntries
