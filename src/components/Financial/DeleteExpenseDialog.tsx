@@ -33,7 +33,7 @@ export function DeleteExpenseDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="gap-2">
-          <AlertDialogCancel className="bg-goat-gray-600 hover:bg-goat-gray-500 text-white border-0">
+          <AlertDialogCancel className="bg-goat-gray-600 hover:bg-goat-gray-500 text-white border-0 hover:text-white">
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction 
