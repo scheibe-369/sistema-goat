@@ -162,7 +162,7 @@ export default function Financial() {
   };
 
   // Filtros de status
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('currentMonth');
 
   // Filtrar lançamentos financeiros conforme status
   const now = new Date();
