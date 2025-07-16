@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +28,18 @@ export default function Financial() {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  // Função para formatar data sem problemas de timezone
+  const formatDateBR = (dateString: string) => {
+    // Parse da data como local ao invés de UTC
+    const dateParts = dateString.split('-');
+    const year = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]) - 1; // JavaScript months are 0-indexed
+    const day = parseInt(dateParts[2]);
+    
+    const date = new Date(year, month, day);
+    return date.toLocaleDateString('pt-BR');
   };
 
   // Filtro correto para contratos e clientes elegíveis para o gráfico
@@ -277,7 +288,7 @@ export default function Financial() {
                   </div>
                   <div className="text-center">
                     <p className="text-red-200 text-sm">Vencimento</p>
-                    <p className="text-white">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</p>
+                    <p className="text-white">{formatDateBR(entry.due_date)}</p>
                   </div>
                   <div className="flex justify-center">
                     <Button
@@ -346,7 +357,7 @@ export default function Financial() {
                       </div>
                       <div className="text-center">
                         <p className="text-goat-gray-400 text-sm">Vencimento</p>
-                        <p className="text-white">{new Date(entry.due_date).toLocaleDateString('pt-BR')}</p>
+                        <p className="text-white">{formatDateBR(entry.due_date)}</p>
                       </div>
                       <div className="flex justify-center">
                         {entry.status === 'pending' ? (
@@ -401,7 +412,7 @@ export default function Financial() {
                   </div>
                   <div className="text-center">
                     <p className="text-goat-gray-400 text-xs">Data</p>
-                    <p className="text-white text-base">{new Date(expense.date).toLocaleDateString('pt-BR')}</p>
+                    <p className="text-white text-base">{formatDateBR(expense.date)}</p>
                   </div>
                   <div className="text-center">
                     {expense.is_recurring ? (
