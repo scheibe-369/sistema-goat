@@ -173,18 +173,16 @@ export function DeleteClientDialog({
                     </div>
                     {client.tags && client.tags.length > 0 && (
                       <div>
-                        <span className="text-goat-gray-400 text-xs">Status:</span>
-                        <div className="mt-0.5">
-                          <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                            client.tags[0] === 'Ativo' 
-                              ? 'bg-green-600/20 text-green-400 border border-green-600/30'
-                              : client.tags[0] === 'A vencer'
-                              ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30'
-                              : 'bg-red-600/20 text-red-400 border border-red-600/30'
-                          }`}>
-                            {client.tags[0]}
-                          </span>
-                        </div>
+                        <span className="text-goat-gray-400 text-xs">Status: </span>
+                        <span className={`inline-flex px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                          client.tags[0] === 'Ativo' 
+                            ? 'bg-green-600/20 text-green-400 border border-green-600/30'
+                            : client.tags[0] === 'A vencer'
+                            ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30'
+                            : 'bg-red-600/20 text-red-400 border border-red-600/30'
+                        }`}>
+                          {client.tags[0]}
+                        </span>
                       </div>
                     )}
                   </div>
