@@ -180,7 +180,7 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
               {/* Etapas do Kanban */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
-                  Etapa do Kanban
+                  Etapa do Funil
                 </h3>
                 
                 <div className="space-y-3">
