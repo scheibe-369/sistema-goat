@@ -368,56 +368,41 @@ export type Database = {
       }
       messages: {
         Row: {
-          contact_name: string | null
           conversa_id: string | null
           conversation_id: string
           created_at: string | null
           data_hora: string | null
-          date_time: string | null
           direcao: boolean | null
-          direction: boolean | null
           id: string
           mensagem: string | null
-          message_id: string | null
           nome_contato: string | null
           numero: string | null
-          sender: string
           text: string
           updated_at: string | null
         }
         Insert: {
-          contact_name?: string | null
           conversa_id?: string | null
           conversation_id: string
           created_at?: string | null
           data_hora?: string | null
-          date_time?: string | null
           direcao?: boolean | null
-          direction?: boolean | null
           id?: string
           mensagem?: string | null
-          message_id?: string | null
           nome_contato?: string | null
           numero?: string | null
-          sender: string
           text: string
           updated_at?: string | null
         }
         Update: {
-          contact_name?: string | null
           conversa_id?: string | null
           conversation_id?: string
           created_at?: string | null
           data_hora?: string | null
-          date_time?: string | null
           direcao?: boolean | null
-          direction?: boolean | null
           id?: string
           mensagem?: string | null
-          message_id?: string | null
           nome_contato?: string | null
           numero?: string | null
-          sender?: string
           text?: string
           updated_at?: string | null
         }

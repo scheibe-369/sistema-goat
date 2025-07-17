@@ -8,7 +8,6 @@ export interface WebhookMessage {
   mensagem: string;
   direcao: boolean;
   data_hora: string;
-  conversa_id: string;
   nome_contato?: string;
   user_id: string;
 }
@@ -27,7 +26,6 @@ export const useProcessWebhookMessage = () => {
         p_mensagem: webhookData.mensagem,
         p_direcao: webhookData.direcao,
         p_data_hora: webhookData.data_hora,
-        p_conversa_id: webhookData.conversa_id,
         p_nome_contato: webhookData.nome_contato
       });
 
@@ -81,7 +79,6 @@ export const useTestWebhook = () => {
         mensagem: `Mensagem de teste recebida via webhook - ${new Date().toLocaleTimeString()}`,
         direcao: false, // mensagem recebida
         data_hora: new Date().toISOString(),
-        conversa_id: "test_" + Date.now(),
         nome_contato: "Contato Teste " + Math.floor(Math.random() * 1000),
         user_id: userData.user.id
       };
@@ -112,7 +109,6 @@ export const useTestWebhookEdgeFunction = () => {
         mensagem: `Teste via Edge Function - ${new Date().toLocaleTimeString()}`,
         direcao: false,
         data_hora: new Date().toISOString(),
-        conversa_id: "edge_test_" + Date.now(),
         nome_contato: "Teste Edge Function",
         user_id: userData.user.id
       };

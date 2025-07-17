@@ -33,14 +33,13 @@ serve(async (req) => {
       throw new Error('Dados obrigatórios ausentes: numero, mensagem, user_id')
     }
 
-    // Processar a mensagem usando a função do banco de dados
-    console.log('Chamando process_webhook_message com parâmetros:', {
+    // Processar a mensagem usando a função do banco de dados com parâmetros essenciais
+    console.log('Chamando process_webhook_message com parâmetros essenciais:', {
       p_user_id: webhookData.user_id,
       p_numero: webhookData.numero,
       p_mensagem: webhookData.mensagem,
       p_direcao: webhookData.direcao || false,
       p_data_hora: webhookData.data_hora || new Date().toISOString(),
-      p_conversa_id: webhookData.conversa_id || webhookData.numero,
       p_nome_contato: webhookData.nome_contato || null
     })
 
@@ -51,7 +50,6 @@ serve(async (req) => {
         p_mensagem: webhookData.mensagem,
         p_direcao: webhookData.direcao || false,
         p_data_hora: webhookData.data_hora || new Date().toISOString(),
-        p_conversa_id: webhookData.conversa_id || webhookData.numero,
         p_nome_contato: webhookData.nome_contato || null
       })
 
