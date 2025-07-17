@@ -59,6 +59,7 @@ export const useMessages = (conversationId: string) => {
         .from("messages")
         .select("*")
         .eq("conversation_id", conversationId)
+        .order("data_hora", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: true });
 
       if (error) {
