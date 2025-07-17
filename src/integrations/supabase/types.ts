@@ -345,6 +345,7 @@ export type Database = {
           conversa_id: string | null
           conversation_id: string
           created_at: string | null
+          data_hora: string | null
           date_time: string | null
           direcao: boolean | null
           direction: boolean | null
@@ -359,6 +360,7 @@ export type Database = {
           conversa_id?: string | null
           conversation_id: string
           created_at?: string | null
+          data_hora?: string | null
           date_time?: string | null
           direcao?: boolean | null
           direction?: boolean | null
@@ -373,6 +375,7 @@ export type Database = {
           conversa_id?: string | null
           conversation_id?: string
           created_at?: string | null
+          data_hora?: string | null
           date_time?: string | null
           direcao?: boolean | null
           direction?: boolean | null
