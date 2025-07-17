@@ -9,26 +9,7 @@ import { ConversationSidebarFilters } from "@/components/Conversations/Conversat
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
-
-interface Message {
-  id: number;
-  text: string;
-  time: string;
-  sender: "user" | "client";
-}
-
-interface Conversation {
-  id: number;
-  client: string;
-  phone: string;
-  lastMessage: string;
-  time: string;
-  unread: number;
-  tag: string;
-  direction: "inbound" | "outbound";
-  stage: string;
-  messages: Message[];
-}
+import { useConversations, useMessages, useSendMessage, useCreateConversation, type Conversation } from "@/hooks/useConversations";
 
 export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,56 +25,33 @@ export default function Conversations() {
   });
   const { toast } = useToast();
 
-  // Start with empty conversations - only real data from database
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const { data: conversations = [], isLoading: conversationsLoading } = useConversations();
+  const { data: messages = [] } = useMessages(selectedConversation?.id || "");
+  const sendMessageMutation = useSendMessage();
+  const createConversationMutation = useCreateConversation();
 
   const handleNewConversation = (client: string, phone: string) => {
-    const newConversation: Conversation = {
-      id: conversations.length + 1,
-      client,
-      phone,
-      lastMessage: "Conversa iniciada",
-      time: "Agora",
-      unread: 0,
-      tag: "Lead",
-      direction: "outbound",
-      stage: "Sem atendimento",
-      messages: []
-    };
-    
-    setConversations(prev => [newConversation, ...prev]);
-    setSelectedConversation(newConversation);
-  };
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    createConversationMutation.mutate(
+      { phone, contactName: client },
+      {
+        onSuccess: (newConversation) => {
+          setSelectedConversation(newConversation);
+          setIsNewConversationModalOpen(false);
+        }
+      }
+    );
   };
 
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedConversation) {
-      const currentTime = getCurrentTime();
-      const newMsg: Message = {
-        id: selectedConversation.messages.length + 1,
-        text: newMessage.trim(),
-        time: currentTime,
-        sender: "user"
-      };
-
-      setConversations(prev => prev.map(conv => 
-        conv.id === selectedConversation.id 
-          ? { ...conv, lastMessage: newMessage.trim(), time: currentTime, messages: [...conv.messages, newMsg] }
-          : conv
-      ));
-
-      setSelectedConversation(prev => prev ? { ...prev, lastMessage: newMessage.trim(), time: currentTime, messages: [...prev.messages, newMsg] } : null);
-      
-      setNewMessage("");
-      
-      toast({
-        title: "Mensagem enviada",
-        description: "Sua mensagem foi enviada com sucesso",
-      });
+      sendMessageMutation.mutate(
+        { conversationId: selectedConversation.id, text: newMessage.trim() },
+        {
+          onSuccess: () => {
+            setNewMessage("");
+          }
+        }
+      );
     }
   };
 
@@ -102,15 +60,37 @@ export default function Conversations() {
   };
 
   const filteredConversations = conversations.filter(conversation => {
-    const matchesSearch = conversation.client.toLowerCase().includes(searchTerm.toLowerCase()) || conversation.phone.includes(searchTerm);
-    const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
-    const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage);
-    const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
-    const matchesDirection = filters.direction.length === 0 || filters.direction.includes(conversation.direction);
+    const matchesSearch = (conversation.contact_name || conversation.phone).toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesClient = !filters.client || (conversation.contact_name || "").toLowerCase().includes(filters.client.toLowerCase());
+    const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage || "");
+    const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag || "");
+    const matchesDirection = filters.direction.length === 0 || filters.direction.includes(conversation.direction || "");
     return matchesSearch && matchesClient && matchesStages && matchesTags && matchesDirection;
   });
 
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
+
+  const formatTime = (dateString?: string) => {
+    if (!dateString) return "Agora";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatMessageTime = (dateString?: string) => {
+    if (!dateString) return formatTime();
+    return formatTime(dateString);
+  };
+
+  if (conversationsLoading) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
+        <div className="flex items-center justify-center h-64">
+          <div className="text-goat-gray-400">Carregando conversas...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -165,24 +145,58 @@ export default function Conversations() {
             ) : (
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {filteredConversations.map((conversation) => (
-                  <div key={conversation.id} onClick={() => setSelectedConversation(conversation)} className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedConversation?.id === conversation.id ? 'bg-goat-purple/20 border-goat-purple/50' : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'}`}>
+                  <div 
+                    key={conversation.id} 
+                    onClick={() => setSelectedConversation(conversation)} 
+                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedConversation?.id === conversation.id 
+                        ? 'bg-goat-purple/20 border-goat-purple/50' 
+                        : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'
+                    }`}
+                  >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-white font-medium text-sm truncate">{conversation.client}</h4>
-                        <p className="text-goat-gray-400 text-xs flex items-center gap-1"><Phone className="w-3 h-3 flex-shrink-0" /> {conversation.phone}</p>
+                        <h4 className="text-white font-medium text-sm truncate">
+                          {conversation.contact_name || conversation.phone}
+                        </h4>
+                        <p className="text-goat-gray-400 text-xs flex items-center gap-1">
+                          <Phone className="w-3 h-3 flex-shrink-0" /> 
+                          {conversation.phone}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                        <Badge variant={conversation.tag === "Cliente" ? "default" : "secondary"} className={`text-xs ${conversation.tag === "Cliente" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-goat-gray-300"}`}>{conversation.tag}</Badge>
-                        {conversation.unread > 0 && (<Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">{conversation.unread}</Badge>)}
+                        <Badge 
+                          variant={conversation.tag === "Cliente" ? "default" : "secondary"} 
+                          className={`text-xs ${
+                            conversation.tag === "Cliente" 
+                              ? "bg-goat-purple text-white" 
+                              : "bg-goat-gray-700 text-goat-gray-300"
+                          }`}
+                        >
+                          {conversation.tag || "Lead"}
+                        </Badge>
+                        {(conversation.unread_count || 0) > 0 && (
+                          <Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
+                            {conversation.unread_count}
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                    <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">{conversation.lastMessage}</p>
+                    <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">
+                      {conversation.last_message || "Sem mensagens"}
+                    </p>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-goat-gray-500 text-xs">{conversation.time}</span>
-                        <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">{conversation.stage}</Badge>
+                        <span className="text-goat-gray-500 text-xs">
+                          {formatTime(conversation.updated_at)}
+                        </span>
+                        <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">
+                          {conversation.stage || "Sem atendimento"}
+                        </Badge>
                       </div>
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"}`} />
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"
+                      }`} />
                     </div>
                   </div>
                 ))}
@@ -198,26 +212,53 @@ export default function Conversations() {
               <>
                 <div className="border-b border-goat-gray-700 pb-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-goat-purple rounded-full flex items-center justify-center"><MessageCircle className="w-5 h-5 text-white" /></div>
+                    <div className="w-10 h-10 bg-goat-purple rounded-full flex items-center justify-center">
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{selectedConversation.client}</h3>
+                      <h3 className="text-lg font-semibold text-white">
+                        {selectedConversation.contact_name || selectedConversation.phone}
+                      </h3>
                       <p className="text-goat-gray-400 text-sm">{selectedConversation.phone}</p>
                     </div>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-                  {selectedConversation.messages.map((message) => (
+                  {messages.map((message) => (
                     <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${message.sender === "user" ? "bg-goat-purple text-white" : "bg-goat-gray-700 text-white"}`}>
+                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
+                        message.sender === "user" 
+                          ? "bg-goat-purple text-white" 
+                          : "bg-goat-gray-700 text-white"
+                      }`}>
                         <p className="text-sm">{message.text}</p>
-                        <span className={`text-xs ${message.sender === "user" ? "text-purple-200" : "text-goat-gray-400"}`}>{message.time}</span>
+                        <span className={`text-xs ${
+                          message.sender === "user" 
+                            ? "text-purple-200" 
+                            : "text-goat-gray-400"
+                        }`}>
+                          {formatMessageTime(message.date_time || message.created_at)}
+                        </span>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <Input placeholder="Digite sua mensagem..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400" />
-                  <Button onClick={handleSendMessage} disabled={!newMessage.trim()} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"><Send className="w-4 h-4" /></Button>
+                  <Input 
+                    placeholder="Digite sua mensagem..." 
+                    value={newMessage} 
+                    onChange={(e) => setNewMessage(e.target.value)} 
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} 
+                    className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400" 
+                    disabled={sendMessageMutation.isPending}
+                  />
+                  <Button 
+                    onClick={handleSendMessage} 
+                    disabled={!newMessage.trim() || sendMessageMutation.isPending} 
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
               </>
             ) : (

@@ -121,11 +121,13 @@ export type Database = {
       conversations: {
         Row: {
           client_id: string | null
+          contact_name: string | null
           created_at: string | null
           direction: string | null
           id: string
           last_message: string | null
           phone: string
+          remote_jid: string | null
           stage: string | null
           tag: string | null
           unread_count: number | null
@@ -134,11 +136,13 @@ export type Database = {
         }
         Insert: {
           client_id?: string | null
+          contact_name?: string | null
           created_at?: string | null
           direction?: string | null
           id?: string
           last_message?: string | null
           phone: string
+          remote_jid?: string | null
           stage?: string | null
           tag?: string | null
           unread_count?: number | null
@@ -147,11 +151,13 @@ export type Database = {
         }
         Update: {
           client_id?: string | null
+          contact_name?: string | null
           created_at?: string | null
           direction?: string | null
           id?: string
           last_message?: string | null
           phone?: string
+          remote_jid?: string | null
           stage?: string | null
           tag?: string | null
           unread_count?: number | null
@@ -332,23 +338,35 @@ export type Database = {
       }
       messages: {
         Row: {
+          contact_name: string | null
           conversation_id: string
           created_at: string | null
+          date_time: string | null
+          direction: boolean | null
           id: string
+          message_id: string | null
           sender: string
           text: string
         }
         Insert: {
+          contact_name?: string | null
           conversation_id: string
           created_at?: string | null
+          date_time?: string | null
+          direction?: boolean | null
           id?: string
+          message_id?: string | null
           sender: string
           text: string
         }
         Update: {
+          contact_name?: string | null
           conversation_id?: string
           created_at?: string | null
+          date_time?: string | null
+          direction?: boolean | null
           id?: string
+          message_id?: string | null
           sender?: string
           text?: string
         }
@@ -464,6 +482,29 @@ export type Database = {
       create_default_stages_for_user: {
         Args: { user_uuid: string }
         Returns: undefined
+      }
+      insert_message: {
+        Args: {
+          p_user_id: string
+          p_phone: string
+          p_remote_jid: string
+          p_message: string
+          p_direction: boolean
+          p_date_time: string
+          p_message_id: string
+          p_contact_name?: string
+        }
+        Returns: string
+      }
+      upsert_conversation: {
+        Args: {
+          p_user_id: string
+          p_phone: string
+          p_remote_jid: string
+          p_contact_name?: string
+          p_last_message?: string
+        }
+        Returns: string
       }
     }
     Enums: {
