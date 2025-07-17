@@ -127,11 +127,31 @@ export default function Conversations() {
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
   const formatTime = (dateString?: string) => {
-    return formatToBrasiliaTime(dateString) || "Agora";
+    if (!dateString) return "Agora";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
+      });
+    } catch {
+      return "Agora";
+    }
   };
 
-  const formatMessageTime = (dateString?: string) => {
-    return formatToBrasiliaTime(dateString) || "Agora";
+  const formatMessageTime = (dataHora?: string) => {
+    if (!dataHora) return "Agora";
+    try {
+      const date = new Date(dataHora);
+      return date.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
+      });
+    } catch {
+      return "Agora";
+    }
   };
 
   const getStageName = (stageId?: string) => {
