@@ -350,7 +350,9 @@ export type Database = {
           direcao: boolean | null
           direction: boolean | null
           id: string
+          mensagem: string | null
           message_id: string | null
+          nome_contato: string | null
           numero: string | null
           sender: string
           text: string
@@ -365,7 +367,9 @@ export type Database = {
           direcao?: boolean | null
           direction?: boolean | null
           id?: string
+          mensagem?: string | null
           message_id?: string | null
+          nome_contato?: string | null
           numero?: string | null
           sender: string
           text: string
@@ -380,7 +384,9 @@ export type Database = {
           direcao?: boolean | null
           direction?: boolean | null
           id?: string
+          mensagem?: string | null
           message_id?: string | null
+          nome_contato?: string | null
           numero?: string | null
           sender?: string
           text?: string
