@@ -126,6 +126,7 @@ export type Database = {
           direction: string | null
           id: string
           last_message: string | null
+          numero: string | null
           phone: string
           remote_jid: string | null
           stage: string | null
@@ -141,6 +142,7 @@ export type Database = {
           direction?: string | null
           id?: string
           last_message?: string | null
+          numero?: string | null
           phone: string
           remote_jid?: string | null
           stage?: string | null
@@ -156,6 +158,7 @@ export type Database = {
           direction?: string | null
           id?: string
           last_message?: string | null
+          numero?: string | null
           phone?: string
           remote_jid?: string | null
           stage?: string | null
@@ -339,34 +342,43 @@ export type Database = {
       messages: {
         Row: {
           contact_name: string | null
+          conversa_id: string | null
           conversation_id: string
           created_at: string | null
           date_time: string | null
+          direcao: boolean | null
           direction: boolean | null
           id: string
           message_id: string | null
+          numero: string | null
           sender: string
           text: string
         }
         Insert: {
           contact_name?: string | null
+          conversa_id?: string | null
           conversation_id: string
           created_at?: string | null
           date_time?: string | null
+          direcao?: boolean | null
           direction?: boolean | null
           id?: string
           message_id?: string | null
+          numero?: string | null
           sender: string
           text: string
         }
         Update: {
           contact_name?: string | null
+          conversa_id?: string | null
           conversation_id?: string
           created_at?: string | null
           date_time?: string | null
+          direcao?: boolean | null
           direction?: boolean | null
           id?: string
           message_id?: string | null
+          numero?: string | null
           sender?: string
           text?: string
         }
@@ -496,6 +508,18 @@ export type Database = {
         }
         Returns: string
       }
+      process_webhook_message: {
+        Args: {
+          p_user_id: string
+          p_numero: string
+          p_mensagem: string
+          p_direcao: boolean
+          p_data_hora: string
+          p_conversa_id: string
+          p_nome_contato?: string
+        }
+        Returns: string
+      }
       upsert_conversation: {
         Args: {
           p_user_id: string
@@ -504,6 +528,10 @@ export type Database = {
           p_contact_name?: string
           p_last_message?: string
         }
+        Returns: string
+      }
+      webhook_insert_message: {
+        Args: { webhook_data: Json }
         Returns: string
       }
     }

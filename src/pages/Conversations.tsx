@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
+import { WebhookTester } from "@/components/Conversations/WebhookTester";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
@@ -96,6 +96,9 @@ export default function Conversations() {
     <div className="space-y-6 animate-fade-in">
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
+
+      {/* Webhook Tester */}
+      <WebhookTester />
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
