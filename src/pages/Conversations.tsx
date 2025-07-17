@@ -12,6 +12,7 @@ import { ConversationsHeader } from "@/components/Conversations/ConversationsHea
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
 import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
 import { useSendMessage } from "@/hooks/useSendMessage";
+import { useStages } from "@/hooks/useStages";
 
 export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +32,7 @@ export default function Conversations() {
   const { data: messages = [] } = useMessages(selectedConversation?.id || "");
   const sendMessageMutation = useSendMessage();
   const createConversationMutation = useCreateConversation();
+  const { stages } = useStages();
 
   const handleNewConversation = (client: string, phone: string) => {
     createConversationMutation.mutate(
@@ -85,6 +87,12 @@ export default function Conversations() {
   const formatMessageTime = (dateString?: string) => {
     if (!dateString) return formatTime();
     return formatTime(dateString);
+  };
+
+  const getStageName = (stageId?: string) => {
+    if (!stageId) return "Sem atendimento";
+    const stage = stages.find(s => s.id === stageId);
+    return stage?.name || "Sem atendimento";
   };
 
   // Determinar se a mensagem é do usuário usando o campo numero
@@ -205,7 +213,7 @@ export default function Conversations() {
                           {formatTime(conversation.updated_at)}
                         </span>
                         <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">
-                          {conversation.stage || "Sem atendimento"}
+                          {getStageName(conversation.stage)}
                         </Badge>
                       </div>
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
