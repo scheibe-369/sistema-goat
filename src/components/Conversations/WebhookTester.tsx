@@ -33,16 +33,16 @@ export function WebhookTester() {
         <div className="flex items-center gap-2">
           <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
             <CheckCircle className="w-3 h-3 mr-1" />
-            Função SQL Corrigida
+            Sistema Ativo
           </Badge>
           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
             <Zap className="w-3 h-3 mr-1" />
-            Edge Function Atualizada
+            Webhook Configurado
           </Badge>
         </div>
 
         <p className="text-goat-gray-300 text-sm">
-          O sistema agora pode receber mensagens automaticamente e criar conversas quando necessário. 
+          O sistema processa mensagens automaticamente criando contatos e conversas quando necessário. 
           Teste os dois métodos disponíveis:
         </p>
 
@@ -93,10 +93,11 @@ export function WebhookTester() {
         <div className="mt-4 p-3 bg-goat-gray-900/50 rounded-lg">
           <h4 className="text-sm font-medium text-white mb-2">Como funciona:</h4>
           <ul className="text-xs text-goat-gray-400 space-y-1">
-            <li>• <strong>Teste Direto:</strong> Chama a função SQL diretamente</li>
-            <li>• <strong>Teste Edge Function:</strong> Simula um webhook externo via Edge Function</li>
-            <li>• Ambos criam novas conversas automaticamente se não existirem</li>
-            <li>• As mensagens são inseridas com todos os campos corretos</li>
+            <li>• <strong>Teste Direto:</strong> Usa a função SQL process_webhook_message</li>
+            <li>• <strong>Teste Edge Function:</strong> Simula webhook via Edge Function</li>
+            <li>• Cria contatos automaticamente se não existirem</li>
+            <li>• Cria conversas automaticamente se não existirem</li>
+            <li>• Vincula mensagens aos contatos e conversas corretos</li>
           </ul>
         </div>
       </div>
