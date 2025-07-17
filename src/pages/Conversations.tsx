@@ -10,7 +10,8 @@ import { WebhookTester } from "@/components/Conversations/WebhookTester";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
-import { useConversations, useMessages, useSendMessage, useCreateConversation, type Conversation } from "@/hooks/useConversations";
+import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
+import { useSendMessage } from "@/hooks/useSendMessage";
 
 export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,7 +47,11 @@ export default function Conversations() {
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedConversation) {
       sendMessageMutation.mutate(
-        { conversationId: selectedConversation.id, text: newMessage.trim() },
+        { 
+          numero: selectedConversation.phone,
+          mensagem: newMessage.trim(),
+          nome_contato: selectedConversation.contact_name
+        },
         {
           onSuccess: () => {
             setNewMessage("");
