@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { parseISO, isValid } from "date-fns";
 
 export interface Conversation {
   id: string;
@@ -49,6 +51,30 @@ export const useConversations = () => {
   });
 };
 
+// Função para normalizar timestamps para UTC
+const normalizeTimestampToUTC = (timestamp: string | undefined): Date => {
+  if (!timestamp) return new Date();
+  
+  try {
+    // Se já é ISO string com timezone, usar diretamente
+    if (timestamp.includes('T') && (timestamp.includes('Z') || timestamp.includes('+') || timestamp.includes('-'))) {
+      return new Date(timestamp);
+    }
+    
+    // Se é formato de data simples, assumir como UTC
+    const parsed = parseISO(timestamp);
+    if (isValid(parsed)) {
+      return parsed;
+    }
+    
+    // Fallback para data atual
+    return new Date();
+  } catch (error) {
+    console.warn('Error parsing timestamp:', timestamp, error);
+    return new Date();
+  }
+};
+
 export const useMessages = (conversationId: string) => {
   return useQuery({
     queryKey: ["messages", conversationId],
@@ -58,16 +84,21 @@ export const useMessages = (conversationId: string) => {
       const { data, error } = await supabase
         .from("messages")
         .select("*")
-        .eq("conversation_id", conversationId)
-        .order("data_hora", { ascending: true, nullsFirst: false })
-        .order("created_at", { ascending: true });
+        .eq("conversation_id", conversationId);
 
       if (error) {
         console.error("Error fetching messages:", error);
         throw error;
       }
 
-      return data as Message[];
+      // Ordenar manualmente no cliente usando timestamps normalizados para UTC
+      const sortedData = (data as Message[]).sort((a, b) => {
+        const timestampA = normalizeTimestampToUTC(a.data_hora || a.created_at);
+        const timestampB = normalizeTimestampToUTC(b.data_hora || b.created_at);
+        return timestampA.getTime() - timestampB.getTime();
+      });
+
+      return sortedData;
     },
     enabled: !!conversationId,
   });
