@@ -356,6 +356,7 @@ export type Database = {
           numero: string | null
           sender: string
           text: string
+          updated_at: string | null
         }
         Insert: {
           contact_name?: string | null
@@ -373,6 +374,7 @@ export type Database = {
           numero?: string | null
           sender: string
           text: string
+          updated_at?: string | null
         }
         Update: {
           contact_name?: string | null
@@ -390,6 +392,7 @@ export type Database = {
           numero?: string | null
           sender?: string
           text?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
