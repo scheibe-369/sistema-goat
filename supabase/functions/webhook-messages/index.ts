@@ -33,13 +33,33 @@ serve(async (req) => {
       throw new Error('Dados obrigatórios ausentes: numero, mensagem, user_id')
     }
 
+    // Processar a data/hora corretamente
+    let processedDateTime = webhookData.data_hora;
+    
+    if (!processedDateTime) {
+      // Se não há data_hora no webhook, usar horário atual em UTC
+      processedDateTime = new Date().toISOString();
+    } else {
+      // Garantir que a data está em formato ISO UTC
+      try {
+        const date = new Date(processedDateTime);
+        if (isNaN(date.getTime())) {
+          throw new Error('Data inválida');
+        }
+        processedDateTime = date.toISOString();
+      } catch (error) {
+        console.warn('Erro ao processar data_hora, usando horário atual:', processedDateTime, error);
+        processedDateTime = new Date().toISOString();
+      }
+    }
+
     // Processar a mensagem usando a função do banco de dados com parâmetros essenciais
     console.log('Chamando process_webhook_message com parâmetros essenciais:', {
       p_user_id: webhookData.user_id,
       p_numero: webhookData.numero,
       p_mensagem: webhookData.mensagem,
       p_direcao: webhookData.direcao || false,
-      p_data_hora: webhookData.data_hora || new Date().toISOString(),
+      p_data_hora: processedDateTime,
       p_nome_contato: webhookData.nome_contato || null
     })
 
@@ -49,7 +69,7 @@ serve(async (req) => {
         p_numero: webhookData.numero,
         p_mensagem: webhookData.mensagem,
         p_direcao: webhookData.direcao || false,
-        p_data_hora: webhookData.data_hora || new Date().toISOString(),
+        p_data_hora: processedDateTime,
         p_nome_contato: webhookData.nome_contato || null
       })
 

@@ -96,22 +96,22 @@ export const useTestWebhookEdgeFunction = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (customData?: Partial<WebhookMessage>) => {
       const { data: userData } = await supabase.auth.getUser();
       
       if (!userData.user) {
         throw new Error("Usuário não autenticado");
       }
 
-      const testNumber = "5511" + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+      const testNumber = customData?.numero || "5511" + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
       
       const testData = {
         numero: testNumber,
-        mensagem: `Teste via Edge Function - ${new Date().toLocaleTimeString()}`,
-        direcao: false,
-        data_hora: new Date().toISOString(),
-        nome_contato: "Teste Edge Function",
-        user_id: userData.user.id
+        mensagem: customData?.mensagem || `Teste via Edge Function - ${new Date().toLocaleTimeString()}`,
+        direcao: customData?.direcao ?? false,
+        data_hora: customData?.data_hora || new Date().toISOString(),
+        nome_contato: customData?.nome_contato || "Teste Edge Function",
+        user_id: customData?.user_id || userData.user.id
       };
 
       console.log('Testando webhook via Edge Function:', testData);

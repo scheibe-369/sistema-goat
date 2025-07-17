@@ -14,7 +14,18 @@ export function WebhookTester() {
   };
 
   const handleEdgeFunctionTest = () => {
-    testWebhookEdge.mutate();
+    // Simular uma mensagem recebida do WhatsApp com timestamp correto
+    const testData = {
+      numero: "5511999999999",
+      mensagem: `Teste de timestamp - ${new Date().toLocaleString('pt-BR')}`,
+      direcao: false,
+      data_hora: new Date().toISOString(), // Timestamp em UTC
+      nome_contato: "Teste Webhook",
+      user_id: "bad3abae-951e-49a4-8738-9037661fd5a1" // Seu user_id
+    };
+    
+    console.log('Enviando dados de teste com timestamp:', testData);
+    testWebhookEdge.mutate(testData);
   };
 
   return (
