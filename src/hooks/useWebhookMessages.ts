@@ -20,6 +20,7 @@ export const useProcessWebhookMessage = () => {
     mutationFn: async (webhookData: WebhookMessage) => {
       console.log('Processando mensagem webhook no frontend:', webhookData);
 
+      // @ts-ignore - types will be updated after migration
       const { data, error } = await supabase.rpc('process_webhook_message', {
         p_user_id: webhookData.user_id,
         p_numero: webhookData.numero,

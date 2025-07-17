@@ -533,15 +533,24 @@ export type Database = {
         Returns: string
       }
       process_webhook_message: {
-        Args: {
-          p_user_id: string
-          p_numero: string
-          p_mensagem: string
-          p_direcao: boolean
-          p_data_hora: string
-          p_conversa_id: string
-          p_nome_contato?: string
-        }
+        Args:
+          | {
+              p_user_id: string
+              p_numero: string
+              p_mensagem: string
+              p_direcao: boolean
+              p_data_hora: string
+              p_conversa_id: string
+              p_nome_contato?: string
+            }
+          | {
+              p_user_id: string
+              p_numero: string
+              p_mensagem: string
+              p_direcao: boolean
+              p_data_hora: string
+              p_nome_contato?: string
+            }
         Returns: string
       }
       upsert_conversation: {
