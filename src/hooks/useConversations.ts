@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { toZonedTime, fromZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime, format } from "date-fns-tz";
 import { parseISO, isValid } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 
 export interface Conversation {
   id: string;
@@ -72,6 +73,21 @@ const normalizeTimestampToUTC = (timestamp: string | undefined): Date => {
   } catch (error) {
     console.warn('Error parsing timestamp:', timestamp, error);
     return new Date();
+  }
+};
+
+// Função para converter timestamp para horário de Brasília e formatar
+export const formatToBrasiliaTime = (timestamp: string | undefined): string => {
+  if (!timestamp) return '';
+  
+  try {
+    const date = normalizeTimestampToUTC(timestamp);
+    // Converter para horário de Brasília (UTC-3)
+    const brasiliaTime = toZonedTime(date, 'America/Sao_Paulo');
+    return format(brasiliaTime, 'HH:mm', { timeZone: 'America/Sao_Paulo' });
+  } catch (error) {
+    console.warn('Error formatting timestamp to Brasilia time:', timestamp, error);
+    return '';
   }
 };
 

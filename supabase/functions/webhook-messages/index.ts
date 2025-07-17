@@ -33,23 +33,37 @@ serve(async (req) => {
       throw new Error('Dados obrigatórios ausentes: numero, mensagem, user_id')
     }
 
-    // Processar a data/hora corretamente
+    // Processar a data/hora corretamente e converter para horário de Brasília
     let processedDateTime = webhookData.data_hora;
     
     if (!processedDateTime) {
-      // Se não há data_hora no webhook, usar horário atual em UTC
-      processedDateTime = new Date().toISOString();
+      // Se não há data_hora no webhook, usar horário atual do Brasil
+      const now = new Date();
+      const brasiliaTime = new Date(now.getTime() - (3 * 60 * 60 * 1000)); // UTC-3
+      processedDateTime = brasiliaTime.toISOString();
     } else {
-      // Garantir que a data está em formato ISO UTC
+      // Garantir que a data está sendo tratada como horário de Brasília
       try {
         const date = new Date(processedDateTime);
         if (isNaN(date.getTime())) {
           throw new Error('Data inválida');
         }
-        processedDateTime = date.toISOString();
+        
+        // Se a data não tem informação de timezone, assumir que é horário de Brasília
+        // e converter para UTC para armazenamento
+        if (!processedDateTime.includes('T') || (!processedDateTime.includes('Z') && !processedDateTime.includes('+') && !processedDateTime.includes('-'))) {
+          // Data sem timezone - assumir como horário de Brasília e converter para UTC
+          const brasiliaDate = new Date(processedDateTime + ' GMT-0300');
+          processedDateTime = brasiliaDate.toISOString();
+        } else {
+          // Data já tem timezone - usar como está
+          processedDateTime = date.toISOString();
+        }
       } catch (error) {
-        console.warn('Erro ao processar data_hora, usando horário atual:', processedDateTime, error);
-        processedDateTime = new Date().toISOString();
+        console.warn('Erro ao processar data_hora, usando horário atual do Brasil:', processedDateTime, error);
+        const now = new Date();
+        const brasiliaTime = new Date(now.getTime() - (3 * 60 * 60 * 1000)); // UTC-3
+        processedDateTime = brasiliaTime.toISOString();
       }
     }
 

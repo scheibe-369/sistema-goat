@@ -10,7 +10,7 @@ import { WebhookTester } from "@/components/Conversations/WebhookTester";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
-import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
+import { useConversations, useMessages, useCreateConversation, formatToBrasiliaTime, type Conversation } from "@/hooks/useConversations";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useStages } from "@/hooks/useStages";
 import { supabase } from "@/integrations/supabase/client";
@@ -127,14 +127,11 @@ export default function Conversations() {
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
   const formatTime = (dateString?: string) => {
-    if (!dateString) return "Agora";
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return formatToBrasiliaTime(dateString) || "Agora";
   };
 
   const formatMessageTime = (dateString?: string) => {
-    if (!dateString) return formatTime();
-    return formatTime(dateString);
+    return formatToBrasiliaTime(dateString) || "Agora";
   };
 
   const getStageName = (stageId?: string) => {
