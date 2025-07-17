@@ -106,10 +106,11 @@ export default function Conversations() {
     const matchesClient = !filters.client || conversation.client.toLowerCase().includes(filters.client.toLowerCase());
     const matchesStages = filters.stages.length === 0 || filters.stages.includes(conversation.stage);
     const matchesTags = filters.tags.length === 0 || filters.tags.includes(conversation.tag);
-    return matchesSearch && matchesClient && matchesStages && matchesTags;
+    const matchesDirection = filters.direction.length === 0 || filters.direction.includes(conversation.direction);
+    return matchesSearch && matchesClient && matchesStages && matchesTags && matchesDirection;
   });
 
-  const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.client !== "";
+  const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -135,7 +136,7 @@ export default function Conversations() {
           Filtros
           {hasActiveFilters && (
             <Badge className="ml-2 bg-white text-goat-purple text-xs">
-              {filters.stages.length + filters.tags.length + (filters.client ? 1 : 0)}
+              {filters.stages.length + filters.tags.length + filters.direction.length + (filters.client ? 1 : 0)}
             </Badge>
           )}
         </Button>

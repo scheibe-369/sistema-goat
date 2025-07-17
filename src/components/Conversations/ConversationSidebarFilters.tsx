@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
 import ReactDOM from "react-dom";
+import { useStages } from "@/hooks/useStages";
+import { useTags } from "@/hooks/useTags";
 
 interface FilterState {
   stages: string[];
@@ -25,20 +27,17 @@ interface ConversationSidebarFiltersProps {
 
 export function ConversationSidebarFilters({ isOpen, onClose, filters, onFiltersChange }: ConversationSidebarFiltersProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
+  const { stages, isLoading: stagesLoading } = useStages();
+  const { tags, isLoading: tagsLoading } = useTags();
 
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
 
-  const stageOptions = [
-    "Sem atendimento",
-    "Em atendimento", 
-    "Reunião agendada",
-    "Proposta enviada",
-    "Frio"
+  const directionOptions = [
+    { value: "inbound", label: "Entrada" },
+    { value: "outbound", label: "Saída" }
   ];
-
-  const tagOptions = ["Lead", "Cliente", "Prospect"];
 
   const handleStageChange = (stage: string, checked: boolean) => {
     setLocalFilters(prev => ({
@@ -55,6 +54,15 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
       tags: checked 
         ? [...prev.tags, tag]
         : prev.tags.filter(t => t !== tag)
+    }));
+  };
+
+  const handleDirectionChange = (direction: string, checked: boolean) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      direction: checked 
+        ? [...prev.direction, direction]
+        : prev.direction.filter(d => d !== direction)
     }));
   };
 
@@ -185,22 +193,28 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
                 </h3>
                 
                 <div className="space-y-3">
-                  {stageOptions.map((stage) => (
-                    <div key={stage} className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`stage-${stage}`}
-                        checked={localFilters.stages.includes(stage)}
-                        onCheckedChange={(checked) => handleStageChange(stage, checked as boolean)}
-                        className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
-                      />
-                      <Label 
-                        htmlFor={`stage-${stage}`} 
-                        className="text-white cursor-pointer hover:text-goat-purple transition-colors"
-                      >
-                        {stage}
-                      </Label>
-                    </div>
-                  ))}
+                  {stagesLoading ? (
+                    <div className="text-goat-gray-400 text-sm">Carregando etapas...</div>
+                  ) : stages.length === 0 ? (
+                    <div className="text-goat-gray-400 text-sm">Nenhuma etapa encontrada</div>
+                  ) : (
+                    stages.map((stage) => (
+                      <div key={stage.id} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`stage-${stage.id}`}
+                          checked={localFilters.stages.includes(stage.name)}
+                          onCheckedChange={(checked) => handleStageChange(stage.name, checked as boolean)}
+                          className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
+                        />
+                        <Label 
+                          htmlFor={`stage-${stage.id}`} 
+                          className="text-white cursor-pointer hover:text-goat-purple transition-colors"
+                        >
+                          {stage.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -211,19 +225,51 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
                 </h3>
                 
                 <div className="space-y-3">
-                  {tagOptions.map((tag) => (
-                    <div key={tag} className="flex items-center space-x-3">
+                  {tagsLoading ? (
+                    <div className="text-goat-gray-400 text-sm">Carregando tags...</div>
+                  ) : tags.length === 0 ? (
+                    <div className="text-goat-gray-400 text-sm">Nenhuma tag encontrada</div>
+                  ) : (
+                    tags.map((tag) => (
+                      <div key={tag.id} className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`tag-${tag.id}`}
+                          checked={localFilters.tags.includes(tag.name)}
+                          onCheckedChange={(checked) => handleTagChange(tag.name, checked as boolean)}
+                          className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
+                        />
+                        <Label 
+                          htmlFor={`tag-${tag.id}`} 
+                          className="text-white cursor-pointer hover:text-goat-purple transition-colors"
+                        >
+                          {tag.name}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Direção */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
+                  Direção
+                </h3>
+                
+                <div className="space-y-3">
+                  {directionOptions.map((direction) => (
+                    <div key={direction.value} className="flex items-center space-x-3">
                       <Checkbox
-                        id={`tag-${tag}`}
-                        checked={localFilters.tags.includes(tag)}
-                        onCheckedChange={(checked) => handleTagChange(tag, checked as boolean)}
+                        id={`direction-${direction.value}`}
+                        checked={localFilters.direction.includes(direction.value)}
+                        onCheckedChange={(checked) => handleDirectionChange(direction.value, checked as boolean)}
                         className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
                       />
                       <Label 
-                        htmlFor={`tag-${tag}`} 
+                        htmlFor={`direction-${direction.value}`} 
                         className="text-white cursor-pointer hover:text-goat-purple transition-colors"
                       >
-                        {tag}
+                        {direction.label}
                       </Label>
                     </div>
                   ))}
