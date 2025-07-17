@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,11 @@ export default function Conversations() {
   const formatMessageTime = (dateString?: string) => {
     if (!dateString) return formatTime();
     return formatTime(dateString);
+  };
+
+  // Determinar se a mensagem é do usuário usando o campo numero
+  const isUserMessage = (message: any) => {
+    return message.direcao === true || message.numero === "user";
   };
 
   if (conversationsLoading) {
@@ -228,19 +234,19 @@ export default function Conversations() {
                 </div>
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                   {messages.map((message) => (
-                    <div key={message.id} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
+                    <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
                       <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
-                        message.sender === "user" 
+                        isUserMessage(message)
                           ? "bg-goat-purple text-white" 
                           : "bg-goat-gray-700 text-white"
                       }`}>
-                        <p className="text-sm">{message.text}</p>
+                        <p className="text-sm">{message.text || message.mensagem}</p>
                         <span className={`text-xs ${
-                          message.sender === "user" 
+                          isUserMessage(message)
                             ? "text-purple-200" 
                             : "text-goat-gray-400"
                         }`}>
-                          {formatMessageTime(message.date_time || message.created_at)}
+                          {formatMessageTime(message.data_hora || message.created_at)}
                         </span>
                       </div>
                     </div>

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,12 +21,13 @@ export interface Message {
   id: string;
   conversation_id: string;
   text: string;
-  sender: string;
-  direction?: boolean;
-  date_time?: string;
-  message_id?: string;
-  contact_name?: string;
+  numero?: string;
+  mensagem?: string;
+  direcao?: boolean;
+  data_hora?: string;
+  nome_contato?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export const useConversations = () => {
@@ -83,10 +83,12 @@ export const useSendMessage = () => {
         .insert({
           conversation_id: conversationId,
           text,
-          sender: "user",
-          direction: true,
-          date_time: new Date().toISOString(),
+          numero: "user", // Usar "user" para indicar que é mensagem do usuário
+          mensagem: text,
+          direcao: true,
+          data_hora: new Date().toISOString(),
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();
