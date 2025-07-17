@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { NewConversationModal } from "@/components/Conversations/NewConversation
 import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useStages } from "@/hooks/useStages";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Conversations() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,11 +29,58 @@ export default function Conversations() {
   });
   const { toast } = useToast();
 
-  const { data: conversations = [], isLoading: conversationsLoading } = useConversations();
-  const { data: messages = [] } = useMessages(selectedConversation?.id || "");
+  const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
+  const { data: messages = [], refetch: refetchMessages } = useMessages(selectedConversation?.id || "");
   const sendMessageMutation = useSendMessage();
   const createConversationMutation = useCreateConversation();
   const { stages } = useStages();
+
+  // Configurar tempo real para conversas
+  useEffect(() => {
+    const channel = supabase
+      .channel('conversations-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations'
+        },
+        () => {
+          refetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetchConversations]);
+
+  // Configurar tempo real para mensagens da conversa selecionada
+  useEffect(() => {
+    if (!selectedConversation?.id) return;
+
+    const channel = supabase
+      .channel('messages-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation.id}`
+        },
+        () => {
+          refetchMessages();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConversation?.id, refetchMessages]);
 
   const handleNewConversation = (client: string, phone: string) => {
     createConversationMutation.mutate(
