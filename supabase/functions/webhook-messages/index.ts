@@ -21,14 +21,29 @@ serve(async (req) => {
 
     const { data: webhookData } = await req.json()
     
-    console.log('Webhook data received:', webhookData)
+    console.log('Webhook data received:', JSON.stringify(webhookData, null, 2))
 
     // Validar se os dados necessários estão presentes
     if (!webhookData.numero || !webhookData.mensagem || !webhookData.user_id) {
+      console.error('Dados obrigatórios ausentes:', { 
+        numero: !!webhookData.numero, 
+        mensagem: !!webhookData.mensagem, 
+        user_id: !!webhookData.user_id 
+      })
       throw new Error('Dados obrigatórios ausentes: numero, mensagem, user_id')
     }
 
     // Processar a mensagem usando a função do banco de dados
+    console.log('Chamando process_webhook_message com parâmetros:', {
+      p_user_id: webhookData.user_id,
+      p_numero: webhookData.numero,
+      p_mensagem: webhookData.mensagem,
+      p_direcao: webhookData.direcao || false,
+      p_data_hora: webhookData.data_hora || new Date().toISOString(),
+      p_conversa_id: webhookData.conversa_id || webhookData.numero,
+      p_nome_contato: webhookData.nome_contato || null
+    })
+
     const { data, error } = await supabaseClient
       .rpc('process_webhook_message', {
         p_user_id: webhookData.user_id,
@@ -47,10 +62,25 @@ serve(async (req) => {
 
     console.log('Mensagem processada com sucesso:', data)
 
+    // Verificar se a conversa foi criada/atualizada
+    const { data: conversation, error: convError } = await supabaseClient
+      .from('conversations')
+      .select('*')
+      .eq('user_id', webhookData.user_id)
+      .or(`phone.eq.${webhookData.numero.replace(/[^0-9+]/g, '')},remote_jid.eq.${webhookData.numero},numero.eq.${webhookData.numero}`)
+      .single()
+
+    if (convError) {
+      console.error('Erro ao verificar conversa:', convError)
+    } else {
+      console.log('Conversa encontrada/criada:', conversation)
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         message_id: data,
+        conversation_verified: !convError,
         processed_at: new Date().toISOString()
       }),
       { 
@@ -65,6 +95,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
+        stack: error.stack,
         timestamp: new Date().toISOString()
       }),
       { 

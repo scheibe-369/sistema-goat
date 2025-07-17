@@ -2,14 +2,19 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TestTube, Zap, CheckCircle } from "lucide-react";
-import { useTestWebhook } from "@/hooks/useWebhookMessages";
+import { TestTube, Zap, CheckCircle, Globe } from "lucide-react";
+import { useTestWebhook, useTestWebhookEdgeFunction } from "@/hooks/useWebhookMessages";
 
 export function WebhookTester() {
   const testWebhook = useTestWebhook();
+  const testWebhookEdge = useTestWebhookEdgeFunction();
 
-  const handleTest = () => {
+  const handleDirectTest = () => {
     testWebhook.mutate();
+  };
+
+  const handleEdgeFunctionTest = () => {
+    testWebhookEdge.mutate();
   };
 
   return (
@@ -24,42 +29,76 @@ export function WebhookTester() {
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
             <CheckCircle className="w-3 h-3 mr-1" />
-            Funções SQL Criadas
+            Função SQL Corrigida
           </Badge>
           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
             <Zap className="w-3 h-3 mr-1" />
-            Edge Function Pronta
+            Edge Function Atualizada
           </Badge>
         </div>
 
         <p className="text-goat-gray-300 text-sm">
-          O sistema agora pode receber mensagens automaticamente e criar conversas quando necessário.
+          O sistema agora pode receber mensagens automaticamente e criar conversas quando necessário. 
+          Teste os dois métodos disponíveis:
         </p>
 
-        <Button 
-          onClick={handleTest}
-          disabled={testWebhook.isPending}
-          className="btn-primary w-full"
-        >
-          <TestTube className="w-4 h-4 mr-2" />
-          {testWebhook.isPending ? "Testando..." : "Testar Webhook"}
-        </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Button 
+            onClick={handleDirectTest}
+            disabled={testWebhook.isPending}
+            className="btn-primary"
+          >
+            <TestTube className="w-4 h-4 mr-2" />
+            {testWebhook.isPending ? "Testando..." : "Teste Direto"}
+          </Button>
+
+          <Button 
+            onClick={handleEdgeFunctionTest}
+            disabled={testWebhookEdge.isPending}
+            className="btn-secondary"
+          >
+            <Globe className="w-4 h-4 mr-2" />
+            {testWebhookEdge.isPending ? "Testando..." : "Teste Edge Function"}
+          </Button>
+        </div>
 
         {testWebhook.isSuccess && (
           <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-            <p className="text-green-400 text-sm">✅ Teste realizado com sucesso! Verifique a lista de conversas.</p>
+            <p className="text-green-400 text-sm">✅ Teste direto realizado com sucesso! Verifique a lista de conversas.</p>
+          </div>
+        )}
+
+        {testWebhookEdge.isSuccess && (
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <p className="text-blue-400 text-sm">✅ Teste da Edge Function realizado com sucesso! Verifique a lista de conversas.</p>
           </div>
         )}
 
         {testWebhook.isError && (
           <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-            <p className="text-red-400 text-sm">❌ Erro no teste: {testWebhook.error?.message}</p>
+            <p className="text-red-400 text-sm">❌ Erro no teste direto: {testWebhook.error?.message}</p>
           </div>
         )}
+
+        {testWebhookEdge.isError && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-400 text-sm">❌ Erro no teste da Edge Function: {testWebhookEdge.error?.message}</p>
+          </div>
+        )}
+
+        <div className="mt-4 p-3 bg-goat-gray-900/50 rounded-lg">
+          <h4 className="text-sm font-medium text-white mb-2">Como funciona:</h4>
+          <ul className="text-xs text-goat-gray-400 space-y-1">
+            <li>• <strong>Teste Direto:</strong> Chama a função SQL diretamente</li>
+            <li>• <strong>Teste Edge Function:</strong> Simula um webhook externo via Edge Function</li>
+            <li>• Ambos criam novas conversas automaticamente se não existirem</li>
+            <li>• As mensagens são inseridas com todos os campos corretos</li>
+          </ul>
+        </div>
       </div>
     </Card>
   );

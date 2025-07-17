@@ -19,7 +19,7 @@ export const useProcessWebhookMessage = () => {
 
   return useMutation({
     mutationFn: async (webhookData: WebhookMessage) => {
-      console.log('Processando mensagem webhook:', webhookData);
+      console.log('Processando mensagem webhook no frontend:', webhookData);
 
       const { data, error } = await supabase.rpc('process_webhook_message', {
         p_user_id: webhookData.user_id,
@@ -36,6 +36,7 @@ export const useProcessWebhookMessage = () => {
         throw error;
       }
 
+      console.log('Mensagem webhook processada com sucesso:', data);
       return data;
     },
     onSuccess: (data) => {
@@ -72,17 +73,83 @@ export const useTestWebhook = () => {
         throw new Error("Usuário não autenticado");
       }
 
+      // Gerar um número único para o teste
+      const testNumber = "5511" + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+      
       const testMessage: WebhookMessage = {
-        numero: "5511999999999",
-        mensagem: "Mensagem de teste recebida via webhook",
+        numero: testNumber,
+        mensagem: `Mensagem de teste recebida via webhook - ${new Date().toLocaleTimeString()}`,
         direcao: false, // mensagem recebida
         data_hora: new Date().toISOString(),
         conversa_id: "test_" + Date.now(),
-        nome_contato: "Contato Teste",
+        nome_contato: "Contato Teste " + Math.floor(Math.random() * 1000),
         user_id: userData.user.id
       };
 
+      console.log('Testando webhook com dados:', testMessage);
       return processWebhook.mutateAsync(testMessage);
+    },
+  });
+};
+
+// Hook para testar o webhook via edge function
+export const useTestWebhookEdgeFunction = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      if (!userData.user) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const testNumber = "5511" + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+      
+      const testData = {
+        numero: testNumber,
+        mensagem: `Teste via Edge Function - ${new Date().toLocaleTimeString()}`,
+        direcao: false,
+        data_hora: new Date().toISOString(),
+        conversa_id: "edge_test_" + Date.now(),
+        nome_contato: "Teste Edge Function",
+        user_id: userData.user.id
+      };
+
+      console.log('Testando webhook via Edge Function:', testData);
+
+      const { data, error } = await supabase.functions.invoke('webhook-messages', {
+        body: { data: testData }
+      });
+
+      if (error) {
+        console.error('Erro ao chamar Edge Function:', error);
+        throw error;
+      }
+
+      console.log('Resposta da Edge Function:', data);
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log('Edge Function executada com sucesso:', data);
+      
+      // Invalidar queries para atualizar a UI
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      
+      toast({
+        title: "Teste realizado",
+        description: "Edge Function executada com sucesso",
+      });
+    },
+    onError: (error) => {
+      console.error("Erro ao testar Edge Function:", error);
+      toast({
+        title: "Erro no teste",
+        description: `Erro: ${error.message}`,
+        variant: "destructive",
+      });
     },
   });
 };
