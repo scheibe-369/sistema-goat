@@ -25,11 +25,7 @@ export function DeleteExpenseDialog({
 }: DeleteExpenseDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent 
-        className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-sm"
-        onPointerDownOutside={() => onOpenChange(false)}
-        onEscapeKeyDown={() => onOpenChange(false)}
-      >
+      <AlertDialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-sm">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white">Excluir Despesa</AlertDialogTitle>
           <AlertDialogDescription className="text-goat-gray-300">
