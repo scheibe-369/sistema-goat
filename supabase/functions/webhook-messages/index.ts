@@ -160,45 +160,35 @@ async function downloadAndDecryptMedia({ mediaUrl, mediaKey, mediaType, filename
 
 
 async function decryptWhatsAppMedia(encryptedData, mediaKeyBase64) {
-  try {
-    console.log('🔑 MediaKey recebida:', mediaKeyBase64);
-    const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
-    console.log('🔑 MediaKey length:', mediaKey.length);
-
-    const salt = new Uint8Array(32);
-    const info = new TextEncoder().encode('WhatsApp Image Keys');
-
-    const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
-    const expandedKey = await crypto.subtle.deriveBits({
-      name: 'HKDF',
-      hash: 'SHA-256',
-      salt,
-      info
-    }, hkdfKey, 112 * 8);
-
-    const expandedKeyBytes = new Uint8Array(expandedKey);
-    const iv = expandedKeyBytes.slice(0, 16);
-    const cipherKey = expandedKeyBytes.slice(16, 48);
-
-    console.log('🔐 Derived IV:', iv);
-    console.log('🔐 Derived CipherKey:', cipherKey);
-
-    const ciphertext = new Uint8Array(encryptedData);
-    console.log('📦 Encrypted data size:', ciphertext.length, 'bytes');
-
-    const cryptoKey = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-CBC' }, false, ['decrypt']);
-
-    const decryptedData = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, cryptoKey, ciphertext);
-    console.log('✅ Decrypted data size:', decryptedData.byteLength);
-
-    return new Uint8Array(decryptedData);
-  } catch (error) {
-    console.error('❌ Detalhes do erro de descriptografia:', {
-      message: error.message,
-      stack: error.stack
-    });
-    throw new Error('Falha na descriptografia AES-CBC: ' + error.message);
-  }
+  const mediaKey = Uint8Array.from(atob(mediaKeyBase64), (c)=>c.charCodeAt(0));
+  const salt = new Uint8Array(32);
+  const info = new TextEncoder().encode('WhatsApp Image Keys');
+  const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, [
+    'deriveBits'
+  ]);
+  const expandedKey = await crypto.subtle.deriveBits({
+    name: 'HKDF',
+    hash: 'SHA-256',
+    salt,
+    info
+  }, hkdfKey, 112 * 8);
+  const expandedKeyBytes = new Uint8Array(expandedKey);
+  const iv = expandedKeyBytes.slice(0, 16);
+  const cipherKey = expandedKeyBytes.slice(16, 48);
+  const cryptoKey = await crypto.subtle.importKey('raw', cipherKey, {
+    name: 'AES-CBC'
+  }, false, [
+    'decrypt'
+  ]);
+  // --- CORTA o trailer do WhatsApp ---
+  const encryptedArray = new Uint8Array(encryptedData);
+  const ciphertext = encryptedArray.slice(0, encryptedArray.length - 10);
+  // --- Agora descriptografa só o payload ---
+  const decryptedData = await crypto.subtle.decrypt({
+    name: 'AES-CBC',
+    iv
+  }, cryptoKey, ciphertext.buffer);
+  return new Uint8Array(decryptedData);
 }
 
 function getFileExtension(mimeType) {
