@@ -8,8 +8,15 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // ========== LOG OBRIGATÓRIO DE ENTRADA ==========
+  console.log('🚀 EDGE FUNCTION INICIADA - webhook-messages', new Date().toISOString());
+  console.log('🔍 Método:', req.method);
+  console.log('🔍 URL:', req.url);
+  console.log('🔍 Headers:', Object.fromEntries(req.headers.entries()));
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('✅ CORS OPTIONS - retornando ok');
     return new Response('ok', { headers: corsHeaders })
   }
 
