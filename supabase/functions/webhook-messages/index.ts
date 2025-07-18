@@ -24,16 +24,16 @@ serve(async (req) => {
     console.log('Webhook data received:', JSON.stringify(webhookData, null, 2))
 
     // Validar se os dados necessários estão presentes
-    if (!webhookData.numero || !webhookData.user_id) {
+    if (!webhookData.p_numero || !webhookData.p_user_id) {
       console.error('Dados obrigatórios ausentes:', { 
-        numero: !!webhookData.numero, 
-        user_id: !!webhookData.user_id 
+        numero: !!webhookData.p_numero, 
+        user_id: !!webhookData.p_user_id 
       })
       throw new Error('Dados obrigatórios ausentes: numero, user_id')
     }
 
     // Processar a data/hora corretamente e converter para horário de Brasília
-    let processedDateTime = webhookData.data_hora;
+    let processedDateTime = webhookData.p_data_hora;
     
     if (!processedDateTime) {
       // Se não há data_hora no webhook, usar horário atual do Brasil
@@ -67,24 +67,24 @@ serve(async (req) => {
     }
 
     // Processar mídia se existir
-    let finalMediaUrl = webhookData.media_url;
-    let finalMediaFilename = webhookData.media_filename;
-    let finalMediaSize = webhookData.media_size;
+    let finalMediaUrl = webhookData.p_media_url;
+    let finalMediaFilename = webhookData.p_media_filename;
+    let finalMediaSize = webhookData.p_media_size;
 
-    if (webhookData.media_url && webhookData.media_type && webhookData.mediaKey) {
+    if (webhookData.p_media_url && webhookData.p_media_type && webhookData.p_media_key) {
       try {
         console.log('Processando mídia:', {
-          media_url: webhookData.media_url,
-          media_type: webhookData.media_type,
-          mediaKey: webhookData.mediaKey ? 'presente' : 'ausente'
+          media_url: webhookData.p_media_url,
+          media_type: webhookData.p_media_type,
+          media_key: webhookData.p_media_key ? 'presente' : 'ausente'
         });
 
         // Download e descriptografia da mídia
         const mediaResult = await downloadAndDecryptMedia({
-          mediaUrl: webhookData.media_url,
-          mediaKey: webhookData.mediaKey,
-          mediaType: webhookData.media_type,
-          filename: webhookData.media_filename || `media_${Date.now()}`,
+          mediaUrl: webhookData.p_media_url,
+          mediaKey: webhookData.p_media_key,
+          mediaType: webhookData.p_media_type,
+          filename: webhookData.p_media_filename || `media_${Date.now()}`,
           supabaseClient
         });
 
@@ -109,13 +109,13 @@ serve(async (req) => {
 
     // Preparar parâmetros da função incluindo campos de mídia com prefixo p_
     const functionParams = {
-      p_user_id: webhookData.user_id,
-      p_numero: webhookData.numero,
-      p_mensagem: webhookData.mensagem || null,
-      p_direcao: webhookData.direcao || false,
+      p_user_id: webhookData.p_user_id,
+      p_numero: webhookData.p_numero,
+      p_mensagem: webhookData.p_mensagem || null,
+      p_direcao: webhookData.p_direcao || false,
       p_data_hora: processedDateTime,
-      p_nome_contato: webhookData.nome_contato || null,
-      p_media_type: webhookData.media_type || null,
+      p_nome_contato: webhookData.p_nome_contato || null,
+      p_media_type: webhookData.p_media_type || null,
       p_media_url: finalMediaUrl || null,
       p_media_filename: finalMediaFilename || null,
       p_media_size: finalMediaSize || null
@@ -137,8 +137,8 @@ serve(async (req) => {
     const { data: conversation, error: convError } = await supabaseClient
       .from('conversations')
       .select('*')
-      .eq('user_id', webhookData.user_id)
-      .or(`phone.eq.${webhookData.numero.replace(/[^0-9+]/g, '')},remote_jid.eq.${webhookData.numero},numero.eq.${webhookData.numero}`)
+      .eq('user_id', webhookData.p_user_id)
+      .or(`phone.eq.${webhookData.p_numero.replace(/[^0-9+]/g, '')},remote_jid.eq.${webhookData.p_numero},numero.eq.${webhookData.p_numero}`)
       .single()
 
     if (convError) {
@@ -153,7 +153,7 @@ serve(async (req) => {
         message_id: data,
         conversation_verified: !convError,
         processed_at: new Date().toISOString(),
-        media_processed: finalMediaUrl !== webhookData.media_url
+        media_processed: finalMediaUrl !== webhookData.p_media_url
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
