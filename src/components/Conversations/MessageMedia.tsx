@@ -87,11 +87,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             </div>
           </div>
         </div>
-        {mediaFilename && (
-          <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-            {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
-          </p>
-        )}
       </div>
     );
   }
@@ -113,11 +108,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <source src={mediaUrl} type={mediaType} />
               Seu navegador não suporta o elemento de áudio.
             </audio>
-            {mediaFilename && (
-              <p className={`text-xs mt-1 truncate ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-                {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
-              </p>
-            )}
           </div>
           <Button
             size="sm"
@@ -155,11 +145,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             <Download className="w-3 h-3" />
           </Button>
         </div>
-        {mediaFilename && (
-          <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-            {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
-          </p>
-        )}
       </div>
     );
   }
