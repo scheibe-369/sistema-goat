@@ -41,7 +41,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   // Renderizar imagens com preview inline
-  if (mediaType?.startsWith('image/')) {
+  if (mediaType?.startsWith('image/') || mediaType === 'imageMessage') {
     return (
       <div className="mt-2">
         <div className="relative group">

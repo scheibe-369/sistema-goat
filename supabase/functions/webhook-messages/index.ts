@@ -70,20 +70,37 @@ serve(async (req) => {
     let finalMediaUrl = webhookData.p_media_url;
     let finalMediaFilename = webhookData.p_media_filename;
     let finalMediaSize = webhookData.p_media_size;
+    let finalMediaType = webhookData.p_media_type;
+
+    // Converter tipos de mídia do WhatsApp para MIME types
+    if (finalMediaType) {
+      const mimeTypeMap: { [key: string]: string } = {
+        'imageMessage': 'image/jpeg',
+        'videoMessage': 'video/mp4',
+        'audioMessage': 'audio/mpeg',
+        'documentMessage': 'application/octet-stream'
+      };
+      
+      if (mimeTypeMap[finalMediaType]) {
+        finalMediaType = mimeTypeMap[finalMediaType];
+      }
+    }
 
     if (webhookData.p_media_url && webhookData.p_media_type && webhookData.p_media_key) {
       try {
         console.log('Processando mídia:', {
           media_url: webhookData.p_media_url,
           media_type: webhookData.p_media_type,
-          media_key: webhookData.p_media_key ? 'presente' : 'ausente'
+          media_type_converted: finalMediaType,
+          media_key: webhookData.p_media_key ? 'presente' : 'ausente',
+          filename: webhookData.p_media_filename
         });
 
         // Download e descriptografia da mídia
         const mediaResult = await downloadAndDecryptMedia({
           mediaUrl: webhookData.p_media_url,
           mediaKey: webhookData.p_media_key,
-          mediaType: webhookData.p_media_type,
+          mediaType: finalMediaType,
           filename: webhookData.p_media_filename || `media_${Date.now()}`,
           supabaseClient
         });
@@ -115,7 +132,7 @@ serve(async (req) => {
       p_direcao: webhookData.p_direcao || false,
       p_data_hora: processedDateTime,
       p_nome_contato: webhookData.p_nome_contato || null,
-      p_media_type: webhookData.p_media_type || null,
+      p_media_type: finalMediaType || null,
       p_media_url: finalMediaUrl || null,
       p_media_filename: finalMediaFilename || null,
       p_media_size: finalMediaSize || null
