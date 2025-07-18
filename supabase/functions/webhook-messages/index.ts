@@ -340,7 +340,7 @@ async function downloadAndDecryptMedia({
 
 // Função para descriptografar mídia do WhatsApp
 async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<ArrayBuffer> {
-  console.log('=== INICIANDO DESCRIPTOGRAFIA ===');
+  console.log('=== INICIANDO DESCRIPTOGRAFIA WHATSAPP ===');
   console.log('Tamanho dos dados criptografados:', encryptedData.byteLength);
   console.log('Chave base64 (primeiros 20 chars):', mediaKeyBase64.substring(0, 20) + '...');
 
@@ -353,118 +353,121 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
       throw new Error(`Chave deve ter 32 bytes, recebido: ${mediaKey.length}`);
     }
     
-    const data = new Uint8Array(encryptedData);
+    const encryptedBytes = new Uint8Array(encryptedData);
     
-    if (data.length < 32) {
+    if (encryptedBytes.length < 32) {
       throw new Error('Arquivo muito pequeno para ser mídia do WhatsApp');
     }
     
-    // Implementar HKDF para derivar chaves específicas do WhatsApp
-    // O WhatsApp usa: HKDF-SHA256 com salt específico para derivar chaves
-    console.log('Derivando chaves usando HKDF...');
+    console.log('Formato do arquivo detectado - tamanho:', encryptedBytes.length);
     
-    // Labels específicos do WhatsApp
-    const mediaKeyInfos = [
-      'WhatsApp Image Keys',
-      'WhatsApp Media Keys', 
-      'WhatsApp Video Keys'
+    // WhatsApp Protocol: O arquivo tem estrutura específica
+    // Para imagens: HKDF-SHA256 derive keys + AES-CBC ou AES-CTR
+    
+    // 1. Derivar chaves usando HKDF conforme protocolo WhatsApp
+    const derivedKeys = await deriveWhatsAppKeys(mediaKey, 'image');
+    
+    // 2. Tentar algoritmos de descriptografia do WhatsApp em ordem
+    const algorithms = [
+      { name: 'AES-CBC', key: derivedKeys.cipherKey },
+      { name: 'AES-CTR', key: derivedKeys.cipherKey },
+      { name: 'AES-GCM', key: derivedKeys.cipherKey }
     ];
     
-    for (const info of mediaKeyInfos) {
+    for (const algo of algorithms) {
       try {
-        console.log(`Tentando HKDF com info: "${info}"`);
+        console.log(`🔓 Tentando ${algo.name}...`);
+        let decrypted;
         
-        // Derivar chave usando HKDF
-        const derivedKey = await deriveHKDFKey(mediaKey, info);
-        
-        // Tentar descriptografia com AES-CBC (modo mais comum do WhatsApp)
-        const decrypted = await tryDecryptAESCBC(data, derivedKey);
-        if (decrypted) {
-          console.log(`✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com HKDF + AES-CBC usando "${info}"`);
-          return decrypted;
+        switch (algo.name) {
+          case 'AES-CBC':
+            decrypted = await decryptWithAESCBC(encryptedBytes, algo.key);
+            break;
+          case 'AES-CTR':
+            decrypted = await decryptWithAESCTR(encryptedBytes, algo.key);
+            break;
+          case 'AES-GCM':
+            decrypted = await decryptWithAESGCM(encryptedBytes, algo.key);
+            break;
         }
         
-        // Tentar descriptografia com AES-GCM
-        const decryptedGCM = await tryDecryptAESGCM(data, derivedKey);
-        if (decryptedGCM) {
-          console.log(`✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com HKDF + AES-GCM usando "${info}"`);
-          return decryptedGCM;
+        if (decrypted && isValidImageFile(new Uint8Array(decrypted))) {
+          console.log(`✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com ${algo.name}!`);
+          console.log('Tamanho do arquivo descriptografado:', decrypted.byteLength);
+          return decrypted;
+        } else {
+          console.log(`❌ ${algo.name} falhou - arquivo inválido`);
         }
         
       } catch (error) {
-        console.log(`Falha com HKDF "${info}":`, error.message);
+        console.log(`❌ ${algo.name} falhou:`, error.message);
       }
-    }
-    
-    // Fallback: tentar descriptografia direta sem HKDF
-    console.log('Tentando descriptografia direta sem HKDF...');
-    
-    // Tentar AES-CBC direto
-    const directCBC = await tryDecryptAESCBC(data, mediaKey);
-    if (directCBC) {
-      console.log('✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com AES-CBC direto');
-      return directCBC;
-    }
-    
-    // Tentar AES-GCM direto
-    const directGCM = await tryDecryptAESGCM(data, mediaKey);
-    if (directGCM) {
-      console.log('✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com AES-GCM direto');
-      return directGCM;
     }
     
     throw new Error('Todas as tentativas de descriptografia falharam');
     
   } catch (error) {
-    console.error('❌ ERRO COMPLETO na descriptografia:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('❌ ERRO na descriptografia:', error);
     throw error;
   }
 }
 
-// Função para derivar chave usando HKDF-SHA256
-async function deriveHKDFKey(inputKey: Uint8Array, info: string): Promise<Uint8Array> {
-  const key = await crypto.subtle.importKey(
+// Função para derivar chaves conforme protocolo WhatsApp
+async function deriveWhatsAppKeys(mediaKey: Uint8Array, mediaType: string): Promise<{cipherKey: Uint8Array, macKey: Uint8Array}> {
+  // Implementar HKDF conforme especificação WhatsApp
+  const info = mediaType === 'image' ? 'WhatsApp Image Keys' : 'WhatsApp Media Keys';
+  
+  const hkdfKey = await crypto.subtle.importKey(
     'raw',
-    inputKey,
+    mediaKey,
     'HKDF',
     false,
     ['deriveKey']
   );
   
+  // Derivar 64 bytes total (32 para cipher + 32 para MAC)
   const derivedKey = await crypto.subtle.deriveKey(
     {
       name: 'HKDF',
       hash: 'SHA-256',
-      salt: new Uint8Array(), // Salt vazio como usado pelo WhatsApp
+      salt: new Uint8Array(32), // 32 bytes de zeros como salt
       info: new TextEncoder().encode(info)
     },
-    key,
-    { name: 'AES-CBC', length: 256 },
+    hkdfKey,
+    { name: 'AES-CBC', length: 512 }, // 64 bytes = 512 bits
     true,
     ['encrypt', 'decrypt']
   );
   
-  const exported = await crypto.subtle.exportKey('raw', derivedKey);
-  return new Uint8Array(exported);
+  const derivedBytes = new Uint8Array(await crypto.subtle.exportKey('raw', derivedKey));
+  
+  return {
+    cipherKey: derivedBytes.slice(0, 32), // Primeiros 32 bytes para cipher
+    macKey: derivedBytes.slice(32, 64)    // Próximos 32 bytes para MAC
+  };
 }
 
-// Função para tentar descriptografia AES-CBC
-async function tryDecryptAESCBC(data: Uint8Array, keyBytes: Uint8Array): Promise<ArrayBuffer | null> {
+// Função para descriptografia AES-CBC (formato WhatsApp)
+async function decryptWithAESCBC(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
   try {
+    // WhatsApp format: IV (16 bytes) + encrypted data + MAC (32 bytes no final)
+    if (encryptedData.length < 48) { // Mínimo: 16 (IV) + algum dado + 32 (MAC)
+      throw new Error('Dados muito pequenos para formato WhatsApp');
+    }
+    
+    const iv = encryptedData.slice(0, 16);
+    const ciphertext = encryptedData.slice(16, -32); // Remove IV no início e MAC no final
+    const mac = encryptedData.slice(-32);
+    
+    console.log(`AES-CBC: IV=${iv.length}B, data=${ciphertext.length}B, MAC=${mac.length}B`);
+    
     const key = await crypto.subtle.importKey(
       'raw',
-      keyBytes,
+      cipherKey,
       { name: 'AES-CBC' },
       false,
       ['decrypt']
     );
-    
-    // O IV são os primeiros 16 bytes
-    const iv = data.slice(0, 16);
-    const ciphertext = data.slice(16);
-    
-    console.log(`Tentando AES-CBC: IV=${iv.length} bytes, ciphertext=${ciphertext.length} bytes`);
     
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-CBC', iv },
@@ -472,63 +475,120 @@ async function tryDecryptAESCBC(data: Uint8Array, keyBytes: Uint8Array): Promise
       ciphertext
     );
     
-    // Verificar se o resultado parece válido
-    const result = new Uint8Array(decrypted);
-    if (result.length > 0 && (result[0] === 0xFF || result[0] === 0x89)) { // JPEG ou PNG
-      return decrypted;
-    }
-    
-    return null;
+    return decrypted;
   } catch (error) {
-    console.log('AES-CBC falhou:', error.message);
+    console.log('AES-CBC erro:', error.message);
     return null;
   }
 }
 
-// Função para tentar descriptografia AES-GCM
-async function tryDecryptAESGCM(data: Uint8Array, keyBytes: Uint8Array): Promise<ArrayBuffer | null> {
+// Função para descriptografia AES-CTR (alternativa WhatsApp)
+async function decryptWithAESCTR(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
   try {
+    // Formato CTR: IV (16 bytes) + dados criptografados
+    if (encryptedData.length < 32) {
+      throw new Error('Dados muito pequenos para AES-CTR');
+    }
+    
+    const iv = encryptedData.slice(0, 16);
+    const ciphertext = encryptedData.slice(16);
+    
+    console.log(`AES-CTR: IV=${iv.length}B, data=${ciphertext.length}B`);
+    
     const key = await crypto.subtle.importKey(
       'raw',
-      keyBytes,
+      cipherKey,
+      { name: 'AES-CTR' },
+      false,
+      ['decrypt']
+    );
+    
+    const decrypted = await crypto.subtle.decrypt(
+      { 
+        name: 'AES-CTR', 
+        counter: iv,
+        length: 128
+      },
+      key,
+      ciphertext
+    );
+    
+    return decrypted;
+  } catch (error) {
+    console.log('AES-CTR erro:', error.message);
+    return null;
+  }
+}
+
+// Função para descriptografia AES-GCM (alternativa WhatsApp)
+async function decryptWithAESGCM(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
+  try {
+    // Formato GCM: IV (12 bytes) + dados + tag (16 bytes)
+    if (encryptedData.length < 28) { // 12 + mínimo + 16
+      throw new Error('Dados muito pequenos para AES-GCM');
+    }
+    
+    const iv = encryptedData.slice(0, 12);
+    const ciphertext = encryptedData.slice(12);
+    
+    console.log(`AES-GCM: IV=${iv.length}B, data=${ciphertext.length}B`);
+    
+    const key = await crypto.subtle.importKey(
+      'raw',
+      cipherKey,
       { name: 'AES-GCM' },
       false,
       ['decrypt']
     );
     
-    // Tentar diferentes tamanhos de IV/tag
-    const possibleIVSizes = [12, 16];
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      ciphertext
+    );
     
-    for (const ivSize of possibleIVSizes) {
-      if (data.length < ivSize + 16) continue; // Precisa de espaço para IV + tag
-      
-      const iv = data.slice(0, ivSize);
-      const ciphertext = data.slice(ivSize);
-      
-      console.log(`Tentando AES-GCM: IV=${ivSize} bytes, ciphertext=${ciphertext.length} bytes`);
-      
-      try {
-        const decrypted = await crypto.subtle.decrypt(
-          { name: 'AES-GCM', iv },
-          key,
-          ciphertext
-        );
-        
-        // Verificar se o resultado parece válido
-        const result = new Uint8Array(decrypted);
-        if (result.length > 0 && (result[0] === 0xFF || result[0] === 0x89)) { // JPEG ou PNG
-          return decrypted;
-        }
-      } catch (gcmError) {
-        console.log(`AES-GCM com IV ${ivSize} falhou:`, gcmError.message);
-      }
-    }
-    
-    return null;
+    return decrypted;
   } catch (error) {
-    console.log('AES-GCM falhou:', error.message);
+    console.log('AES-GCM erro:', error.message);
     return null;
   }
+}
+
+// Função para validar se é um arquivo de imagem válido
+function isValidImageFile(data: Uint8Array): boolean {
+  if (data.length < 4) return false;
+  
+  // Verificar assinaturas de arquivos de imagem
+  const signatures = [
+    [0xFF, 0xD8, 0xFF], // JPEG
+    [0x89, 0x50, 0x4E, 0x47], // PNG
+    [0x47, 0x49, 0x46], // GIF
+    [0x52, 0x49, 0x46, 0x46] // WEBP (RIFF)
+  ];
+  
+  for (const sig of signatures) {
+    if (data.slice(0, sig.length).every((byte, i) => byte === sig[i])) {
+      console.log(`✅ Arquivo válido detectado: ${getImageType(sig)}`);
+      return true;
+    }
+  }
+  
+  console.log('❌ Assinatura de arquivo não reconhecida:', 
+    Array.from(data.slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+  return false;
+}
+
+// Função auxiliar para identificar tipo de imagem
+function getImageType(signature: number[]): string {
+  const types: { [key: string]: string } = {
+    'FF,D8,FF': 'JPEG',
+    '89,50,4E,47': 'PNG', 
+    '47,49,46': 'GIF',
+    '52,49,46,46': 'WEBP'
+  };
+  
+  const key = signature.map(b => b.toString(16).toUpperCase()).join(',');
+  return types[key] || 'Desconhecido';
 }
 
 // Função para obter extensão do arquivo baseada no tipo MIME
