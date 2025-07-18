@@ -47,8 +47,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
         <div className="relative group">
           <img 
             src={mediaUrl} 
-            alt={mediaFilename || "Imagem"}
-            className="max-w-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity shadow-md"
+            alt="Imagem compartilhada"
+            className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
             onClick={openInNewTab}
             onError={(e) => {
               console.error('Erro ao carregar imagem:', mediaUrl);
@@ -64,9 +64,16 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             }}
           />
           
+          {/* Overlay com informações ao hover */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl flex items-center justify-center">
+            <div className="text-white text-sm font-medium">
+              Clique para ampliar
+            </div>
+          </div>
+          
           {/* Fallback caso a imagem não carregue */}
           <div 
-            className={`hidden items-center justify-center w-full h-32 rounded-lg border-2 border-dashed ${
+            className={`hidden items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
               isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
             }`}
           >
@@ -87,11 +94,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             </div>
           </div>
         </div>
-        {mediaFilename && (
-          <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-            {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
-          </p>
-        )}
       </div>
     );
   }
@@ -100,30 +102,43 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   if (mediaType?.startsWith('audio/')) {
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-3 p-3 rounded-lg ${
-          isUserMessage ? 'bg-purple-600/20' : 'bg-goat-gray-600'
+        <div className={`flex items-center gap-4 p-4 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 ${
+          isUserMessage 
+            ? 'bg-gradient-to-r from-purple-600/10 to-purple-500/10 border-purple-400/20' 
+            : 'bg-gradient-to-r from-goat-gray-700 to-goat-gray-600 border-goat-gray-500/30'
         }`}>
-          <FileAudio className={`w-6 h-6 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300'}`} />
+          <div className={`p-2 rounded-full ${
+            isUserMessage ? 'bg-purple-500/20' : 'bg-goat-gray-500/30'
+          }`}>
+            <FileAudio className={`w-5 h-5 ${isUserMessage ? 'text-purple-300' : 'text-goat-gray-300'}`} />
+          </div>
           <div className="flex-1 min-w-0">
+            <div className={`text-sm font-medium mb-2 ${
+              isUserMessage ? 'text-purple-100' : 'text-goat-gray-200'
+            }`}>
+              Mensagem de áudio
+            </div>
             <audio 
               controls 
-              className="w-full max-w-xs"
+              className="w-full max-w-sm h-8"
               preload="metadata"
+              style={{
+                filter: isUserMessage ? 'hue-rotate(270deg) saturate(1.2)' : 'hue-rotate(0deg)',
+              }}
             >
               <source src={mediaUrl} type={mediaType} />
               Seu navegador não suporta o elemento de áudio.
             </audio>
-            {mediaFilename && (
-              <p className={`text-xs mt-1 truncate ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-                {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
-              </p>
-            )}
           </div>
           <Button
             size="sm"
             variant="ghost"
             onClick={handleDownload}
-            className={`${isUserMessage ? 'text-purple-200 hover:text-white' : 'text-goat-gray-300 hover:text-white'}`}
+            className={`shrink-0 ${
+              isUserMessage 
+                ? 'text-purple-300 hover:text-purple-100 hover:bg-purple-500/20' 
+                : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-500/30'
+            }`}
           >
             <Download className="w-4 h-4" />
           </Button>
