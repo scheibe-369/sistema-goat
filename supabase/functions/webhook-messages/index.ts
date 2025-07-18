@@ -242,6 +242,25 @@ async function downloadAndDecryptMedia({
     // Descriptografar usando AES-GCM
     const decryptedData = await decryptWhatsAppMedia(encryptedData, mediaKey);
     console.log('Arquivo descriptografado, tamanho:', decryptedData.byteLength);
+    
+    // Validar se o arquivo descriptografado é válido
+    const decryptedArray = new Uint8Array(decryptedData);
+    const first16Bytes = Array.from(decryptedArray.slice(0, 16))
+      .map(b => b.toString(16).padStart(2, '0')).join(' ');
+    console.log('Primeiros 16 bytes (hex):', first16Bytes);
+    
+    // Verificar se é uma imagem JPEG válida (deve começar com FF D8)
+    if (mediaType === 'image/jpeg') {
+      const isValidJpeg = decryptedArray[0] === 0xFF && decryptedArray[1] === 0xD8;
+      console.log('É JPEG válido?', isValidJpeg);
+      if (!isValidJpeg) {
+        console.error('❌ ARQUIVO DESCRIPTOGRAFADO NÃO É UM JPEG VÁLIDO!');
+      }
+    }
+    
+    // Converter para base64 os primeiros 32 bytes para debug
+    const first32Base64 = btoa(String.fromCharCode(...decryptedArray.slice(0, 32)));
+    console.log('Primeiros 32 bytes em base64:', first32Base64);
 
     // Gerar nome único para o arquivo
     const timestamp = Date.now();
@@ -269,6 +288,38 @@ async function downloadAndDecryptMedia({
     const { data: urlData } = supabaseClient.storage
       .from('whatsapp-media')
       .getPublicUrl(filePath);
+    
+    // Verificar se o arquivo foi salvo corretamente fazendo um download de teste
+    console.log('Testando URL pública:', urlData.publicUrl);
+    try {
+      const testResponse = await fetch(urlData.publicUrl);
+      console.log('Status do arquivo salvo:', testResponse.status);
+      console.log('Content-Type retornado:', testResponse.headers.get('content-type'));
+      console.log('Content-Length:', testResponse.headers.get('content-length'));
+      
+      if (testResponse.ok) {
+        const testData = await testResponse.arrayBuffer();
+        console.log('Tamanho do arquivo no storage:', testData.byteLength);
+        
+        // Verificar se ainda é um JPEG válido
+        if (mediaType === 'image/jpeg') {
+          const testArray = new Uint8Array(testData);
+          const isStillValidJpeg = testArray[0] === 0xFF && testArray[1] === 0xD8;
+          console.log('Arquivo no storage é JPEG válido?', isStillValidJpeg);
+          
+          if (!isStillValidJpeg) {
+            console.error('❌ ARQUIVO NO STORAGE NÃO É UM JPEG VÁLIDO!');
+            const storageFirst16 = Array.from(testArray.slice(0, 16))
+              .map(b => b.toString(16).padStart(2, '0')).join(' ');
+            console.log('Primeiros 16 bytes do arquivo no storage:', storageFirst16);
+          }
+        }
+      } else {
+        console.error('❌ ERRO ao acessar arquivo no storage:', testResponse.status, testResponse.statusText);
+      }
+    } catch (testError) {
+      console.error('❌ ERRO no teste do arquivo salvo:', testError);
+    }
 
     return {
       success: true,
