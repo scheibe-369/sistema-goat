@@ -82,6 +82,31 @@ export default function Conversations() {
     };
   }, [selectedConversation?.id, refetchMessages]);
 
+  // Função para marcar conversa como lida
+  const markConversationAsRead = async (conversationId: string) => {
+    try {
+      await supabase
+        .from('conversations')
+        .update({ unread_count: 0 })
+        .eq('id', conversationId);
+      
+      // Atualizar a lista de conversas para refletir a mudança
+      refetchConversations();
+    } catch (error) {
+      console.error('Erro ao marcar conversa como lida:', error);
+    }
+  };
+
+  // Função para selecionar conversa e marcar como lida
+  const handleSelectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    
+    // Se a conversa tem mensagens não lidas, marcar como lida
+    if (conversation.unread_count && conversation.unread_count > 0) {
+      markConversationAsRead(conversation.id);
+    }
+  };
+
   const handleNewConversation = (client: string, phone: string) => {
     createConversationMutation.mutate(
       { phone, contactName: client },
@@ -227,7 +252,7 @@ export default function Conversations() {
                 {filteredConversations.map((conversation) => (
                   <div 
                     key={conversation.id} 
-                    onClick={() => setSelectedConversation(conversation)} 
+                    onClick={() => handleSelectConversation(conversation)} 
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
                       selectedConversation?.id === conversation.id 
                         ? 'bg-goat-purple/20 border-goat-purple/50' 
