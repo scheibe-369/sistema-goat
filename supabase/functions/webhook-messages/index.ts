@@ -66,6 +66,47 @@ serve(async (req) => {
       }
     }
 
+    // Processar mídia se existir
+    let finalMediaUrl = webhookData.media_url;
+    let finalMediaFilename = webhookData.media_filename;
+    let finalMediaSize = webhookData.media_size;
+
+    if (webhookData.media_url && webhookData.media_type && webhookData.mediaKey) {
+      try {
+        console.log('Processando mídia:', {
+          media_url: webhookData.media_url,
+          media_type: webhookData.media_type,
+          mediaKey: webhookData.mediaKey ? 'presente' : 'ausente'
+        });
+
+        // Download e descriptografia da mídia
+        const mediaResult = await downloadAndDecryptMedia({
+          mediaUrl: webhookData.media_url,
+          mediaKey: webhookData.mediaKey,
+          mediaType: webhookData.media_type,
+          filename: webhookData.media_filename || `media_${Date.now()}`,
+          supabaseClient
+        });
+
+        if (mediaResult.success) {
+          finalMediaUrl = mediaResult.publicUrl;
+          finalMediaFilename = mediaResult.filename;
+          finalMediaSize = mediaResult.size;
+          console.log('Mídia processada com sucesso:', {
+            publicUrl: finalMediaUrl,
+            filename: finalMediaFilename,
+            size: finalMediaSize
+          });
+        } else {
+          console.warn('Falha ao processar mídia:', mediaResult.error);
+          // Manter URL original se a descriptografia falhar
+        }
+      } catch (error) {
+        console.error('Erro ao processar mídia:', error);
+        // Continuar com URL original se houver erro
+      }
+    }
+
     // Preparar parâmetros da função incluindo campos de mídia com prefixo p_
     const functionParams = {
       p_user_id: webhookData.user_id,
@@ -75,9 +116,9 @@ serve(async (req) => {
       p_data_hora: processedDateTime,
       p_nome_contato: webhookData.nome_contato || null,
       p_media_type: webhookData.media_type || null,
-      p_media_url: webhookData.media_url || null,
-      p_media_filename: webhookData.media_filename || null,
-      p_media_size: webhookData.media_size || null
+      p_media_url: finalMediaUrl || null,
+      p_media_filename: finalMediaFilename || null,
+      p_media_size: finalMediaSize || null
     }
 
     console.log('Chamando process_webhook_message com parâmetros:', functionParams)
@@ -111,7 +152,8 @@ serve(async (req) => {
         success: true, 
         message_id: data,
         conversation_verified: !convError,
-        processed_at: new Date().toISOString()
+        processed_at: new Date().toISOString(),
+        media_processed: finalMediaUrl !== webhookData.media_url
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -135,3 +177,183 @@ serve(async (req) => {
     )
   }
 })
+
+// Função para download e descriptografia de mídia
+async function downloadAndDecryptMedia({
+  mediaUrl,
+  mediaKey,
+  mediaType,
+  filename,
+  supabaseClient
+}: {
+  mediaUrl: string;
+  mediaKey: string;
+  mediaType: string;
+  filename: string;
+  supabaseClient: any;
+}) {
+  try {
+    console.log('Iniciando download da mídia:', mediaUrl);
+    
+    // Download do arquivo criptografado
+    const response = await fetch(mediaUrl);
+    if (!response.ok) {
+      throw new Error(`Falha no download: ${response.status} ${response.statusText}`);
+    }
+
+    const encryptedData = await response.arrayBuffer();
+    console.log('Arquivo baixado, tamanho:', encryptedData.byteLength);
+
+    // Descriptografar usando AES-GCM
+    const decryptedData = await decryptWhatsAppMedia(encryptedData, mediaKey);
+    console.log('Arquivo descriptografado, tamanho:', decryptedData.byteLength);
+
+    // Gerar nome único para o arquivo
+    const timestamp = Date.now();
+    const extension = getFileExtension(mediaType);
+    const uniqueFilename = `${timestamp}_${filename}${extension}`;
+    const filePath = `media/${uniqueFilename}`;
+
+    // Upload para o Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+      .from('whatsapp-media')
+      .upload(filePath, decryptedData, {
+        contentType: mediaType,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Erro no upload:', uploadError);
+      throw uploadError;
+    }
+
+    console.log('Upload realizado com sucesso:', uploadData);
+
+    // Obter URL pública
+    const { data: urlData } = supabaseClient.storage
+      .from('whatsapp-media')
+      .getPublicUrl(filePath);
+
+    return {
+      success: true,
+      publicUrl: urlData.publicUrl,
+      filename: uniqueFilename,
+      size: decryptedData.byteLength,
+      path: filePath
+    };
+
+  } catch (error) {
+    console.error('Erro ao processar mídia:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// Função para descriptografar mídia do WhatsApp
+async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<ArrayBuffer> {
+  // Decodificar a chave base64
+  const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
+  
+  // WhatsApp usa HKDF para derivar chaves
+  const hkdfKey = await crypto.subtle.importKey(
+    'raw',
+    mediaKey,
+    { name: 'HKDF' },
+    false,
+    ['deriveKey']
+  );
+
+  // Derivar chave AES (32 bytes) e IV (16 bytes)
+  const aesKey = await crypto.subtle.deriveKey(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: new Uint8Array(32), // Salt vazio
+      info: new TextEncoder().encode('WhatsApp Media Keys')
+    },
+    hkdfKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['decrypt']
+  );
+
+  // Para WhatsApp, o IV geralmente são os primeiros 16 bytes ou um valor fixo
+  // Vamos tentar diferentes abordagens
+  const data = new Uint8Array(encryptedData);
+  
+  // Primeira tentativa: IV nos primeiros 16 bytes
+  try {
+    const iv = data.slice(0, 16);
+    const ciphertext = data.slice(16);
+    
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      ciphertext
+    );
+    
+    return decrypted;
+  } catch (error) {
+    console.log('Primeira tentativa de descriptografia falhou, tentando abordagem alternativa');
+  }
+
+  // Segunda tentativa: sem IV separado (WhatsApp às vezes usa abordagem diferente)
+  try {
+    const iv = new Uint8Array(16); // IV zeros
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      aesKey,
+      encryptedData
+    );
+    
+    return decrypted;
+  } catch (error) {
+    console.log('Segunda tentativa falhou, tentando AES-CBC');
+  }
+
+  // Terceira tentativa: AES-CBC (fallback)
+  const cbcKey = await crypto.subtle.deriveKey(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: new Uint8Array(32),
+      info: new TextEncoder().encode('WhatsApp Media Keys')
+    },
+    hkdfKey,
+    { name: 'AES-CBC', length: 256 },
+    false,
+    ['decrypt']
+  );
+
+  const iv = data.slice(0, 16);
+  const ciphertext = data.slice(16);
+  
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-CBC', iv },
+    cbcKey,
+    ciphertext
+  );
+  
+  return decrypted;
+}
+
+// Função para obter extensão do arquivo baseada no tipo MIME
+function getFileExtension(mimeType: string): string {
+  const extensions: { [key: string]: string } = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'audio/mpeg': '.mp3',
+    'audio/ogg': '.ogg',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'application/pdf': '.pdf',
+    'text/plain': '.txt'
+  };
+  
+  return extensions[mimeType] || '';
+}

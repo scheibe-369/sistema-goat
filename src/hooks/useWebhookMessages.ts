@@ -14,6 +14,7 @@ export interface WebhookMessage {
   media_url?: string;
   media_filename?: string;
   media_size?: number;
+  mediaKey?: string; // Chave para descriptografia
 }
 
 export const useProcessWebhookMessage = () => {
@@ -123,7 +124,8 @@ export const useTestWebhookEdgeFunction = () => {
         media_type: customData?.media_type,
         media_url: customData?.media_url,
         media_filename: customData?.media_filename,
-        media_size: customData?.media_size
+        media_size: customData?.media_size,
+        mediaKey: customData?.mediaKey // Incluir chave de descriptografia se disponível
       };
 
       console.log('Testando webhook via Edge Function:', testData);
@@ -159,6 +161,28 @@ export const useTestWebhookEdgeFunction = () => {
         description: `Erro: ${error.message}`,
         variant: "destructive",
       });
+    },
+  });
+};
+
+// Hook para testar upload de imagem
+export const useTestImageUpload = () => {
+  const testWebhook = useTestWebhookEdgeFunction();
+
+  return useMutation({
+    mutationFn: async () => {
+      // Simular dados de uma imagem recebida do WhatsApp
+      const testImageData: Partial<WebhookMessage> = {
+        mensagem: "", // Mensagem vazia para mídia
+        media_type: "image/jpeg",
+        media_url: "https://example.com/encrypted-image.jpg", // URL de exemplo
+        media_filename: "imagem_teste.jpg",
+        media_size: 1024000, // 1MB
+        mediaKey: "dGVzdGVfa2V5X3BhcmFfZGVzY3JpcHRvZ3JhZmlh", // Chave base64 de exemplo
+        nome_contato: "Teste de Imagem"
+      };
+
+      return testWebhook.mutateAsync(testImageData);
     },
   });
 };
