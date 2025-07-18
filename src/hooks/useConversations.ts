@@ -107,10 +107,13 @@ export const useMessages = (conversationId: string) => {
         throw error;
       }
 
-      // Ordenar manualmente no cliente usando timestamps normalizados para UTC
+      // Ordenar mensagens usando prioritariamente data_hora (do banco) e depois created_at
       const sortedData = (data as Message[]).sort((a, b) => {
-        const timestampA = normalizeTimestampToUTC(a.data_hora || a.created_at);
-        const timestampB = normalizeTimestampToUTC(b.data_hora || b.created_at);
+        // Usar data_hora preferencialmente (campo do banco com timestamp correto)
+        const timestampA = new Date(a.data_hora || a.created_at || '1970-01-01T00:00:00Z');
+        const timestampB = new Date(b.data_hora || b.created_at || '1970-01-01T00:00:00Z');
+        
+        // Ordenar do mais antigo para o mais recente (cronológica)
         return timestampA.getTime() - timestampB.getTime();
       });
 

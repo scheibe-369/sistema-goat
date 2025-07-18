@@ -126,16 +126,24 @@ export default function Conversations() {
 
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
+  // Função para converter timestamp UTC do banco para horário local do navegador
   const formatTime = (dateString?: string) => {
     if (!dateString) return "Agora";
     try {
-      // Converter timestamp UTC para horário de Brasília (UTC-3)
-      const date = new Date(dateString);
-      const brasiliaTime = new Date(date.getTime() - (3 * 60 * 60 * 1000)); // Subtrair 3 horas
-      const hours = brasiliaTime.getUTCHours().toString().padStart(2, '0');
-      const minutes = brasiliaTime.getUTCMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
-    } catch {
+      // Criar Date do timestamp UTC armazenado no banco
+      const dateUtc = new Date(dateString);
+      
+      // Converter automaticamente para o timezone local do navegador
+      // Esta é a forma correta - sem dupla conversão
+      const localTime = dateUtc.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // Usa o timezone do navegador
+      });
+      
+      return localTime;
+    } catch (error) {
+      console.warn('Erro ao converter horário:', error, 'DateString:', dateString);
       return "Agora";
     }
   };
@@ -306,7 +314,7 @@ export default function Conversations() {
                           : "bg-goat-gray-700 text-white"
                       }`}>
                         <p className="text-sm">{message.text || message.mensagem}</p>
-                        <span className={`text-xs ${
+                         <span className={`text-xs ${
                           isUserMessage(message)
                             ? "text-purple-200" 
                             : "text-goat-gray-400"
