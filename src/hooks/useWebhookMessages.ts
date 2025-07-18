@@ -10,6 +10,10 @@ export interface WebhookMessage {
   data_hora: string;
   nome_contato?: string;
   user_id: string;
+  media_type?: string;
+  media_url?: string;
+  media_filename?: string;
+  media_size?: number;
 }
 
 export const useProcessWebhookMessage = () => {
@@ -27,7 +31,11 @@ export const useProcessWebhookMessage = () => {
         p_mensagem: webhookData.mensagem,
         p_direcao: webhookData.direcao,
         p_data_hora: webhookData.data_hora,
-        p_nome_contato: webhookData.nome_contato
+        p_nome_contato: webhookData.nome_contato,
+        p_media_type: webhookData.media_type,
+        p_media_url: webhookData.media_url,
+        p_media_filename: webhookData.media_filename,
+        p_media_size: webhookData.media_size
       });
 
       if (error) {
@@ -111,7 +119,11 @@ export const useTestWebhookEdgeFunction = () => {
         direcao: customData?.direcao ?? false,
         data_hora: customData?.data_hora || new Date().toISOString(),
         nome_contato: customData?.nome_contato || "Teste Edge Function",
-        user_id: customData?.user_id || userData.user.id
+        user_id: customData?.user_id || userData.user.id,
+        media_type: customData?.media_type,
+        media_url: customData?.media_url,
+        media_filename: customData?.media_filename,
+        media_size: customData?.media_size
       };
 
       console.log('Testando webhook via Edge Function:', testData);

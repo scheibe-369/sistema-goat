@@ -66,7 +66,7 @@ serve(async (req) => {
       }
     }
 
-    // Preparar parâmetros da função incluindo campos de mídia
+    // Preparar parâmetros da função incluindo campos de mídia com prefixo p_
     const functionParams = {
       p_user_id: webhookData.user_id,
       p_numero: webhookData.numero,
