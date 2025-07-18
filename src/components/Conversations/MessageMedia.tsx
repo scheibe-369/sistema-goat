@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Play, Download, Image as ImageIcon, FileAudio, FileVideo, File } from "lucide-react";
+import { Download, Image as ImageIcon, FileAudio, FileVideo, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MessageMediaProps {
@@ -40,15 +40,15 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     window.open(mediaUrl, '_blank');
   };
 
-  // Renderizar imagens
+  // Renderizar imagens com preview inline
   if (mediaType?.startsWith('image/')) {
     return (
       <div className="mt-2">
-        <div className="relative group max-w-xs">
+        <div className="relative group">
           <img 
             src={mediaUrl} 
             alt={mediaFilename || "Imagem"}
-            className="w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity shadow-md"
+            className="max-w-[250px] rounded-lg cursor-pointer hover:opacity-90 transition-opacity shadow-md"
             onClick={openInNewTab}
             onError={(e) => {
               console.error('Erro ao carregar imagem:', mediaUrl);
@@ -79,15 +79,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               </p>
             </div>
           </div>
-
-          <Button
-            size="sm"
-            variant="secondary"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border-none"
-            onClick={handleDownload}
-          >
-            <Download className="w-3 h-3" />
-          </Button>
         </div>
         {mediaFilename && (
           <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
@@ -143,7 +134,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             controls 
             className="w-full rounded-lg shadow-md"
             preload="metadata"
-            poster={mediaUrl} // Usar o próprio vídeo como poster se disponível
           >
             <source src={mediaUrl} type={mediaType} />
             Seu navegador não suporta o elemento de vídeo.
