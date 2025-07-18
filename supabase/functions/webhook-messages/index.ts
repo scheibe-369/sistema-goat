@@ -73,8 +73,8 @@ serve(async (req) => {
       }
     }
 
-    // Processar mídia se existir
-    let finalMediaUrl = webhookData.p_media_url;
+    // Processar mídia se existir - NÃO inicializar com URL do WhatsApp
+    let finalMediaUrl = null; // Só será preenchida se descriptografia for bem-sucedida
     let finalMediaFilename = webhookData.p_media_filename;
     let finalMediaSize = webhookData.p_media_size;
     let finalMediaType = webhookData.p_media_type;
@@ -126,18 +126,18 @@ serve(async (req) => {
           finalMediaUrl = mediaResult.publicUrl;
           finalMediaFilename = mediaResult.filename;
           finalMediaSize = mediaResult.size;
-          console.log('Mídia processada com sucesso:', {
+          console.log('✅ Mídia processada com sucesso:', {
             publicUrl: finalMediaUrl,
             filename: finalMediaFilename,
             size: finalMediaSize
           });
         } else {
-          console.warn('Falha ao processar mídia:', mediaResult.error);
-          // Manter URL original se a descriptografia falhar
+          console.error('❌ FALHA NA DESCRIPTOGRAFIA - NÃO salvará URL do WhatsApp:', mediaResult.error);
+          throw new Error(`Falha na descriptografia da mídia: ${mediaResult.error}`);
         }
       } catch (error) {
-        console.error('Erro ao processar mídia:', error);
-        // Continuar com URL original se houver erro
+        console.error('❌ ERRO CRÍTICO na descriptografia - NÃO salvará URL do WhatsApp:', error);
+        throw new Error(`Erro crítico na descriptografia: ${error.message}`);
       }
       }
     }
