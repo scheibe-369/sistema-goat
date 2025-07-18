@@ -129,30 +129,17 @@ export default function Conversations() {
   const formatTime = (dateString?: string) => {
     if (!dateString) return "Agora";
     try {
+      // Converter timestamp UTC para horário de Brasília (UTC-3)
       const date = new Date(dateString);
-      return date.toLocaleTimeString('pt-BR', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        timeZone: 'America/Sao_Paulo'
-      });
+      const brasiliaTime = new Date(date.getTime() - (3 * 60 * 60 * 1000)); // Subtrair 3 horas
+      const hours = brasiliaTime.getUTCHours().toString().padStart(2, '0');
+      const minutes = brasiliaTime.getUTCMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
     } catch {
       return "Agora";
     }
   };
 
-  const formatMessageTime = (dataHora?: string) => {
-    if (!dataHora) return "Agora";
-    try {
-      const date = new Date(dataHora);
-      return date.toLocaleTimeString('pt-BR', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        timeZone: 'America/Sao_Paulo'
-      });
-    } catch {
-      return "Agora";
-    }
-  };
 
   const getStageName = (stageId?: string) => {
     if (!stageId) return "Sem atendimento";
