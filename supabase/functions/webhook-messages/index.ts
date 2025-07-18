@@ -354,57 +354,65 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
     }
     
     const encryptedBytes = new Uint8Array(encryptedData);
+    console.log('Arquivo criptografado - tamanho:', encryptedBytes.length, 'bytes');
     
-    if (encryptedBytes.length < 32) {
-      throw new Error('Arquivo muito pequeno para ser mídia do WhatsApp');
-    }
+    // Debug: mostrar primeiros bytes do arquivo criptografado
+    const firstBytes = Array.from(encryptedBytes.slice(0, 16))
+      .map(b => b.toString(16).padStart(2, '0')).join(' ');
+    console.log('Primeiros 16 bytes do arquivo criptografado:', firstBytes);
     
-    console.log('Formato do arquivo detectado - tamanho:', encryptedBytes.length);
+    // WhatsApp Protocol: Implementar descriptografia baseada no formato real
+    // Tentar múltiplas abordagens baseadas no protocolo WhatsApp
     
-    // WhatsApp Protocol: O arquivo tem estrutura específica
-    // Para imagens: HKDF-SHA256 derive keys + AES-CBC ou AES-CTR
-    
-    // 1. Derivar chaves usando HKDF conforme protocolo WhatsApp
-    const derivedKeys = await deriveWhatsAppKeys(mediaKey, 'image');
-    
-    // 2. Tentar algoritmos de descriptografia do WhatsApp em ordem
-    const algorithms = [
-      { name: 'AES-CBC', key: derivedKeys.cipherKey },
-      { name: 'AES-CTR', key: derivedKeys.cipherKey },
-      { name: 'AES-GCM', key: derivedKeys.cipherKey }
-    ];
-    
-    for (const algo of algorithms) {
-      try {
-        console.log(`🔓 Tentando ${algo.name}...`);
-        let decrypted;
-        
-        switch (algo.name) {
-          case 'AES-CBC':
-            decrypted = await decryptWithAESCBC(encryptedBytes, algo.key);
-            break;
-          case 'AES-CTR':
-            decrypted = await decryptWithAESCTR(encryptedBytes, algo.key);
-            break;
-          case 'AES-GCM':
-            decrypted = await decryptWithAESGCM(encryptedBytes, algo.key);
-            break;
-        }
-        
-        if (decrypted && isValidImageFile(new Uint8Array(decrypted))) {
-          console.log(`✅ DESCRIPTOGRAFIA BEM-SUCEDIDA com ${algo.name}!`);
-          console.log('Tamanho do arquivo descriptografado:', decrypted.byteLength);
-          return decrypted;
-        } else {
-          console.log(`❌ ${algo.name} falhou - arquivo inválido`);
-        }
-        
-      } catch (error) {
-        console.log(`❌ ${algo.name} falhou:`, error.message);
+    // Abordagem 1: HKDF + AES-CBC (mais comum para WhatsApp Web)
+    try {
+      console.log('🔓 Tentando HKDF + AES-CBC...');
+      const result1 = await tryHKDFDecryption(encryptedBytes, mediaKey, 'image');
+      if (result1 && isValidImageFile(new Uint8Array(result1))) {
+        console.log('✅ SUCESSO com HKDF + AES-CBC!');
+        return result1;
       }
+    } catch (error) {
+      console.log('❌ HKDF + AES-CBC falhou:', error.message);
     }
     
-    throw new Error('Todas as tentativas de descriptografia falharam');
+    // Abordagem 2: AES-CBC direto (formato mais simples)
+    try {
+      console.log('🔓 Tentando AES-CBC direto...');
+      const result2 = await tryDirectAESCBC(encryptedBytes, mediaKey);
+      if (result2 && isValidImageFile(new Uint8Array(result2))) {
+        console.log('✅ SUCESSO com AES-CBC direto!');
+        return result2;
+      }
+    } catch (error) {
+      console.log('❌ AES-CBC direto falhou:', error.message);
+    }
+    
+    // Abordagem 3: AES-GCM (usado em algumas versões)
+    try {
+      console.log('🔓 Tentando AES-GCM...');
+      const result3 = await tryAESGCMDecryption(encryptedBytes, mediaKey);
+      if (result3 && isValidImageFile(new Uint8Array(result3))) {
+        console.log('✅ SUCESSO com AES-GCM!');
+        return result3;
+      }
+    } catch (error) {
+      console.log('❌ AES-GCM falhou:', error.message);
+    }
+    
+    // Abordagem 4: AES-CTR (formato alternativo)
+    try {
+      console.log('🔓 Tentando AES-CTR...');
+      const result4 = await tryAESCTRDecryption(encryptedBytes, mediaKey);
+      if (result4 && isValidImageFile(new Uint8Array(result4))) {
+        console.log('✅ SUCESSO com AES-CTR!');
+        return result4;
+      }
+    } catch (error) {
+      console.log('❌ AES-CTR falhou:', error.message);
+    }
+    
+    throw new Error('Todas as tentativas de descriptografia falharam - formato não reconhecido');
     
   } catch (error) {
     console.error('❌ ERRO na descriptografia:', error);
@@ -412,144 +420,178 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
   }
 }
 
-// Função para derivar chaves conforme protocolo WhatsApp
-async function deriveWhatsAppKeys(mediaKey: Uint8Array, mediaType: string): Promise<{cipherKey: Uint8Array, macKey: Uint8Array}> {
-  // Implementar HKDF conforme especificação WhatsApp
-  const info = mediaType === 'image' ? 'WhatsApp Image Keys' : 'WhatsApp Media Keys';
-  
-  const hkdfKey = await crypto.subtle.importKey(
-    'raw',
-    mediaKey,
-    'HKDF',
-    false,
-    ['deriveKey']
-  );
-  
-  // Derivar 64 bytes total (32 para cipher + 32 para MAC)
-  const derivedKey = await crypto.subtle.deriveKey(
-    {
-      name: 'HKDF',
-      hash: 'SHA-256',
-      salt: new Uint8Array(32), // 32 bytes de zeros como salt
-      info: new TextEncoder().encode(info)
-    },
-    hkdfKey,
-    { name: 'AES-CBC', length: 512 }, // 64 bytes = 512 bits
-    true,
-    ['encrypt', 'decrypt']
-  );
-  
-  const derivedBytes = new Uint8Array(await crypto.subtle.exportKey('raw', derivedKey));
-  
-  return {
-    cipherKey: derivedBytes.slice(0, 32), // Primeiros 32 bytes para cipher
-    macKey: derivedBytes.slice(32, 64)    // Próximos 32 bytes para MAC
-  };
-}
-
-// Função para descriptografia AES-CBC (formato WhatsApp)
-async function decryptWithAESCBC(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
+// Implementação HKDF + AES para WhatsApp
+async function tryHKDFDecryption(encryptedData: Uint8Array, mediaKey: Uint8Array, mediaType: string): Promise<ArrayBuffer | null> {
   try {
-    // WhatsApp format: IV (16 bytes) + encrypted data + MAC (32 bytes no final)
-    if (encryptedData.length < 48) { // Mínimo: 16 (IV) + algum dado + 32 (MAC)
-      throw new Error('Dados muito pequenos para formato WhatsApp');
-    }
+    // Derivar chaves usando HKDF conforme protocolo WhatsApp
+    const info = mediaType === 'image' ? 'WhatsApp Image Keys' : 'WhatsApp Media Keys';
     
-    const iv = encryptedData.slice(0, 16);
-    const ciphertext = encryptedData.slice(16, -32); // Remove IV no início e MAC no final
-    const mac = encryptedData.slice(-32);
+    const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveKey']);
     
-    console.log(`AES-CBC: IV=${iv.length}B, data=${ciphertext.length}B, MAC=${mac.length}B`);
-    
-    const key = await crypto.subtle.importKey(
-      'raw',
-      cipherKey,
-      { name: 'AES-CBC' },
-      false,
-      ['decrypt']
-    );
-    
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-CBC', iv },
-      key,
-      ciphertext
-    );
-    
-    return decrypted;
-  } catch (error) {
-    console.log('AES-CBC erro:', error.message);
-    return null;
-  }
-}
-
-// Função para descriptografia AES-CTR (alternativa WhatsApp)
-async function decryptWithAESCTR(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
-  try {
-    // Formato CTR: IV (16 bytes) + dados criptografados
-    if (encryptedData.length < 32) {
-      throw new Error('Dados muito pequenos para AES-CTR');
-    }
-    
-    const iv = encryptedData.slice(0, 16);
-    const ciphertext = encryptedData.slice(16);
-    
-    console.log(`AES-CTR: IV=${iv.length}B, data=${ciphertext.length}B`);
-    
-    const key = await crypto.subtle.importKey(
-      'raw',
-      cipherKey,
-      { name: 'AES-CTR' },
-      false,
-      ['decrypt']
-    );
-    
-    const decrypted = await crypto.subtle.decrypt(
-      { 
-        name: 'AES-CTR', 
-        counter: iv,
-        length: 128
+    // Derivar 64 bytes: 32 para cipher + 32 para MAC
+    const derivedKeyMaterial = await crypto.subtle.deriveKey(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: new Uint8Array(32), // 32 bytes zero como salt
+        info: new TextEncoder().encode(info)
       },
-      key,
-      ciphertext
+      hkdfKey,
+      { name: 'AES-CBC', length: 512 }, // 512 bits = 64 bytes
+      true,
+      ['encrypt', 'decrypt']
     );
     
-    return decrypted;
+    const derivedBytes = new Uint8Array(await crypto.subtle.exportKey('raw', derivedKeyMaterial));
+    const cipherKey = derivedBytes.slice(0, 32);
+    
+    // Tentar descriptografia com chave derivada
+    return await tryDirectAESCBC(encryptedData, cipherKey);
   } catch (error) {
-    console.log('AES-CTR erro:', error.message);
+    console.log('HKDF erro:', error.message);
     return null;
   }
 }
 
-// Função para descriptografia AES-GCM (alternativa WhatsApp)
-async function decryptWithAESGCM(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
+// AES-CBC direto (formato simplificado)
+async function tryDirectAESCBC(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
   try {
-    // Formato GCM: IV (12 bytes) + dados + tag (16 bytes)
-    if (encryptedData.length < 28) { // 12 + mínimo + 16
-      throw new Error('Dados muito pequenos para AES-GCM');
+    console.log(`  AES-CBC: arquivo=${encryptedData.length}B, chave=${cipherKey.length}B`);
+    
+    if (encryptedData.length < 32) {
+      throw new Error('Arquivo muito pequeno para AES-CBC');
     }
     
-    const iv = encryptedData.slice(0, 12);
-    const ciphertext = encryptedData.slice(12);
+    const key = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-CBC' }, false, ['decrypt']);
     
-    console.log(`AES-GCM: IV=${iv.length}B, data=${ciphertext.length}B`);
+    // Tentar diferentes estruturas de arquivo
+    const attempts = [
+      // Formato 1: IV (16) + dados + MAC (32) no final
+      { iv: encryptedData.slice(0, 16), data: encryptedData.slice(16, -32) },
+      // Formato 2: IV (16) + dados (sem MAC)
+      { iv: encryptedData.slice(0, 16), data: encryptedData.slice(16) },
+      // Formato 3: Dados + IV no final
+      { iv: encryptedData.slice(-16), data: encryptedData.slice(0, -16) }
+    ];
     
-    const key = await crypto.subtle.importKey(
-      'raw',
-      cipherKey,
-      { name: 'AES-GCM' },
-      false,
-      ['decrypt']
-    );
+    for (const [index, attempt] of attempts.entries()) {
+      try {
+        console.log(`    Tentativa ${index + 1}: IV=${attempt.iv.length}B, dados=${attempt.data.length}B`);
+        
+        if (attempt.data.length === 0) continue;
+        
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-CBC', iv: attempt.iv },
+          key,
+          attempt.data
+        );
+        
+        const result = new Uint8Array(decrypted);
+        console.log(`    Resultado: ${result.length} bytes, primeiro byte: 0x${result[0]?.toString(16) || '00'}`);
+        
+        if (result.length > 0) {
+          return decrypted;
+        }
+      } catch (err) {
+        console.log(`    Tentativa ${index + 1} falhou:`, err.message);
+      }
+    }
     
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      key,
-      ciphertext
-    );
+    return null;
+  } catch (error) {
+    console.log('AES-CBC direto erro:', error.message);
+    return null;
+  }
+}
+
+// AES-GCM para WhatsApp
+async function tryAESGCMDecryption(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
+  try {
+    console.log(`  AES-GCM: arquivo=${encryptedData.length}B`);
     
-    return decrypted;
+    const key = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-GCM' }, false, ['decrypt']);
+    
+    // Tentar diferentes tamanhos de IV
+    const ivSizes = [12, 16];
+    
+    for (const ivSize of ivSizes) {
+      if (encryptedData.length < ivSize + 16) continue; // IV + mínimo de dados
+      
+      try {
+        const iv = encryptedData.slice(0, ivSize);
+        const ciphertext = encryptedData.slice(ivSize);
+        
+        console.log(`    GCM IV=${ivSize}: dados=${ciphertext.length}B`);
+        
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv },
+          key,
+          ciphertext
+        );
+        
+        const result = new Uint8Array(decrypted);
+        if (result.length > 0) {
+          console.log(`    GCM sucesso: ${result.length} bytes`);
+          return decrypted;
+        }
+      } catch (err) {
+        console.log(`    GCM IV=${ivSize} falhou:`, err.message);
+      }
+    }
+    
+    return null;
   } catch (error) {
     console.log('AES-GCM erro:', error.message);
+    return null;
+  }
+}
+
+// AES-CTR para WhatsApp
+async function tryAESCTRDecryption(encryptedData: Uint8Array, cipherKey: Uint8Array): Promise<ArrayBuffer | null> {
+  try {
+    console.log(`  AES-CTR: arquivo=${encryptedData.length}B`);
+    
+    if (encryptedData.length < 32) {
+      throw new Error('Arquivo muito pequeno para AES-CTR');
+    }
+    
+    const key = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-CTR' }, false, ['decrypt']);
+    
+    // Tentar diferentes posições do IV
+    const attempts = [
+      // IV no início
+      { iv: encryptedData.slice(0, 16), data: encryptedData.slice(16) },
+      // IV no final  
+      { iv: encryptedData.slice(-16), data: encryptedData.slice(0, -16) }
+    ];
+    
+    for (const [index, attempt] of attempts.entries()) {
+      try {
+        console.log(`    CTR tentativa ${index + 1}: IV=${attempt.iv.length}B, dados=${attempt.data.length}B`);
+        
+        const decrypted = await crypto.subtle.decrypt(
+          { 
+            name: 'AES-CTR', 
+            counter: attempt.iv,
+            length: 128
+          },
+          key,
+          attempt.data
+        );
+        
+        const result = new Uint8Array(decrypted);
+        if (result.length > 0) {
+          console.log(`    CTR sucesso: ${result.length} bytes`);
+          return decrypted;
+        }
+      } catch (err) {
+        console.log(`    CTR tentativa ${index + 1} falhou:`, err.message);
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.log('AES-CTR erro:', error.message);
     return null;
   }
 }
