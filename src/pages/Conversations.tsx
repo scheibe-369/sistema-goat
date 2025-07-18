@@ -324,7 +324,7 @@ export default function Conversations() {
                             ? "text-purple-200" 
                             : "text-goat-gray-400"
                         }`}>
-                          {formatMessageTime(message.data_hora || message.created_at)}
+                          {formatTime(message.data_hora || message.created_at)}
                         </span>
                       </div>
                     </div>
