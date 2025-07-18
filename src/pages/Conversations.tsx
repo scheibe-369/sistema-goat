@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { WebhookTester } from "@/components/Conversations/WebhookTester";
+import { MessageMedia } from "@/components/Conversations/MessageMedia";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
@@ -336,8 +336,22 @@ export default function Conversations() {
                           ? "bg-goat-purple text-white" 
                           : "bg-goat-gray-700 text-white"
                       }`}>
-                        <p className="text-sm">{message.text || message.mensagem}</p>
-                        <span className={`text-xs ${
+                        {(message.text || message.mensagem) && (
+                          <p className="text-sm">{message.text || message.mensagem}</p>
+                        )}
+                        
+                        {/* Renderizar mídia se existir */}
+                        {message.media_type && message.media_url && (
+                          <MessageMedia
+                            mediaType={message.media_type}
+                            mediaUrl={message.media_url}
+                            mediaFilename={message.media_filename || undefined}
+                            mediaSize={message.media_size || undefined}
+                            isUserMessage={isUserMessage(message)}
+                          />
+                        )}
+                        
+                        <span className={`text-xs block mt-2 ${
                           isUserMessage(message)
                             ? "text-purple-200" 
                             : "text-goat-gray-400"

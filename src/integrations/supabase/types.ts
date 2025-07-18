@@ -374,6 +374,10 @@ export type Database = {
           data_hora: string | null
           direcao: boolean | null
           id: string
+          media_filename: string | null
+          media_size: number | null
+          media_type: string | null
+          media_url: string | null
           mensagem: string | null
           nome_contato: string | null
           numero: string | null
@@ -387,6 +391,10 @@ export type Database = {
           data_hora?: string | null
           direcao?: boolean | null
           id?: string
+          media_filename?: string | null
+          media_size?: number | null
+          media_type?: string | null
+          media_url?: string | null
           mensagem?: string | null
           nome_contato?: string | null
           numero?: string | null
@@ -400,6 +408,10 @@ export type Database = {
           data_hora?: string | null
           direcao?: boolean | null
           id?: string
+          media_filename?: string | null
+          media_size?: number | null
+          media_type?: string | null
+          media_url?: string | null
           mensagem?: string | null
           nome_contato?: string | null
           numero?: string | null
