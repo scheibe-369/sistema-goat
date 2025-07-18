@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +28,10 @@ export interface Message {
   nome_contato?: string;
   created_at?: string;
   updated_at?: string;
+  media_type?: string;
+  media_url?: string;
+  media_filename?: string;
+  media_size?: number;
 }
 
 export const useConversations = () => {
