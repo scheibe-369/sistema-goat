@@ -1,9 +1,7 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { toZonedTime, fromZonedTime, format } from "date-fns-tz";
-import { parseISO, isValid } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
 
 export interface Conversation {
   id: string;
@@ -52,45 +50,6 @@ export const useConversations = () => {
   });
 };
 
-// Função para normalizar timestamps para UTC
-const normalizeTimestampToUTC = (timestamp: string | undefined): Date => {
-  if (!timestamp) return new Date();
-  
-  try {
-    // Se já é ISO string com timezone, usar diretamente
-    if (timestamp.includes('T') && (timestamp.includes('Z') || timestamp.includes('+') || timestamp.includes('-'))) {
-      return new Date(timestamp);
-    }
-    
-    // Se é formato de data simples, assumir como UTC
-    const parsed = parseISO(timestamp);
-    if (isValid(parsed)) {
-      return parsed;
-    }
-    
-    // Fallback para data atual
-    return new Date();
-  } catch (error) {
-    console.warn('Error parsing timestamp:', timestamp, error);
-    return new Date();
-  }
-};
-
-// Função para converter timestamp para horário de Brasília e formatar
-export const formatToBrasiliaTime = (timestamp: string | undefined): string => {
-  if (!timestamp) return '';
-  
-  try {
-    const date = normalizeTimestampToUTC(timestamp);
-    // Converter para horário de Brasília (UTC-3)
-    const brasiliaTime = toZonedTime(date, 'America/Sao_Paulo');
-    return format(brasiliaTime, 'HH:mm', { timeZone: 'America/Sao_Paulo' });
-  } catch (error) {
-    console.warn('Error formatting timestamp to Brasilia time:', timestamp, error);
-    return '';
-  }
-};
-
 export const useMessages = (conversationId: string) => {
   return useQuery({
     queryKey: ["messages", conversationId],
@@ -109,7 +68,7 @@ export const useMessages = (conversationId: string) => {
 
       // Ordenar mensagens usando prioritariamente data_hora (do banco) e depois created_at
       const sortedData = (data as Message[]).sort((a, b) => {
-        // Usar data_hora preferencialmente (campo do banco com timestamp correto)
+        // Usar data_hora preferencialmente (campo do banco com timestamp correto em UTC)
         const timestampA = new Date(a.data_hora || a.created_at || '1970-01-01T00:00:00Z');
         const timestampB = new Date(b.data_hora || b.created_at || '1970-01-01T00:00:00Z');
         
@@ -137,7 +96,7 @@ export const useSendMessage = () => {
           numero: "user", // Usar "user" para indicar que é mensagem do usuário
           mensagem: text,
           direcao: true,
-          data_hora: new Date().toISOString(),
+          data_hora: new Date().toISOString(), // Salvar em UTC automaticamente
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })

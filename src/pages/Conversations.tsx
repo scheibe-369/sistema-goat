@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { WebhookTester } from "@/components/Conversations/WebhookTester";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
-import { useConversations, useMessages, useCreateConversation, formatToBrasiliaTime, type Conversation } from "@/hooks/useConversations";
+import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useStages } from "@/hooks/useStages";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,15 +129,14 @@ export default function Conversations() {
   const formatTime = (dateString?: string) => {
     if (!dateString) return "Agora";
     try {
-      // Criar Date do timestamp UTC armazenado no banco
+      // Criar Date do timestamp UTC armazenado no banco (já com "Z" no final)
       const dateUtc = new Date(dateString);
       
       // Converter automaticamente para o timezone local do navegador
-      // Esta é a forma correta - sem dupla conversão
+      // Usar apenas APIs nativas - sem manipulação manual de timezone
       const localTime = dateUtc.toLocaleTimeString('pt-BR', { 
         hour: '2-digit', 
-        minute: '2-digit',
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone // Usa o timezone do navegador
+        minute: '2-digit'
       });
       
       return localTime;
@@ -147,7 +145,6 @@ export default function Conversations() {
       return "Agora";
     }
   };
-
 
   const getStageName = (stageId?: string) => {
     if (!stageId) return "Sem atendimento";
@@ -314,7 +311,7 @@ export default function Conversations() {
                           : "bg-goat-gray-700 text-white"
                       }`}>
                         <p className="text-sm">{message.text || message.mensagem}</p>
-                         <span className={`text-xs ${
+                        <span className={`text-xs ${
                           isUserMessage(message)
                             ? "text-purple-200" 
                             : "text-goat-gray-400"
