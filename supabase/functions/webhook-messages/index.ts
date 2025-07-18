@@ -24,13 +24,12 @@ serve(async (req) => {
     console.log('Webhook data received:', JSON.stringify(webhookData, null, 2))
 
     // Validar se os dados necessários estão presentes
-    if (!webhookData.numero || !webhookData.mensagem || !webhookData.user_id) {
+    if (!webhookData.numero || !webhookData.user_id) {
       console.error('Dados obrigatórios ausentes:', { 
         numero: !!webhookData.numero, 
-        mensagem: !!webhookData.mensagem, 
         user_id: !!webhookData.user_id 
       })
-      throw new Error('Dados obrigatórios ausentes: numero, mensagem, user_id')
+      throw new Error('Dados obrigatórios ausentes: numero, user_id')
     }
 
     // Processar a data/hora corretamente e converter para horário de Brasília
@@ -67,25 +66,24 @@ serve(async (req) => {
       }
     }
 
-    // Processar a mensagem usando a função do banco de dados com parâmetros essenciais
-    console.log('Chamando process_webhook_message com parâmetros essenciais:', {
+    // Preparar parâmetros da função incluindo campos de mídia
+    const functionParams = {
       p_user_id: webhookData.user_id,
       p_numero: webhookData.numero,
-      p_mensagem: webhookData.mensagem,
+      p_mensagem: webhookData.mensagem || null,
       p_direcao: webhookData.direcao || false,
       p_data_hora: processedDateTime,
-      p_nome_contato: webhookData.nome_contato || null
-    })
+      p_nome_contato: webhookData.nome_contato || null,
+      p_media_type: webhookData.media_type || null,
+      p_media_url: webhookData.media_url || null,
+      p_media_filename: webhookData.media_filename || null,
+      p_media_size: webhookData.media_size || null
+    }
+
+    console.log('Chamando process_webhook_message com parâmetros:', functionParams)
 
     const { data, error } = await supabaseClient
-      .rpc('process_webhook_message', {
-        p_user_id: webhookData.user_id,
-        p_numero: webhookData.numero,
-        p_mensagem: webhookData.mensagem,
-        p_direcao: webhookData.direcao || false,
-        p_data_hora: processedDateTime,
-        p_nome_contato: webhookData.nome_contato || null
-      })
+      .rpc('process_webhook_message', functionParams)
 
     if (error) {
       console.error('Erro ao processar mensagem:', error)

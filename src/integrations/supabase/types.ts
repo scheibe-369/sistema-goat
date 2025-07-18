@@ -563,6 +563,18 @@ export type Database = {
               p_data_hora: string
               p_nome_contato?: string
             }
+          | {
+              p_user_id: string
+              p_numero: string
+              p_mensagem: string
+              p_direcao: boolean
+              p_data_hora: string
+              p_nome_contato?: string
+              p_media_type?: string
+              p_media_url?: string
+              p_media_filename?: string
+              p_media_size?: number
+            }
         Returns: string
       }
       upsert_conversation: {
