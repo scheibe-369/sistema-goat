@@ -106,10 +106,35 @@ serve(async (req) => {
 });
 
 async function downloadAndDecryptMedia({ mediaUrl, mediaKey, mediaType, filename, supabaseClient }) {
-  const response = await fetch(mediaUrl);
+  // 1. Confirme o valor da mediaKey
+  console.log("mediaKey recebida:", mediaKey, "tamanho:", mediaKey.length);
+  const keyBytes = Uint8Array.from(atob(mediaKey), c => c.charCodeAt(0));
+  console.log("Bytes da chave decodificada:", keyBytes.length);
+
+  // 3. Adicione headers obrigatórios ao fazer o fetch
+  const response = await fetch(mediaUrl, {
+    headers: {
+      'Origin': 'https://web.whatsapp.com',
+      'Referer': 'https://web.whatsapp.com/',
+      'User-Agent': 'WhatsApp/2.2332.15'
+    }
+  });
+
+  // 7. Logue o status e headers do response
+  console.log("Status do download:", response.status, response.statusText);
+  console.log("Response headers:", Array.from(response.headers.entries()));
+
   if (!response.ok) return { success: false, error: 'Download failed' };
 
   const encryptedData = await response.arrayBuffer();
+  
+  // 2. Confirme se o arquivo baixado é realmente criptografado
+  console.log("Tamanho do arquivo criptografado:", encryptedData.byteLength);
+  
+  // 4. Logue as primeiras bytes do arquivo baixado
+  const arr = new Uint8Array(encryptedData);
+  console.log("Primeiros 16 bytes do arquivo:", Array.from(arr.slice(0, 16)));
+
   const decryptedData = await decryptWhatsAppMedia(encryptedData, mediaKey);
 
   const uniqueFilename = `${Date.now()}_${filename}${getFileExtension(mediaType)}`;
