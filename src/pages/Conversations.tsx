@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -125,21 +126,21 @@ export default function Conversations() {
 
   const hasActiveFilters = filters.stages.length > 0 || filters.tags.length > 0 || filters.direction.length > 0 || filters.client !== "";
 
-  // Função para converter timestamp UTC do banco para horário local do navegador
+  // Função para converter timestamp UTC para horário local brasileiro (UTC-3)
   const formatTime = (dateString?: string) => {
     if (!dateString) return "Agora";
     try {
-      // Criar Date do timestamp UTC armazenado no banco (já com "Z" no final)
+      // Criar Date do timestamp UTC armazenado no banco
       const dateUtc = new Date(dateString);
       
-      // Converter automaticamente para o timezone local do navegador
-      // Usar apenas APIs nativas - sem manipulação manual de timezone
-      const localTime = dateUtc.toLocaleTimeString('pt-BR', { 
-        hour: '2-digit', 
-        minute: '2-digit'
-      });
+      // Converter para horário brasileiro (UTC-3) manualmente
+      const brazilTime = new Date(dateUtc.getTime() - (3 * 60 * 60 * 1000));
       
-      return localTime;
+      // Formatar no padrão brasileiro
+      const hours = brazilTime.getUTCHours().toString().padStart(2, '0');
+      const minutes = brazilTime.getUTCMinutes().toString().padStart(2, '0');
+      
+      return `${hours}:${minutes}`;
     } catch (error) {
       console.warn('Erro ao converter horário:', error, 'DateString:', dateString);
       return "Agora";
