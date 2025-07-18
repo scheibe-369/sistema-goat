@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -131,36 +132,44 @@ async function downloadAndDecryptMedia({ mediaUrl, mediaKey, mediaType, filename
 }
 
 async function decryptWhatsAppMedia(encryptedData, mediaKeyBase64) {
-  const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
-  const salt = new Uint8Array(32); // 32 bytes zerados
-  const info = new TextEncoder().encode('WhatsApp Image Keys');
-
-  // Derivar usando HKDF com SHA-256 exatamente como WhatsApp exige
-  const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
-  const expandedKey = await crypto.subtle.deriveBits({
-    name: 'HKDF',
-    hash: 'SHA-256',
-    salt,
-    info
-  }, hkdfKey, 112 * 8); // 112 bytes necessários
-
-  const expandedKeyBytes = new Uint8Array(expandedKey);
-  
-  // Esses offsets são padrão oficial WhatsApp
-  const iv = expandedKeyBytes.slice(0, 16);          // primeiros 16 bytes
-  const cipherKey = expandedKeyBytes.slice(16, 48);  // 32 bytes seguintes são chave AES
-  // últimos bytes são MAC (não utilizados aqui)
-
-  // Aqui está a mudança essencial:
-  const ciphertext = new Uint8Array(encryptedData);
-  const cryptoKey = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-CBC' }, false, ['decrypt']);
-
   try {
+    console.log('🔑 MediaKey recebida:', mediaKeyBase64);
+    const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
+    console.log('🔑 MediaKey length:', mediaKey.length);
+
+    const salt = new Uint8Array(32);
+    const info = new TextEncoder().encode('WhatsApp Image Keys');
+
+    const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
+    const expandedKey = await crypto.subtle.deriveBits({
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt,
+      info
+    }, hkdfKey, 112 * 8);
+
+    const expandedKeyBytes = new Uint8Array(expandedKey);
+    const iv = expandedKeyBytes.slice(0, 16);
+    const cipherKey = expandedKeyBytes.slice(16, 48);
+
+    console.log('🔐 Derived IV:', iv);
+    console.log('🔐 Derived CipherKey:', cipherKey);
+
+    const ciphertext = new Uint8Array(encryptedData);
+    console.log('📦 Encrypted data size:', ciphertext.length, 'bytes');
+
+    const cryptoKey = await crypto.subtle.importKey('raw', cipherKey, { name: 'AES-CBC' }, false, ['decrypt']);
+
     const decryptedData = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, cryptoKey, ciphertext);
+    console.log('✅ Decrypted data size:', decryptedData.byteLength);
+
     return new Uint8Array(decryptedData);
   } catch (error) {
-    console.error("Erro durante AES-CBC descriptografia:", error);
-    throw new Error("Falha na descriptografia AES-CBC: " + error.message);
+    console.error('❌ Detalhes do erro de descriptografia:', {
+      message: error.message,
+      stack: error.stack
+    });
+    throw new Error('Falha na descriptografia AES-CBC: ' + error.message);
   }
 }
 
@@ -175,3 +184,4 @@ function getFileExtension(mimeType) {
   };
   return extensions[mimeType] || '';
 }
+
