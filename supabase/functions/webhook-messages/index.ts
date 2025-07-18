@@ -86,13 +86,23 @@ serve(async (req) => {
       }
     }
 
-    if (webhookData.p_media_url && webhookData.p_media_type && webhookData.p_media_key) {
+    if (webhookData.p_media_url && webhookData.p_media_type) {
+      if (!webhookData.p_media_key) {
+        console.warn('Mídia detectada mas sem chave de descriptografia. URL será mantida como está.');
+        console.log('Dados da mídia:', {
+          media_url: webhookData.p_media_url,
+          media_type: webhookData.p_media_type,
+          media_filename: webhookData.p_media_filename,
+          has_media_key: !!webhookData.p_media_key
+        });
+      } else {
       try {
         console.log('Processando mídia:', {
           media_url: webhookData.p_media_url,
           media_type: webhookData.p_media_type,
           media_type_converted: finalMediaType,
           media_key: webhookData.p_media_key ? 'presente' : 'ausente',
+          media_key_length: webhookData.p_media_key ? webhookData.p_media_key.length : 0,
           filename: webhookData.p_media_filename
         });
 
@@ -121,6 +131,7 @@ serve(async (req) => {
       } catch (error) {
         console.error('Erro ao processar mídia:', error);
         // Continuar com URL original se houver erro
+      }
       }
     }
 

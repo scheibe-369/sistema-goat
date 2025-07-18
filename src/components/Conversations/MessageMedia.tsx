@@ -52,6 +52,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             onClick={openInNewTab}
             onError={(e) => {
               console.error('Erro ao carregar imagem:', mediaUrl);
+              console.error('Media type:', mediaType);
+              console.error('Filename:', mediaFilename);
               // Fallback para mostrar um ícone se a imagem não carregar
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
@@ -75,7 +77,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <p className={`text-sm ${
                 isUserMessage ? 'text-purple-200' : 'text-gray-300'
               }`}>
-                Imagem não disponível
+                Imagem criptografada
+              </p>
+              <p className={`text-xs mt-1 ${
+                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+              }`}>
+                Requer chave de descriptografia
               </p>
             </div>
           </div>
