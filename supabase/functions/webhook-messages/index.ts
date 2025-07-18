@@ -282,90 +282,128 @@ async function downloadAndDecryptMedia({
 
 // Função para descriptografar mídia do WhatsApp
 async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<ArrayBuffer> {
-  // Decodificar a chave base64
-  const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
-  
-  // WhatsApp usa HKDF para derivar chaves
-  const hkdfKey = await crypto.subtle.importKey(
-    'raw',
-    mediaKey,
-    { name: 'HKDF' },
-    false,
-    ['deriveKey']
-  );
-
-  // Derivar chave AES (32 bytes) e IV (16 bytes)
-  const aesKey = await crypto.subtle.deriveKey(
-    {
-      name: 'HKDF',
-      hash: 'SHA-256',
-      salt: new Uint8Array(32), // Salt vazio
-      info: new TextEncoder().encode('WhatsApp Media Keys')
-    },
-    hkdfKey,
-    { name: 'AES-GCM', length: 256 },
-    false,
-    ['decrypt']
-  );
-
-  // Para WhatsApp, o IV geralmente são os primeiros 16 bytes ou um valor fixo
-  // Vamos tentar diferentes abordagens
-  const data = new Uint8Array(encryptedData);
-  
-  // Primeira tentativa: IV nos primeiros 16 bytes
   try {
+    console.log('Iniciando descriptografia - dados recebidos:', {
+      dataSize: encryptedData.byteLength,
+      keyLength: mediaKeyBase64.length
+    });
+
+    // Decodificar a chave base64
+    const mediaKey = Uint8Array.from(atob(mediaKeyBase64), c => c.charCodeAt(0));
+    console.log('Chave decodificada, tamanho:', mediaKey.length);
+    
+    // Importar a chave para HKDF
+    const hkdfKey = await crypto.subtle.importKey(
+      'raw',
+      mediaKey,
+      { name: 'HKDF' },
+      false,
+      ['deriveKey']
+    );
+
+    // Derivar chave AES de 32 bytes para AES-256
+    const aesKey = await crypto.subtle.deriveKey(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: new Uint8Array(32), // Salt vazio
+        info: new TextEncoder().encode('WhatsApp Media Keys')
+      },
+      hkdfKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+
+    const data = new Uint8Array(encryptedData);
+    console.log('Tentando descriptografar com AES-GCM...');
+    
+    // Primeira tentativa: IV nos primeiros 12 bytes (padrão GCM)
+    try {
+      const iv = data.slice(0, 12);
+      const ciphertext = data.slice(12, -16); // Remove IV e tag
+      const tag = data.slice(-16); // Últimos 16 bytes são a tag
+      
+      // Combinar ciphertext e tag para GCM
+      const combined = new Uint8Array(ciphertext.length + tag.length);
+      combined.set(ciphertext);
+      combined.set(tag, ciphertext.length);
+      
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        aesKey,
+        combined
+      );
+      
+      console.log('Descriptografia AES-GCM bem-sucedida (IV 12 bytes)');
+      return decrypted;
+    } catch (error) {
+      console.log('Falha com IV 12 bytes:', error.message);
+    }
+
+    // Segunda tentativa: IV nos primeiros 16 bytes
+    try {
+      const iv = data.slice(0, 16);
+      const ciphertext = data.slice(16);
+      
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        aesKey,
+        ciphertext
+      );
+      
+      console.log('Descriptografia AES-GCM bem-sucedida (IV 16 bytes)');
+      return decrypted;
+    } catch (error) {
+      console.log('Falha com IV 16 bytes:', error.message);
+    }
+
+    // Terceira tentativa: Sem IV separado
+    try {
+      const iv = new Uint8Array(12); // IV zeros
+      const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        aesKey,
+        encryptedData
+      );
+      
+      console.log('Descriptografia AES-GCM bem-sucedida (IV zeros)');
+      return decrypted;
+    } catch (error) {
+      console.log('Falha com IV zeros:', error.message);
+    }
+
+    // Fallback: Tentar AES-CBC
+    console.log('Tentando AES-CBC como fallback...');
+    const cbcKey = await crypto.subtle.deriveKey(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: new Uint8Array(32),
+        info: new TextEncoder().encode('WhatsApp Media Keys')
+      },
+      hkdfKey,
+      { name: 'AES-CBC', length: 256 },
+      false,
+      ['decrypt']
+    );
+
     const iv = data.slice(0, 16);
     const ciphertext = data.slice(16);
     
     const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      aesKey,
+      { name: 'AES-CBC', iv },
+      cbcKey,
       ciphertext
     );
     
+    console.log('Descriptografia AES-CBC bem-sucedida');
     return decrypted;
+
   } catch (error) {
-    console.log('Primeira tentativa de descriptografia falhou, tentando abordagem alternativa');
+    console.error('Erro completo na descriptografia:', error);
+    throw new Error(`Falha na descriptografia: ${error.message}`);
   }
-
-  // Segunda tentativa: sem IV separado (WhatsApp às vezes usa abordagem diferente)
-  try {
-    const iv = new Uint8Array(16); // IV zeros
-    const decrypted = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv },
-      aesKey,
-      encryptedData
-    );
-    
-    return decrypted;
-  } catch (error) {
-    console.log('Segunda tentativa falhou, tentando AES-CBC');
-  }
-
-  // Terceira tentativa: AES-CBC (fallback)
-  const cbcKey = await crypto.subtle.deriveKey(
-    {
-      name: 'HKDF',
-      hash: 'SHA-256',
-      salt: new Uint8Array(32),
-      info: new TextEncoder().encode('WhatsApp Media Keys')
-    },
-    hkdfKey,
-    { name: 'AES-CBC', length: 256 },
-    false,
-    ['decrypt']
-  );
-
-  const iv = data.slice(0, 16);
-  const ciphertext = data.slice(16);
-  
-  const decrypted = await crypto.subtle.decrypt(
-    { name: 'AES-CBC', iv },
-    cbcKey,
-    ciphertext
-  );
-  
-  return decrypted;
 }
 
 // Função para obter extensão do arquivo baseada no tipo MIME
