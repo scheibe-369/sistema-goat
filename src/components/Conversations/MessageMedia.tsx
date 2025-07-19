@@ -196,17 +196,17 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
         }`} style={{ position: 'relative', maxWidth: '100%' }}>
           <button
             onClick={togglePlay}
-            className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors duration-200 flex-shrink-0"
+            className="w-8 h-8 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none flex-shrink-0"
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="white"/>
-                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="white"/>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
+                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <polygon points="7,5 15,10 7,15" fill="white"/>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
               </svg>
             )}
           </button>
