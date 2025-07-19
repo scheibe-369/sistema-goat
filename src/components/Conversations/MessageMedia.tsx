@@ -65,13 +65,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             }}
           />
           
-          {/* Overlay com informações ao hover */}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl flex items-center justify-center">
-            <div className="text-white text-sm font-medium">
-              Clique para ampliar
-            </div>
-          </div>
-          
           {/* Fallback caso a imagem não carregue */}
           <div 
             className={`hidden items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
