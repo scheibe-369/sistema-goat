@@ -199,9 +199,6 @@ export default function Conversations() {
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
-      {/* Webhook Tester */}
-      <WebhookTester />
-
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">

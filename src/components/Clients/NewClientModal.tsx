@@ -301,8 +301,9 @@ export function NewClientModal({
               position: relative !important;
               left: 0 !important;
               right: auto !important;
-              margin: 4px 0 0 0 !important;
+              /* margin: 4px 0 0 0 !important; */
               transform: none !important;
+              z-index: 9999999 !important;
             }
             
             /* Força posicionamento absoluto correto */
@@ -475,13 +476,13 @@ export function NewClientModal({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="dropdown-trigger w-full justify-between"
+                        className="dropdown-trigger w-full justify-between !mb-0"
                       >
                         {formData.plan}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dropdown-content">
+                    <DropdownMenuContent className="dropdown-content mt-0 !mt-0 !mb-0 !p-0">
                       {planOptions.map((plan) => (
                         <DropdownMenuItem
                           key={plan}
@@ -546,7 +547,7 @@ export function NewClientModal({
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dropdown-content">
+                    <DropdownMenuContent className="dropdown-content mt-0 !mt-0 !mb-0 !p-0">
                       <DropdownMenuItem
                         onClick={() => handleChange("tags", ["Ativo"])}
                         className="dropdown-item cursor-pointer"

@@ -142,7 +142,7 @@ export function EditLeadModal({
               value={formData.company}
               onChange={(e) => handleInputChange("company", e.target.value)}
               placeholder="Nome da empresa"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
             />
           </div>
 
@@ -181,7 +181,7 @@ export function EditLeadModal({
               value={formData.email || ""}
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="email@exemplo.com"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
             />
           </div>
 

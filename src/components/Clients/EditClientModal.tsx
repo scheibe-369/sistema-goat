@@ -402,7 +402,7 @@ export function EditClientModal({
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dropdown-content">
+                    <DropdownMenuContent className="dropdown-content mt-0 !mt-0 !mb-0 !p-0">
                       {planOptions.map((plan) => (
                         <DropdownMenuItem
                           key={plan}
@@ -465,7 +465,7 @@ export function EditClientModal({
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="dropdown-content">
+                    <DropdownMenuContent className="dropdown-content mt-0 !mt-0 !mb-0 !p-0">
                       <DropdownMenuItem
                         onClick={() => handleChange("tags", ["Ativo"])}
                         className="dropdown-item cursor-pointer"
