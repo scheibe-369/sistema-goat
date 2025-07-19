@@ -276,11 +276,7 @@ export function EditClientModal({
             min-width: var(--radix-dropdown-menu-trigger-width) !important;
             width: var(--radix-dropdown-menu-trigger-width) !important;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-            position: relative !important;
-            left: 0 !important;
-            right: auto !important;
-            margin: 4px 0 0 0 !important;
-            transform: none !important;
+            z-index: 9999999 !important;
           }
           
           .dropdown-item {
