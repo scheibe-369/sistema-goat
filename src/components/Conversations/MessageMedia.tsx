@@ -193,12 +193,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
                 <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
                 <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
                 <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
               </svg>
             )}
