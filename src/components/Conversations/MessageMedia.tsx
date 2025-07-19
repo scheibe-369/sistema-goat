@@ -116,8 +116,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: '#6829c0', // roxo GOAT
-          progressColor: '#6829c0', // roxo GOAT
+          waveColor: 'rgba(255, 255, 255, 0.4)', // ondas cinza claro
+          progressColor: 'rgba(255, 255, 255, 0.8)', // progresso mais visível
           barWidth: 2,
           barRadius: 2,
           height: 32,
@@ -189,30 +189,29 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-2 px-2 py-1 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[180px] max-w-1/2 w-full ${
+        <div className={`flex items-center gap-3 px-3 py-2 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[200px] max-w-1/2 w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
         }`} style={{ position: 'relative', maxWidth: '100%' }}>
           <button
             onClick={togglePlay}
-            className="w-7 h-7 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none"
-            style={{ minWidth: 28, padding: 0, border: 'none' }}
+            className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors duration-200 flex-shrink-0"
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
-                <rect x="4" y="4" width="4" height="12" rx="1" fill="#6829c0"/>
-                <rect x="12" y="4" width="4" height="12" rx="1" fill="#6829c0"/>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="white"/>
+                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="white"/>
               </svg>
             ) : (
-              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
-                <polygon points="5,4 16,10 5,16" fill="#6829c0"/>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <polygon points="7,5 15,10 7,15" fill="white"/>
               </svg>
             )}
           </button>
-          <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 24 }}>
-            {/* Bolinha roxa animada sobre a onda */}
+          <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 32 }}>
+            {/* Bolinha branca animada sobre a onda - estilo WhatsApp */}
             {duration > 0 && waveWidth > 0 && (
               <div
                 style={{
@@ -220,14 +219,14 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
                   top: '50%',
                   left: `${(currentTime / duration) * waveWidth}px`,
                   transform: 'translate(-50%, -50%)',
-                  width: 12,
-                  height: 12,
-                  background: '#6829c0',
+                  width: 10,
+                  height: 10,
+                  background: 'white',
                   borderRadius: '50%',
-                  boxShadow: '0 0 8px #6829c0aa',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   zIndex: 10,
                   pointerEvents: 'none',
-                  transition: 'left 0.08s linear',
+                  transition: isPlaying ? 'none' : 'left 0.1s ease-out',
                 }}
               />
             )}
