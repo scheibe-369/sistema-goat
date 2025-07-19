@@ -182,7 +182,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full min-w-[280px] max-w-[65%] w-full ${
+        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[65%] w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
