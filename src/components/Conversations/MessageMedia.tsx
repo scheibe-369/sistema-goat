@@ -182,7 +182,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-2 px-4 py-1 rounded-xl min-w-[280px] max-w-[65%] w-full ${
+        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full min-w-[280px] max-w-[65%] w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
@@ -224,7 +224,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               />
             )}
           </div>
-          <span className="text-xs text-goat-gray-200 w-10 text-right tabular-nums select-none">
+          <span className="text-xs text-goat-gray-400 w-8 text-right tabular-nums select-none opacity-70">
             {formatTime(currentTime)}
           </span>
         </div>
