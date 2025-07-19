@@ -1,7 +1,8 @@
-
 import React from "react";
 import { Download, Image as ImageIcon, FileAudio, FileVideo, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRef, useState, useEffect } from "react";
+import WaveSurfer from 'wavesurfer.js';
 
 interface MessageMediaProps {
   mediaType: string;
@@ -100,48 +101,140 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   // Renderizar áudios
   if (mediaType?.startsWith('audio/')) {
+    // Player customizado estilo WhatsApp com onda sonora animada
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const waveRef = useRef<HTMLDivElement>(null);
+    const waveSurferRef = useRef<WaveSurfer | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [waveWidth, setWaveWidth] = useState(0);
+
+    useEffect(() => {
+      let resizeObserver: ResizeObserver | null = null;
+      let lastCanvas: HTMLCanvasElement | null = null;
+      if (waveRef.current && !waveSurferRef.current) {
+        waveSurferRef.current = WaveSurfer.create({
+          container: waveRef.current,
+          waveColor: '#6829c0', // roxo GOAT
+          progressColor: '#6829c0', // roxo GOAT
+          barWidth: 2,
+          barRadius: 2,
+          height: 32,
+          cursorWidth: 0, // Esconde a barra
+          interact: true,
+          hideScrollbar: true,
+        });
+        waveSurferRef.current.load(mediaUrl);
+        const observeCanvas = () => {
+          const canvas = waveRef.current?.querySelector('canvas');
+          if (canvas && canvas !== lastCanvas) {
+            setWaveWidth(canvas.offsetWidth);
+            if (resizeObserver) resizeObserver.disconnect();
+            if ('ResizeObserver' in window) {
+              resizeObserver = new ResizeObserver(() => {
+                setWaveWidth(canvas.offsetWidth);
+              });
+              resizeObserver.observe(canvas);
+              lastCanvas = canvas;
+            }
+          }
+        };
+        waveSurferRef.current.on('ready', () => {
+          setDuration(waveSurferRef.current?.getDuration() || 0);
+          observeCanvas();
+        });
+        waveSurferRef.current.on('audioprocess', () => {
+          setCurrentTime(waveSurferRef.current?.getCurrentTime() || 0);
+          observeCanvas();
+        });
+        waveSurferRef.current.on('interaction', () => {
+          setCurrentTime(waveSurferRef.current?.getCurrentTime() || 0);
+          observeCanvas();
+        });
+        waveSurferRef.current.on('finish', () => {
+          setIsPlaying(false);
+        });
+      }
+      // Atualiza largura da onda ao redimensionar janela
+      const handleResize = () => {
+        const canvas = waveRef.current?.querySelector('canvas');
+        if (canvas) setWaveWidth(canvas.offsetWidth);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => {
+        waveSurferRef.current?.destroy();
+        waveSurferRef.current = null;
+        window.removeEventListener('resize', handleResize);
+        if (resizeObserver) resizeObserver.disconnect();
+      };
+    }, [mediaUrl]);
+
+    const togglePlay = () => {
+      if (!waveSurferRef.current) return;
+      if (isPlaying) {
+        waveSurferRef.current.pause();
+      } else {
+        waveSurferRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    };
+
+    const formatTime = (sec: number) => {
+      if (isNaN(sec)) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-4 p-4 rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 ${
+        <div className={`flex items-center gap-2 px-2 py-1 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[180px] max-w-1/2 w-full ${
           isUserMessage 
-            ? 'bg-gradient-to-r from-purple-600/10 to-purple-500/10 border-purple-400/20' 
-            : 'bg-gradient-to-r from-goat-gray-700 to-goat-gray-600 border-goat-gray-500/30'
-        }`}>
-          <div className={`p-2 rounded-full ${
-            isUserMessage ? 'bg-purple-500/20' : 'bg-goat-gray-500/30'
-          }`}>
-            <FileAudio className={`w-5 h-5 ${isUserMessage ? 'text-purple-300' : 'text-goat-gray-300'}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className={`text-sm font-medium mb-2 ${
-              isUserMessage ? 'text-purple-100' : 'text-goat-gray-200'
-            }`}>
-              Mensagem de áudio
-            </div>
-            <audio 
-              controls 
-              className="w-full max-w-sm h-8"
-              preload="metadata"
-              style={{
-                filter: isUserMessage ? 'hue-rotate(270deg) saturate(1.2)' : 'hue-rotate(0deg)',
-              }}
-            >
-              <source src={mediaUrl} type={mediaType} />
-              Seu navegador não suporta o elemento de áudio.
-            </audio>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleDownload}
-            className={`shrink-0 ${
-              isUserMessage 
-                ? 'text-purple-300 hover:text-purple-100 hover:bg-purple-500/20' 
-                : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-500/30'
-            }`}
+            ? 'bg-goat-purple' 
+            : 'bg-goat-gray-700'
+        }`} style={{ position: 'relative', maxWidth: '100%' }}>
+          <button
+            onClick={togglePlay}
+            className="w-7 h-7 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none"
+            style={{ minWidth: 28, padding: 0, border: 'none' }}
+            aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
-            <Download className="w-4 h-4" />
-          </Button>
+            {isPlaying ? (
+              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+                <rect x="4" y="4" width="4" height="12" rx="1" fill="#6829c0"/>
+                <rect x="12" y="4" width="4" height="12" rx="1" fill="#6829c0"/>
+              </svg>
+            ) : (
+              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+                <polygon points="5,4 16,10 5,16" fill="#6829c0"/>
+              </svg>
+            )}
+          </button>
+          <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 24 }}>
+            {/* Bolinha roxa animada sobre a onda */}
+            {duration > 0 && waveWidth > 0 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `${(currentTime / duration) * waveWidth}px`,
+                  transform: 'translate(-50%, -50%)',
+                  width: 12,
+                  height: 12,
+                  background: '#6829c0',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 8px #6829c0aa',
+                  zIndex: 10,
+                  pointerEvents: 'none',
+                  transition: 'left 0.08s linear',
+                }}
+              />
+            )}
+          </div>
+          <span className="text-xs text-goat-gray-200 w-10 text-right tabular-nums select-none">
+            {formatTime(currentTime)}
+          </span>
         </div>
       </div>
     );

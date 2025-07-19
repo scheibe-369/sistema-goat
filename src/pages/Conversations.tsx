@@ -331,13 +331,24 @@ export default function Conversations() {
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                   {messages.map((message) => (
                     <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${
+                      <div className={`p-2 rounded-2xl w-auto ${
+                        message.media_type && message.media_type.startsWith('audio/')
+                          ? ''
+                          : ''
+                      } ${
                         isUserMessage(message)
-                          ? "bg-goat-purple text-white" 
-                          : "bg-goat-gray-700 text-white"
-                      }`}>
+                          ? "bg-goat-purple text-white rounded-br-md"
+                          : "bg-goat-gray-700 text-white rounded-bl-md"
+                      }`}
+                      style={{
+                        minWidth: 48,
+                        ...(message.media_type && message.media_type.startsWith('audio/')
+                          ? { maxWidth: '50%' }
+                          : { maxWidth: 320 })
+                      }}
+                      >
                         {(message.text || message.mensagem) && (
-                          <p className="text-sm">{message.text || message.mensagem}</p>
+                          <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
                         )}
                         
                         {/* Renderizar mídia se existir */}
