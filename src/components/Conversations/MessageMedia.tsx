@@ -182,23 +182,23 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-3 px-3 py-2 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 min-w-[200px] max-w-1/2 w-full ${
+        <div className={`flex items-center gap-3 px-3 py-2 rounded-xl min-w-[200px] max-w-1/2 w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
         }`} style={{ position: 'relative', maxWidth: '100%' }}>
           <button
             onClick={togglePlay}
-            className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none flex-shrink-0"
+            className="w-12 h-12 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0"
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
                 <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
                 <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
               </svg>
             ) : (
-              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+              <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
                 <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
               </svg>
             )}
