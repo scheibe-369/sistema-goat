@@ -196,22 +196,22 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
         }`} style={{ position: 'relative', maxWidth: '100%' }}>
           <button
             onClick={togglePlay}
-            className="w-8 h-8 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none flex-shrink-0"
+            className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-transparent focus:outline-none flex-shrink-0"
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
                 <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
                 <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
                 <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
               </svg>
             )}
           </button>
           <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 32 }}>
-            {/* Bolinha branca animada sobre a onda - estilo WhatsApp */}
+            {/* Bolinha roxa animada sobre a onda */}
             {duration > 0 && waveWidth > 0 && (
               <div
                 style={{
@@ -219,11 +219,11 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
                   top: '50%',
                   left: `${(currentTime / duration) * waveWidth}px`,
                   transform: 'translate(-50%, -50%)',
-                  width: 10,
-                  height: 10,
-                  background: 'white',
+                  width: 12,
+                  height: 12,
+                  background: '#6829c0',
                   borderRadius: '50%',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
                   zIndex: 10,
                   pointerEvents: 'none',
                   transition: isPlaying ? 'none' : 'left 0.1s ease-out',
