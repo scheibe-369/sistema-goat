@@ -347,7 +347,8 @@ export default function Conversations() {
                           : { maxWidth: 320 })
                       }}
                       >
-                        {(message.text || message.mensagem) && (
+                        {(message.text || message.mensagem) && 
+                         !(message.media_type && message.media_url) && (
                           <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
                         )}
                         
