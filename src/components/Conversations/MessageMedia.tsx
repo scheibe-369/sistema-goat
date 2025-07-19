@@ -147,6 +147,11 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
         });
         waveSurferRef.current.on('finish', () => {
           setIsPlaying(false);
+          setCurrentTime(0);
+          if (waveSurferRef.current) {
+            waveSurferRef.current.seekTo(0);
+            waveSurferRef.current.pause();
+          }
         });
       }
       // Atualiza largura da onda ao redimensionar janela
@@ -180,6 +185,9 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       return `${m}:${s}`;
     };
 
+    // LOG para depuração
+    console.log('AUDIO DEBUG:', { duration, waveWidth, currentTime });
+
     return (
       <div className="mt-2">
         <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[65%] w-full ${
@@ -204,25 +212,23 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             )}
           </button>
           <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 32 }}>
-            {/* Bolinha roxa animada sobre a onda */}
-            {duration > 0 && waveWidth > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: `${(currentTime / duration) * waveWidth}px`,
-                  transform: 'translate(-50%, -50%)',
-                  width: 12,
-                  height: 12,
-                  background: '#6829c0',
-                  borderRadius: '50%',
-                  boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
-                  zIndex: 10,
-                  pointerEvents: 'none',
-                  transition: isPlaying ? 'none' : 'left 0.1s ease-out',
-                }}
-              />
-            )}
+            {/* Bolinha roxa sempre visível, usando largura do container como fallback */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: `${(currentTime / (duration || 1)) * (waveWidth || waveRef.current?.offsetWidth || 200)}px`,
+                transform: 'translate(-50%, -50%)',
+                width: 8,
+                height: 8,
+                background: '#6829c0',
+                borderRadius: '50%',
+                boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
+                zIndex: 10,
+                pointerEvents: 'none',
+                transition: isPlaying ? 'none' : 'left 0.1s ease-out',
+              }}
+            />
           </div>
           <span className="text-xs text-goat-gray-400 w-8 text-right tabular-nums select-none opacity-70">
             {formatTime(currentTime)}
