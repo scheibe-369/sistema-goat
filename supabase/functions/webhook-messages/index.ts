@@ -10,8 +10,12 @@ const corsHeaders = {
 // Função para descriptografar mídia do WhatsApp
 async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<Uint8Array> {
   const mediaKey = Uint8Array.from(atob(mediaKeyBase64), (c) => c.charCodeAt(0));
+  
+  // Para áudio: usar 'WhatsApp Audio Keys'
+  // Para imagem: usar 'WhatsApp Image Keys'
+  // Para video: usar 'WhatsApp Video Keys'
+  const info = new TextEncoder().encode('WhatsApp Audio Keys');
   const salt = new Uint8Array(32);
-  const info = new TextEncoder().encode('WhatsApp Image Keys');
   
   const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
   const expandedKey = await crypto.subtle.deriveBits({
@@ -29,7 +33,7 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
     name: 'AES-CBC'
   }, false, ['decrypt']);
   
-  // Cortar o trailer do WhatsApp (últimos 10 bytes)
+  // Para áudio WhatsApp, cortar apenas os últimos 10 bytes (MAC)
   const encryptedArray = new Uint8Array(encryptedData);
   const ciphertext = encryptedArray.slice(0, encryptedArray.length - 10);
   
@@ -177,7 +181,7 @@ serve(async (req) => {
     const mimeTypeMap: { [key: string]: string } = {
       'imageMessage': 'image/jpeg',
       'videoMessage': 'video/mp4',
-      'audioMessage': 'audio/mpeg',
+      'audioMessage': 'audio/ogg', // WhatsApp usa OGG para áudio
       'documentMessage': 'application/octet-stream'
     };
 

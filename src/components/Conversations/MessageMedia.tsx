@@ -93,7 +93,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   }
 
   // Renderizar áudios
-  if (mediaType?.startsWith('audio/')) {
+  if (mediaType?.startsWith('audio/') || mediaType === 'audioMessage') {
     // Player customizado estilo WhatsApp com onda sonora animada
     const audioRef = useRef<HTMLAudioElement>(null);
     const waveRef = useRef<HTMLDivElement>(null);
