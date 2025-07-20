@@ -32,14 +32,23 @@ export default function Financial() {
 
   // Função para formatar data sem problemas de timezone
   const formatDateBR = (dateString: string) => {
-    // Parse da data como local ao invés de UTC
+    // Para datas no formato 'YYYY-MM-DD', formate diretamente sem conversão de timezone
+    const dateParts = dateString.split('-');
+    const day = dateParts[2];
+    const month = dateParts[1];
+    const year = dateParts[0];
+    
+    return `${day}/${month}/${year}`;
+  };
+
+  // Função para criar data local a partir de string YYYY-MM-DD sem problemas de timezone
+  const parseLocalDate = (dateString: string) => {
     const dateParts = dateString.split('-');
     const year = parseInt(dateParts[0]);
     const month = parseInt(dateParts[1]) - 1; // JavaScript months are 0-indexed
     const day = parseInt(dateParts[2]);
     
-    const date = new Date(year, month, day);
-    return date.toLocaleDateString('pt-BR');
+    return new Date(year, month, day);
   };
 
   // Filtro correto para contratos e clientes elegíveis para o gráfico
@@ -60,8 +69,8 @@ export default function Financial() {
 
   // Nova lógica de projeção mensal
   const contractProjections = contratosElegiveis.map(contract => {
-    const start = new Date(contract.start_date);
-    const end = new Date(contract.end_date);
+    const start = parseLocalDate(contract.start_date);
+    const end = parseLocalDate(contract.end_date);
     const paymentDay = Number(contract.client.payment_day);
     // Lógica do primeiro pagamento
     let firstPaymentDate = new Date(start);
@@ -181,10 +190,10 @@ export default function Financial() {
     if (contratosElegiveis.length === 0) return false;
 
     // Verifica se a data de vencimento do lançamento está dentro do período de algum contrato elegível
-    const dueDate = new Date(entry.due_date);
+    const dueDate = parseLocalDate(entry.due_date);
     return contratosElegiveis.some(contract => {
-      const start = new Date(contract.start_date);
-      const end = new Date(contract.end_date);
+      const start = parseLocalDate(contract.start_date);
+      const end = parseLocalDate(contract.end_date);
       return dueDate >= start && dueDate <= end;
     });
   });
@@ -193,7 +202,7 @@ export default function Financial() {
   const filteredFinancialEntries = financialEntriesElegiveis.filter((entry: any) => {
     if (statusFilter === 'all') return true;
     if (statusFilter === 'currentMonth') {
-      const d = new Date(entry.due_date);
+      const d = parseLocalDate(entry.due_date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     }
     return entry.status === statusFilter;
@@ -205,7 +214,7 @@ export default function Financial() {
       return { label: 'Pago', color: 'bg-green-600' };
     }
     // Se está pendente e a data de vencimento é anterior ao dia atual, está em atraso
-    const dueDate = new Date(entry.due_date);
+    const dueDate = parseLocalDate(entry.due_date);
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Reset time for comparison
     dueDate.setHours(0, 0, 0, 0);
@@ -221,7 +230,7 @@ export default function Financial() {
   const normalEntries = financialEntriesElegiveis.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso').filter((entry: any) => {
     if (statusFilter === 'all') return true;
     if (statusFilter === 'currentMonth') {
-      const d = new Date(entry.due_date);
+      const d = parseLocalDate(entry.due_date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     }
     return entry.status === statusFilter;
@@ -230,14 +239,14 @@ export default function Financial() {
   // Cálculo dos KPIs
   const receitasMes = financialEntries
     .filter(entry => {
-      const d = new Date(entry.due_date);
+      const d = parseLocalDate(entry.due_date);
       return entry.status === 'paid' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
     .reduce((sum, entry) => sum + Number(entry.amount), 0);
     
   const despesasMes = expenses
     .filter(e => {
-      const d = new Date(e.date);
+      const d = parseLocalDate(e.date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
     .reduce((sum, e) => sum + Number(e.amount), 0);
