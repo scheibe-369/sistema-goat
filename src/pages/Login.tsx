@@ -253,17 +253,6 @@ const Login = () => {
                   </div>
                 </motion.button>
 
-                {/* Demo credentials */}
-                <motion.div 
-                  className="text-center text-xs text-goat-gray-400 mt-4 p-3 bg-goat-gray-800/30 rounded-lg border border-goat-gray-700/30"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <p className="font-medium text-goat-gray-300 mb-1">Credenciais Pré-carregadas:</p>
-                  <p>Email: gabrielporceli.goat@gmail.com</p>
-                  <p>Senha: Gab@21072000</p>
-                </motion.div>
               </form>
             </div>
           </div>
