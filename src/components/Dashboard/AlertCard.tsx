@@ -14,6 +14,7 @@ interface Alert {
 
 interface AlertCardProps {
   className?: string;
+  limit?: number;
 }
 
 const mockAlerts: Alert[] = [
@@ -66,20 +67,18 @@ const getAlertColor = (type: Alert['type']) => {
   }
 };
 
-export function AlertCard({ className }: AlertCardProps) {
+export function AlertCard({ className, limit }: AlertCardProps) {
+  const alertsToShow = typeof limit === 'number' ? mockAlerts.slice(0, limit) : mockAlerts;
   return (
     <Card className={cn("bg-goat-gray-800 border-goat-gray-700 p-6", className)}>
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle className="w-5 h-5 text-goat-purple" />
         <h3 className="text-lg font-semibold text-white">Alertas & Notificações</h3>
       </div>
-      
       <div className="space-y-4">
-        {mockAlerts.map((alert) => (
+        {alertsToShow.map((alert) => (
           <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-            <div className={`p-2 rounded-full ${getAlertColor(alert.type)}`}>
-              {getAlertIcon(alert.type)}
-            </div>
+            <div className={`p-2 rounded-full ${getAlertColor(alert.type)}`}>{getAlertIcon(alert.type)}</div>
             <div className="flex-1">
               <h4 className="text-white font-medium text-sm">{alert.title}</h4>
               <p className="text-goat-gray-400 text-xs mt-1">{alert.description}</p>
