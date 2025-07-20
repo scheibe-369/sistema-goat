@@ -190,7 +190,10 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
                 <div className="flex-1">
                   <span className="text-goat-gray-400 text-sm block">Fim do contrato:</span>
                   <span className="text-white font-medium">
-                    {client.contractEnd ? new Date(client.contractEnd).toLocaleDateString("pt-BR") : 'Não definido'}
+                    {client.contractEnd ? (() => {
+                      const [ano, mes, dia] = client.contractEnd.split('-');
+                      return `${dia}/${mes}/${ano}`;
+                    })() : 'Não definido'}
                   </span>
                 </div>
               </div>
@@ -200,7 +203,10 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
                 <div className="flex-1">
                   <span className="text-goat-gray-400 text-sm block">Início do contrato:</span>
                   <span className="text-white font-medium">
-                    {client.startDate ? new Date(client.startDate).toLocaleDateString("pt-BR") : 'Não definido'}
+                    {client.startDate ? (() => {
+                      const [ano, mes, dia] = client.startDate.split('-');
+                      return `${dia}/${mes}/${ano}`;
+                    })() : 'Não definido'}
                   </span>
                 </div>
               </div>
