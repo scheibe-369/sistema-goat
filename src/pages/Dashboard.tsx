@@ -86,6 +86,7 @@ export default function Dashboard() {
                     ))}
                     {followupStages.length > 0 && (
                       <Card key="followup-group" className="flex items-center gap-2 p-3 bg-goat-gray-900/50 border border-goat-gray-700">
+                        <span className="w-3 h-3"></span>
                         <span className="text-white text-sm flex-1">Follow-up</span>
                         <span className="text-goat-purple font-bold text-lg">{followupCount}</span>
                       </Card>
