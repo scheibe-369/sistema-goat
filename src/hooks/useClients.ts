@@ -77,6 +77,17 @@ export const useCreateClient = () => {
         }
       }
 
+      // Enviar webhook com dados do novo cliente
+      try {
+        console.log('DEBUG - Enviando webhook para cliente criado:', data);
+        await supabase.functions.invoke('send-client-webhook', {
+          body: data
+        });
+      } catch (webhookError) {
+        console.error('Erro ao enviar webhook do cliente:', webhookError);
+        // Não falhar a criação do cliente por causa do webhook
+      }
+
       return data;
     },
     onSuccess: () => {
