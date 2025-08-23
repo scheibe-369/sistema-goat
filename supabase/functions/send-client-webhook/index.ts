@@ -13,10 +13,12 @@ serve(async (req) => {
 
   try {
     const clientData = await req.json();
-    console.log('Enviando dados do novo cliente para webhook:', clientData);
+    console.log('=== WEBHOOK CLIENT - INÍCIO ===');
+    console.log('Dados recebidos do cliente:', JSON.stringify(clientData, null, 2));
 
     // Webhook URL
     const webhookUrl = 'https://webhook.gabrielporceli.com.br/webhook/recebedadosclientenovo';
+    console.log('URL do webhook:', webhookUrl);
 
     // Preparar payload com dados do cliente
     const payload = {
@@ -25,25 +27,39 @@ serve(async (req) => {
       event: 'client_created'
     };
 
-    // Enviar para o webhook
+    console.log('Payload a ser enviado:', JSON.stringify(payload, null, 2));
+
+    // Enviar para o webhook com timeout
+    console.log('Iniciando envio para o webhook...');
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': 'Supabase-Edge-Function',
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+    console.log('Status da resposta do webhook:', response.status);
+    console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      console.error('Erro ao enviar webhook:', response.status, response.statusText);
       const errorText = await response.text();
-      console.error('Resposta do webhook:', errorText);
+      console.error('Erro no webhook - Status:', response.status);
+      console.error('Erro no webhook - Text:', errorText);
       
       return new Response(
         JSON.stringify({ 
           success: false, 
           error: `Webhook failed: ${response.status} ${response.statusText}`,
-          details: errorText 
+          details: errorText,
+          url: webhookUrl
         }),
         { 
           status: 500, 
@@ -53,21 +69,32 @@ serve(async (req) => {
     }
 
     const responseData = await response.text();
-    console.log('Webhook enviado com sucesso:', responseData);
+    console.log('Resposta do webhook (sucesso):', responseData);
+    console.log('=== WEBHOOK CLIENT - FIM (SUCESSO) ===');
 
     return new Response(
-      JSON.stringify({ success: true, response: responseData }),
+      JSON.stringify({ success: true, response: responseData, url: webhookUrl }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
 
   } catch (error) {
-    console.error('Erro no send-client-webhook:', error);
+    console.error('=== ERRO CRÍTICO NO WEBHOOK ===');
+    console.error('Tipo do erro:', error.constructor.name);
+    console.error('Mensagem do erro:', error.message);
+    console.error('Stack trace:', error.stack);
+    
+    if (error.name === 'AbortError') {
+      console.error('Timeout na requisição do webhook');
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: `Erro crítico: ${error.message}`,
+        errorType: error.constructor.name,
+        url: 'https://webhook.gabrielporceli.com.br/webhook/recebedadosclientenovo'
       }),
       { 
         status: 500, 
