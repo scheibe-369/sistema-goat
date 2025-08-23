@@ -133,6 +133,31 @@ export default function Clients() {
     setPlanColors(prev => ({ ...prev, [planName]: color }));
   };
 
+  const handleCreateTestClient = async () => {
+    try {
+      const testClientData = {
+        company: "Empresa Teste Webhook",
+        cnpj: "12.345.678/0001-90",
+        responsible: "João Teste",
+        phone: "(11) 99999-9999",
+        email: "teste@webhook.com",
+        contract_end: "2024-12-31",
+        payment_day: 10,
+        tags: ["Ativo", "Teste"],
+        address: "Rua Teste, 123 - São Paulo/SP",
+        plan: "Vendas",
+        start_date: "2024-01-01",
+        monthly_value: 1500.00,
+      };
+
+      await createClientMutation.mutateAsync(testClientData);
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+    } catch (error) {
+      console.error('Erro ao criar cliente teste:', error);
+    }
+  };
+
   // Transform Supabase clients to component format
   const transformedClients: ClientForComponent[] = clients.map(client => {
     // Convert monthly_value from number to Brazilian currency format
@@ -225,7 +250,10 @@ export default function Clients() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <ClientsHeader onNewClient={() => setIsNewClientModalOpen(true)} />
+      <ClientsHeader 
+        onNewClient={() => setIsNewClientModalOpen(true)}
+        onCreateTestClient={handleCreateTestClient}
+      />
       
       <ClientsSearch 
         searchTerm={searchTerm}
