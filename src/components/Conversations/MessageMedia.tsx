@@ -169,14 +169,15 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: 'rgba(255, 255, 255, 0.4)', // ondas cinza claro
-          progressColor: 'rgba(255, 255, 255, 0.8)', // progresso mais visível
+          waveColor: isUserMessage ? 'rgba(168, 85, 247, 0.6)' : 'rgba(156, 163, 175, 0.8)',
+          progressColor: isUserMessage ? 'rgba(168, 85, 247, 1)' : 'rgba(255, 255, 255, 0.9)',
           barWidth: 2,
           barRadius: 2,
           height: 32,
-          cursorWidth: 0, // Esconde a barra
+          cursorWidth: 0,
           interact: true,
           hideScrollbar: true,
+          normalize: true,
         });
         waveSurferRef.current.load(mediaUrl);
         const observeCanvas = () => {
