@@ -8,13 +8,30 @@ const corsHeaders = {
 };
 
 // Função para descriptografar mídia do WhatsApp
-async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<Uint8Array> {
+async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string, mediaType: string): Promise<Uint8Array> {
   const mediaKey = Uint8Array.from(atob(mediaKeyBase64), (c) => c.charCodeAt(0));
   
-  // Para áudio: usar 'WhatsApp Audio Keys'
-  // Para imagem: usar 'WhatsApp Image Keys'
-  // Para video: usar 'WhatsApp Video Keys'
-  const info = new TextEncoder().encode('WhatsApp Audio Keys');
+  // Determinar a chave de info correta baseada no tipo de mídia
+  let infoString: string;
+  let macBytes: number;
+  
+  if (mediaType.startsWith('image/')) {
+    infoString = 'WhatsApp Image Keys';
+    macBytes = 10; // Imagens usam 10 bytes MAC
+  } else if (mediaType.startsWith('video/')) {
+    infoString = 'WhatsApp Video Keys';
+    macBytes = 10; // Vídeos usam 10 bytes MAC
+  } else if (mediaType.startsWith('audio/')) {
+    infoString = 'WhatsApp Audio Keys';
+    macBytes = 10; // Áudios usam 10 bytes MAC
+  } else {
+    infoString = 'WhatsApp Image Keys'; // Fallback para imagem
+    macBytes = 10;
+  }
+  
+  console.log('===> Usando chaves para:', infoString, 'MAC bytes:', macBytes);
+  
+  const info = new TextEncoder().encode(infoString);
   const salt = new Uint8Array(32);
   
   const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
@@ -33,9 +50,11 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
     name: 'AES-CBC'
   }, false, ['decrypt']);
   
-  // Para áudio WhatsApp, cortar apenas os últimos 10 bytes (MAC)
+  // Cortar os bytes MAC baseado no tipo de mídia
   const encryptedArray = new Uint8Array(encryptedData);
-  const ciphertext = encryptedArray.slice(0, encryptedArray.length - 10);
+  const ciphertext = encryptedArray.slice(0, encryptedArray.length - macBytes);
+  
+  console.log('===> Dados para descriptografia - Total:', encryptedArray.length, 'Ciphertext:', ciphertext.length, 'MAC removido:', macBytes);
   
   // Descriptografar o payload
   const decryptedData = await crypto.subtle.decrypt({
@@ -83,7 +102,7 @@ async function downloadAndDecryptMedia(params: {
     const keyBytes = Uint8Array.from(atob(mediaKey), c => c.charCodeAt(0));
     console.log('===> Tamanho da mediaKey em bytes:', keyBytes.length);
 
-    const decryptedData = await decryptWhatsAppMedia(encryptedData, mediaKey);
+    const decryptedData = await decryptWhatsAppMedia(encryptedData, mediaKey, mediaType);
     const decryptedArr = new Uint8Array(decryptedData);
 
     console.log('===> Tamanho arquivo descriptografado:', decryptedArr.length, 'bytes');

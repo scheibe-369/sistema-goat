@@ -345,12 +345,12 @@ export default function Conversations() {
                       }}
                       >
                         {(message.text || message.mensagem) && 
-                         !(message.media_type && message.media_url) && (
+                         !message.media_type && (
                           <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
                         )}
                         
-                        {/* Renderizar mídia se existir */}
-                        {message.media_type && message.media_url && (
+                        {/* Renderizar mídia se existir tipo de mídia (com ou sem URL) */}
+                        {message.media_type && (
                           <MessageMedia
                             mediaType={message.media_type}
                             mediaUrl={message.media_url}
@@ -358,6 +358,13 @@ export default function Conversations() {
                             mediaSize={message.media_size || undefined}
                             isUserMessage={isUserMessage(message)}
                           />
+                        )}
+                        
+                        {/* Renderizar texto junto com mídia quando aplicável */}
+                        {(message.text || message.mensagem) && message.media_type && (
+                          <p className="text-sm break-words whitespace-pre-line mt-2 opacity-90">
+                            {message.text || message.mensagem}
+                          </p>
                         )}
                         
                         <span className={`text-xs block mt-2 ${

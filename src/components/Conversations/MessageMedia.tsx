@@ -6,7 +6,7 @@ import WaveSurfer from 'wavesurfer.js';
 
 interface MessageMediaProps {
   mediaType: string;
-  mediaUrl: string;
+  mediaUrl?: string | null;
   mediaFilename?: string;
   mediaSize?: number;
   isUserMessage: boolean;
@@ -28,6 +28,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   const handleDownload = () => {
+    if (!mediaUrl) return;
     const link = document.createElement('a');
     link.href = mediaUrl;
     link.download = mediaFilename || 'media';
@@ -38,11 +39,41 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   const openInNewTab = () => {
+    if (!mediaUrl) return;
     window.open(mediaUrl, '_blank');
   };
 
   // Renderizar imagens com preview inline
   if (mediaType?.startsWith('image/') || mediaType === 'imageMessage') {
+    // Se não há mediaUrl mas há mediaType, mostrar fallback imediatamente
+    if (!mediaUrl) {
+      return (
+        <div className="mt-2">
+          <div 
+            className={`flex items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
+              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+            }`}
+          >
+            <div className="text-center">
+              <ImageIcon className={`w-8 h-8 mx-auto mb-2 ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`} />
+              <p className={`text-sm ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`}>
+                Imagem WhatsApp
+              </p>
+              <p className={`text-xs mt-1 ${
+                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+              }`}>
+                {mediaFilename || 'Falha na descriptografia'}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="mt-2">
         <div className="relative group">
@@ -78,12 +109,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <p className={`text-sm ${
                 isUserMessage ? 'text-purple-200' : 'text-gray-300'
               }`}>
-                Imagem criptografada
+                Erro ao carregar imagem
               </p>
               <p className={`text-xs mt-1 ${
                 isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
               }`}>
-                Requer chave de descriptografia
+                {mediaFilename || 'Imagem não disponível'}
               </p>
             </div>
           </div>
@@ -94,6 +125,35 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   // Renderizar áudios
   if (mediaType?.startsWith('audio/') || mediaType === 'audioMessage') {
+    // Se não há mediaUrl mas há mediaType, mostrar fallback
+    if (!mediaUrl) {
+      return (
+        <div className="mt-2">
+          <div 
+            className={`flex items-center justify-center p-4 rounded-xl border-2 border-dashed ${
+              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+            }`}
+          >
+            <div className="text-center">
+              <FileAudio className={`w-8 h-8 mx-auto mb-2 ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`} />
+              <p className={`text-sm ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`}>
+                Áudio WhatsApp
+              </p>
+              <p className={`text-xs mt-1 ${
+                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+              }`}>
+                {mediaFilename || 'Falha na descriptografia'}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     // Player customizado estilo WhatsApp com onda sonora animada
     const audioRef = useRef<HTMLAudioElement>(null);
     const waveRef = useRef<HTMLDivElement>(null);
@@ -240,6 +300,35 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   // Renderizar vídeos
   if (mediaType?.startsWith('video/')) {
+    // Se não há mediaUrl mas há mediaType, mostrar fallback
+    if (!mediaUrl) {
+      return (
+        <div className="mt-2">
+          <div 
+            className={`flex items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
+              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+            }`}
+          >
+            <div className="text-center">
+              <FileVideo className={`w-8 h-8 mx-auto mb-2 ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`} />
+              <p className={`text-sm ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`}>
+                Vídeo WhatsApp
+              </p>
+              <p className={`text-xs mt-1 ${
+                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+              }`}>
+                {mediaFilename || 'Falha na descriptografia'}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="mt-2">
         <div className="relative group max-w-xs">
@@ -279,6 +368,35 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   const FileIcon = getFileIcon(mediaType);
+
+  // Se não há mediaUrl mas há mediaType, mostrar fallback
+  if (!mediaUrl) {
+    return (
+      <div className="mt-2">
+        <div 
+          className={`flex items-center justify-center p-4 rounded-xl border-2 border-dashed ${
+            isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+          }`}
+        >
+          <div className="text-center">
+            <FileIcon className={`w-8 h-8 mx-auto mb-2 ${
+              isUserMessage ? 'text-purple-200' : 'text-gray-300'
+            }`} />
+            <p className={`text-sm ${
+              isUserMessage ? 'text-purple-200' : 'text-gray-300'
+            }`}>
+              Documento WhatsApp
+            </p>
+            <p className={`text-xs mt-1 ${
+              isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+            }`}>
+              {mediaFilename || 'Falha na descriptografia'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2">
