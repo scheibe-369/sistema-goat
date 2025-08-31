@@ -347,7 +347,8 @@ export default function Conversations() {
                 }}
                 >
                         {(message.text || message.mensagem) && 
-                         !message.media_type && (
+                         !message.media_type && 
+                         (message.text !== 'Mídia enviada' && message.mensagem !== 'Mídia enviada') && (
                           <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
                         )}
                         
@@ -363,7 +364,9 @@ export default function Conversations() {
                         )}
                         
                         {/* Renderizar texto junto com mídia quando aplicável */}
-                        {(message.text || message.mensagem) && message.media_type && (
+                        {(message.text || message.mensagem) && 
+                         message.media_type && 
+                         (message.text !== 'Mídia enviada' && message.mensagem !== 'Mídia enviada') && (
                           <p className="text-sm break-words whitespace-pre-line mt-2 opacity-90">
                             {message.text || message.mensagem}
                           </p>
