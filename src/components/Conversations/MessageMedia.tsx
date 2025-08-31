@@ -250,11 +250,11 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[65%] w-full ${
+        <div className={`flex items-center gap-1 px-2 py-0 rounded-full max-w-[280px] w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
-        }`} style={{ position: 'relative', maxWidth: '65%' }}>
+        }`} style={{ position: 'relative' }}>
           <button
             onClick={togglePlay}
             className="w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0"

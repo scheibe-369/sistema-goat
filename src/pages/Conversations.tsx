@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { WebhookTester } from "@/components/Conversations/WebhookTester";
+import { MediaTest } from "@/components/Conversations/MediaTest";
 import { MessageMedia } from "@/components/Conversations/MessageMedia";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
@@ -199,6 +200,8 @@ export default function Conversations() {
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
+      <MediaTest />
+
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
@@ -325,25 +328,24 @@ export default function Conversations() {
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-                  {messages.map((message) => (
-                    <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-2 rounded-2xl w-auto ${
-                        message.media_type && message.media_type.startsWith('audio/')
-                          ? ''
-                          : ''
-                      } ${
-                        isUserMessage(message)
-                          ? "bg-goat-purple text-white rounded-br-md"
-                          : "bg-goat-gray-700 text-white rounded-bl-md"
-                      }`}
-                      style={{
-                        minWidth: 48,
-                        ...(message.media_type && message.media_type.startsWith('audio/')
-                          ? { maxWidth: '50%' }
-                          : { maxWidth: 320 })
-                      }}
-                      >
+          <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2" style={{ maxWidth: '100%' }}>
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
+                <div className={`p-2 rounded-2xl w-auto max-w-[70%] ${
+                  message.media_type && message.media_type.startsWith('audio/')
+                    ? ''
+                    : ''
+                } ${
+                  isUserMessage(message)
+                    ? "bg-goat-purple text-white rounded-br-md"
+                    : "bg-goat-gray-700 text-white rounded-bl-md"
+                }`}
+                style={{
+                  minWidth: 48,
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word'
+                }}
+                >
                         {(message.text || message.mensagem) && 
                          !message.media_type && (
                           <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
