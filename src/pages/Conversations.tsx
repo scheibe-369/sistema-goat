@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { WebhookTester } from "@/components/Conversations/WebhookTester";
-import { MediaTest } from "@/components/Conversations/MediaTest";
+
 import { MessageMedia } from "@/components/Conversations/MessageMedia";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
@@ -200,7 +200,7 @@ export default function Conversations() {
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
-      <MediaTest />
+      
 
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
