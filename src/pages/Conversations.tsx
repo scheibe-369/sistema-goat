@@ -227,9 +227,9 @@ export default function Conversations() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Lista de Conversas */}
-        <div className="lg:col-span-1">
+        <div>
           <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
@@ -311,7 +311,7 @@ export default function Conversations() {
         </div>
 
         {/* Chat */}
-        <div className="lg:col-span-2">
+        <div>
           <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 h-[600px] flex flex-col">
             {selectedConversation ? (
               <>
