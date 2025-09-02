@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export default function Conversations() {
     client: ""
   });
   const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
   const { data: messages = [], refetch: refetchMessages } = useMessages(selectedConversation?.id || "");
@@ -83,6 +84,18 @@ export default function Conversations() {
     };
   }, [selectedConversation?.id, refetchMessages]);
 
+  // Auto-scroll para a mensagem mais recente
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Scroll automático quando mensagens mudarem ou conversa for selecionada
+  useEffect(() => {
+    if (messages.length > 0 && selectedConversation) {
+      scrollToBottom();
+    }
+  }, [messages, selectedConversation]);
+
   // Função para marcar conversa como lida
   const markConversationAsRead = async (conversationId: string) => {
     try {
@@ -131,6 +144,7 @@ export default function Conversations() {
         {
           onSuccess: () => {
             setNewMessage("");
+            scrollToBottom();
           }
         }
       );
@@ -381,8 +395,9 @@ export default function Conversations() {
                         </span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                   ))}
+                   <div ref={messagesEndRef} />
+                 </div>
                 <div className="flex gap-2">
                   <Input 
                     placeholder="Digite sua mensagem..." 
