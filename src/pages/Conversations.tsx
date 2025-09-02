@@ -230,7 +230,7 @@ export default function Conversations() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de Conversas */}
         <div className="lg:col-span-1">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 h-[600px] flex flex-col">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
@@ -248,7 +248,7 @@ export default function Conversations() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              <div className="space-y-3 flex-1 overflow-y-auto">
                 {filteredConversations.map((conversation) => (
                   <div 
                     key={conversation.id} 
