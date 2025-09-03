@@ -351,7 +351,7 @@ export default function Conversations() {
                     : ''
                 } ${
                   isUserMessage(message)
-                    ? "bg-goat-purple text-white rounded-br-md"
+                    ? "bg-goat-purple text-white rounded-br-md message-bubble"
                     : "bg-goat-gray-700 text-white rounded-bl-md"
                 }`}
                 style={{

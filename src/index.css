@@ -104,9 +104,15 @@
     @apply bg-goat-gray-800 border border-goat-gray-700 rounded-lg p-4;
   }
 
-  /* Purple badge hover fix for "Pendente" */
-  .bg-goat-purple:hover {
+  /* Purple badge hover fix for "Pendente" - only for badges, not messages */
+  .badge.bg-goat-purple:hover,
+  .bg-goat-purple:hover:not(.message-bubble) {
     background-color: #4c1d95 !important; /* Darker purple for hover */
+  }
+  
+  /* Disable hover effects for user message bubbles */
+  .message-bubble.bg-goat-purple:hover {
+    background-color: #5315CB !important; /* Keep original purple color */
   }
 
   /* Yellow badge hover fix for "Pendente" status */
