@@ -111,7 +111,11 @@ const Login = () => {
                   transition={{ type: "spring", duration: 0.8 }}
                   className="mx-auto w-10 h-10 rounded-full border border-goat-purple/30 flex items-center justify-center relative overflow-hidden bg-gradient-goat"
                 >
-                  <span className="text-lg font-bold text-white">G</span>
+                  <img 
+                    src="/lovable-uploads/71999d17-6e7e-45ff-bd6d-8c56b9968b1d.png" 
+                    alt="Goat Logo" 
+                    className="w-6 h-6 object-contain"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50" />
                 </motion.div>
 
