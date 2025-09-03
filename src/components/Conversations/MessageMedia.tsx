@@ -184,8 +184,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: isUserMessage ? 'rgba(168, 85, 247, 0.6)' : 'rgba(156, 163, 175, 0.8)',
-          progressColor: isUserMessage ? 'rgba(168, 85, 247, 1)' : 'rgba(255, 255, 255, 0.9)',
+          waveColor: isUserMessage ? 'rgba(255, 255, 255, 0.4)' : 'rgba(156, 163, 175, 0.8)',
+          progressColor: isUserMessage ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.9)',
           barWidth: 2,
           barRadius: 2,
           height: 32,
@@ -268,7 +268,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       <div className="mt-2">
         <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full ${
           isUserMessage 
-            ? 'bg-goat-purple' 
+            ? 'bg-white/20 backdrop-blur-sm border border-white/30' 
             : 'bg-goat-gray-700'
         }`} style={{ position: 'relative' }}>
           <button
@@ -278,12 +278,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           >
             {isPlaying ? (
               <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
-                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
+                <rect x="6" y="4" width="2.5" height="12" rx="1" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
+                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
               </svg>
             ) : (
               <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
+                <polygon points="7,5 15,10 7,15" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
               </svg>
             )}
           </button>
@@ -297,16 +297,18 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
                 transform: 'translate(-50%, -50%)',
                 width: 8,
                 height: 8,
-                background: '#6829c0',
+                background: isUserMessage ? '#ffffff' : '#6829c0',
                 borderRadius: '50%',
-                boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
+                boxShadow: isUserMessage ? '0 0 8px rgba(255, 255, 255, 0.6)' : '0 0 8px rgba(104, 41, 192, 0.5)',
                 zIndex: 10,
                 pointerEvents: 'none',
                 transition: isPlaying ? 'none' : 'left 0.1s ease-out',
               }}
             />
           </div>
-          <span className="text-xs text-goat-gray-400 w-8 text-right tabular-nums select-none opacity-70">
+          <span className={`text-xs w-8 text-right tabular-nums select-none ${
+            isUserMessage ? 'text-white/90' : 'text-goat-gray-400 opacity-70'
+          }`}>
             {formatTime(currentTime)}
           </span>
         </div>
