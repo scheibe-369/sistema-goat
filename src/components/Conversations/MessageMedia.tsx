@@ -268,7 +268,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       <div className="mt-2">
         <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full ${
           isUserMessage 
-            ? 'bg-white/10 backdrop-blur-sm' 
+            ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
         }`} style={{ position: 'relative' }}>
           <button
