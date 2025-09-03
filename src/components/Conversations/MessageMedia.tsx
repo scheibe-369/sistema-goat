@@ -95,7 +95,9 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           <img 
             src={mediaUrl} 
             alt="Imagem compartilhada"
-            className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
+            className={`max-w-[280px] rounded-xl cursor-pointer transition-all duration-200 shadow-lg ${
+              isUserMessage ? '' : 'hover:scale-[1.02] hover:shadow-xl'
+            }`}
             onClick={openInNewTab}
             onError={(e) => {
               console.error('Erro ao carregar imagem:', mediaUrl);
@@ -362,7 +364,9 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           <Button
             size="sm"
             variant="secondary"
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border-none"
+            className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white border-none ${
+              isUserMessage ? '' : 'hover:bg-black/70'
+            }`}
             onClick={handleDownload}
           >
             <Download className="w-3 h-3" />
@@ -419,8 +423,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       return (
         <div className="mt-2">
           <div 
-            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-[1.02] ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20 hover:bg-purple-600/30' : 'border-gray-400 bg-gray-600 hover:bg-gray-500'
+            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
+              isUserMessage 
+                ? 'border-purple-400 bg-purple-600/20' 
+                : 'border-gray-400 bg-gray-600 hover:opacity-80 hover:scale-[1.02] hover:bg-gray-500'
             }`}
             onClick={() => {
               // Tentar abrir o arquivo original mesmo com erro
@@ -462,10 +468,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-[1.02] ${
+        <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
           isUserMessage 
-            ? 'bg-purple-600/20 border-purple-400/30 hover:bg-purple-600/30' 
-            : 'bg-goat-gray-600 border-goat-gray-500 hover:bg-goat-gray-500'
+            ? 'bg-purple-600/20 border-purple-400/30' 
+            : 'bg-goat-gray-600 border-goat-gray-500 hover:opacity-80 hover:scale-[1.02] hover:bg-goat-gray-500'
         }`}
         onClick={openInNewTab}
         >
@@ -485,7 +491,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               e.stopPropagation();
               handleDownload();
             }}
-            className={`${isUserMessage ? 'text-purple-200 hover:text-white hover:bg-purple-500/20' : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-400'}`}
+            className={`${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-400'}`}
           >
             <Download className="w-4 h-4" />
           </Button>
@@ -542,10 +548,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   return (
     <div className="mt-2">
-      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-opacity ${
+      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer ${
         isUserMessage 
           ? 'bg-purple-600/20 border-purple-400/30' 
-          : 'bg-goat-gray-600 border-goat-gray-500'
+          : 'bg-goat-gray-600 border-goat-gray-500 hover:opacity-80 transition-opacity'
       }`}
       onClick={openInNewTab}
       >
@@ -565,7 +571,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             e.stopPropagation();
             handleDownload();
           }}
-          className={`${isUserMessage ? 'text-purple-200 hover:text-white' : 'text-goat-gray-300 hover:text-white'}`}
+          className={`${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300 hover:text-white'}`}
         >
           <Download className="w-4 h-4" />
         </Button>
