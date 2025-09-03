@@ -1,5 +1,17 @@
 import React from "react";
-import { Download, Image as ImageIcon, FileAudio, FileVideo, File } from "lucide-react";
+import { 
+  Download, 
+  Image as ImageIcon, 
+  FileAudio, 
+  FileVideo, 
+  File,
+  FileText,
+  FileSpreadsheet,
+  Presentation,
+  Archive,
+  Code,
+  FileImage
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import WaveSurfer from 'wavesurfer.js';
@@ -300,7 +312,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   }
 
   // Renderizar vídeos
-  if (mediaType?.startsWith('video/')) {
+  if (mediaType?.startsWith('video/') || mediaType === 'videoMessage') {
     // Se não há mediaUrl mas há mediaType, mostrar fallback
     if (!mediaUrl) {
       return (
@@ -360,11 +372,128 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     );
   }
 
-  // Renderizar outros tipos de arquivo (documentos, etc.)
+  // Renderizar documentos e outros arquivos
+  if (mediaType?.startsWith('application/') || mediaType === 'documentMessage' || mediaType === 'documentWithCaptionMessage' || 
+      (!mediaType?.startsWith('image/') && !mediaType?.startsWith('video/') && !mediaType?.startsWith('audio/') && 
+       mediaType !== 'imageMessage' && mediaType !== 'videoMessage' && mediaType !== 'audioMessage')) {
+    
+    const getFileIcon = (mimeType: string) => {
+      // Documentos específicos
+      if (mimeType.includes('pdf')) return FileText;
+      if (mimeType.includes('word') || mimeType.includes('document')) return FileText;
+      if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('csv')) return FileSpreadsheet;
+      if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return Presentation;
+      if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('7z') || mimeType.includes('archive')) return Archive;
+      if (mimeType.includes('json') || mimeType.includes('xml') || mimeType.includes('html') || mimeType.includes('css') || mimeType.includes('javascript')) return Code;
+      if (mimeType.includes('text/')) return FileText;
+      
+      // Fallback genérico
+      return File;
+    };
+
+    const FileIcon = getFileIcon(mediaType);
+    
+    const getDocumentTypeName = (mimeType: string) => {
+      if (mimeType.includes('pdf')) return 'PDF';
+      if (mimeType.includes('word') || mimeType.includes('document')) return 'Word';
+      if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'Excel';
+      if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'PowerPoint';
+      if (mimeType.includes('csv')) return 'CSV';
+      if (mimeType.includes('zip')) return 'ZIP';
+      if (mimeType.includes('rar')) return 'RAR';
+      if (mimeType.includes('7z')) return '7Z';
+      if (mimeType.includes('json')) return 'JSON';
+      if (mimeType.includes('xml')) return 'XML';
+      if (mimeType.includes('html')) return 'HTML';
+      if (mimeType.includes('css')) return 'CSS';
+      if (mimeType.includes('javascript')) return 'JavaScript';
+      if (mimeType.includes('text/')) return 'Texto';
+      if (mimeType === 'documentMessage') return 'Documento';
+      return 'Arquivo';
+    };
+
+    const documentTypeName = getDocumentTypeName(mediaType);
+
+    // Se não há mediaUrl mas há mediaType, mostrar fallback melhorado
+    if (!mediaUrl) {
+      return (
+        <div className="mt-2">
+          <div 
+            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed ${
+              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+            }`}
+          >
+            <FileIcon className={`w-10 h-10 ${
+              isUserMessage ? 'text-purple-200' : 'text-gray-300'
+            }`} />
+            <div className="flex-1">
+              <p className={`text-sm font-medium ${
+                isUserMessage ? 'text-purple-200' : 'text-gray-300'
+              }`}>
+                {documentTypeName} WhatsApp
+              </p>
+              <p className={`text-xs mt-1 ${
+                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
+              }`}>
+                {mediaFilename || 'Falha na descriptografia'}
+              </p>
+              <p className={`text-xs ${
+                isUserMessage ? 'text-purple-200/70' : 'text-gray-500'
+              }`}>
+                Aguarde while processing...
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-2">
+        <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-[1.02] ${
+          isUserMessage 
+            ? 'bg-purple-600/20 border-purple-400/30 hover:bg-purple-600/30' 
+            : 'bg-goat-gray-600 border-goat-gray-500 hover:bg-goat-gray-500'
+        }`}
+        onClick={openInNewTab}
+        >
+          <FileIcon className={`w-8 h-8 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300'}`} />
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-medium truncate ${isUserMessage ? 'text-white' : 'text-goat-gray-200'}`}>
+              {mediaFilename || `${documentTypeName} Document`}
+            </p>
+            <p className={`text-xs ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
+              {documentTypeName} {mediaSize && `• ${formatFileSize(mediaSize)}`}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownload();
+            }}
+            className={`${isUserMessage ? 'text-purple-200 hover:text-white hover:bg-purple-500/20' : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-400'}`}
+          >
+            <Download className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback genérico para tipos não reconhecidos
   const getFileIcon = (mimeType: string) => {
+    // Vídeos  
     if (mimeType.startsWith('video/')) return FileVideo;
+    
+    // Áudios
     if (mimeType.startsWith('audio/')) return FileAudio;
-    if (mimeType.includes('pdf')) return File;
+    
+    // Imagens (fallback para formatos não reconhecidos)
+    if (mimeType.startsWith('image/')) return FileImage;
+    
+    // Fallback genérico
     return File;
   };
 
@@ -386,7 +515,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             <p className={`text-sm ${
               isUserMessage ? 'text-purple-200' : 'text-gray-300'
             }`}>
-              Documento WhatsApp
+              Arquivo WhatsApp
             </p>
             <p className={`text-xs mt-1 ${
               isUserMessage ? 'text-purple-200/80' : 'text-gray-400'

@@ -24,8 +24,11 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
   } else if (mediaType.startsWith('audio/')) {
     infoString = 'WhatsApp Audio Keys';
     macBytes = 10; // Áudios usam 10 bytes MAC
+  } else if (mediaType.startsWith('application/') || mediaType.includes('document')) {
+    infoString = 'WhatsApp Document Keys';
+    macBytes = 10; // Documentos usam 10 bytes MAC
   } else {
-    infoString = 'WhatsApp Image Keys'; // Fallback para imagem
+    infoString = 'WhatsApp Document Keys'; // Fallback para documento
     macBytes = 10;
   }
   
@@ -139,13 +142,47 @@ async function downloadAndDecryptMedia(params: {
 // Função para obter extensão do arquivo baseada no tipo MIME
 function getFileExtension(mimeType: string): string {
   const extensions: { [key: string]: string } = {
+    // Imagens
     'image/jpeg': '.jpg',
     'image/png': '.png',
     'image/webp': '.webp',
+    'image/gif': '.gif',
+    'image/bmp': '.bmp',
+    'image/tiff': '.tiff',
+    // Áudios
     'audio/mpeg': '.mp3',
     'audio/ogg': '.ogg',
+    'audio/wav': '.wav',
+    'audio/m4a': '.m4a',
+    'audio/aac': '.aac',
+    'audio/flac': '.flac',
+    // Vídeos
     'video/mp4': '.mp4',
+    'video/avi': '.avi',
+    'video/mov': '.mov',
+    'video/wmv': '.wmv',
+    'video/webm': '.webm',
+    'video/mkv': '.mkv',
+    // Documentos
     'application/pdf': '.pdf',
+    'application/msword': '.doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'application/vnd.ms-excel': '.xls',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+    'application/vnd.ms-powerpoint': '.ppt',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+    'text/plain': '.txt',
+    'text/csv': '.csv',
+    'application/rtf': '.rtf',
+    'application/zip': '.zip',
+    'application/x-rar-compressed': '.rar',
+    'application/x-7z-compressed': '.7z',
+    'application/json': '.json',
+    'application/xml': '.xml',
+    'text/html': '.html',
+    'text/css': '.css',
+    'application/javascript': '.js',
+    'application/octet-stream': '.bin',
   };
   return extensions[mimeType] || '';
 }
@@ -201,7 +238,9 @@ serve(async (req) => {
       'imageMessage': 'image/jpeg',
       'videoMessage': 'video/mp4',
       'audioMessage': 'audio/ogg', // WhatsApp usa OGG para áudio
-      'documentMessage': 'application/octet-stream'
+      'documentMessage': 'application/pdf', // Assumir PDF como padrão para documentos
+      'documentWithCaptionMessage': 'application/pdf',
+      'stickerMessage': 'image/webp'
     };
 
     if (finalMediaType && mimeTypeMap[finalMediaType]) {
