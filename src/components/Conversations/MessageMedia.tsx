@@ -1,17 +1,20 @@
 import React from "react";
 import { 
-  Download, 
+  FileText, 
+  FileSpreadsheet, 
+  Presentation, 
+  Archive, 
+  Code, 
+  File, 
   Image as ImageIcon, 
   FileAudio, 
-  FileVideo, 
-  File,
-  FileText,
-  FileSpreadsheet,
-  Presentation,
-  Archive,
-  Code,
-  FileImage
-} from "lucide-react";
+  FileVideo,
+  FileImage,
+  Download,
+  Play,
+  Pause,
+  RotateCcw
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import WaveSurfer from 'wavesurfer.js';
@@ -419,9 +422,18 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       return (
         <div className="mt-2">
           <div 
-            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
+            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-[1.02] ${
+              isUserMessage ? 'border-purple-400 bg-purple-600/20 hover:bg-purple-600/30' : 'border-gray-400 bg-gray-600 hover:bg-gray-500'
             }`}
+            onClick={() => {
+              // Tentar abrir o arquivo original mesmo com erro
+              if (mediaFilename) {
+                const link = document.createElement('a');
+                link.href = `data:text/plain;charset=utf-8,Documento: ${mediaFilename}\nErro: Falha na descriptografia\nTipo: ${documentTypeName}`;
+                link.download = mediaFilename || 'documento.txt';
+                link.click();
+              }
+            }}
           >
             <FileIcon className={`w-10 h-10 ${
               isUserMessage ? 'text-purple-200' : 'text-gray-300'
@@ -440,9 +452,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <p className={`text-xs ${
                 isUserMessage ? 'text-purple-200/70' : 'text-gray-500'
               }`}>
-                Erro ao processar documento
+                Clique para tentar download
               </p>
             </div>
+            <Download className={`w-4 h-4 ${
+              isUserMessage ? 'text-purple-300' : 'text-gray-400'
+            }`} />
           </div>
         </div>
       );
