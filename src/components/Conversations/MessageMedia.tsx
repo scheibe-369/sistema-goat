@@ -184,8 +184,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: isUserMessage ? 'rgba(168, 85, 247, 0.6)' : 'rgba(156, 163, 175, 0.8)',
-          progressColor: isUserMessage ? 'rgba(168, 85, 247, 1)' : 'rgba(255, 255, 255, 0.9)',
+          waveColor: isUserMessage ? 'rgba(255, 255, 255, 0.3)' : 'rgba(156, 163, 175, 0.4)',
+          progressColor: isUserMessage ? 'rgba(255, 255, 255, 0.8)' : 'rgba(229, 231, 235, 0.9)',
           barWidth: 2,
           barRadius: 2,
           height: 32,
@@ -266,49 +266,60 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full ${
+        <div className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl min-w-[280px] max-w-[320px] shadow-lg transition-all duration-200 ${
           isUserMessage 
-            ? 'bg-goat-purple' 
-            : 'bg-goat-gray-700'
-        }`} style={{ position: 'relative' }}>
+            ? 'bg-gradient-to-r from-goat-purple to-purple-600 shadow-purple-500/20' 
+            : 'bg-gradient-to-r from-goat-gray-700 to-goat-gray-600 shadow-black/20'
+        }`}>
+          {/* Play/Pause Button */}
           <button
             onClick={togglePlay}
-            className="w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0"
+            className={`relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              isUserMessage 
+                ? 'bg-white/20 hover:bg-white/30 focus:ring-white/50 backdrop-blur-sm' 
+                : 'bg-white/10 hover:bg-white/20 focus:ring-white/30 backdrop-blur-sm'
+            }`}
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
-              <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
-                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white">
+                <rect x="4" y="2" width="2" height="12" rx="1" fill="currentColor"/>
+                <rect x="10" y="2" width="2" height="12" rx="1" fill="currentColor"/>
               </svg>
             ) : (
-              <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white ml-0.5">
+                <polygon points="5,2 13,8 5,14" fill="currentColor"/>
               </svg>
             )}
           </button>
-          <div ref={waveRef} className="flex-1 min-w-0" style={{ width: '100%', position: 'relative', height: 32 }}>
-            {/* Bolinha roxa sempre visível, usando largura do container como fallback */}
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: `${(currentTime / (duration || 1)) * (waveWidth || waveRef.current?.offsetWidth || 200)}px`,
-                transform: 'translate(-50%, -50%)',
-                width: 8,
-                height: 8,
-                background: '#6829c0',
-                borderRadius: '50%',
-                boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
-                zIndex: 10,
-                pointerEvents: 'none',
-                transition: isPlaying ? 'none' : 'left 0.1s ease-out',
-              }}
-            />
+          
+          {/* Waveform Container */}
+          <div className="flex-1 relative">
+            <div ref={waveRef} className="relative h-8 rounded-lg overflow-hidden" style={{ width: '100%' }}>
+              {/* Progress Indicator */}
+              <div
+                className={`absolute top-1/2 w-3 h-3 rounded-full transform -translate-y-1/2 transition-all duration-100 ${
+                  isUserMessage 
+                    ? 'bg-white shadow-lg shadow-white/30' 
+                    : 'bg-goat-gray-200 shadow-lg shadow-goat-gray-200/30'
+                }`}
+                style={{
+                  left: `${(currentTime / (duration || 1)) * (waveWidth || waveRef.current?.offsetWidth || 200)}px`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 10,
+                  pointerEvents: 'none',
+                  transition: isPlaying ? 'none' : 'left 0.1s ease-out',
+                }}
+              />
+            </div>
           </div>
-          <span className="text-xs text-goat-gray-400 w-8 text-right tabular-nums select-none opacity-70">
+          
+          {/* Time Display */}
+          <div className={`text-xs font-medium tabular-nums min-w-[32px] text-right ${
+            isUserMessage ? 'text-white/80' : 'text-goat-gray-300'
+          }`}>
             {formatTime(currentTime)}
-          </span>
+          </div>
         </div>
       </div>
     );
