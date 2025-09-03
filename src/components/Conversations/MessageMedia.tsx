@@ -366,11 +366,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             <Download className="w-3 h-3" />
           </Button>
         </div>
-        {mediaSize && (
-          <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-            Vídeo {formatFileSize(mediaSize)}
-          </p>
-        )}
       </div>
     );
   }
