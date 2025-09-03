@@ -201,15 +201,22 @@ const Login = () => {
 
                 {/* Remember me */}
                 <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={() => setRememberMe(!rememberMe)}
-                      className="h-4 w-4 rounded border-goat-gray-600 bg-goat-gray-800 text-goat-purple focus:ring-goat-purple"
-                    />
-                    <label htmlFor="remember-me" className="text-xs text-goat-gray-400">
+                  <div className="flex items-center space-x-3">
+                    <div className="relative flex items-center">
+                      <input
+                        id="remember-me"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={() => setRememberMe(!rememberMe)}
+                        className="peer h-4 w-4 cursor-pointer appearance-none rounded border-2 border-goat-gray-600/60 bg-goat-dark/80 transition-all duration-300 checked:border-goat-purple checked:bg-goat-purple focus:ring-2 focus:ring-goat-purple/30 focus:ring-offset-0"
+                      />
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-white opacity-0 transition-opacity duration-200 peer-checked:opacity-100">
+                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    <label htmlFor="remember-me" className="text-sm text-goat-gray-300 cursor-pointer hover:text-white transition-colors duration-200">
                       Lembrar de mim
                     </label>
                   </div>
