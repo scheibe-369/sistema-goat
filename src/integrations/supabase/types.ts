@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -533,58 +533,58 @@ export type Database = {
       }
       insert_message: {
         Args: {
-          p_user_id: string
+          p_contact_name?: string
+          p_date_time: string
+          p_direction: boolean
+          p_message: string
+          p_message_id: string
           p_phone: string
           p_remote_jid: string
-          p_message: string
-          p_direction: boolean
-          p_date_time: string
-          p_message_id: string
-          p_contact_name?: string
+          p_user_id: string
         }
         Returns: string
       }
       process_webhook_message: {
         Args:
           | {
-              p_user_id: string
-              p_numero: string
-              p_mensagem: string
-              p_direcao: boolean
-              p_data_hora: string
               p_conversa_id: string
+              p_data_hora: string
+              p_direcao: boolean
+              p_mensagem: string
               p_nome_contato?: string
+              p_numero: string
+              p_user_id: string
             }
           | {
-              p_user_id: string
-              p_numero: string
-              p_mensagem: string
-              p_direcao: boolean
               p_data_hora: string
-              p_nome_contato?: string
-            }
-          | {
-              p_user_id: string
-              p_numero: string
-              p_mensagem: string
               p_direcao: boolean
-              p_data_hora: string
-              p_nome_contato?: string
+              p_media_filename?: string
+              p_media_key?: string
+              p_media_size?: number
               p_media_type?: string
               p_media_url?: string
-              p_media_filename?: string
-              p_media_size?: number
-              p_media_key?: string
+              p_mensagem: string
+              p_nome_contato?: string
+              p_numero: string
+              p_user_id: string
+            }
+          | {
+              p_data_hora: string
+              p_direcao: boolean
+              p_mensagem: string
+              p_nome_contato?: string
+              p_numero: string
+              p_user_id: string
             }
         Returns: string
       }
       upsert_conversation: {
         Args: {
-          p_user_id: string
-          p_phone: string
-          p_remote_jid: string
           p_contact_name?: string
           p_last_message?: string
+          p_phone: string
+          p_remote_jid: string
+          p_user_id: string
         }
         Returns: string
       }

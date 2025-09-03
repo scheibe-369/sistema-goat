@@ -440,7 +440,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <p className={`text-xs ${
                 isUserMessage ? 'text-purple-200/70' : 'text-gray-500'
               }`}>
-                Aguarde while processing...
+                Erro ao processar documento
               </p>
             </div>
           </div>

@@ -250,21 +250,29 @@ serve(async (req) => {
     // Baixar e descriptografar mídia se disponível
     if (requestBody.p_media_url && requestBody.p_media_key) {
       console.log('📱 Processando mídia...');
-      const mediaResult = await downloadAndDecryptMedia({
-        mediaUrl: requestBody.p_media_url,
-        mediaKey: requestBody.p_media_key,
-        mediaType: finalMediaType,
-        filename: requestBody.p_media_filename || `media_${Date.now()}`,
-        supabaseClient
-      });
+      try {
+        const mediaResult = await downloadAndDecryptMedia({
+          mediaUrl: requestBody.p_media_url,
+          mediaKey: requestBody.p_media_key,
+          mediaType: finalMediaType,
+          filename: requestBody.p_media_filename || `media_${Date.now()}`,
+          supabaseClient
+        });
 
-      if (mediaResult.success) {
-        finalMediaUrl = mediaResult.publicUrl;
-        finalMediaFilename = mediaResult.filename;
-        finalMediaSize = mediaResult.size;
-        console.log('✅ Mídia processada com sucesso:', finalMediaUrl);
-      } else {
-        console.warn('⚠️ Falha no processamento de mídia:', mediaResult.error);
+        if (mediaResult.success) {
+          finalMediaUrl = mediaResult.publicUrl;
+          finalMediaFilename = mediaResult.filename;
+          finalMediaSize = mediaResult.size;
+          console.log('✅ Mídia processada com sucesso:', finalMediaUrl);
+        } else {
+          console.error('❌ Falha no processamento de mídia:', mediaResult.error);
+          if (mediaResult.error?.includes('mime type') && mediaResult.error?.includes('not supported')) {
+            console.error('🚫 Tipo MIME não suportado pelo bucket de storage');
+          }
+        }
+      } catch (mediaError) {
+        console.error('❌ Erro crítico no processamento de mídia:', mediaError.message);
+        console.error('Stack:', mediaError.stack);
         // Continua sem a mídia, não falha completamente
       }
     }
