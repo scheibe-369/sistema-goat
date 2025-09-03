@@ -149,14 +149,14 @@ const Login = () => {
                         focusedInput === "email" ? 'text-goat-purple' : 'text-goat-gray-400'
                       }`} />
                       
-                      <Input
+                       <Input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setFocusedInput("email")}
                         onBlur={() => setFocusedInput(null)}
-                        className="w-full bg-goat-gray-800/50 border-goat-gray-700 focus:border-goat-purple text-white placeholder:text-goat-gray-400 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-goat-gray-800/70"
+                        className="w-full bg-goat-dark/90 border-goat-gray-600/40 focus:border-goat-purple/60 text-white placeholder:text-goat-gray-500 h-10 transition-all duration-300 pl-10 pr-3 focus:bg-goat-dark focus:shadow-lg focus:shadow-goat-purple/10"
                         required
                       />
                     </div>
@@ -174,14 +174,14 @@ const Login = () => {
                         focusedInput === "password" ? 'text-goat-purple' : 'text-goat-gray-400'
                       }`} />
                       
-                      <Input
+                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="Senha"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setFocusedInput("password")}
                         onBlur={() => setFocusedInput(null)}
-                        className="w-full bg-goat-gray-800/50 border-goat-gray-700 focus:border-goat-purple text-white placeholder:text-goat-gray-400 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-goat-gray-800/70"
+                        className="w-full bg-goat-dark/90 border-goat-gray-600/40 focus:border-goat-purple/60 text-white placeholder:text-goat-gray-500 h-10 transition-all duration-300 pl-10 pr-10 focus:bg-goat-dark focus:shadow-lg focus:shadow-goat-purple/10"
                         required
                       />
                       
