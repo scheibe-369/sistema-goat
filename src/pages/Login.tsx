@@ -121,7 +121,7 @@ const Login = () => {
                   transition={{ delay: 0.2 }}
                   className="text-xl font-bold gradient-text"
                 >
-                  Bem-vindo ao CRM GOAT
+                  greatest of all time
                 </motion.h1>
                 
                 <motion.p
