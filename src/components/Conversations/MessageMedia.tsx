@@ -266,10 +266,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full ${
+        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full transition-all duration-200 ${
           isUserMessage 
-            ? 'bg-goat-purple' 
-            : 'bg-goat-gray-700'
+            ? 'bg-goat-purple hover:bg-goat-purple/90' 
+            : 'bg-goat-gray-700 hover:bg-goat-gray-600'
         }`} style={{ position: 'relative' }}>
           <button
             onClick={togglePlay}
