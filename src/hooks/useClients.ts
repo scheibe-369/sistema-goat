@@ -28,6 +28,9 @@ export const useClients = () => {
 
       return data as Client[];
     },
+    // Previne execução da query sem autenticação
+    enabled: true,
+    retry: false,
   });
 };
 

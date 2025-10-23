@@ -38,6 +38,10 @@ export const useConversations = () => {
   return useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
+      // Verificar se usuário está autenticado antes de fazer query
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from("conversations")
         .select("*")
@@ -50,6 +54,8 @@ export const useConversations = () => {
 
       return data as Conversation[];
     },
+    // Previne execução sem autenticação
+    retry: false,
   });
 };
 
@@ -58,6 +64,10 @@ export const useMessages = (conversationId: string) => {
     queryKey: ["messages", conversationId],
     queryFn: async () => {
       if (!conversationId) return [];
+
+      // Verificar se usuário está autenticado
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
         .from("messages")
@@ -82,6 +92,7 @@ export const useMessages = (conversationId: string) => {
       return sortedData;
     },
     enabled: !!conversationId,
+    retry: false,
   });
 };
 

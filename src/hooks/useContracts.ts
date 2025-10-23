@@ -12,6 +12,10 @@ export const useContracts = () => {
   return useQuery({
     queryKey: ['contracts'],
     queryFn: async () => {
+      // Verificar autenticação antes de fazer query
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('contracts')
         .select(`
@@ -27,6 +31,8 @@ export const useContracts = () => {
 
       return data;
     },
+    // Previne execução sem autenticação
+    retry: false,
   });
 };
 

@@ -7,8 +7,9 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, session } = useAuth();
 
+  // Mostrar loading enquanto verifica autenticação
   if (isLoading) {
     return (
       <div className="min-h-screen bg-goat-dark flex items-center justify-center">
@@ -17,7 +18,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!isAuthenticated) {
+  // Verificação robusta: se não está autenticado OU não tem sessão, redireciona
+  if (!isAuthenticated || !session) {
+    console.log('User not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
