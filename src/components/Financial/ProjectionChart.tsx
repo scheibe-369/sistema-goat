@@ -14,6 +14,7 @@ interface ContractProjection {
 
 interface ProjectionChartProps {
   contracts: ContractProjection[];
+  activeContractsCount?: number; // Número real de contratos ativos (calculado externamente)
 }
 
 // Função para formatar o valor como moeda brasileira
@@ -22,7 +23,7 @@ const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
 
-export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
+export function ProjectionChart({ contracts = [], activeContractsCount }: ProjectionChartProps) {
   // --- LÓGICA DE PROCESSAMENTO DOS DADOS ---
   const processChartData = () => {
     try {
@@ -94,10 +95,10 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
   const totalProjection = data.reduce((sum, item) => sum + (item.Projeção || 0), 0);
   const monthlyAverage = data.length > 0 ? totalProjection / data.length : 0;
   
-  // Calcula contratos ativos de forma segura
-  const activeContractsNow = contracts.filter(c => {
+  // Usa o número real de contratos ativos se fornecido, caso contrário calcula baseado nos contratos filtrados
+  const activeContractsNow = activeContractsCount !== undefined ? activeContractsCount : contracts.filter(c => {
     try {
-      if (!c || !c.startMonth || typeof c.durationInMonths !== 'number') return false; // Updated property name
+      if (!c || !c.startMonth || typeof c.durationInMonths !== 'number') return false;
       
       const [startYear, startMonth] = c.startMonth.split('-').map(Number);
       if (isNaN(startYear) || isNaN(startMonth)) return false;
@@ -105,7 +106,7 @@ export function ProjectionChart({ contracts = [] }: ProjectionChartProps) {
       const today = new Date();
       const startDate = new Date(startYear, startMonth - 1, 1);
       const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + c.durationInMonths); // Updated property name
+      endDate.setMonth(endDate.getMonth() + c.durationInMonths);
       
       return today >= startDate && today < endDate;
     } catch (error) {

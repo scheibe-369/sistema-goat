@@ -109,6 +109,22 @@ export default function Financial() {
     (total, c) => total + c.monthlyValue * c.durationInMonths, 0
   );
 
+  // Calcular contratos realmente ativos (independente do filtro de elegibilidade)
+  const activeContractsToday = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return contracts.filter(contract => {
+      if (contract.status !== 'active') return false;
+      if (!contract.end_date) return false;
+      
+      const endDate = parseLocalDate(contract.end_date);
+      endDate.setHours(0, 0, 0, 0);
+      
+      return endDate >= today;
+    }).length;
+  }, [contracts]);
+
   const handleAddExpense = (expenseData: any) => {
     console.log('DEBUG - Dados recebidos para despesa:', expenseData);
     
@@ -512,7 +528,7 @@ export default function Financial() {
         </div>
       </Card>
 
-      <ProjectionChart contracts={contractProjections} />
+      <ProjectionChart contracts={contractProjections} activeContractsCount={activeContractsToday} />
 
       <DeleteExpenseDialog
         open={deleteExpenseDialog.open}
