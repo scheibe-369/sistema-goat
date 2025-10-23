@@ -32,14 +32,18 @@ export function ProjectionChart({ contracts = [], activeContractsCount }: Projec
       const currentYear = today.getFullYear();
       const currentMonth = today.getMonth() + 1; // getMonth() é 0-11
 
+      console.log(`[CHART DEBUG] Hoje: ${today.toISOString().split('T')[0]}, Processando ${contracts.length} contratos`);
+
       // Validação dos contratos
       const validContracts = contracts.filter(contract => 
         contract && 
         typeof contract.monthlyValue === 'number' && 
-        typeof contract.durationInMonths === 'number' && // Updated property name
+        typeof contract.durationInMonths === 'number' &&
         typeof contract.startMonth === 'string' &&
         contract.startMonth.includes('-')
       );
+
+      console.log(`[CHART DEBUG] Contratos válidos: ${validContracts.length}`);
 
       // Para cada contrato, adiciona seu valor mensal aos meses futuros de sua duração
       validContracts.forEach(contract => {
@@ -49,7 +53,9 @@ export function ProjectionChart({ contracts = [], activeContractsCount }: Projec
           // Validação dos valores extraídos
           if (isNaN(startYear) || isNaN(startMonthNum)) return;
           
-          for (let i = 0; i < contract.durationInMonths; i++) { // Updated property name
+          console.log(`[CHART DEBUG] ${contract.clientName}: ${contract.durationInMonths} meses a partir de ${contract.startMonth}, R$ ${contract.monthlyValue}/mês`);
+          
+          for (let i = 0; i < contract.durationInMonths; i++) {
             let monthDate = new Date(startYear, startMonthNum - 1 + i, 1);
             
             // Consideramos apenas projeções a partir do mês atual
@@ -59,12 +65,15 @@ export function ProjectionChart({ contracts = [], activeContractsCount }: Projec
                 monthlyProjections[monthKey] = 0;
               }
               monthlyProjections[monthKey] += contract.monthlyValue;
+              console.log(`[CHART DEBUG]   - Mês ${monthKey}: +R$ ${contract.monthlyValue} = R$ ${monthlyProjections[monthKey]}`);
             }
           }
         } catch (error) {
           console.error('Erro ao processar contrato:', contract, error);
         }
       });
+
+      console.log('[CHART DEBUG] Projeções mensais:', monthlyProjections);
 
       // Pega os próximos 12 meses a partir do mês atual para exibir no gráfico
       const chartData = [];

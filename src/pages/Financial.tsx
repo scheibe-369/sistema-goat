@@ -67,42 +67,60 @@ export default function Financial() {
     return contract.monthly_value && contract.start_date && contract.end_date && cliente.payment_day;
   });
 
-  // Nova lógica de projeção mensal
+  // Nova lógica de projeção mensal (CORRIGIDA)
   const contractProjections = contratosElegiveis.map(contract => {
     const start = parseLocalDate(contract.start_date);
     const end = parseLocalDate(contract.end_date);
     const paymentDay = Number(contract.client.payment_day);
-    // Lógica do primeiro pagamento
-    let firstPaymentDate = new Date(start);
-    if (start.getDate() >= paymentDay) {
-      // Se começou depois ou no dia do pagamento, só paga no mês seguinte
+    
+    // LÓGICA CORRIGIDA DO PRIMEIRO PAGAMENTO
+    // Se o contrato começou ANTES do dia de pagamento do mês, paga nesse mês
+    // Se começou DEPOIS, paga apenas no mês seguinte
+    let firstPaymentDate = new Date(start.getFullYear(), start.getMonth(), paymentDay);
+    
+    // Se o dia de pagamento já passou no mês que o contrato começou, primeiro pagamento é no mês seguinte
+    if (start.getDate() > paymentDay) {
       firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
     }
-    firstPaymentDate.setDate(paymentDay);
-    // Corrige se o dia não existe no mês
+    
+    // Corrige se o dia não existe no mês (ex: 31 em fevereiro)
     if (firstPaymentDate.getDate() !== paymentDay) {
-      // Ex: pagamento dia 31 em fevereiro
-      firstPaymentDate.setDate(0); // último dia do mês
+      firstPaymentDate.setDate(0); // último dia do mês anterior
+      firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
+      firstPaymentDate.setDate(Math.min(paymentDay, new Date(firstPaymentDate.getFullYear(), firstPaymentDate.getMonth() + 1, 0).getDate()));
     }
-    // Calcula todos os meses de pagamento dentro da vigência
+    
+    // Calcula todos os meses de pagamento dentro da vigência do contrato
     let durationInMonths = 0;
     let paymentDate = new Date(firstPaymentDate);
+    
+    console.log(`[DEBUG] Cliente: ${contract.client.company}, Start: ${contract.start_date}, Payment Day: ${paymentDay}, First Payment: ${firstPaymentDate.toISOString().split('T')[0]}, End: ${contract.end_date}`);
+    
     while (paymentDate <= end) {
-      if (paymentDate >= firstPaymentDate && paymentDate <= end) {
-        durationInMonths++;
-      }
+      durationInMonths++;
+      console.log(`[DEBUG] - Pagamento ${durationInMonths}: ${paymentDate.toISOString().split('T')[0]} - R$ ${contract.monthly_value}`);
+      
+      // Avança para o próximo mês
       paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
+      
       // Corrige se o dia não existe no mês
       if (paymentDate.getDate() !== paymentDay) {
-        paymentDate.setDate(0);
+        paymentDate.setDate(0); // último dia do mês anterior
+        paymentDate.setMonth(paymentDate.getMonth() + 1);
+        paymentDate.setDate(Math.min(paymentDay, new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0).getDate()));
       }
     }
-    return {
+    
+    const projection = {
       clientName: contract.client.company || 'Cliente não encontrado',
       monthlyValue: Number(contract.monthly_value),
       durationInMonths,
       startMonth: `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`,
     };
+    
+    console.log(`[DEBUG] Projeção final: ${projection.clientName} - ${projection.durationInMonths} meses a partir de ${projection.startMonth}`);
+    
+    return projection;
   });
 
   const faturamentoGeral = contractProjections.reduce(
