@@ -172,6 +172,7 @@ export default function Financial() {
 
   // Filtros de status
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('currentMonth');
+  const [expenseFilter, setExpenseFilter] = useState<'all' | 'currentMonth'>('currentMonth');
 
   // Filtrar lançamentos financeiros conforme status
   const now = new Date();
@@ -399,13 +400,19 @@ export default function Financial() {
       </Card>
 
       {/* Despesas Section */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+      <Card className="bg-goat-gray-800 border-goat-gray-700">
+        <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
+          <div>
             <h3 className="text-lg font-semibold text-white">Despesas</h3>
+            <p className="text-goat-gray-400 text-sm mt-1">Todas as despesas do sistema</p>
           </div>
-          <ExpenseModal onAddExpense={handleAddExpense} />
+          <div className="flex gap-2 items-center">
+            <Button onClick={() => setExpenseFilter('all')} className={`${expenseFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
+            <Button onClick={() => setExpenseFilter('currentMonth')} className={`${expenseFilter === 'currentMonth' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Mês Atual</Button>
+            <ExpenseModal onAddExpense={handleAddExpense} />
+          </div>
         </div>
+        <div className="p-6">
         
         {expensesLoading ? (
           <div className="text-center py-8">
@@ -417,9 +424,30 @@ export default function Financial() {
             <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
             <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {expenses.map((expense) => (
+        ) : (() => {
+          // Filtrar despesas conforme o filtro selecionado
+          const filteredExpenses = expenses.filter(expense => {
+            if (expenseFilter === 'all') return true;
+            if (expenseFilter === 'currentMonth') {
+              const d = parseLocalDate(expense.date);
+              return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            }
+            return true;
+          });
+
+          // Calcular total de despesas pendentes com base no filtro
+          const totalPendingExpenses = filteredExpenses
+            .filter(e => e.status === 'pending')
+            .reduce((acc, e) => acc + Number(e.amount), 0);
+
+          return filteredExpenses.length === 0 ? (
+            <div className="text-center py-8">
+              <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+              <p className="text-goat-gray-400">Nenhuma despesa encontrada</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredExpenses.map((expense) => (
               <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
@@ -473,13 +501,15 @@ export default function Financial() {
                   </div>
                 </div>
               </div>
-            ))}
-            <div className="flex justify-between items-center mt-6">
-              <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
-              <span className="text-white font-normal text-lg">{formatCurrency(expenses.filter(e => e.status === 'pending').reduce((acc, e) => acc + Number(e.amount), 0))}</span>
+              ))}
+              <div className="flex justify-between items-center mt-6">
+                <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
+                <span className="text-white font-normal text-lg">{formatCurrency(totalPendingExpenses)}</span>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
+        </div>
       </Card>
 
       <ProjectionChart contracts={contractProjections} />
