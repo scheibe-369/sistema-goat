@@ -544,9 +544,9 @@ export type Database = {
         }
         Returns: string
       }
-      process_webhook_message: {
-        Args:
-          | {
+      process_webhook_message:
+        | {
+            Args: {
               p_conversa_id: string
               p_data_hora: string
               p_direcao: boolean
@@ -555,7 +555,21 @@ export type Database = {
               p_numero: string
               p_user_id: string
             }
-          | {
+            Returns: string
+          }
+        | {
+            Args: {
+              p_data_hora: string
+              p_direcao: boolean
+              p_mensagem: string
+              p_nome_contato?: string
+              p_numero: string
+              p_user_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
               p_data_hora: string
               p_direcao: boolean
               p_media_filename?: string
@@ -568,16 +582,8 @@ export type Database = {
               p_numero: string
               p_user_id: string
             }
-          | {
-              p_data_hora: string
-              p_direcao: boolean
-              p_mensagem: string
-              p_nome_contato?: string
-              p_numero: string
-              p_user_id: string
-            }
-        Returns: string
-      }
+            Returns: string
+          }
       upsert_conversation: {
         Args: {
           p_contact_name?: string
@@ -588,10 +594,7 @@ export type Database = {
         }
         Returns: string
       }
-      webhook_insert_message: {
-        Args: { webhook_data: Json }
-        Returns: string
-      }
+      webhook_insert_message: { Args: { webhook_data: Json }; Returns: string }
     }
     Enums: {
       [_ in never]: never

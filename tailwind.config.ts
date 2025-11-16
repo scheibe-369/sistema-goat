@@ -19,6 +19,11 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Founders Grotesk', 'sans-serif'],
+				'founders': ['Founders Grotesk', 'sans-serif'],
+				'founders-cond': ['Founders Grotesk XCond', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
