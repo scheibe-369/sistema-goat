@@ -20,15 +20,11 @@ const Index = () => {
   }, [isAuthenticated, isLoading, navigate]);
 
   // Mostrar loading enquanto verifica autenticação
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-goat-dark flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="min-h-screen bg-goat-dark flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-goat-purple border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 };
 
 export default Index;
