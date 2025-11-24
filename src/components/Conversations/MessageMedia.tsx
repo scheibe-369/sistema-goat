@@ -1,27 +1,12 @@
 import React from "react";
-import { 
-  FileText, 
-  FileSpreadsheet, 
-  Presentation, 
-  Archive, 
-  Code, 
-  File, 
-  Image as ImageIcon, 
-  FileAudio, 
-  FileVideo,
-  FileImage,
-  Download,
-  Play,
-  Pause,
-  RotateCcw
-} from 'lucide-react';
+import { Download, Image as ImageIcon, FileAudio, FileVideo, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import WaveSurfer from 'wavesurfer.js';
 
 interface MessageMediaProps {
   mediaType: string;
-  mediaUrl?: string | null;
+  mediaUrl: string;
   mediaFilename?: string;
   mediaSize?: number;
   isUserMessage: boolean;
@@ -43,7 +28,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   const handleDownload = () => {
-    if (!mediaUrl) return;
     const link = document.createElement('a');
     link.href = mediaUrl;
     link.download = mediaFilename || 'media';
@@ -54,50 +38,18 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   };
 
   const openInNewTab = () => {
-    if (!mediaUrl) return;
     window.open(mediaUrl, '_blank');
   };
 
   // Renderizar imagens com preview inline
   if (mediaType?.startsWith('image/') || mediaType === 'imageMessage') {
-    // Se não há mediaUrl mas há mediaType, mostrar fallback imediatamente
-    if (!mediaUrl) {
-      return (
-        <div className="mt-2">
-          <div 
-            className={`flex items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
-            }`}
-          >
-            <div className="text-center">
-              <ImageIcon className={`w-8 h-8 mx-auto mb-2 ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`} />
-              <p className={`text-sm ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`}>
-                Imagem WhatsApp
-              </p>
-              <p className={`text-xs mt-1 ${
-                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-              }`}>
-                {mediaFilename || 'Falha na descriptografia'}
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
     return (
       <div className="mt-2">
         <div className="relative group">
           <img 
             src={mediaUrl} 
             alt="Imagem compartilhada"
-            className={`max-w-[280px] rounded-xl cursor-pointer transition-all duration-200 shadow-lg ${
-              isUserMessage ? '' : 'hover:scale-[1.02] hover:shadow-xl'
-            }`}
+            className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
             onClick={openInNewTab}
             onError={(e) => {
               console.error('Erro ao carregar imagem:', mediaUrl);
@@ -126,12 +78,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               <p className={`text-sm ${
                 isUserMessage ? 'text-purple-200' : 'text-gray-300'
               }`}>
-                Erro ao carregar imagem
+                Imagem criptografada
               </p>
               <p className={`text-xs mt-1 ${
                 isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
               }`}>
-                {mediaFilename || 'Imagem não disponível'}
+                Requer chave de descriptografia
               </p>
             </div>
           </div>
@@ -142,35 +94,6 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   // Renderizar áudios
   if (mediaType?.startsWith('audio/') || mediaType === 'audioMessage') {
-    // Se não há mediaUrl mas há mediaType, mostrar fallback
-    if (!mediaUrl) {
-      return (
-        <div className="mt-2">
-          <div 
-            className={`flex items-center justify-center p-4 rounded-xl border-2 border-dashed ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
-            }`}
-          >
-            <div className="text-center">
-              <FileAudio className={`w-8 h-8 mx-auto mb-2 ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`} />
-              <p className={`text-sm ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`}>
-                Áudio WhatsApp
-              </p>
-              <p className={`text-xs mt-1 ${
-                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-              }`}>
-                {mediaFilename || 'Falha na descriptografia'}
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
     // Player customizado estilo WhatsApp com onda sonora animada
     const audioRef = useRef<HTMLAudioElement>(null);
     const waveRef = useRef<HTMLDivElement>(null);
@@ -186,15 +109,14 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: isUserMessage ? 'rgba(255, 255, 255, 0.4)' : 'rgba(156, 163, 175, 0.8)',
-          progressColor: isUserMessage ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+          waveColor: 'rgba(255, 255, 255, 0.4)', // ondas cinza claro
+          progressColor: 'rgba(255, 255, 255, 0.8)', // progresso mais visível
           barWidth: 2,
           barRadius: 2,
           height: 32,
-          cursorWidth: 0,
+          cursorWidth: 0, // Esconde a barra
           interact: true,
           hideScrollbar: true,
-          normalize: true,
         });
         waveSurferRef.current.load(mediaUrl);
         const observeCanvas = () => {
@@ -268,11 +190,11 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[320px] w-full ${
+        <div className={`flex items-center gap-1 px-2 py-0 rounded-full min-w-[280px] max-w-[65%] w-full ${
           isUserMessage 
-            ? 'bg-goat-purple message-bubble' 
+            ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
-        }`} style={{ position: 'relative' }}>
+        }`} style={{ position: 'relative', maxWidth: '65%' }}>
           <button
             onClick={togglePlay}
             className="w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0"
@@ -280,12 +202,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           >
             {isPlaying ? (
               <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <rect x="6" y="4" width="2.5" height="12" rx="1" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
-                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
+                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
+                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="#6829c0"/>
               </svg>
             ) : (
               <svg width="40" height="40" viewBox="0 0 20 20" fill="none">
-                <polygon points="7,5 15,10 7,15" fill={isUserMessage ? "#ffffff" : "#6829c0"}/>
+                <polygon points="7,5 15,10 7,15" fill="#6829c0"/>
               </svg>
             )}
           </button>
@@ -299,18 +221,16 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
                 transform: 'translate(-50%, -50%)',
                 width: 8,
                 height: 8,
-                background: isUserMessage ? '#ffffff' : '#6829c0',
+                background: '#6829c0',
                 borderRadius: '50%',
-                boxShadow: isUserMessage ? '0 0 8px rgba(255, 255, 255, 0.6)' : '0 0 8px rgba(104, 41, 192, 0.5)',
+                boxShadow: '0 0 8px rgba(104, 41, 192, 0.5)',
                 zIndex: 10,
                 pointerEvents: 'none',
                 transition: isPlaying ? 'none' : 'left 0.1s ease-out',
               }}
             />
           </div>
-          <span className={`text-xs w-8 text-right tabular-nums select-none ${
-            isUserMessage ? 'text-white/90' : 'text-goat-gray-400 opacity-70'
-          }`}>
+          <span className="text-xs text-goat-gray-400 w-8 text-right tabular-nums select-none opacity-70">
             {formatTime(currentTime)}
           </span>
         </div>
@@ -319,36 +239,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   }
 
   // Renderizar vídeos
-  if (mediaType?.startsWith('video/') || mediaType === 'videoMessage') {
-    // Se não há mediaUrl mas há mediaType, mostrar fallback
-    if (!mediaUrl) {
-      return (
-        <div className="mt-2">
-          <div 
-            className={`flex items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
-            }`}
-          >
-            <div className="text-center">
-              <FileVideo className={`w-8 h-8 mx-auto mb-2 ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`} />
-              <p className={`text-sm ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`}>
-                Vídeo WhatsApp
-              </p>
-              <p className={`text-xs mt-1 ${
-                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-              }`}>
-                {mediaFilename || 'Falha na descriptografia'}
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
+  if (mediaType?.startsWith('video/')) {
     return (
       <div className="mt-2">
         <div className="relative group max-w-xs">
@@ -364,194 +255,37 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           <Button
             size="sm"
             variant="secondary"
-            className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white border-none ${
-              isUserMessage ? '' : 'hover:bg-black/70'
-            }`}
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border-none"
             onClick={handleDownload}
           >
             <Download className="w-3 h-3" />
           </Button>
         </div>
+        {mediaFilename && (
+          <p className={`text-xs mt-1 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
+            {mediaFilename} {mediaSize && `(${formatFileSize(mediaSize)})`}
+          </p>
+        )}
       </div>
     );
   }
 
-  // Renderizar documentos e outros arquivos
-  if (mediaType?.startsWith('application/') || mediaType === 'documentMessage' || mediaType === 'documentWithCaptionMessage' || 
-      (!mediaType?.startsWith('image/') && !mediaType?.startsWith('video/') && !mediaType?.startsWith('audio/') && 
-       mediaType !== 'imageMessage' && mediaType !== 'videoMessage' && mediaType !== 'audioMessage')) {
-    
-    const getFileIcon = (mimeType: string) => {
-      // Documentos específicos
-      if (mimeType.includes('pdf')) return FileText;
-      if (mimeType.includes('word') || mimeType.includes('document')) return FileText;
-      if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('csv')) return FileSpreadsheet;
-      if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return Presentation;
-      if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('7z') || mimeType.includes('archive')) return Archive;
-      if (mimeType.includes('json') || mimeType.includes('xml') || mimeType.includes('html') || mimeType.includes('css') || mimeType.includes('javascript')) return Code;
-      if (mimeType.includes('text/')) return FileText;
-      
-      // Fallback genérico
-      return File;
-    };
-
-    const FileIcon = getFileIcon(mediaType);
-    
-    const getDocumentTypeName = (mimeType: string) => {
-      if (mimeType.includes('pdf')) return 'PDF';
-      if (mimeType.includes('word') || mimeType.includes('document')) return 'Word';
-      if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'Excel';
-      if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'PowerPoint';
-      if (mimeType.includes('csv')) return 'CSV';
-      if (mimeType.includes('zip')) return 'ZIP';
-      if (mimeType.includes('rar')) return 'RAR';
-      if (mimeType.includes('7z')) return '7Z';
-      if (mimeType.includes('json')) return 'JSON';
-      if (mimeType.includes('xml')) return 'XML';
-      if (mimeType.includes('html')) return 'HTML';
-      if (mimeType.includes('css')) return 'CSS';
-      if (mimeType.includes('javascript')) return 'JavaScript';
-      if (mimeType.includes('text/')) return 'Texto';
-      if (mimeType === 'documentMessage') return 'Documento';
-      return 'Arquivo';
-    };
-
-    const documentTypeName = getDocumentTypeName(mediaType);
-
-    // Se não há mediaUrl mas há mediaType, mostrar fallback melhorado
-    if (!mediaUrl) {
-      return (
-        <div className="mt-2">
-          <div 
-            className={`flex items-center gap-3 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
-              isUserMessage 
-                ? 'border-purple-400 bg-purple-600/20' 
-                : 'border-gray-400 bg-gray-600 hover:opacity-80 hover:scale-[1.02] hover:bg-gray-500'
-            }`}
-            onClick={() => {
-              // Tentar abrir o arquivo original mesmo com erro
-              if (mediaFilename) {
-                const link = document.createElement('a');
-                link.href = `data:text/plain;charset=utf-8,Documento: ${mediaFilename}\nErro: Falha na descriptografia\nTipo: ${documentTypeName}`;
-                link.download = mediaFilename || 'documento.txt';
-                link.click();
-              }
-            }}
-          >
-            <FileIcon className={`w-10 h-10 ${
-              isUserMessage ? 'text-purple-200' : 'text-gray-300'
-            }`} />
-            <div className="flex-1">
-              <p className={`text-sm font-medium ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`}>
-                {documentTypeName} WhatsApp
-              </p>
-              <p className={`text-xs mt-1 ${
-                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-              }`}>
-                {mediaFilename || 'Falha na descriptografia'}
-              </p>
-              <p className={`text-xs ${
-                isUserMessage ? 'text-purple-200/70' : 'text-gray-500'
-              }`}>
-                Clique para tentar download
-              </p>
-            </div>
-            <Download className={`w-4 h-4 ${
-              isUserMessage ? 'text-purple-300' : 'text-gray-400'
-            }`} />
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mt-2">
-        <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
-          isUserMessage 
-            ? 'bg-purple-600/20 border-purple-400/30' 
-            : 'bg-goat-gray-600 border-goat-gray-500 hover:opacity-80 hover:scale-[1.02] hover:bg-goat-gray-500'
-        }`}
-        onClick={openInNewTab}
-        >
-          <FileIcon className={`w-8 h-8 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300'}`} />
-          <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium truncate ${isUserMessage ? 'text-white' : 'text-goat-gray-200'}`}>
-              {mediaFilename || `${documentTypeName} Document`}
-            </p>
-            <p className={`text-xs ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
-              {documentTypeName} {mediaSize && `• ${formatFileSize(mediaSize)}`}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDownload();
-            }}
-            className={`${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300 hover:text-white hover:bg-goat-gray-400'}`}
-          >
-            <Download className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Fallback genérico para tipos não reconhecidos
+  // Renderizar outros tipos de arquivo (documentos, etc.)
   const getFileIcon = (mimeType: string) => {
-    // Vídeos  
     if (mimeType.startsWith('video/')) return FileVideo;
-    
-    // Áudios
     if (mimeType.startsWith('audio/')) return FileAudio;
-    
-    // Imagens (fallback para formatos não reconhecidos)
-    if (mimeType.startsWith('image/')) return FileImage;
-    
-    // Fallback genérico
+    if (mimeType.includes('pdf')) return File;
     return File;
   };
 
   const FileIcon = getFileIcon(mediaType);
 
-  // Se não há mediaUrl mas há mediaType, mostrar fallback
-  if (!mediaUrl) {
-    return (
-      <div className="mt-2">
-        <div 
-          className={`flex items-center justify-center p-4 rounded-xl border-2 border-dashed ${
-            isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
-          }`}
-        >
-          <div className="text-center">
-            <FileIcon className={`w-8 h-8 mx-auto mb-2 ${
-              isUserMessage ? 'text-purple-200' : 'text-gray-300'
-            }`} />
-            <p className={`text-sm ${
-              isUserMessage ? 'text-purple-200' : 'text-gray-300'
-            }`}>
-              Arquivo WhatsApp
-            </p>
-            <p className={`text-xs mt-1 ${
-              isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-            }`}>
-              {mediaFilename || 'Falha na descriptografia'}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-2">
-      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer ${
+      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-opacity ${
         isUserMessage 
           ? 'bg-purple-600/20 border-purple-400/30' 
-          : 'bg-goat-gray-600 border-goat-gray-500 hover:opacity-80 transition-opacity'
+          : 'bg-goat-gray-600 border-goat-gray-500'
       }`}
       onClick={openInNewTab}
       >
@@ -571,7 +305,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             e.stopPropagation();
             handleDownload();
           }}
-          className={`${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300 hover:text-white'}`}
+          className={`${isUserMessage ? 'text-purple-200 hover:text-white' : 'text-goat-gray-300 hover:text-white'}`}
         >
           <Download className="w-4 h-4" />
         </Button>

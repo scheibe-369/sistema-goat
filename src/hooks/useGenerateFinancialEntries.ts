@@ -56,11 +56,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
 
     // Gerar lançamentos mensais até o fim do contrato
     while (currentDate <= endDate) {
-      // Usar formatação local para evitar problemas de timezone
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      const entryDate = `${year}-${month}-${day}`;
+      const entryDate = currentDate.toISOString().split('T')[0];
       
       // Criar referência do mês/ano em português
       const monthNames = [

@@ -67,81 +67,47 @@ export default function Financial() {
     return contract.monthly_value && contract.start_date && contract.end_date && cliente.payment_day;
   });
 
-  // Nova lógica de projeção mensal (CORRIGIDA)
+  // Nova lógica de projeção mensal
   const contractProjections = contratosElegiveis.map(contract => {
     const start = parseLocalDate(contract.start_date);
     const end = parseLocalDate(contract.end_date);
     const paymentDay = Number(contract.client.payment_day);
-    
-    // LÓGICA CORRIGIDA DO PRIMEIRO PAGAMENTO
-    // Se o contrato começou ANTES do dia de pagamento do mês, paga nesse mês
-    // Se começou DEPOIS, paga apenas no mês seguinte
-    let firstPaymentDate = new Date(start.getFullYear(), start.getMonth(), paymentDay);
-    
-    // Se o dia de pagamento já passou no mês que o contrato começou, primeiro pagamento é no mês seguinte
-    if (start.getDate() > paymentDay) {
+    // Lógica do primeiro pagamento
+    let firstPaymentDate = new Date(start);
+    if (start.getDate() >= paymentDay) {
+      // Se começou depois ou no dia do pagamento, só paga no mês seguinte
       firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
     }
-    
-    // Corrige se o dia não existe no mês (ex: 31 em fevereiro)
+    firstPaymentDate.setDate(paymentDay);
+    // Corrige se o dia não existe no mês
     if (firstPaymentDate.getDate() !== paymentDay) {
-      firstPaymentDate.setDate(0); // último dia do mês anterior
-      firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
-      firstPaymentDate.setDate(Math.min(paymentDay, new Date(firstPaymentDate.getFullYear(), firstPaymentDate.getMonth() + 1, 0).getDate()));
+      // Ex: pagamento dia 31 em fevereiro
+      firstPaymentDate.setDate(0); // último dia do mês
     }
-    
-    // Calcula todos os meses de pagamento dentro da vigência do contrato
+    // Calcula todos os meses de pagamento dentro da vigência
     let durationInMonths = 0;
     let paymentDate = new Date(firstPaymentDate);
-    
-    console.log(`[DEBUG] Cliente: ${contract.client.company}, Start: ${contract.start_date}, Payment Day: ${paymentDay}, First Payment: ${firstPaymentDate.toISOString().split('T')[0]}, End: ${contract.end_date}`);
-    
     while (paymentDate <= end) {
-      durationInMonths++;
-      console.log(`[DEBUG] - Pagamento ${durationInMonths}: ${paymentDate.toISOString().split('T')[0]} - R$ ${contract.monthly_value}`);
-      
-      // Avança para o próximo mês
+      if (paymentDate >= firstPaymentDate && paymentDate <= end) {
+        durationInMonths++;
+      }
       paymentDate = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, paymentDay);
-      
       // Corrige se o dia não existe no mês
       if (paymentDate.getDate() !== paymentDay) {
-        paymentDate.setDate(0); // último dia do mês anterior
-        paymentDate.setMonth(paymentDate.getMonth() + 1);
-        paymentDate.setDate(Math.min(paymentDay, new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0).getDate()));
+        paymentDate.setDate(0);
       }
     }
-    
-    const projection = {
+    return {
       clientName: contract.client.company || 'Cliente não encontrado',
       monthlyValue: Number(contract.monthly_value),
       durationInMonths,
       startMonth: `${firstPaymentDate.getFullYear()}-${String(firstPaymentDate.getMonth() + 1).padStart(2, '0')}`,
     };
-    
-    console.log(`[DEBUG] Projeção final: ${projection.clientName} - ${projection.durationInMonths} meses a partir de ${projection.startMonth}`);
-    
-    return projection;
   });
 
   const faturamentoGeral = contractProjections.reduce(
     (total, c) => total + c.monthlyValue * c.durationInMonths, 0
   );
-
-  // Calcular contratos realmente ativos (independente do filtro de elegibilidade)
-  const activeContractsToday = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    return contracts.filter(contract => {
-      if (contract.status !== 'active') return false;
-      if (!contract.end_date) return false;
-      
-      const endDate = parseLocalDate(contract.end_date);
-      endDate.setHours(0, 0, 0, 0);
-      
-      return endDate >= today;
-    }).length;
-  }, [contracts]);
 
   const handleAddExpense = (expenseData: any) => {
     console.log('DEBUG - Dados recebidos para despesa:', expenseData);
@@ -206,7 +172,6 @@ export default function Financial() {
 
   // Filtros de status
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('currentMonth');
-  const [expenseFilter, setExpenseFilter] = useState<'all' | 'currentMonth'>('currentMonth');
 
   // Filtrar lançamentos financeiros conforme status
   const now = new Date();
@@ -434,19 +399,13 @@ export default function Financial() {
       </Card>
 
       {/* Despesas Section */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700">
-        <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
-          <div>
+      <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-white">Despesas</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Todas as despesas do sistema</p>
           </div>
-          <div className="flex gap-2 items-center">
-            <Button onClick={() => setExpenseFilter('all')} className={`${expenseFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setExpenseFilter('currentMonth')} className={`${expenseFilter === 'currentMonth' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Mês Atual</Button>
-            <ExpenseModal onAddExpense={handleAddExpense} />
-          </div>
+          <ExpenseModal onAddExpense={handleAddExpense} />
         </div>
-        <div className="p-6">
         
         {expensesLoading ? (
           <div className="text-center py-8">
@@ -458,30 +417,9 @@ export default function Financial() {
             <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
             <p className="text-goat-gray-400">Nenhuma despesa cadastrada</p>
           </div>
-        ) : (() => {
-          // Filtrar despesas conforme o filtro selecionado
-          const filteredExpenses = expenses.filter(expense => {
-            if (expenseFilter === 'all') return true;
-            if (expenseFilter === 'currentMonth') {
-              const d = parseLocalDate(expense.date);
-              return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-            }
-            return true;
-          });
-
-          // Calcular total de despesas pendentes com base no filtro
-          const totalPendingExpenses = filteredExpenses
-            .filter(e => e.status === 'pending')
-            .reduce((acc, e) => acc + Number(e.amount), 0);
-
-          return filteredExpenses.length === 0 ? (
-            <div className="text-center py-8">
-              <TrendingDown className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-              <p className="text-goat-gray-400">Nenhuma despesa encontrada</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredExpenses.map((expense) => (
+        ) : (
+          <div className="space-y-3">
+            {expenses.map((expense) => (
               <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
                 <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
@@ -535,18 +473,16 @@ export default function Financial() {
                   </div>
                 </div>
               </div>
-              ))}
-              <div className="flex justify-between items-center mt-6">
-                <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
-                <span className="text-white font-normal text-lg">{formatCurrency(totalPendingExpenses)}</span>
-              </div>
+            ))}
+            <div className="flex justify-between items-center mt-6">
+              <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
+              <span className="text-white font-normal text-lg">{formatCurrency(expenses.filter(e => e.status === 'pending').reduce((acc, e) => acc + Number(e.amount), 0))}</span>
             </div>
-          );
-        })()}
-        </div>
+          </div>
+        )}
       </Card>
 
-      <ProjectionChart contracts={contractProjections} activeContractsCount={activeContractsToday} />
+      <ProjectionChart contracts={contractProjections} />
 
       <DeleteExpenseDialog
         open={deleteExpenseDialog.open}

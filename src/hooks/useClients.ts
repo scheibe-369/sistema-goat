@@ -28,9 +28,6 @@ export const useClients = () => {
 
       return data as Client[];
     },
-    // Previne execução da query sem autenticação
-    enabled: true,
-    retry: false,
   });
 };
 
@@ -78,17 +75,6 @@ export const useCreateClient = () => {
           console.error('Erro ao gerar lançamentos financeiros:', finError);
           // Não falhar a criação do cliente por causa dos lançamentos
         }
-      }
-
-      // Enviar webhook com dados do novo cliente
-      try {
-        console.log('DEBUG - Enviando webhook para cliente criado:', data);
-        await supabase.functions.invoke('send-client-webhook', {
-          body: data
-        });
-      } catch (webhookError) {
-        console.error('Erro ao enviar webhook do cliente:', webhookError);
-        // Não falhar a criação do cliente por causa do webhook
       }
 
       return data;

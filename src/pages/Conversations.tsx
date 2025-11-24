@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Search, Send, Phone, MessageCircle, Filter } from "lucide-react"; 
 import { ConversationSidebarFilters } from "@/components/Conversations/ConversationSidebarFilters";
 import { WebhookTester } from "@/components/Conversations/WebhookTester";
-
 import { MessageMedia } from "@/components/Conversations/MessageMedia";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
@@ -29,7 +28,6 @@ export default function Conversations() {
     client: ""
   });
   const { toast } = useToast();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useConversations();
   const { data: messages = [], refetch: refetchMessages } = useMessages(selectedConversation?.id || "");
@@ -84,18 +82,6 @@ export default function Conversations() {
     };
   }, [selectedConversation?.id, refetchMessages]);
 
-  // Auto-scroll para a mensagem mais recente
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Scroll automático quando mensagens mudarem ou conversa for selecionada
-  useEffect(() => {
-    if (messages.length > 0 && selectedConversation) {
-      scrollToBottom();
-    }
-  }, [messages, selectedConversation]);
-
   // Função para marcar conversa como lida
   const markConversationAsRead = async (conversationId: string) => {
     try {
@@ -144,7 +130,6 @@ export default function Conversations() {
         {
           onSuccess: () => {
             setNewMessage("");
-            scrollToBottom();
           }
         }
       );
@@ -214,8 +199,6 @@ export default function Conversations() {
       
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
-      
-
       {/* Busca e Filtros */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
@@ -244,7 +227,7 @@ export default function Conversations() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de Conversas */}
         <div className="lg:col-span-1">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 h-[600px] flex flex-col">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
@@ -262,7 +245,7 @@ export default function Conversations() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3 flex-1 overflow-y-auto">
+              <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {filteredConversations.map((conversation) => (
                   <div 
                     key={conversation.id} 
@@ -342,32 +325,32 @@ export default function Conversations() {
                     </div>
                   </div>
                 </div>
-          <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2" style={{ maxWidth: '100%' }}>
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                <div className={`p-2 rounded-2xl w-auto max-w-[70%] ${
-                  message.media_type && message.media_type.startsWith('audio/')
-                    ? ''
-                    : ''
-                } ${
-                  isUserMessage(message)
-                    ? "bg-goat-purple text-white rounded-br-md message-bubble"
-                    : "bg-goat-gray-700 text-white rounded-bl-md"
-                }`}
-                style={{
-                  minWidth: 48,
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word'
-                }}
-                >
+                <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+                  {messages.map((message) => (
+                    <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
+                      <div className={`p-2 rounded-2xl w-auto ${
+                        message.media_type && message.media_type.startsWith('audio/')
+                          ? ''
+                          : ''
+                      } ${
+                        isUserMessage(message)
+                          ? "bg-goat-purple text-white rounded-br-md"
+                          : "bg-goat-gray-700 text-white rounded-bl-md"
+                      }`}
+                      style={{
+                        minWidth: 48,
+                        ...(message.media_type && message.media_type.startsWith('audio/')
+                          ? { maxWidth: '50%' }
+                          : { maxWidth: 320 })
+                      }}
+                      >
                         {(message.text || message.mensagem) && 
-                         !message.media_type && 
-                         (message.text !== 'Mídia enviada' && message.mensagem !== 'Mídia enviada') && (
+                         !(message.media_type && message.media_url) && (
                           <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
                         )}
                         
-                        {/* Renderizar mídia se existir tipo de mídia (com ou sem URL) */}
-                        {message.media_type && (
+                        {/* Renderizar mídia se existir */}
+                        {message.media_type && message.media_url && (
                           <MessageMedia
                             mediaType={message.media_type}
                             mediaUrl={message.media_url}
@@ -375,15 +358,6 @@ export default function Conversations() {
                             mediaSize={message.media_size || undefined}
                             isUserMessage={isUserMessage(message)}
                           />
-                        )}
-                        
-                        {/* Renderizar texto junto com mídia quando aplicável */}
-                        {(message.text || message.mensagem) && 
-                         message.media_type && 
-                         (message.text !== 'Mídia enviada' && message.mensagem !== 'Mídia enviada') && (
-                          <p className="text-sm break-words whitespace-pre-line mt-2 opacity-90">
-                            {message.text || message.mensagem}
-                          </p>
                         )}
                         
                         <span className={`text-xs block mt-2 ${
@@ -395,9 +369,8 @@ export default function Conversations() {
                         </span>
                       </div>
                     </div>
-                   ))}
-                   <div ref={messagesEndRef} />
-                 </div>
+                  ))}
+                </div>
                 <div className="flex gap-2">
                   <Input 
                     placeholder="Digite sua mensagem..." 

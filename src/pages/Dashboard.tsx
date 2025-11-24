@@ -13,48 +13,10 @@ export default function Dashboard() {
   const { stages = [] } = useStages();
   const { leads = [] } = useLeads();
 
-  // Função auxiliar para verificar se o contrato fatura no mês atual
-  const parseLocalDate = (dateString: string) => {
-    const dateParts = dateString.split('-');
-    const year = parseInt(dateParts[0]);
-    const month = parseInt(dateParts[1]) - 1;
-    const day = parseInt(dateParts[2]);
-    return new Date(year, month, day);
-  };
-
-  // Faturamento mensal considerando apenas contratos que faturam no mês atual
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-  
+  // Faturamento mensal dos contratos ativos
   const monthlyRevenue = contracts
-    .filter(contract => {
-      if (contract.status !== "active") return false;
-      if (!contract.start_date || !contract.end_date) return false;
-      
-      const client = clients.find(c => c.id === contract.client_id);
-      if (!client || !client.payment_day) return false;
-      
-      const startDate = parseLocalDate(contract.start_date);
-      const endDate = parseLocalDate(contract.end_date);
-      const paymentDay = Number(client.payment_day);
-      
-      // Calcular o primeiro mês de pagamento
-      let firstPaymentDate = new Date(startDate.getFullYear(), startDate.getMonth(), paymentDay);
-      
-      // Se o contrato começou depois do dia de pagamento, primeiro pagamento é no mês seguinte
-      if (startDate.getDate() > paymentDay) {
-        firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
-      }
-      
-      // Verificar se o mês atual está entre o primeiro pagamento e o fim do contrato
-      const currentMonthDate = new Date(currentYear, currentMonth, paymentDay);
-      
-      return currentMonthDate >= firstPaymentDate && currentMonthDate <= endDate;
-    })
+    .filter(contract => contract.status === "active")
     .reduce((total, contract) => total + (contract.monthly_value || 0), 0);
-  
-  console.log('[DASHBOARD] Faturamento do mês atual:', monthlyRevenue);
 
   // Total de clientes ativos
   const activeClients = clients.filter(client => client.tags?.includes("Ativo")).length;
