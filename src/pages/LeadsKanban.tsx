@@ -306,8 +306,9 @@ export default function LeadsKanban() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      {/* Header - Responsive */}
+    <div className="leads-kanban-page">
+      <div className="leads-kanban-inner space-y-4 sm:space-y-6 animate-fade-in">
+        {/* Header - Responsive */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
@@ -584,6 +585,7 @@ export default function LeadsKanban() {
         stage={selectedStage}
         onUpdateStage={handleUpdateStage}
       />
+      </div>
     </div>
   );
 }

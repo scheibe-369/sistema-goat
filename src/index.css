@@ -105,6 +105,7 @@
   body {
     @apply bg-goat-dark text-white font-sans;
     font-family: 'Founders Grotesk', sans-serif;
+    overflow-x: hidden; /* Remove o scroll horizontal global */
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -373,6 +374,35 @@
 
   .dropdown-item:hover {
     background-color: #525252 !important;
+  }
+
+  /* Wrapper geral da página de Kanban */
+  .leads-kanban-page {
+    width: 100%;
+    display: block;
+  }
+
+  /* Container interno que será escalado */
+  .leads-kanban-inner {
+    width: 100%;
+    max-width: 100%;
+    transform-origin: top left; /* importante: escala a partir da esquerda */
+    margin: 0;
+    display: block;
+  }
+
+  /* Em desktop, aplica o "zoom 80%" ancorado à esquerda */
+  @media (min-width: 1280px) {
+    .leads-kanban-inner {
+      transform: scale(0.8);
+    }
+  }
+
+  /* Em telas muito grandes, pode ficar levemente maior, mas ainda menor que o padrão */
+  @media (min-width: 1536px) {
+    .leads-kanban-inner {
+      transform: scale(0.8); /* manter 0.8 por enquanto para não aumentar demais */
+    }
   }
 }
 
