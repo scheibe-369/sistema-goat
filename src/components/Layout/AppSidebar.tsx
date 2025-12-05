@@ -37,7 +37,7 @@ export function AppSidebar() {
           py-28 px-1.5 gap-[72px]
           -translate-y-1/2
           transition-transform duration-300 ease-in-out
-          ${open ? "translate-x-0" : "-translate-x-[120%]"}
+          ${open ? "translate-x-0" : "-translate-x-[180%]"}
         `}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
