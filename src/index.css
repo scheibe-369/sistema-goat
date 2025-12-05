@@ -336,13 +336,13 @@
   /* Header fixo do kanban */
   .leads-kanban-header {
     position: sticky;
-    top: 0;         /* cola no topo da área de conteúdo */
-    z-index: 30;    /* fica acima das colunas */
+    top: 0;
+    z-index: 5;
   }
 
   @media (min-width: 1024px) {
     .leads-kanban-header {
-      top: 0.75rem; /* dá uma respirada do topo em desktop */
+      top: 0.75rem;
     }
   }
 }
