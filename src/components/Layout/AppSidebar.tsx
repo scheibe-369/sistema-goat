@@ -34,7 +34,7 @@ export function AppSidebar() {
         className={`fixed top-4 left-4 z-50
           flex flex-col items-center justify-between
           bg-[#080808] rounded-3xl shadow-lg
-          py-24 px-2 gap-16
+          py-28 px-1.5 gap-[72px]
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-[120%]"}
         `}
@@ -42,7 +42,7 @@ export function AppSidebar() {
         onMouseLeave={() => setOpen(false)}
       >
         {/* Ícones de navegação */}
-        <div className="flex flex-col items-center gap-16">
+        <div className="flex flex-col items-center gap-[72px]">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.url;
             const Icon = item.icon;
@@ -54,7 +54,7 @@ export function AppSidebar() {
                 title={item.title}
                 className={`
                   flex items-center justify-center
-                  w-12 h-12 rounded-full border border-transparent
+                  w-10 h-10 rounded-full border border-transparent
                   transition-colors duration-300
                   ${
                     isActive
@@ -63,7 +63,7 @@ export function AppSidebar() {
                   }
                 `}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4" />
               </Link>
             );
           })}
@@ -76,13 +76,13 @@ export function AppSidebar() {
           onClick={handleLogout}
           className="
             flex items-center justify-center
-            w-12 h-12 rounded-full
+            w-10 h-10 rounded-full
             bg-red-600/90 text-white hover:bg-red-700
             border border-transparent
             transition-colors duration-300
           "
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-4 h-4" />
         </button>
       </div>
     </>
