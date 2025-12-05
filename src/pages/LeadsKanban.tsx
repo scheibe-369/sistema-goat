@@ -385,13 +385,13 @@ export default function LeadsKanban() {
         <DragDropContext onDragEnd={handleDragEnd}>
         <div
           ref={kanbanRef}
-          className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden pb-4 ${
-            isMobile ? 'px-1' : ''
+          className={`leads-kanban-board flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] ${
+            isMobile ? "px-1" : ""
           }`}
           style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
             cursor: isDraggingScroll ? "grabbing" : "grab",
             userSelect: isDraggingScroll ? "none" : "auto",
           }}
