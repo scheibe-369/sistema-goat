@@ -286,8 +286,8 @@
     width: 100%;
     display: block;
     font-size: 0.95rem;
-    /* espaço para o header FIXO não cobrir o board */
-    padding-top: 6.5rem;   /* ajuste fino depois se quiser */
+    /* agora o header não é mais fixo, não precisa de tanto espaço em cima */
+    padding-top: 1.5rem;
     padding-bottom: 2rem;
   }
 
@@ -297,12 +297,10 @@
     }
   }
 
-  /* Header fixo, ocupando a largura do viewport */
+  /* Header agora se comporta como conteúdo normal da página,
+     mas ainda pode ficar acima visualmente se precisar */
   .leads-kanban-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: relative; /* ou pode simplesmente remover essa regra */
     z-index: 20;
   }
 
