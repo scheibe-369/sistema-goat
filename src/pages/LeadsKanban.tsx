@@ -307,77 +307,80 @@ export default function LeadsKanban() {
 
   return (
     <div className="leads-kanban-page">
-      {/* HEADER + FILTROS (STICKY) */}
-      <div className="leads-kanban-header bg-goat-dark/95 backdrop-blur-sm space-y-4 sm:space-y-6 pb-4 animate-fade-in">
-        {/* Header - Responsive */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
-          <p className="text-goat-gray-400 text-sm sm:text-base">Gerencie seus leads e clientes</p>
-        </div>
-        
-        {/* Buttons - Responsive Stack */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
-          <Button 
-            className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-            onClick={() => setIsTagsModalOpen(true)}
-          >
-            <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            {isMobile ? "Tags" : "Gerenciar Tags"}
-          </Button>
-          <Button 
-            className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-            onClick={() => setIsAddStageModalOpen(true)}
-          >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            {isMobile ? "Etapa" : "Nova Etapa"}
-          </Button>
-          <Button 
-            className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-            onClick={() => setIsNewLeadModalOpen(true)}
-          >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            {isMobile ? "Lead" : "Novo Lead"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters - Responsive */}
-      <Card 
-        className="p-3 sm:p-4" 
-        style={{ backgroundColor: '#080808', border: 'none', boxShadow: 'none' }}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
-          <div className="flex flex-wrap gap-2">
+      {/* HEADER + FILTROS (FIXO) */}
+      <div className="leads-kanban-header">
+        {/* wrapper para alinhar com a esteira */}
+        <div className="leads-kanban-header-inner bg-goat-dark/95 backdrop-blur-sm space-y-4 sm:space-y-6 pb-4 animate-fade-in">
+          {/* Header - Responsive */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
+            <p className="text-goat-gray-400 text-sm sm:text-base">Gerencie seus leads e clientes</p>
+          </div>
+          
+          {/* Buttons - Responsive Stack */}
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
             <Button 
-              variant="outline" 
-              size="sm" 
-              className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                activeFilter === 'all' ? 'bg-goat-purple border-goat-purple' : ''
-              }`}
-              onClick={() => setActiveFilter('all')}
+              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
+              onClick={() => setIsTagsModalOpen(true)}
             >
-              Todos os grupos
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isMobile ? "Tags" : "Gerenciar Tags"}
             </Button>
-            {tags.map((tag) => (
-              <Button
-                key={tag.id}
-                variant="outline"
-                size="sm"
-                className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                  activeFilter === tag.name ? 'bg-goat-purple border-goat-purple' : ''
-                }`}
-                onClick={() => setActiveFilter(tag.name)}
-              >
-                <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`}></div>
-                {tag.name}
-              </Button>
-            ))}
+            <Button 
+              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
+              onClick={() => setIsAddStageModalOpen(true)}
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isMobile ? "Etapa" : "Nova Etapa"}
+            </Button>
+            <Button 
+              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
+              onClick={() => setIsNewLeadModalOpen(true)}
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isMobile ? "Lead" : "Novo Lead"}
+            </Button>
           </div>
         </div>
-      </Card>
 
+        {/* Filters - Responsive */}
+        <Card 
+          className="p-3 sm:p-4" 
+          style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
+                  activeFilter === 'all' ? 'bg-goat-purple border-goat-purple' : ''
+                }`}
+                onClick={() => setActiveFilter('all')}
+              >
+                Todos os grupos
+              </Button>
+              {tags.map((tag) => (
+                <Button
+                  key={tag.id}
+                  variant="outline"
+                  size="sm"
+                  className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
+                    activeFilter === tag.name ? 'bg-goat-purple border-goat-purple' : ''
+                  }`}
+                  onClick={() => setActiveFilter(tag.name)}
+                >
+                  <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`}></div>
+                  {tag.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        </div>
       </div>
 
       {/* BOARD (colunas + drag & drop) */}

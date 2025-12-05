@@ -285,10 +285,9 @@
   .leads-kanban-page {
     width: 100%;
     display: block;
-    font-size: 0.95rem;   /* um tiquinho maior que o padrão */
-
-    /* Agora igual ao resto do sistema */
-    padding-top: 1.5rem;
+    font-size: 0.95rem;
+    /* espaço para o header FIXO não cobrir o board */
+    padding-top: 6.5rem;   /* ajuste fino depois se quiser */
     padding-bottom: 2rem;
   }
 
@@ -298,16 +297,30 @@
     }
   }
 
-  /* Header fixo do kanban */
+  /* Header fixo, ocupando a largura do viewport */
   .leads-kanban-header {
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 5;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+
+  /* Conteúdo do header alinhado com a esteira */
+  .leads-kanban-header-inner {
+    padding-left: 2rem;   /* ajustado para mover mais à direita */
+    padding-right: 1.5rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1rem;
+    background-color: #080808f2;
+    backdrop-filter: blur(8px);
   }
 
   @media (min-width: 1024px) {
-    .leads-kanban-header {
-      top: 0.75rem;
+    .leads-kanban-header-inner {
+      padding-left: 2.5rem;   /* ajustado para mover mais à direita */
+      padding-right: 2rem;
+      padding-top: 1.5rem;
     }
   }
 
