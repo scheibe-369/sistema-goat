@@ -34,7 +34,7 @@ export function AppSidebar() {
         className={`fixed top-4 left-4 z-50
           flex flex-col items-center justify-between
           bg-[#080808] rounded-3xl shadow-lg
-          py-3 px-2 gap-4
+          py-24 px-2 gap-16
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-[120%]"}
         `}
@@ -42,7 +42,7 @@ export function AppSidebar() {
         onMouseLeave={() => setOpen(false)}
       >
         {/* Ícones de navegação */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-16">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.url;
             const Icon = item.icon;
