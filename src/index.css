@@ -99,7 +99,7 @@
   }
 
   html {
-    font-size: 24px; /* Aumenta de 16px para 24px (150% zoom) */
+    font-size: 16px; /* padrão */
   }
 
   body {
@@ -110,66 +110,6 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold;
-  }
-  
-  /* Aumentar tamanhos de texto base para simular 150% zoom */
-  h1 {
-    font-size: 2.25rem; /* 36px - equivalente a text-4xl em 150% */
-  }
-  
-  h2 {
-    font-size: 1.875rem; /* 30px - equivalente a text-3xl em 150% */
-  }
-  
-  h3 {
-    font-size: 1.5rem; /* 24px - equivalente a text-2xl em 150% */
-  }
-  
-  /* Aumentar espaçamentos base */
-  .space-y-4 > * + * {
-    margin-top: 1.5rem !important; /* 24px ao invés de 16px */
-  }
-  
-  .space-y-6 > * + * {
-    margin-top: 2.25rem !important; /* 36px ao invés de 24px */
-  }
-  
-  .space-y-8 > * + * {
-    margin-top: 3rem !important; /* 48px ao invés de 32px */
-  }
-  
-  /* Aumentar padding e gaps base */
-  .gap-2 {
-    gap: 0.75rem !important; /* 12px ao invés de 8px */
-  }
-  
-  .gap-3 {
-    gap: 1.125rem !important; /* 18px ao invés de 12px */
-  }
-  
-  .gap-4 {
-    gap: 1.5rem !important; /* 24px ao invés de 16px */
-  }
-  
-  .gap-6 {
-    gap: 2.25rem !important; /* 36px ao invés de 24px */
-  }
-  
-  /* Aumentar tamanhos de botões e elementos interativos */
-  button, .btn-primary {
-    font-size: 1.125rem !important; /* 18px ao invés de 16px */
-    padding: 0.75rem 1.5rem !important; /* Aumenta padding */
-  }
-  
-  /* Aumentar tamanhos de inputs */
-  input, textarea, select {
-    font-size: 1.125rem !important; /* 18px */
-    padding: 0.75rem 1rem !important;
-  }
-  
-  /* Aumentar tamanhos de cards */
-  .card-dark, [class*="Card"] {
-    padding: 1.5rem !important; /* 24px ao invés de 16px */
   }
 
   .gradient-text {
@@ -380,28 +320,29 @@
   .leads-kanban-page {
     width: 100%;
     display: block;
+    font-size: 0.95rem;   /* um tiquinho maior que o padrão */
+
+    /* Agora igual ao resto do sistema */
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
   }
 
-  /* Container interno que será escalado */
-  .leads-kanban-inner {
-    width: 100%;
-    max-width: 100%;
-    transform-origin: top left; /* importante: escala a partir da esquerda */
-    margin: 0;
-    display: block;
-  }
-
-  /* Em desktop, aplica o "zoom 80%" ancorado à esquerda */
   @media (min-width: 1280px) {
-    .leads-kanban-inner {
-      transform: scale(0.8);
+    .leads-kanban-page {
+      font-size: 1rem;
     }
   }
 
-  /* Em telas muito grandes, pode ficar levemente maior, mas ainda menor que o padrão */
-  @media (min-width: 1536px) {
-    .leads-kanban-inner {
-      transform: scale(0.8); /* manter 0.8 por enquanto para não aumentar demais */
+  /* Header fixo do kanban */
+  .leads-kanban-header {
+    position: sticky;
+    top: 0;         /* cola no topo da área de conteúdo */
+    z-index: 30;    /* fica acima das colunas */
+  }
+
+  @media (min-width: 1024px) {
+    .leads-kanban-header {
+      top: 0.75rem; /* dá uma respirada do topo em desktop */
     }
   }
 }
@@ -590,3 +531,4 @@
 .notification svg {
   color: #5315CB !important;
 }
+

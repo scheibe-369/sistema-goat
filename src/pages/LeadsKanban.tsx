@@ -307,9 +307,10 @@ export default function LeadsKanban() {
 
   return (
     <div className="leads-kanban-page">
-      <div className="leads-kanban-inner space-y-4 sm:space-y-6 animate-fade-in">
+      {/* HEADER + FILTROS (STICKY) */}
+      <div className="leads-kanban-header bg-goat-dark/95 backdrop-blur-sm space-y-4 sm:space-y-6 pb-4 animate-fade-in">
         {/* Header - Responsive */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
           <p className="text-goat-gray-400 text-sm sm:text-base">Gerencie seus leads e clientes</p>
@@ -377,8 +378,11 @@ export default function LeadsKanban() {
         </div>
       </Card>
 
-      {/* Kanban Board - Responsive */}
-      <DragDropContext onDragEnd={handleDragEnd}>
+      </div>
+
+      {/* BOARD (colunas + drag & drop) */}
+      <div className="mt-4">
+        <DragDropContext onDragEnd={handleDragEnd}>
         <div
           ref={kanbanRef}
           className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden pb-4 ${
@@ -404,14 +408,21 @@ export default function LeadsKanban() {
             const filteredLeads = getFilteredLeads(stageLeads);
             
             return (
-              <div key={stage.id} className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
-                isMobile ? 'w-72' : 'w-80'
-              }`}>
-                {/* Stage Header - Responsive */}
+              <div
+                key={stage.id}
+                className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
+                  isMobile ? "w-72" : "w-80"
+                }`}
+              >
+                {/* Stage Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}></div>
-                    <h3 className="font-semibold text-white text-sm sm:text-base">{stage.name}</h3>
+                    <div
+                      className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}
+                    ></div>
+                    <h3 className="font-semibold text-white text-sm sm:text-base">
+                      {stage.name}
+                    </h3>
                     <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
                       {filteredLeads.length}
                     </Badge>
@@ -448,7 +459,7 @@ export default function LeadsKanban() {
                   </ContextMenu>
                 </div>
 
-                {/* Lead Cards - Responsive */}
+                {/* Coluna de cards */}
                 <Droppable droppableId={stage.id}>
                   {(provided, snapshot) => (
                     <div
@@ -472,11 +483,14 @@ export default function LeadsKanban() {
                                 <ContextMenuTrigger>
                                   <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
                                     <div className="space-y-2 sm:space-y-3">
-                                      {/* Lead Header - Responsive */}
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1 min-w-0">
-                                          <h4 className="font-semibold text-white text-sm truncate">{lead.name}</h4>
-                                          <p className="text-goat-gray-400 text-xs truncate">{lead.company}</p>
+                                          <h4 className="font-semibold text-white text-sm truncate">
+                                            {lead.name}
+                                          </h4>
+                                          <p className="text-goat-gray-400 text-xs truncate">
+                                            {lead.company}
+                                          </p>
                                         </div>
                                         <Button
                                           variant="ghost"
@@ -487,29 +501,33 @@ export default function LeadsKanban() {
                                           <MoreVertical className="w-3 h-3" />
                                         </Button>
                                       </div>
-                                      
-                                      {/* Group Badge - Responsive */}
                                       {lead.tags && lead.tags.length > 0 && (
-                                        <Badge className={`text-xs ${getGroupColor(lead.tags[0])} truncate max-w-full`}>
+                                        <Badge
+                                          className={`text-xs ${getGroupColor(
+                                            lead.tags[0]
+                                          )} truncate max-w-full`}
+                                        >
                                           {lead.tags[0]}
                                         </Badge>
                                       )}
-                                      
-                                      {/* Value - Show on mobile too but smaller */}
+
                                       {lead.value && (
                                         <div className="text-goat-purple font-semibold text-xs sm:text-sm">
-                                          R$ {lead.value.toLocaleString('pt-BR')}
+                                          R$ {lead.value.toLocaleString("pt-BR")}
                                         </div>
                                       )}
-                                      
-                                      {/* Last Update - Responsive */}
+
                                       <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
                                         <Calendar className="w-3 h-3 flex-shrink-0" />
                                         <span className="truncate">
-                                          {isMobile 
-                                            ? new Date(lead.updated_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-                                            : `Atualizado em ${new Date(lead.updated_at).toLocaleDateString('pt-BR')}`
-                                          }
+                                          {isMobile
+                                            ? new Date(lead.updated_at).toLocaleDateString(
+                                                "pt-BR",
+                                                { day: "2-digit", month: "2-digit" }
+                                              )
+                                            : `Atualizado em ${new Date(
+                                                lead.updated_at
+                                              ).toLocaleDateString("pt-BR")}`}
                                         </span>
                                       </div>
                                     </div>
@@ -537,7 +555,6 @@ export default function LeadsKanban() {
                         </Draggable>
                       ))}
                       {provided.placeholder}
-                      {/* Empty State - Responsive */}
                       {filteredLeads.length === 0 && (
                         <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
                           <p className="text-goat-gray-400 text-xs sm:text-sm">
@@ -552,9 +569,10 @@ export default function LeadsKanban() {
             );
           })}
         </div>
-      </DragDropContext>
+        </DragDropContext>
+      </div>
 
-      {/* Modals */}
+      {/* Modais */}
       <TagsManagementModal
         open={isTagsModalOpen}
         onOpenChange={setIsTagsModalOpen}
@@ -585,7 +603,6 @@ export default function LeadsKanban() {
         stage={selectedStage}
         onUpdateStage={handleUpdateStage}
       />
-      </div>
     </div>
   );
 }
