@@ -31,10 +31,11 @@ export function AppSidebar() {
 
       {/* Barra flutuante */}
       <div
-        className={`fixed top-4 left-4 z-50
+        className={`fixed top-1/2 left-4 z-50
           flex flex-col items-center justify-between
           bg-[#080808] rounded-3xl shadow-lg
           py-28 px-1.5 gap-[72px]
+          -translate-y-1/2
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-[120%]"}
         `}
