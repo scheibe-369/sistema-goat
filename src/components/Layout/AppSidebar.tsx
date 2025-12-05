@@ -31,19 +31,19 @@ export function AppSidebar() {
 
       {/* Barra flutuante */}
       <div
-        className={`fixed top-1/2 left-4 z-50
-          flex flex-col items-center justify-between
+        className={`
+          fixed left-4 top-4 bottom-4 z-50
+          flex flex-col items-center
           bg-[#080808] rounded-3xl shadow-lg
-          py-28 px-1.5 gap-[72px]
-          -translate-y-1/2
+          px-1.5 py-6
           transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-[180%]"}
         `}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
       >
-        {/* Ícones de navegação */}
-        <div className="flex flex-col items-center gap-[72px]">
+        {/* Ícones no topo */}
+        <div className="flex flex-col items-center gap-6 w-full">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.url;
             const Icon = item.icon;
@@ -55,7 +55,8 @@ export function AppSidebar() {
                 title={item.title}
                 className={`
                   flex items-center justify-center
-                  w-10 h-10 rounded-full border border-transparent
+                  w-10 h-10 rounded-full
+                  border border-transparent
                   transition-colors duration-300
                   ${
                     isActive
@@ -70,12 +71,16 @@ export function AppSidebar() {
           })}
         </div>
 
-        {/* Botão de sair */}
+        {/* Espaço flexível que empurra o botão para baixo */}
+        <div className="flex-1" />
+
+        {/* Botão de sair no rodapé da barra */}
         <button
           type="button"
           title="Sair"
           onClick={handleLogout}
           className="
+            mb-2
             flex items-center justify-center
             w-10 h-10 rounded-full
             bg-red-600/90 text-white hover:bg-red-700
