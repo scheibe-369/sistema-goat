@@ -308,7 +308,7 @@ export default function LeadsKanban() {
   return (
     <div className="relative">
       {/* HEADER FIXO - div totalmente separada da esteira */}
-      <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark/95 backdrop-blur-sm">
+      <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
         <div className="px-6 lg:px-8 pt-4 pb-3 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
