@@ -306,309 +306,308 @@ export default function LeadsKanban() {
   }
 
   return (
-    <div className="leads-kanban-page">
-      {/* HEADER + FILTROS (fixo no topo, largura limitada) */}
-      <div className="sticky top-0 z-20 bg-goat-dark/95 backdrop-blur-sm">
-        <div className="max-w-[1800px] mx-auto px-10 pt-5 pb-4 space-y-4 sm:space-y-6 animate-fade-in">
-          {/* Header - Responsive */}
+    <div className="relative">
+      {/* HEADER FIXO - div totalmente separada da esteira */}
+      <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark/95 backdrop-blur-sm">
+        <div className="px-6 lg:px-8 pt-4 pb-3 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
-            <p className="text-goat-gray-400 text-sm sm:text-base">
-              Gerencie seus leads e clientes
-            </p>
-          </div>
-          
-          {/* Buttons - ficam SEMPRE perto do título, lado direito do container */}
-          <div className="flex flex-row flex-wrap sm:flex-nowrap gap-2 sm:gap-2">
-            <Button 
-              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-              onClick={() => setIsTagsModalOpen(true)}
-            >
-              <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isMobile ? "Tags" : "Gerenciar Tags"}
-            </Button>
-            <Button 
-              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-              onClick={() => setIsAddStageModalOpen(true)}
-            >
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isMobile ? "Etapa" : "Nova Etapa"}
-            </Button>
-            <Button 
-              className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
-              onClick={() => setIsNewLeadModalOpen(true)}
-            >
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              {isMobile ? "Lead" : "Novo Lead"}
-            </Button>
-          </div>
-        </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Funil</h1>
+              <p className="text-goat-gray-400 text-sm sm:text-base">
+                Gerencie seus leads e clientes
+              </p>
+            </div>
 
-        {/* Filters - Responsive */}
-        <Card 
-          className="p-3 sm:p-4" 
-          style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                  activeFilter === 'all' ? 'bg-goat-purple border-goat-purple' : ''
-                }`}
-                onClick={() => setActiveFilter('all')}
+            <div className="flex flex-row flex-wrap sm:flex-nowrap gap-2">
+              <Button
+                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                onClick={() => setIsTagsModalOpen(true)}
               >
-                Todos os grupos
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                {isMobile ? "Tags" : "Gerenciar Tags"}
               </Button>
-              {tags.map((tag) => (
+              <Button
+                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                onClick={() => setIsAddStageModalOpen(true)}
+              >
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                {isMobile ? "Etapa" : "Nova Etapa"}
+              </Button>
+              <Button
+                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                onClick={() => setIsNewLeadModalOpen(true)}
+              >
+                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                {isMobile ? "Lead" : "Novo Lead"}
+              </Button>
+            </div>
+          </div>
+
+          <Card
+            className="p-3 sm:p-4"
+            style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
+              <div className="flex flex-wrap gap-2">
                 <Button
-                  key={tag.id}
                   variant="outline"
                   size="sm"
                   className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                    activeFilter === tag.name ? 'bg-goat-purple border-goat-purple' : ''
+                    activeFilter === "all" ? "bg-goat-purple border-goat-purple" : ""
                   }`}
-                  onClick={() => setActiveFilter(tag.name)}
+                  onClick={() => setActiveFilter("all")}
                 >
-                  <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`}></div>
-                  {tag.name}
+                  Todos os grupos
                 </Button>
-              ))}
+                {tags.map((tag) => (
+                  <Button
+                    key={tag.id}
+                    variant="outline"
+                    size="sm"
+                    className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
+                      activeFilter === tag.name ? "bg-goat-purple border-goat-purple" : ""
+                    }`}
+                    onClick={() => setActiveFilter(tag.name)}
+                  >
+                    <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`} />
+                    {tag.name}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
-
+          </Card>
         </div>
       </div>
 
-      {/* BOARD (colunas + drag & drop) */}
-      <div className="mt-4">
+      {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
+      <div className="pt-[120px] px-6 lg:px-8 space-y-4">
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="max-w-[1800px] mx-auto px-10">
-            <div
-              ref={kanbanRef}
-              className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden ${
-                isMobile ? "px-1" : ""
-              }`}
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                WebkitOverflowScrolling: "touch",
-                cursor: isDraggingScroll ? "grabbing" : "grab",
-                userSelect: isDraggingScroll ? "none" : "auto",
-              }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              {stages.map((stage) => {
-            const stageLeads = getLeadsByStage(stage.id);
-            const filteredLeads = getFilteredLeads(stageLeads);
-            
-            return (
-              <div
-                key={stage.id}
-                className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
-                  isMobile ? "w-72" : "w-80"
-                }`}
-              >
-                {/* Stage Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}
-                    ></div>
-                    <h3 className="font-semibold text-white text-sm sm:text-base">
-                      {stage.name}
-                    </h3>
-                    <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
-                      {filteredLeads.length}
-                    </Badge>
-                  </div>
-                  <ContextMenu>
-                    <ContextMenuTrigger>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
-                        onClick={() => handleEditStage(stage)}
-                      >
-                        <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </Button>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                      <ContextMenuItem
-                        onClick={() => handleEditStage(stage)}
-                        className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Editar Etapa
-                      </ContextMenuItem>
-                      {!stage.is_default && (
-                        <ContextMenuItem
-                          onClick={() => handleDeleteStage(stage.id)}
-                          className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir Etapa
-                        </ContextMenuItem>
-                      )}
-                    </ContextMenuContent>
-                  </ContextMenu>
-                </div>
+          {/* SOMENTE essa div tem scroll horizontal */}
+          <div
+            ref={kanbanRef}
+            className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden ${
+              isMobile ? "px-1" : ""
+            }`}
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
+              cursor: isDraggingScroll ? "grabbing" : "grab",
+              userSelect: isDraggingScroll ? "none" : "auto",
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {stages.map((stage) => {
+              const stageLeads = getLeadsByStage(stage.id);
+              const filteredLeads = getFilteredLeads(stageLeads);
 
-                {/* Coluna de cards */}
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${
-                        snapshot.isDraggingOver ? 'bg-goat-gray-700/50' : ''
-                      }`}
-                    >
-                      {filteredLeads.map((lead, index) => (
-                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`${snapshot.isDragging ? 'rotate-2 scale-105' : ''} transition-transform`}
-                              data-drag-card
-                            >
-                              <ContextMenu>
-                                <ContextMenuTrigger>
-                                  <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
-                                    <div className="space-y-2 sm:space-y-3">
-                                      <div className="flex items-start justify-between">
-                                        <div className="flex-1 min-w-0">
-                                          <h4 className="font-semibold text-white text-sm truncate">
-                                            {lead.name}
-                                          </h4>
-                                          <p className="text-goat-gray-400 text-xs truncate">
-                                            {lead.company}
-                                          </p>
-                                        </div>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ml-2"
-                                          onClick={() => handleEditLead(lead)}
-                                        >
-                                          <MoreVertical className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-                                      {lead.tags && lead.tags.length > 0 && (
-                                        <Badge
-                                          className={`text-xs ${getGroupColor(
-                                            lead.tags[0]
-                                          )} truncate max-w-full`}
-                                        >
-                                          {lead.tags[0]}
-                                        </Badge>
-                                      )}
-
-                                      {lead.value && (
-                                        <div className="text-goat-purple font-semibold text-xs sm:text-sm">
-                                          R$ {lead.value.toLocaleString("pt-BR")}
-                                        </div>
-                                      )}
-
-                                      <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                        <Calendar className="w-3 h-3 flex-shrink-0" />
-                                        <span className="truncate">
-                                          {isMobile
-                                            ? new Date(lead.updated_at).toLocaleDateString(
-                                                "pt-BR",
-                                                { day: "2-digit", month: "2-digit" }
-                                              )
-                                            : `Atualizado em ${new Date(
-                                                lead.updated_at
-                                              ).toLocaleDateString("pt-BR")}`}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </Card>
-                                </ContextMenuTrigger>
-                                <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
-                                  <ContextMenuItem
-                                    onClick={() => handleEditLead(lead)}
-                                    className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
-                                  >
-                                    <Edit className="w-4 h-4 mr-2" />
-                                    Editar Lead
-                                  </ContextMenuItem>
-                                  <ContextMenuItem
-                                    onClick={() => handleDeleteLead(lead.id)}
-                                    className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Excluir Lead
-                                  </ContextMenuItem>
-                                </ContextMenuContent>
-                              </ContextMenu>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      {filteredLeads.length === 0 && (
-                        <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
-                          <p className="text-goat-gray-400 text-xs sm:text-sm">
-                            {isMobile ? "Arraste leads" : "Arraste leads para cá"}
-                          </p>
-                        </div>
-                      )}
+              return (
+                <div
+                  key={stage.id}
+                  className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
+                    isMobile ? "w-72" : "w-80"
+                  }`}
+                >
+                  {/* Stage Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}
+                      />
+                      <h3 className="font-semibold text-white text-sm sm:text-base">
+                        {stage.name}
+                      </h3>
+                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
+                        {filteredLeads.length}
+                      </Badge>
                     </div>
-                  )}
-                </Droppable>
-              </div>
-            );
-          })}
-            </div>
+                    <ContextMenu>
+                      <ContextMenuTrigger>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
+                          onClick={() => handleEditStage(stage)}
+                        >
+                          <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </Button>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                        <ContextMenuItem
+                          onClick={() => handleEditStage(stage)}
+                          className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Editar Etapa
+                        </ContextMenuItem>
+                        {!stage.is_default && (
+                          <ContextMenuItem
+                            onClick={() => handleDeleteStage(stage.id)}
+                            className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Excluir Etapa
+                          </ContextMenuItem>
+                        )}
+                      </ContextMenuContent>
+                    </ContextMenu>
+                  </div>
+
+                  {/* Coluna de cards */}
+                  <Droppable droppableId={stage.id}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${
+                          snapshot.isDraggingOver ? "bg-goat-gray-700/50" : ""
+                        }`}
+                      >
+                        {filteredLeads.map((lead, index) => (
+                          <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`${
+                                  snapshot.isDragging ? "rotate-2 scale-105" : ""
+                                } transition-transform`}
+                                data-drag-card
+                              >
+                                <ContextMenu>
+                                  <ContextMenuTrigger>
+                                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                      <div className="space-y-2 sm:space-y-3">
+                                        <div className="flex items-start justify-between">
+                                          <div className="flex-1 min-w-0">
+                                            <h4 className="font-semibold text-white text-sm truncate">
+                                              {lead.name}
+                                            </h4>
+                                            <p className="text-goat-gray-400 text-xs truncate">
+                                              {lead.company}
+                                            </p>
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ml-2"
+                                            onClick={() => handleEditLead(lead)}
+                                          >
+                                            <MoreVertical className="w-3 h-3" />
+                                          </Button>
+                                        </div>
+                                        {lead.tags && lead.tags.length > 0 && (
+                                          <Badge
+                                            className={`text-xs ${getGroupColor(
+                                              lead.tags[0]
+                                            )} truncate max-w-full`}
+                                          >
+                                            {lead.tags[0]}
+                                          </Badge>
+                                        )}
+
+                                        {lead.value && (
+                                          <div className="text-goat-purple font-semibold text-xs sm:text-sm">
+                                            R$ {lead.value.toLocaleString("pt-BR")}
+                                          </div>
+                                        )}
+
+                                        <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
+                                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                                          <span className="truncate">
+                                            {isMobile
+                                              ? new Date(
+                                                  lead.updated_at
+                                                ).toLocaleDateString("pt-BR", {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                })
+                                              : `Atualizado em ${new Date(
+                                                  lead.updated_at
+                                                ).toLocaleDateString("pt-BR")}`}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </Card>
+                                  </ContextMenuTrigger>
+                                  <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                    <ContextMenuItem
+                                      onClick={() => handleEditLead(lead)}
+                                      className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
+                                    >
+                                      <Edit className="w-4 h-4 mr-2" />
+                                      Editar Lead
+                                    </ContextMenuItem>
+                                    <ContextMenuItem
+                                      onClick={() => handleDeleteLead(lead.id)}
+                                      className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Excluir Lead
+                                    </ContextMenuItem>
+                                  </ContextMenuContent>
+                                </ContextMenu>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        {filteredLeads.length === 0 && (
+                          <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
+                            <p className="text-goat-gray-400 text-xs sm:text-sm">
+                              {isMobile ? "Arraste leads" : "Arraste leads para cá"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
           </div>
         </DragDropContext>
-      </div>
 
-      {/* Modais */}
-      <TagsManagementModal
-        open={isTagsModalOpen}
-        onOpenChange={setIsTagsModalOpen}
-      />
-      <EditLeadModal
-        open={isEditLeadModalOpen}
-        onOpenChange={setIsEditLeadModalOpen}
-        lead={selectedLead}
-        tags={tags}
-        stages={stages}
-        onUpdateLead={handleUpdateLead}
-      />
-      <AddStageModal
-        open={isAddStageModalOpen}
-        onOpenChange={setIsAddStageModalOpen}
-        onAddStage={handleAddStage}
-      />
-      <NewLeadModal
-        open={isNewLeadModalOpen}
-        onOpenChange={setIsNewLeadModalOpen}
-        tags={tags}
-        stages={stages}
-        onAddLead={handleAddLead}
-      />
-      <EditStageModal
-        open={isEditStageModalOpen}
-        onOpenChange={setIsEditStageModalOpen}
-        stage={selectedStage}
-        onUpdateStage={handleUpdateStage}
-      />
+        {/* Modais */}
+        <TagsManagementModal
+          open={isTagsModalOpen}
+          onOpenChange={setIsTagsModalOpen}
+        />
+        <EditLeadModal
+          open={isEditLeadModalOpen}
+          onOpenChange={setIsEditLeadModalOpen}
+          lead={selectedLead}
+          tags={tags}
+          stages={stages}
+          onUpdateLead={handleUpdateLead}
+        />
+        <AddStageModal
+          open={isAddStageModalOpen}
+          onOpenChange={setIsAddStageModalOpen}
+          onAddStage={handleAddStage}
+        />
+        <NewLeadModal
+          open={isNewLeadModalOpen}
+          onOpenChange={setIsNewLeadModalOpen}
+          tags={tags}
+          stages={stages}
+          onAddLead={handleAddLead}
+        />
+        <EditStageModal
+          open={isEditStageModalOpen}
+          onOpenChange={setIsEditStageModalOpen}
+          stage={selectedStage}
+          onUpdateStage={handleUpdateStage}
+        />
+      </div>
     </div>
   );
 }

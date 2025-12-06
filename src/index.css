@@ -281,21 +281,6 @@
     background-color: #525252 !important;
   }
 
-  /* Wrapper geral da página de Kanban */
-  .leads-kanban-page {
-    width: 100%;
-    max-width: 100vw;       /* 👈 impede ficar gigante igual à esteira */
-    overflow-x: hidden;     /* não deixa a página "alargar" por causa das colunas */
-    font-size: 0.95rem;
-    padding-top: 6.5rem;    /* espaço pro header fixo */
-    padding-bottom: 2rem;
-  }
-
-  @media (min-width: 1280px) {
-    .leads-kanban-page {
-      font-size: 1rem;
-    }
-  }
 
 }
 
