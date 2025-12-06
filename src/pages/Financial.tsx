@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, TrendingUp, AlertCircle, TrendingDown, Plus } from "lucide-react";
 import { FinancialKPIs } from "@/components/Financial/FinancialKPIs";
+import { FinancialHeader } from "@/components/Financial/FinancialHeader";
 import { ExpenseModal } from "@/components/Financial/ExpenseModal";
 import { ProjectionChart } from "@/components/Financial/ProjectionChart";
 import { useClients } from "@/hooks/useClients";
@@ -261,14 +262,17 @@ export default function Financial() {
     return () => window.removeEventListener("focus", onFocus);
   }, [refetch]);
 
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Financeiro</h1>
-          <p className="text-goat-gray-400">Controle de faturamento e recebimentos</p>
-        </div>
-      </div>
+      <FinancialHeader onNewTransaction={() => setIsExpenseModalOpen(true)} />
+      
+      <ExpenseModal 
+        onAddExpense={handleAddExpense} 
+        open={isExpenseModalOpen}
+        onOpenChange={setIsExpenseModalOpen}
+      />
 
       <FinancialKPIs
         totalReceitas={faturamentoGeral}

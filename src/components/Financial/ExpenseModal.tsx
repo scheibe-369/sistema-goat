@@ -9,10 +9,14 @@ import { Plus } from "lucide-react";
 
 interface ExpenseModalProps {
   onAddExpense: (expense: any) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
-  const [open, setOpen] = useState(false);
+export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: externalOnOpenChange }: ExpenseModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   const [formData, setFormData] = useState({
     description: '',
     value: '',
@@ -82,12 +86,14 @@ export function ExpenseModal({ onAddExpense }: ExpenseModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Despesa
-        </Button>
-      </DialogTrigger>
+      {externalOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Despesa
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Nova Despesa</DialogTitle>
