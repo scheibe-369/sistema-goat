@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
+      <div className="-mt-2">
         <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
         <p className="text-goat-gray-400">Visão geral do seu CRM</p>
       </div>
