@@ -381,7 +381,7 @@ export default function LeadsKanban() {
       </div>
 
       {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-[120px] px-6 lg:px-8 space-y-4">
+      <div className="pt-[150px] px-6 lg:px-8 space-y-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
