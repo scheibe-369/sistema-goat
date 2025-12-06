@@ -309,7 +309,7 @@ export default function LeadsKanban() {
     <div className="relative">
       {/* HEADER FIXO - div totalmente separada da esteira */}
       <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
-        <div className="px-6 lg:px-8 pt-4 pb-3 space-y-3 sm:space-y-4">
+        <div className="px-6 lg:px-10 py-4 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Funil</h1>
@@ -381,7 +381,7 @@ export default function LeadsKanban() {
       </div>
 
       {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-[150px] px-6 lg:px-8 space-y-4">
+      <div className="pt-[140px] px-6 lg:px-10 space-y-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
