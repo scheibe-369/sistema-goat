@@ -307,19 +307,20 @@ export default function LeadsKanban() {
 
   return (
     <div className="leads-kanban-page">
-      {/* HEADER + FILTROS (FIXO) */}
-      <div className="leads-kanban-header">
-        {/* wrapper para alinhar com a esteira */}
-        <div className="leads-kanban-header-inner bg-goat-dark/95 backdrop-blur-sm space-y-4 sm:space-y-6 pb-4 animate-fade-in">
+      {/* HEADER + FILTROS (fixo no topo, largura limitada) */}
+      <div className="sticky top-0 z-20 bg-goat-dark/95 backdrop-blur-sm">
+        <div className="max-w-[1800px] mx-auto px-10 pt-5 pb-4 space-y-4 sm:space-y-6 animate-fade-in">
           {/* Header - Responsive */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Funil</h1>
-            <p className="text-goat-gray-400 text-sm sm:text-base">Gerencie seus leads e clientes</p>
+            <p className="text-goat-gray-400 text-sm sm:text-base">
+              Gerencie seus leads e clientes
+            </p>
           </div>
           
-          {/* Buttons - Responsive Stack */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+          {/* Buttons - ficam SEMPRE perto do título, lado direito do container */}
+          <div className="flex flex-row flex-wrap sm:flex-nowrap gap-2 sm:gap-2">
             <Button 
               className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm" 
               onClick={() => setIsTagsModalOpen(true)}
@@ -386,27 +387,28 @@ export default function LeadsKanban() {
       {/* BOARD (colunas + drag & drop) */}
       <div className="mt-4">
         <DragDropContext onDragEnd={handleDragEnd}>
-        <div
-          ref={kanbanRef}
-          className={`leads-kanban-board flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] ${
-            isMobile ? "px-1" : ""
-          }`}
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitOverflowScrolling: "touch",
-            cursor: isDraggingScroll ? "grabbing" : "grab",
-            userSelect: isDraggingScroll ? "none" : "auto",
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {stages.map((stage) => {
+          <div className="max-w-[1800px] mx-auto px-10">
+            <div
+              ref={kanbanRef}
+              className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden ${
+                isMobile ? "px-1" : ""
+              }`}
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                WebkitOverflowScrolling: "touch",
+                cursor: isDraggingScroll ? "grabbing" : "grab",
+                userSelect: isDraggingScroll ? "none" : "auto",
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {stages.map((stage) => {
             const stageLeads = getLeadsByStage(stage.id);
             const filteredLeads = getFilteredLeads(stageLeads);
             
@@ -571,7 +573,8 @@ export default function LeadsKanban() {
               </div>
             );
           })}
-        </div>
+            </div>
+          </div>
         </DragDropContext>
       </div>
 
