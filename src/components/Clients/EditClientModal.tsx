@@ -28,6 +28,7 @@ interface Client {
   responsible: string;
   phone: string;
   email: string;
+  grupoId?: string;
   contractEnd: string;
   paymentDay: number;
   tags: string[];
@@ -43,6 +44,7 @@ interface ClientData {
   responsible: string;
   phone: string;
   email: string;
+  grupoId?: string;
   contractEnd: string;
   paymentDay: number;
   tags: string[];
@@ -79,6 +81,7 @@ export function EditClientModal({
     responsible: "",
     phone: "",
     email: "",
+    grupoId: "",
     contractEnd: "",
     paymentDay: 1,
     tags: ["Ativo"],
@@ -118,6 +121,7 @@ export function EditClientModal({
       responsible: formData.responsible,
       phone: formData.phone,
       email: formData.email,
+      grupoId: formData.grupoId,
       contractEnd: contractEnd || '',
       paymentDay: formData.paymentDay,
       tags: formData.tags,
@@ -368,7 +372,7 @@ export function EditClientModal({
                   />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="email" className="text-white">E-mail *</Label>
                   <Input
                     id="email"
@@ -378,6 +382,18 @@ export function EditClientModal({
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                     placeholder="cliente@empresa.com"
                     required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="grupoId" className="text-white">Grupo ID</Label>
+                  <Input
+                    id="grupoId"
+                    type="text"
+                    value={formData.grupoId || ""}
+                    onChange={(e) => handleChange("grupoId", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="ID do grupo"
                   />
                 </div>
               </div>

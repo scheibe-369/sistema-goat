@@ -19,6 +19,7 @@ interface ClientData {
   responsible: string;
   phone: string;
   email: string;
+  grupoId?: string;
   contractEnd: string;
   paymentDay: number;
   tags: string[];
@@ -36,6 +37,7 @@ interface ClientForComponent {
   responsible: string;
   phone: string;
   email: string;
+  grupoId?: string;
   contractEnd: string;
   paymentDay: number;
   tags: string[];
@@ -148,6 +150,7 @@ export default function Clients() {
       responsible: client.responsible,
       phone: client.phone,
       email: client.email,
+      grupoId: '',
       contractEnd: client.contract_end || '',
       paymentDay: client.payment_day || 1,
       tags: client.tags || [],
@@ -275,6 +278,7 @@ export default function Clients() {
           responsible: string;
           phone: string;
           email: string;
+          grupo_id?: string;
           plan: string;
           contract_end: string | null;
           start_date: string | null;
@@ -320,6 +324,7 @@ export default function Clients() {
           responsible: editingClient.responsible,
           phone: editingClient.phone,
           email: editingClient.email,
+          grupoId: '',
           contractEnd: editingClient.contract_end || '',
           paymentDay: editingClient.payment_day || 1,
           tags: editingClient.tags || [],

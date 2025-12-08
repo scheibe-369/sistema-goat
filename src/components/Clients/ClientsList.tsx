@@ -10,6 +10,7 @@ interface ClientsListProps {
     responsible: string;
     phone: string;
     email: string;
+    grupoId?: string;
     contractEnd: string;
     paymentDay: number;
     tags: string[];
@@ -28,6 +29,7 @@ interface ClientsListProps {
     responsible: string;
     phone: string;
     email: string;
+    grupoId?: string;
     contractEnd: string;
     paymentDay: number;
     tags: string[];
@@ -44,6 +46,7 @@ interface ClientsListProps {
     responsible: string;
     phone: string;
     email: string;
+    grupoId?: string;
     contractEnd: string;
     paymentDay: number;
     tags: string[];

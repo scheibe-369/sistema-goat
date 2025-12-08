@@ -31,6 +31,7 @@ interface NewClientModalProps {
     responsible: string;
     phone: string;
     email: string;
+    grupo_id?: string;
     plan: string;
     contract_end: string | null;
     start_date: string | null;
@@ -59,6 +60,7 @@ export function NewClientModal({
     responsible: "",
     phone: "",
     email: "",
+    grupo_id: "",
     plan: planOptions[0] || "Vendas",
     contract_end: "",
     start_date: "",
@@ -96,6 +98,7 @@ export function NewClientModal({
       responsible: formData.responsible,
       phone: formData.phone,
       email: formData.email,
+      grupo_id: formData.grupo_id || undefined,
       plan: formData.plan,
       contract_end: contractEnd,
       start_date: startDate,
@@ -126,6 +129,7 @@ export function NewClientModal({
       responsible: "",
       phone: "",
       email: "",
+      grupo_id: "",
       plan: planOptions[0] || "Vendas",
       contract_end: "",
       start_date: "",
@@ -398,7 +402,7 @@ export function NewClientModal({
                   />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="email" className="text-white">E-mail *</Label>
                   <Input
                     id="email"
@@ -408,6 +412,18 @@ export function NewClientModal({
                     className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
                     placeholder="cliente@empresa.com"
                     required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="grupo_id" className="text-white">Grupo ID</Label>
+                  <Input
+                    id="grupo_id"
+                    type="text"
+                    value={formData.grupo_id}
+                    onChange={(e) => handleChange("grupo_id", e.target.value)}
+                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20 placeholder:text-white/70"
+                    placeholder="ID do grupo"
                   />
                 </div>
               </div>

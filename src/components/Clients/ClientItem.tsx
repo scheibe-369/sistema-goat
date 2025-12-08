@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Phone, Mail, Calendar, MapPin, ChevronDown, ChevronRight } from "lucide-react";
+import { Building2, Phone, Mail, Calendar, Hash, ChevronDown, ChevronRight } from "lucide-react";
 import { usePlansContext } from "@/contexts/PlansContext";
 
 interface Client {
@@ -10,6 +10,7 @@ interface Client {
   responsible: string;
   phone: string;
   email: string;
+  grupoId?: string;
   contractEnd: string;
   paymentDay: number;
   tags: string[];
@@ -174,6 +175,14 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
                   <span className="text-white font-medium">{client.phone}</span>
                 </div>
               </div>
+
+              <div className="flex items-center gap-3">
+                <Hash className="w-4 h-4 text-goat-purple" />
+                <div className="flex-1">
+                  <span className="text-goat-gray-400 text-sm block">Grupo ID:</span>
+                  <span className="text-white font-medium">{client.grupoId || 'Não definido'}</span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -218,14 +227,6 @@ export function ClientItem({ client, isExpanded, onToggleExpanded, onEdit, onDel
                   <span className="text-white font-medium">
                     R$ {client.monthlyValue ? parseFloat(client.monthlyValue).toFixed(2).replace('.', ',') : '0,00'}
                   </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-goat-purple" />
-                <div className="flex-1">
-                  <span className="text-goat-gray-400 text-sm block">Localização:</span>
-                  <span className="text-white font-medium">{client.address}</span>
                 </div>
               </div>
             </div>
