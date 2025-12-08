@@ -416,15 +416,15 @@ export default function LeadsKanban() {
                   }`}
                 >
                   {/* Stage Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-2 py-2 min-h-[2.5rem]">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                       <div
-                        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${stage.color}`}
+                        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${stage.color}`}
                       />
-                      <h3 className="font-semibold text-white text-sm sm:text-base">
+                      <h3 className="font-semibold text-white text-sm sm:text-base truncate leading-tight">
                         {stage.name}
                       </h3>
-                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
+                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80 flex-shrink-0">
                         {filteredLeads.length}
                       </Badge>
                     </div>
