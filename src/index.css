@@ -174,7 +174,7 @@
   
   /* Disable hover effects for user message bubbles */
   .message-bubble.bg-goat-purple:hover {
-    background-color: #5315CB !important; /* Keep original purple color */
+    background-color: #6829c0 !important; /* Keep original purple color */
   }
 
   /* Yellow badge hover fix for "Pendente" status */
@@ -430,13 +430,13 @@
 .bg-yellow-500,
 .border-yellow-500,
 .text-yellow-500 {
-  border-color: #5315CB !important;
+  border-color: #6829c0 !important;
   color: #ffffff !important;
 }
 
 /* Sonner toast específico */
 [data-sonner-toast] {
-  border: 1px solid #5315CB !important;
+  border: 1px solid #6829c0 !important;
   color: #ffffff !important;
 }
 
@@ -452,6 +452,6 @@
 [data-sonner-toast] [data-icon] svg,
 .toast svg,
 .notification svg {
-  color: #5315CB !important;
+  color: #6829c0 !important;
 }
 

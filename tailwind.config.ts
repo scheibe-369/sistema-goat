@@ -31,7 +31,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#5315CB',
+					DEFAULT: '#6829c0',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
@@ -71,7 +71,7 @@ export default {
 				// GOAT Brand Colors
 				goat: {
 					dark: '#080808',
-					purple: '#5315CB',
+					purple: '#6829c0',
 					gray: {
 						100: '#f5f5f5',
 						200: '#e5e5e5',
@@ -133,7 +133,7 @@ export default {
 				'slide-in': 'slide-in 0.3s ease-out'
 			},
 			backgroundImage: {
-				'gradient-goat': 'linear-gradient(135deg, #5315CB 0%, #8B5CF6 100%)',
+				'gradient-goat': 'linear-gradient(135deg, #6829c0 0%, #8B5CF6 100%)',
 				'gradient-dark': 'linear-gradient(135deg, #080808 0%, #171717 100%)'
 			}
 		}
