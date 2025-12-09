@@ -386,9 +386,7 @@ export default function LeadsKanban() {
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
             ref={kanbanRef}
-            className={`flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden ${
-              isMobile ? "px-1" : ""
-            }`}
+            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden -ml-6 lg:-ml-10"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
