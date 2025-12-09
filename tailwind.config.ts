@@ -21,6 +21,8 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Founders Grotesk', 'sans-serif'],
+				serif: ['Founders Grotesk', 'sans-serif'],
+				mono: ['Founders Grotesk', 'sans-serif'],
 				'founders': ['Founders Grotesk', 'sans-serif'],
 				'founders-cond': ['Founders Grotesk XCond', 'sans-serif'],
 			},
