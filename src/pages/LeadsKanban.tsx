@@ -344,7 +344,7 @@ export default function LeadsKanban() {
           </div>
 
           <Card
-            className="p-3 sm:p-4"
+            className="pr-3 pt-3 pb-3 sm:pr-4 sm:pt-4 sm:pb-4 pl-0"
             style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
