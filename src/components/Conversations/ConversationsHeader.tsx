@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
@@ -8,19 +7,25 @@ interface ConversationsHeaderProps {
 
 export function ConversationsHeader({ onNewConversation }: ConversationsHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 -mt-2">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-1">Conversas WhatsApp</h1>
-        <p className="text-gray-400">Central de mensagens via Evolution API</p>
+    <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
+      <div className="px-6 lg:px-10 pt-4 pb-2 space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Conversas WhatsApp</h1>
+            <p className="text-goat-gray-400 text-sm sm:text-base">
+              Central de mensagens via Evolution API
+            </p>
+          </div>
+          
+          <Button 
+            className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+            onClick={onNewConversation}
+          >
+            <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            Nova Conversa
+          </Button>
+        </div>
       </div>
-      
-      <Button 
-        className="btn-primary h-10 px-4"
-        onClick={onNewConversation}
-      >
-        <PlusCircle className="w-4 h-4 mr-2" />
-        Nova Conversa
-      </Button>
     </div>
   );
 }

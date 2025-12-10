@@ -381,12 +381,12 @@ export default function LeadsKanban() {
       </div>
 
       {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-[140px] px-6 lg:px-10 space-y-4">
+      <div className="pt-24 pb-6 space-y-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
             ref={kanbanRef}
-            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden -ml-6 lg:-ml-10"
+            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",

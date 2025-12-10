@@ -185,22 +185,26 @@ export default function Conversations() {
 
   if (conversationsLoading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="relative">
         <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-goat-gray-400">Carregando conversas...</div>
+        <div className="pt-24 pb-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-goat-gray-400">Carregando conversas...</div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      
+    <div className="relative">
+      {/* HEADER FIXO - div totalmente separada do conteúdo */}
       <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
 
-      {/* Busca e Filtros */}
-      <div className="flex flex-col md:flex-row gap-4">
+      {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
+      <div className="pt-24 pb-6 space-y-4">
+        {/* Busca e Filtros */}
+        <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
           <Input 
@@ -227,25 +231,27 @@ export default function Conversations() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de Conversas */}
         <div className="lg:col-span-1">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4">
-            <div className="flex items-center gap-2 mb-4">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 h-[600px] flex flex-col">
+            <div className="flex items-center gap-2 mb-4 flex-shrink-0">
               <MessageSquare className="w-5 h-5 text-goat-purple" />
               <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
             </div>
             
             {filteredConversations.length === 0 ? (
-              <div className="text-center py-8">
-                <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-                <p className="text-goat-gray-400 mb-4">Nenhuma conversa encontrada</p>
-                <Button 
-                  onClick={() => setIsNewConversationModalOpen(true)}
-                  className="btn-primary"
-                >
-                  Iniciar Nova Conversa
-                </Button>
+              <div className="text-center py-8 flex-1 flex items-center justify-center">
+                <div>
+                  <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
+                  <p className="text-goat-gray-400 mb-4">Nenhuma conversa encontrada</p>
+                  <Button 
+                    onClick={() => setIsNewConversationModalOpen(true)}
+                    className="btn-primary"
+                  >
+                    Iniciar Nova Conversa
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              <div className="space-y-3 flex-1 overflow-y-auto">
                 {filteredConversations.map((conversation) => (
                   <div 
                     key={conversation.id} 
@@ -402,21 +408,21 @@ export default function Conversations() {
         </div>
       </div>
 
-      {/* Modal de Filtros */}
-      <ConversationSidebarFilters
-        isOpen={isFiltersOpen}
-        onClose={() => setIsFiltersOpen(false)}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-      />
+        {/* Modal de Filtros */}
+        <ConversationSidebarFilters
+          isOpen={isFiltersOpen}
+          onClose={() => setIsFiltersOpen(false)}
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+        />
 
-      {/* Modal de Nova Conversa */}
-      <NewConversationModal
-        isOpen={isNewConversationModalOpen}
-        onClose={() => setIsNewConversationModalOpen(false)}
-        onNewConversation={handleNewConversation}
-      />
-
+        {/* Modal de Nova Conversa */}
+        <NewConversationModal
+          isOpen={isNewConversationModalOpen}
+          onClose={() => setIsNewConversationModalOpen(false)}
+          onNewConversation={handleNewConversation}
+        />
+      </div>
     </div>
   );
 }
