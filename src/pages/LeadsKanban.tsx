@@ -15,6 +15,7 @@ import { useLeads, type Lead } from "@/hooks/useLeads";
 import { useTags, type Tag } from "@/hooks/useTags";
 import { useStages, type Stage } from "@/hooks/useStages";
 import { useToast } from "@/hooks/use-toast";
+import { useDraggable } from "react-use-draggable-scroll";
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
@@ -33,217 +34,22 @@ export default function LeadsKanban() {
 
   // Estado local otimista para drag and drop
   const [optimisticLeads, setOptimisticLeads] = useState<Lead[]>([]);
+  
+  // Estado para saber se está arrastando um card (para desativar o drag-to-scroll)
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
 
   // Sincronizar leads do hook com estado otimista
   useEffect(() => {
     setOptimisticLeads(leads);
   }, [leads]);
 
-  // ========== DRAG-TO-SCROLL COM INÉRCIA MELHORADA ==============
-  const kanbanRef = useRef<HTMLDivElement>(null);
-  const momentumRef = useRef<number | null>(null);
-  const isDraggingRef = useRef(false);
-  const [isDraggingScroll, setIsDraggingScroll] = useState(false);
+  // ========== DRAG-TO-SCROLL COM BIBLIOTECA ==============
+  const kanbanRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement>;
   
-  // Parâmetros calibrados para inércia suave
-  const SCROLL_MULTIPLIER = 1.5;
-  const VELOCITY_MULTIPLIER = 80;
-  const DECELERATION = 0.95;
-  const MIN_VELOCITY_THRESHOLD = 0.5;
-  const DRAG_THRESHOLD = 5;
-
-  // Refs para mouse
-  const startXRef = useRef(0);
-  const scrollLeftRef = useRef(0);
-  const lastMoveX = useRef(0);
-  const lastMoveTime = useRef(0);
-  const velocityRef = useRef(0);
-  const hasDraggedRef = useRef(false);
-
-  // Refs para touch
-  const touchStartXRef = useRef(0);
-  const touchScrollLeftRef = useRef(0);
-  const touchLastX = useRef(0);
-  const touchLastTime = useRef(0);
-  const touchVelocityRef = useRef(0);
-
-  // Cleanup na desmontagem
-  useEffect(() => {
-    return () => {
-      if (momentumRef.current) {
-        cancelAnimationFrame(momentumRef.current);
-        momentumRef.current = null;
-      }
-    };
-  }, []);
-
-  // Função de animação de inércia
-  const startMomentumScroll = (initialVelocity: number) => {
-    if (momentumRef.current) {
-      cancelAnimationFrame(momentumRef.current);
-    }
-
-    let momentum = initialVelocity * VELOCITY_MULTIPLIER;
-    
-    const animate = () => {
-      if (!kanbanRef.current || Math.abs(momentum) < MIN_VELOCITY_THRESHOLD) {
-        momentumRef.current = null;
-        return;
-      }
-      
-      kanbanRef.current.scrollLeft -= momentum;
-      momentum *= DECELERATION;
-      momentumRef.current = requestAnimationFrame(animate);
-    };
-
-    if (Math.abs(momentum) > MIN_VELOCITY_THRESHOLD) {
-      momentumRef.current = requestAnimationFrame(animate);
-    }
-  };
-
-  // Mouse handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
-    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
-    if ((e.target as HTMLElement).closest('button')) return;
-    
-    // Cancelar animação de inércia em andamento
-    if (momentumRef.current) {
-      cancelAnimationFrame(momentumRef.current);
-      momentumRef.current = null;
-    }
-
-    const container = kanbanRef.current;
-    if (!container) return;
-
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    
-    isDraggingRef.current = true;
-    hasDraggedRef.current = false;
-    startXRef.current = x;
-    scrollLeftRef.current = container.scrollLeft;
-    lastMoveX.current = e.clientX;
-    lastMoveTime.current = Date.now();
-    velocityRef.current = 0;
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDraggingRef.current || !kanbanRef.current) return;
-    
-    const container = kanbanRef.current;
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const walk = (x - startXRef.current) * SCROLL_MULTIPLIER;
-    
-    // Verificar se passou do threshold para considerar como drag
-    if (!hasDraggedRef.current && Math.abs(walk) > DRAG_THRESHOLD) {
-      hasDraggedRef.current = true;
-      setIsDraggingScroll(true);
-      e.preventDefault();
-    }
-    
-    if (hasDraggedRef.current) {
-      e.preventDefault();
-      container.scrollLeft = scrollLeftRef.current - walk;
-
-      // Calcular velocidade
-      const now = Date.now();
-      const dt = now - lastMoveTime.current;
-      if (dt > 0) {
-        velocityRef.current = (e.clientX - lastMoveX.current) / dt;
-      }
-      lastMoveX.current = e.clientX;
-      lastMoveTime.current = now;
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!isDraggingRef.current) return;
-    
-    isDraggingRef.current = false;
-    setIsDraggingScroll(false);
-    
-    if (hasDraggedRef.current && Math.abs(velocityRef.current) > 0.1) {
-      startMomentumScroll(velocityRef.current);
-    }
-    
-    hasDraggedRef.current = false;
-  };
-
-  const handleMouseLeave = () => {
-    if (isDraggingRef.current) {
-      handleMouseUp();
-    }
-  };
-
-  // Touch handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if ((e.target as HTMLElement).closest('[data-drag-card]')) return;
-    if ((e.target as HTMLElement).closest('button')) return;
-    
-    // Cancelar animação de inércia em andamento
-    if (momentumRef.current) {
-      cancelAnimationFrame(momentumRef.current);
-      momentumRef.current = null;
-    }
-
-    const container = kanbanRef.current;
-    if (!container) return;
-
-    const touch = e.touches[0];
-    const rect = container.getBoundingClientRect();
-    
-    isDraggingRef.current = true;
-    hasDraggedRef.current = false;
-    touchStartXRef.current = touch.clientX - rect.left;
-    touchScrollLeftRef.current = container.scrollLeft;
-    touchLastX.current = touch.clientX;
-    touchLastTime.current = Date.now();
-    touchVelocityRef.current = 0;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDraggingRef.current || !kanbanRef.current) return;
-    
-    const container = kanbanRef.current;
-    const touch = e.touches[0];
-    const rect = container.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const walk = (x - touchStartXRef.current) * SCROLL_MULTIPLIER;
-    
-    // Verificar se passou do threshold
-    if (!hasDraggedRef.current && Math.abs(walk) > DRAG_THRESHOLD) {
-      hasDraggedRef.current = true;
-      setIsDraggingScroll(true);
-    }
-    
-    if (hasDraggedRef.current) {
-      container.scrollLeft = touchScrollLeftRef.current - walk;
-
-      // Calcular velocidade
-      const now = Date.now();
-      const dt = now - touchLastTime.current;
-      if (dt > 0) {
-        touchVelocityRef.current = (touch.clientX - touchLastX.current) / dt;
-      }
-      touchLastX.current = touch.clientX;
-      touchLastTime.current = now;
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDraggingRef.current) return;
-    
-    isDraggingRef.current = false;
-    setIsDraggingScroll(false);
-    
-    if (hasDraggedRef.current && Math.abs(touchVelocityRef.current) > 0.1) {
-      startMomentumScroll(touchVelocityRef.current);
-    }
-    
-    hasDraggedRef.current = false;
-  };
+  const { events } = useDraggable(kanbanRef, {
+    applyRubberBandEffect: true,
+    isMounted: !isDraggingCard, // Desativa quando está arrastando um card
+  });
 
   // Utility functions
   const getGroupColor = (group: string) => {
@@ -475,24 +281,23 @@ export default function LeadsKanban() {
 
       {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
       <div className="pt-32 pb-6 space-y-4">
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DragDropContext 
+          onDragStart={() => setIsDraggingCard(true)}
+          onDragEnd={(result) => {
+            setIsDraggingCard(false);
+            handleDragEnd(result);
+          }}
+        >
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
             ref={kanbanRef}
-            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing"
+            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
-              userSelect: isDraggingScroll ? "none" : "auto",
             }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            {...events}
           >
             {stages.map((stage) => {
               const stageLeads = getLeadsByStage(stage.id);
