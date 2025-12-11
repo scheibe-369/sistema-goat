@@ -111,9 +111,10 @@ async function downloadAndDecryptMedia(params: {
       size: decryptedArr.length
     };
     
-  } catch (error) {
-    console.error('===> ERRO DE DESCRIPTOGRAFIA:', error.message);
-    return { success: false, error: 'Falha na descriptografia AES-CBC: ' + error.message };
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('===> ERRO DE DESCRIPTOGRAFIA:', err.message || 'Unknown error');
+    return { success: false, error: 'Falha na descriptografia AES-CBC: ' + (err.message || 'Unknown error') };
   }
 }
 
@@ -247,11 +248,12 @@ serve(async (req) => {
       status: 200
     });
 
-  } catch (error) {
-    console.error('💥 Erro no webhook:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('💥 Erro no webhook:', err);
     return new Response(JSON.stringify({ 
       success: false,
-      error: error.message,
+      error: err.message || 'Unknown error',
       timestamp: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
