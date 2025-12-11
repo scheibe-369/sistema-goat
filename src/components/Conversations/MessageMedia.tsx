@@ -109,8 +109,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
       if (waveRef.current && !waveSurferRef.current) {
         waveSurferRef.current = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: 'rgba(255, 255, 255, 0.4)', // ondas cinza claro
-          progressColor: 'rgba(255, 255, 255, 0.8)', // progresso mais visível
+          waveColor: 'rgba(163, 163, 163, 0.6)', // parte não reproduzida (cinza)
+          progressColor: 'rgba(255, 255, 255, 0.9)', // parte já reproduzida (branca)
           barWidth: 2,
           barRadius: 2,
           height: 32,
