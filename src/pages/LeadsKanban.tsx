@@ -381,7 +381,7 @@ export default function LeadsKanban() {
       </div>
 
       {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-24 pb-6 space-y-4">
+      <div className="pt-32 pb-6 space-y-4">
         <DragDropContext onDragEnd={handleDragEnd}>
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
@@ -414,12 +414,12 @@ export default function LeadsKanban() {
                   }`}
                 >
                   {/* Stage Header */}
-                  <div className="flex items-center justify-between gap-2 py-2 min-h-[2.5rem]">
+                  <div className="flex items-center justify-between gap-2 pt-8 pb-4 px-3 min-h-[5rem] rounded-t-lg">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <div
-                        className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${stage.color}`}
+                        className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0 ${stage.color}`}
                       />
-                      <h3 className="font-semibold text-white text-sm sm:text-base truncate leading-tight">
+                      <h3 className="font-bold text-white text-base sm:text-lg leading-tight whitespace-nowrap">
                         {stage.name}
                       </h3>
                       <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80 flex-shrink-0">
