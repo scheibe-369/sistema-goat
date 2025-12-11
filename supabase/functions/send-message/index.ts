@@ -160,13 +160,14 @@ serve(async (req) => {
       }
     )
 
-  } catch (error) {
-    console.error('Erro ao enviar mensagem:', error)
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('Erro ao enviar mensagem:', err)
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
-        stack: error.stack,
+        error: err.message || 'Unknown error',
+        stack: err.stack || 'No stack trace',
         timestamp: new Date().toISOString()
       }),
       { 

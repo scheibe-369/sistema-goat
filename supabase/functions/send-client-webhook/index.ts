@@ -79,21 +79,22 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const err = error as Error;
     console.error('=== ERRO CRÍTICO NO WEBHOOK ===');
-    console.error('Tipo do erro:', error.constructor.name);
-    console.error('Mensagem do erro:', error.message);
-    console.error('Stack trace:', error.stack);
+    console.error('Tipo do erro:', err.constructor?.name || 'Unknown');
+    console.error('Mensagem do erro:', err.message || 'Unknown error');
+    console.error('Stack trace:', err.stack || 'No stack trace');
     
-    if (error.name === 'AbortError') {
+    if (err.name === 'AbortError') {
       console.error('Timeout na requisição do webhook');
     }
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Erro crítico: ${error.message}`,
-        errorType: error.constructor.name,
+        error: `Erro crítico: ${err.message || 'Unknown error'}`,
+        errorType: err.constructor?.name || 'Unknown',
         url: 'https://webhook.gabrielporceli.com.br/webhook/recebedadosclientenovo'
       }),
       { 

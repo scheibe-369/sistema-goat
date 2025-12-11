@@ -22,6 +22,7 @@ export type Database = {
           contract_end: string | null
           created_at: string | null
           email: string
+          group_id: string | null
           id: string
           monthly_value: number | null
           payment_day: number | null
@@ -40,6 +41,7 @@ export type Database = {
           contract_end?: string | null
           created_at?: string | null
           email: string
+          group_id?: string | null
           id?: string
           monthly_value?: number | null
           payment_day?: number | null
@@ -58,6 +60,7 @@ export type Database = {
           contract_end?: string | null
           created_at?: string | null
           email?: string
+          group_id?: string | null
           id?: string
           monthly_value?: number | null
           payment_day?: number | null
