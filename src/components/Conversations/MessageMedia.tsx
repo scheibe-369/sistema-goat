@@ -196,7 +196,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-full min-w-[280px] max-w-[65%] w-full ${
+        <div className={`message-bubble flex items-center gap-2 px-3 py-2 rounded-full min-w-[280px] max-w-[65%] w-full ${
           isUserMessage 
             ? 'bg-goat-purple' 
             : 'bg-goat-gray-700'
@@ -286,7 +286,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   return (
     <div className="mt-2">
-      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:opacity-80 transition-opacity ${
+      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-opacity ${
         isUserMessage 
           ? 'bg-purple-600/20 border-purple-400/30' 
           : 'bg-goat-gray-600 border-goat-gray-500'

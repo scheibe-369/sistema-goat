@@ -172,9 +172,15 @@
     background-color: #4c1d95 !important; /* Darker purple for hover */
   }
   
-  /* Disable hover effects for user message bubbles */
-  .message-bubble.bg-goat-purple:hover {
-    background-color: #6829c0 !important; /* Keep original purple color */
+  /* Disable hover effects for all message bubbles - keep original colors */
+  .message-bubble.bg-goat-purple:hover,
+  div.message-bubble.bg-goat-purple:hover {
+    background-color: #6829c0 !important; /* Original purple color */
+  }
+  
+  .message-bubble.bg-goat-gray-700:hover,
+  div.message-bubble.bg-goat-gray-700:hover {
+    background-color: #404040 !important; /* Original gray-700 color */
   }
 
   /* Yellow badge hover fix for "Pendente" status */

@@ -334,7 +334,7 @@ export default function Conversations() {
                 <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                   {messages.map((message) => (
                     <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                      <div className={`p-2 rounded-2xl w-auto ${
+                      <div className={`message-bubble p-2 rounded-2xl w-auto ${
                         message.media_type && message.media_type.startsWith('audio/')
                           ? ''
                           : ''
