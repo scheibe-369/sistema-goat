@@ -35,6 +35,13 @@ export default function LeadsKanban() {
   // Estado local otimista para drag and drop
   const [optimisticLeads, setOptimisticLeads] = useState<Lead[]>([]);
   
+  // Sincronizar leads do Supabase com o estado otimista
+  useEffect(() => {
+    if (leads) {
+      setOptimisticLeads(leads);
+    }
+  }, [leads]);
+  
   // Estado para saber se está arrastando um card (para desativar o drag-to-scroll)
   const [isDraggingCard, setIsDraggingCard] = useState(false);
 
@@ -92,9 +99,12 @@ export default function LeadsKanban() {
     );
   };
 
-  const handlePointerDown = (clientX: number, target: EventTarget | null) => {
+  const handlePointerDown = (clientX: number, target: EventTarget | null, event?: React.MouseEvent | React.TouchEvent) => {
     const container = kanbanRef.current;
     if (!container || isDraggingCard || shouldIgnoreDrag(target)) return;
+
+    // Só chamar preventDefault se realmente vamos fazer o scroll
+    event?.preventDefault();
 
     isDraggingScrollRef.current = true;
     startXRef.current = clientX;
@@ -378,23 +388,19 @@ export default function LeadsKanban() {
             }}
             onMouseDown={(e) => {
               if (e.button !== 0) return; // apenas botão esquerdo
-              e.preventDefault();
-              handlePointerDown(e.clientX, e.target);
+              handlePointerDown(e.clientX, e.target, e);
             }}
             onMouseMove={(e) => {
               if (!isDraggingScrollRef.current) return;
               e.preventDefault();
               handlePointerMove(e.clientX);
             }}
-            onMouseUp={(e) => {
-              e.preventDefault();
-              handlePointerUp();
-            }}
+            onMouseUp={handlePointerUp}
             onMouseLeave={handlePointerUp}
             onTouchStart={(e) => {
               const touch = e.touches[0];
               if (!touch) return;
-              handlePointerDown(touch.clientX, e.target);
+              handlePointerDown(touch.clientX, e.target, e);
             }}
             onTouchMove={(e) => {
               const touch = e.touches[0];
