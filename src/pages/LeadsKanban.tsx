@@ -62,13 +62,6 @@ export default function LeadsKanban() {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      // Garante que nenhuma animação continue ao desmontar
-      stopInertia();
-    };
-  }, []);
-
   const startInertia = () => {
     const DECAY = 0.95;
     const MIN_VELOCITY = 0.02;
@@ -77,8 +70,7 @@ export default function LeadsKanban() {
       const container = kanbanRef.current;
       if (!container) return;
 
-      // Aplica deslocamento baseado na velocidade atual
-      container.scrollLeft -= velocityRef.current * 16; // 16ms ~ 60fps
+      container.scrollLeft -= velocityRef.current * 16;
       velocityRef.current *= DECAY;
 
       if (Math.abs(velocityRef.current) > MIN_VELOCITY) {
@@ -92,27 +84,16 @@ export default function LeadsKanban() {
     inertiaFrameRef.current = requestAnimationFrame(step);
   };
 
-  const shouldIgnoreDrag = (target: EventTarget | null) => {
+  // Verifica se o clique foi em um elemento que NÃO deve iniciar o scroll
+  const shouldIgnoreDrag = (target: EventTarget | null): boolean => {
     if (!(target instanceof HTMLElement)) return false;
-    return !!target.closest(
+    
+    // Se clicou em um card de lead ou elementos interativos, ignorar
+    const isInteractiveElement = target.closest(
       "[data-drag-card], [data-rbd-drag-handle-draggable-id], button, [role='button'], a, input, textarea, select"
     );
-  };
-
-  const handlePointerDown = (clientX: number, target: EventTarget | null, event?: React.MouseEvent | React.TouchEvent) => {
-    const container = kanbanRef.current;
-    if (!container || isDraggingCard || shouldIgnoreDrag(target)) return;
-
-    // Só chamar preventDefault se realmente vamos fazer o scroll
-    event?.preventDefault();
-
-    isDraggingScrollRef.current = true;
-    startXRef.current = clientX;
-    startScrollLeftRef.current = container.scrollLeft;
-    lastXRef.current = clientX;
-    lastTimeRef.current = performance.now();
-    velocityRef.current = 0;
-    stopInertia();
+    
+    return !!isInteractiveElement;
   };
 
   const handlePointerMove = (clientX: number) => {
@@ -139,6 +120,61 @@ export default function LeadsKanban() {
       startInertia();
     }
   };
+
+  const handlePointerDown = (clientX: number, target: EventTarget | null) => {
+    const container = kanbanRef.current;
+    if (!container || isDraggingCard) return;
+    
+    // Se clicou em elemento interativo, não iniciar scroll
+    if (shouldIgnoreDrag(target)) return;
+
+    isDraggingScrollRef.current = true;
+    startXRef.current = clientX;
+    startScrollLeftRef.current = container.scrollLeft;
+    lastXRef.current = clientX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
+    stopInertia();
+  };
+
+  // Document-level events para capturar movimento mesmo fora do container
+  useEffect(() => {
+    const handleDocumentMouseMove = (e: MouseEvent) => {
+      if (!isDraggingScrollRef.current) return;
+      e.preventDefault();
+      handlePointerMove(e.clientX);
+    };
+
+    const handleDocumentMouseUp = () => {
+      handlePointerUp();
+    };
+
+    const handleDocumentTouchMove = (e: TouchEvent) => {
+      if (!isDraggingScrollRef.current) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      e.preventDefault();
+      handlePointerMove(touch.clientX);
+    };
+
+    const handleDocumentTouchEnd = () => {
+      handlePointerUp();
+    };
+
+    // Sempre adicionar os listeners - eles verificam isDraggingScrollRef internamente
+    document.addEventListener('mousemove', handleDocumentMouseMove);
+    document.addEventListener('mouseup', handleDocumentMouseUp);
+    document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
+    document.addEventListener('touchend', handleDocumentTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleDocumentMouseMove);
+      document.removeEventListener('mouseup', handleDocumentMouseUp);
+      document.removeEventListener('touchmove', handleDocumentTouchMove);
+      document.removeEventListener('touchend', handleDocumentTouchEnd);
+      stopInertia();
+    };
+  }, []);
 
   // Utility functions
   const getGroupColor = (group: string) => {
@@ -380,35 +416,24 @@ export default function LeadsKanban() {
           {/* SOMENTE essa div tem scroll horizontal */}
           <div
             ref={kanbanRef}
-            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none"
+            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none px-6"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
             onMouseDown={(e) => {
-              if (e.button !== 0) return; // apenas botão esquerdo
-              handlePointerDown(e.clientX, e.target, e);
+              if (e.button !== 0) return;
+              handlePointerDown(e.clientX, e.target);
             }}
-            onMouseMove={(e) => {
-              if (!isDraggingScrollRef.current) return;
-              e.preventDefault();
-              handlePointerMove(e.clientX);
-            }}
-            onMouseUp={handlePointerUp}
-            onMouseLeave={handlePointerUp}
             onTouchStart={(e) => {
               const touch = e.touches[0];
               if (!touch) return;
-              handlePointerDown(touch.clientX, e.target, e);
+              handlePointerDown(touch.clientX, e.target);
             }}
-            onTouchMove={(e) => {
-              const touch = e.touches[0];
-              if (!touch) return;
-              handlePointerMove(touch.clientX);
-            }}
-            onTouchEnd={handlePointerUp}
           >
+            {/* Espaçador inicial para área arrastável */}
+            <div className="flex-shrink-0 w-4 h-full" aria-hidden="true" />
             {stages.map((stage) => {
               const stageLeads = getLeadsByStage(stage.id);
               const filteredLeads = getFilteredLeads(stageLeads);
@@ -560,7 +585,9 @@ export default function LeadsKanban() {
                                     </ContextMenuItem>
                                   </ContextMenuContent>
                                 </ContextMenu>
-                              </div>
+            {/* Espaçador final para área arrastável */}
+            <div className="flex-shrink-0 w-6 h-full" aria-hidden="true" />
+          </div>
                             )}
                           </Draggable>
                         ))}
