@@ -192,6 +192,9 @@ export default function LeadsKanban() {
   };
 
   const onPointerMovePan = (e: React.PointerEvent<HTMLDivElement>) => {
+    // ✅ NÃO deixar o pan disputar com o DnD durante o drag
+    if (isDraggingCard) return;
+
     const container = kanbanRef.current;
     if (!container) return;
     if (!pan.current.active) return;
@@ -230,12 +233,18 @@ export default function LeadsKanban() {
   };
 
   const onPointerUpPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    // ✅ idem: se está arrastando card, não mexe no pan
+    if (isDraggingCard) return;
+
     if (e.pointerType === "touch") return;
     if (e.pointerId !== pan.current.pointerId) return;
     endPan();
   };
 
   const onPointerCancelPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    // ✅ idem: se está arrastando card, não mexe no pan
+    if (isDraggingCard) return;
+
     if (e.pointerType === "touch") return;
     if (e.pointerId !== pan.current.pointerId) return;
     endPan();
@@ -368,7 +377,6 @@ export default function LeadsKanban() {
 
   // ===== DnD =====
   const onDragStart = (_: DragStart) => {
-    // ✅ evita “tilt/jitter” por conflito com pan/inércia enquanto arrasta
     cancelPan();
     setIsDraggingCard(true);
   };
@@ -379,7 +387,6 @@ export default function LeadsKanban() {
     const { source, destination, draggableId } = result;
     if (!destination) return;
 
-    // ✅ Caso 1: REORDER dentro da mesma etapa (sem backend, só UI)
     if (source.droppableId === destination.droppableId) {
       const stageId = source.droppableId;
 
@@ -392,7 +399,6 @@ export default function LeadsKanban() {
       return;
     }
 
-    // ✅ Caso 2: Move de etapa (otimista + rollback)
     const leadToMove = optimisticLeads.find((l) => l.id === draggableId);
     if (!leadToMove) return;
 
@@ -420,7 +426,6 @@ export default function LeadsKanban() {
     }
   };
 
-  // ===== Loading =====
   if (leadsLoading || tagsLoading || stagesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -431,7 +436,6 @@ export default function LeadsKanban() {
 
   return (
     <div className="relative">
-      {/* HEADER FIXO (não interceptar o drag quando estiver arrastando) */}
       <div
         className="fixed inset-x-0 top-0 z-30 bg-goat-dark"
         style={{ pointerEvents: isDraggingCard ? "none" : "auto" }}
@@ -510,7 +514,6 @@ export default function LeadsKanban() {
         </div>
       </div>
 
-      {/* CONTEÚDO */}
       <div className="pt-32 pb-6">
         <DragDropContext
           onDragStart={onDragStart}
@@ -607,7 +610,6 @@ export default function LeadsKanban() {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                // ✅ IMPORTANTE: sem transition/transform extra aqui (evita “tilt/jitter”)
                                 className={snapshot.isDragging ? "" : ""}
                                 style={provided.draggableProps.style}
                               >
@@ -625,7 +627,9 @@ export default function LeadsKanban() {
                                           <div
                                             {...provided.dragHandleProps}
                                             data-dnd-handle
-                                            className="h-7 w-7 sm:h-8 sm:w-8 grid place-items-center rounded-md text-goat-gray-400 hover:bg-goat-gray-700/60 hover:text-white transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
+                                            // ✅ garante que o browser não tente “interpretar gesto” e travar eixo
+                                            style={{ touchAction: "none" }}
+                                            className="touch-none h-7 w-7 sm:h-8 sm:w-8 grid place-items-center rounded-md text-goat-gray-400 hover:bg-goat-gray-700/60 hover:text-white transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
                                             title="Arrastar"
                                           >
                                             <GripVertical className="w-4 h-4" />
