@@ -1,189 +1,235 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, MoreVertical, Settings, Edit, Trash2, EllipsisVertical } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
+import {
+  Calendar,
+  Edit,
+  EllipsisVertical,
+  GripVertical,
+  Plus,
+  Settings,
+  Trash2,
+} from "lucide-react";
+
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+
 import { TagsManagementModal } from "@/components/Leads/TagsManagementModal";
 import { EditLeadModal } from "@/components/Leads/EditLeadModal";
 import { AddStageModal } from "@/components/Leads/AddStageModal";
 import { NewLeadModal } from "@/components/Leads/NewLeadModal";
 import { EditStageModal } from "@/components/Leads/EditStageModal";
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeads, type Lead } from "@/hooks/useLeads";
 import { useTags, type Tag } from "@/hooks/useTags";
 import { useStages, type Stage } from "@/hooks/useStages";
 import { useToast } from "@/hooks/use-toast";
 
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  type DropResult,
+  type DragStart,
+} from "@hello-pangea/dnd";
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
-  const { leads, isLoading: leadsLoading, createLead, updateLead, deleteLead, updateLeadStage } = useLeads();
-  const { tags, isLoading: tagsLoading } = useTags();
-  const { stages, isLoading: stagesLoading, createStage, updateStage, deleteStage } = useStages();
   const { toast } = useToast();
+
+  const {
+    leads,
+    isLoading: leadsLoading,
+    createLead,
+    updateLead,
+    deleteLead,
+    updateLeadStage,
+  } = useLeads();
+
+  const { tags, isLoading: tagsLoading } = useTags();
+  const {
+    stages,
+    isLoading: stagesLoading,
+    createStage,
+    updateStage,
+    deleteStage,
+  } = useStages();
+
+  // ===== Modais / Seleções =====
   const [isTagsModalOpen, setIsTagsModalOpen] = useState(false);
   const [isEditLeadModalOpen, setIsEditLeadModalOpen] = useState(false);
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [isEditStageModalOpen, setIsEditStageModalOpen] = useState(false);
+
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
 
-  // Estado local otimista para drag and drop
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+
+  // ===== Otimista =====
   const [optimisticLeads, setOptimisticLeads] = useState<Lead[]>([]);
-  
-  // Sincronizar leads do Supabase com o estado otimista
   useEffect(() => {
-    if (leads) {
-      setOptimisticLeads(leads);
-    }
+    if (leads) setOptimisticLeads(leads);
   }, [leads]);
-  
-  // Estado para saber se está arrastando um card (para desativar o drag-to-scroll)
+
+  // ===== DnD state =====
   const [isDraggingCard, setIsDraggingCard] = useState(false);
 
-  // ======== DRAG-TO-SCROLL MANUAL COM INÉRCIA =========
+  // ===== Drag-to-scroll (mouse/pen) =====
   const kanbanRef = useRef<HTMLDivElement | null>(null);
-  const isDraggingScrollRef = useRef(false);
-  const startXRef = useRef(0);
-  const startScrollLeftRef = useRef(0);
-  const lastXRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const velocityRef = useRef(0);
-  const inertiaFrameRef = useRef<number | null>(null);
+
+  const pan = useRef({
+    active: false,
+    pointerId: -1,
+    startX: 0,
+    startScrollLeft: 0,
+    lastX: 0,
+    lastT: 0,
+    v: 0, // px/ms
+    raf: 0 as number | 0,
+  });
 
   const stopInertia = () => {
-    if (inertiaFrameRef.current !== null) {
-      cancelAnimationFrame(inertiaFrameRef.current);
-      inertiaFrameRef.current = null;
+    if (pan.current.raf) {
+      cancelAnimationFrame(pan.current.raf);
+      pan.current.raf = 0;
     }
   };
 
   const startInertia = () => {
-    const DECAY = 0.95;
-    const MIN_VELOCITY = 0.02;
+    const container = kanbanRef.current;
+    if (!container) return;
+
+    const DECAY = 0.94;
+    const MIN = 0.02;
 
     const step = () => {
-      const container = kanbanRef.current;
-      if (!container) return;
+      const c = kanbanRef.current;
+      if (!c) return;
 
-      container.scrollLeft -= velocityRef.current * 16;
-      velocityRef.current *= DECAY;
+      // 16ms ~ frame
+      c.scrollLeft -= pan.current.v * 16;
+      pan.current.v *= DECAY;
 
-      if (Math.abs(velocityRef.current) > MIN_VELOCITY) {
-        inertiaFrameRef.current = requestAnimationFrame(step);
+      if (Math.abs(pan.current.v) > MIN) {
+        pan.current.raf = requestAnimationFrame(step);
       } else {
         stopInertia();
       }
     };
 
     stopInertia();
-    inertiaFrameRef.current = requestAnimationFrame(step);
+    pan.current.raf = requestAnimationFrame(step);
   };
 
-  // Verifica se o clique foi em um elemento que NÃO deve iniciar o scroll
-  const shouldIgnoreDrag = (target: EventTarget | null): boolean => {
+  const isInteractiveTarget = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
-    
-    // Se clicou em um card de lead ou elementos interativos, ignorar
-    const isInteractiveElement = target.closest(
-      "[data-drag-card], [data-rbd-drag-handle-draggable-id], button, [role='button'], a, input, textarea, select"
+    return !!target.closest(
+      [
+        "button",
+        "[role='button']",
+        "a",
+        "input",
+        "textarea",
+        "select",
+        "[data-dnd-handle]", // o handle do card
+        "[data-rbd-drag-handle-draggable-id]",
+        "[data-no-pan]", // deixa só pros botões/menus se você quiser
+      ].join(",")
     );
-    
-    return !!isInteractiveElement;
   };
 
-  const handlePointerMove = (clientX: number) => {
-    const container = kanbanRef.current;
-    if (!container || !isDraggingScrollRef.current) return;
+  const onPointerDownPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    // só mouse/pen. Touch: deixa nativo (melhor no mobile)
+    if (e.pointerType === "touch") return;
+    if (e.button !== 0) return;
+    if (isDraggingCard) return;
 
-    const dx = clientX - startXRef.current;
-    container.scrollLeft = startScrollLeftRef.current - dx;
+    const container = kanbanRef.current;
+    if (!container) return;
+
+    // se clicou em algo interativo, não inicia pan
+    if (isInteractiveTarget(e.target)) return;
+
+    stopInertia();
+
+    pan.current.active = true;
+    pan.current.pointerId = e.pointerId;
+    pan.current.startX = e.clientX;
+    pan.current.startScrollLeft = container.scrollLeft;
+    pan.current.lastX = e.clientX;
+    pan.current.lastT = performance.now();
+    pan.current.v = 0;
+
+    container.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMovePan = (e: React.PointerEvent<HTMLDivElement>) => {
+    const container = kanbanRef.current;
+    if (!container) return;
+    if (!pan.current.active) return;
+    if (e.pointerId !== pan.current.pointerId) return;
+
+    e.preventDefault();
+
+    const dx = e.clientX - pan.current.startX;
+    container.scrollLeft = pan.current.startScrollLeft - dx;
 
     const now = performance.now();
-    const dt = now - lastTimeRef.current;
+    const dt = now - pan.current.lastT;
     if (dt > 0) {
-      const segmentDx = clientX - lastXRef.current;
-      velocityRef.current = segmentDx / dt;
-      lastXRef.current = clientX;
-      lastTimeRef.current = now;
+      const seg = e.clientX - pan.current.lastX;
+      pan.current.v = seg / dt; // px/ms
+      pan.current.lastX = e.clientX;
+      pan.current.lastT = now;
     }
   };
 
-  const handlePointerUp = () => {
-    if (!isDraggingScrollRef.current) return;
-    isDraggingScrollRef.current = false;
-    if (Math.abs(velocityRef.current) > 0.02) {
-      startInertia();
-    }
+  const endPan = () => {
+    if (!pan.current.active) return;
+    pan.current.active = false;
+
+    if (Math.abs(pan.current.v) > 0.02) startInertia();
   };
 
-  const handlePointerDown = (clientX: number, target: EventTarget | null) => {
-    const container = kanbanRef.current;
-    if (!container || isDraggingCard) return;
-    
-    // Se clicou em elemento interativo, não iniciar scroll
-    if (shouldIgnoreDrag(target)) return;
-
-    isDraggingScrollRef.current = true;
-    startXRef.current = clientX;
-    startScrollLeftRef.current = container.scrollLeft;
-    lastXRef.current = clientX;
-    lastTimeRef.current = performance.now();
-    velocityRef.current = 0;
-    stopInertia();
+  const onPointerUpPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
+    if (e.pointerId !== pan.current.pointerId) return;
+    endPan();
   };
 
-  // Document-level events para capturar movimento mesmo fora do container
+  const onPointerCancelPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
+    if (e.pointerId !== pan.current.pointerId) return;
+    endPan();
+  };
+
   useEffect(() => {
-    const handleDocumentMouseMove = (e: MouseEvent) => {
-      if (!isDraggingScrollRef.current) return;
-      e.preventDefault();
-      handlePointerMove(e.clientX);
-    };
-
-    const handleDocumentMouseUp = () => {
-      handlePointerUp();
-    };
-
-    const handleDocumentTouchMove = (e: TouchEvent) => {
-      if (!isDraggingScrollRef.current) return;
-      const touch = e.touches[0];
-      if (!touch) return;
-      e.preventDefault();
-      handlePointerMove(touch.clientX);
-    };
-
-    const handleDocumentTouchEnd = () => {
-      handlePointerUp();
-    };
-
-    // Sempre adicionar os listeners - eles verificam isDraggingScrollRef internamente
-    document.addEventListener('mousemove', handleDocumentMouseMove);
-    document.addEventListener('mouseup', handleDocumentMouseUp);
-    document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
-    document.addEventListener('touchend', handleDocumentTouchEnd);
-
-    return () => {
-      document.removeEventListener('mousemove', handleDocumentMouseMove);
-      document.removeEventListener('mouseup', handleDocumentMouseUp);
-      document.removeEventListener('touchmove', handleDocumentTouchMove);
-      document.removeEventListener('touchend', handleDocumentTouchEnd);
-      stopInertia();
-    };
+    return () => stopInertia();
   }, []);
 
-  // Utility functions
-  const getGroupColor = (group: string) => {
-    const tag = tags.find(t => t.name === group);
-    if (tag) return `${tag.color} text-white hover:${tag.color}`;
-    return 'bg-goat-gray-600 text-white hover:bg-goat-gray-700';
+  // ===== Helpers =====
+  const tagColorClass = (tagName: string) => {
+    const t = tags.find((x) => x.name === tagName);
+    return t?.color ?? "bg-goat-gray-600";
   };
 
-  // Lead handlers using Supabase
+  const getLeadsByStage = (stageId: string) =>
+    optimisticLeads.filter((l) => l.stage === stageId);
+
+  const getFilteredLeads = (stageLeads: Lead[]) => {
+    if (activeFilter === "all") return stageLeads;
+    return stageLeads.filter((l) => l.tags?.includes(activeFilter));
+  };
+
+  // ===== Handlers (CRUD) =====
   const handleEditLead = (lead: Lead) => {
     setSelectedLead(lead);
     setIsEditLeadModalOpen(true);
@@ -202,7 +248,12 @@ export default function LeadsKanban() {
         notes: updatedLead.notes,
       });
     } catch (error) {
-      console.error('Erro ao atualizar lead:', error);
+      console.error("Erro ao atualizar lead:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o lead.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -210,7 +261,12 @@ export default function LeadsKanban() {
     try {
       await deleteLead(leadId);
     } catch (error) {
-      console.error('Erro ao deletar lead:', error);
+      console.error("Erro ao deletar lead:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o lead.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -218,7 +274,44 @@ export default function LeadsKanban() {
     try {
       await createStage(newStageData);
     } catch (error) {
-      console.error('Erro ao criar etapa:', error);
+      console.error("Erro ao criar etapa:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a etapa.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditStage = (stage: Stage) => {
+    setSelectedStage(stage);
+    setIsEditStageModalOpen(true);
+  };
+
+  const handleUpdateStage = async (updatedStage: { name: string; color: string }) => {
+    if (!selectedStage) return;
+    try {
+      await updateStage(selectedStage.id, updatedStage);
+    } catch (error) {
+      console.error("Erro ao atualizar etapa:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a etapa.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteStage = async (stageId: string) => {
+    try {
+      await deleteStage(stageId);
+    } catch (error) {
+      console.error("Erro ao deletar etapa:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir a etapa.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -234,93 +327,57 @@ export default function LeadsKanban() {
     try {
       await createLead(newLeadData);
     } catch (error) {
-      console.error('Erro ao criar lead:', error);
-    }
-  };
-
-  const handleEditStage = (stage: Stage) => {
-    setSelectedStage(stage);
-    setIsEditStageModalOpen(true);
-  };
-
-  const handleUpdateStage = async (updatedStage: { name: string; color: string }) => {
-    if (!selectedStage) return;
-    try {
-      await updateStage(selectedStage.id, updatedStage);
-    } catch (error) {
-      console.error('Erro ao atualizar etapa:', error);
-    }
-  };
-
-  const handleDeleteStage = async (stageId: string) => {
-    try {
-      await deleteStage(stageId);
-    } catch (error) {
-      console.error('Erro ao deletar etapa:', error);
-    }
-  };
-
-  const handleDragEnd = async (result: DropResult) => {
-    if (!result.destination) return;
-    const { source, destination, draggableId } = result;
-    
-    if (source.droppableId === destination.droppableId) return;
-
-    // Encontrar o lead que foi movido
-    const leadToMove = optimisticLeads.find(lead => lead.id === draggableId);
-    if (!leadToMove) return;
-
-    // Guardar a etapa anterior para possível rollback
-    const previousStage = leadToMove.stage;
-
-    // OPTIMISTIC UI: Atualizar imediatamente o estado local
-    setOptimisticLeads(prevLeads => 
-      prevLeads.map(lead => 
-        lead.id === draggableId 
-          ? { ...lead, stage: destination.droppableId }
-          : lead
-      )
-    );
-
-    try {
-      // Tentar atualizar no Supabase
-      await updateLeadStage(draggableId, destination.droppableId);
-      
-      // Se chegou até aqui, deu certo - não precisa fazer nada
-      console.log('Lead movido com sucesso para:', destination.droppableId);
-      
-    } catch (error) {
-      console.error('Erro ao mover lead:', error);
-      
-      // ROLLBACK: Reverter para a etapa anterior em caso de erro
-      setOptimisticLeads(prevLeads => 
-        prevLeads.map(lead => 
-          lead.id === draggableId 
-            ? { ...lead, stage: previousStage }
-            : lead
-        )
-      );
-
-      // Mostrar feedback de erro
+      console.error("Erro ao criar lead:", error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível mover o lead. Tente novamente.',
-        variant: 'destructive',
+        title: "Erro",
+        description: "Não foi possível criar o lead.",
+        variant: "destructive",
       });
     }
   };
 
-  // Organizar leads por etapas usando o estado otimista
-  const getLeadsByStage = (stageId: string) => {
-    return optimisticLeads.filter(lead => lead.stage === stageId);
+  // ===== DnD =====
+  const onDragStart = (_: DragStart) => setIsDraggingCard(true);
+
+  const onDragEnd = async (result: DropResult) => {
+    setIsDraggingCard(false);
+
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+
+    // mesma coluna -> não faz nada (mantém simples; você pode implementar reorder depois)
+    if (source.droppableId === destination.droppableId) return;
+
+    const leadToMove = optimisticLeads.find((l) => l.id === draggableId);
+    if (!leadToMove) return;
+
+    const previousStage = leadToMove.stage;
+    const nextStage = destination.droppableId;
+
+    // UI otimista
+    setOptimisticLeads((prev) =>
+      prev.map((l) => (l.id === draggableId ? { ...l, stage: nextStage } : l))
+    );
+
+    try {
+      await updateLeadStage(draggableId, nextStage);
+    } catch (error) {
+      console.error("Erro ao mover lead:", error);
+
+      // rollback
+      setOptimisticLeads((prev) =>
+        prev.map((l) => (l.id === draggableId ? { ...l, stage: previousStage } : l))
+      );
+
+      toast({
+        title: "Erro",
+        description: "Não foi possível mover o lead. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
-  // Filtrar leads por grupo/tag
-  const getFilteredLeads = (stageLeads: Lead[]) => {
-    if (activeFilter === 'all') return stageLeads;
-    return stageLeads.filter(lead => lead.tags?.includes(activeFilter));
-  };
-
+  // ===== Loading =====
   if (leadsLoading || tagsLoading || stagesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -329,9 +386,10 @@ export default function LeadsKanban() {
     );
   }
 
+  // ===== Render =====
   return (
     <div className="relative">
-      {/* HEADER FIXO - div totalmente separada da esteira */}
+      {/* HEADER FIXO */}
       <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
         <div className="px-6 lg:px-10 pt-4 pb-2 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -350,6 +408,7 @@ export default function LeadsKanban() {
                 <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 {isMobile ? "Tags" : "Gerenciar Tags"}
               </Button>
+
               <Button
                 className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
                 onClick={() => setIsAddStageModalOpen(true)}
@@ -357,6 +416,7 @@ export default function LeadsKanban() {
                 <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 {isMobile ? "Etapa" : "Nova Etapa"}
               </Button>
+
               <Button
                 className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
                 onClick={() => setIsNewLeadModalOpen(true)}
@@ -367,6 +427,7 @@ export default function LeadsKanban() {
             </div>
           </div>
 
+          {/* Filtros */}
           <Card
             className="pr-3 pt-3 pb-3 sm:pr-4 sm:pt-4 sm:pb-4 pl-0"
             style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
@@ -384,7 +445,8 @@ export default function LeadsKanban() {
                 >
                   Todos os grupos
                 </Button>
-                {tags.map((tag) => (
+
+                {tags.map((tag: Tag) => (
                   <Button
                     key={tag.id}
                     variant="outline"
@@ -404,37 +466,26 @@ export default function LeadsKanban() {
         </div>
       </div>
 
-      {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-32 pb-6 space-y-4">
-        <DragDropContext 
-          onDragStart={() => setIsDraggingCard(true)}
-          onDragEnd={(result) => {
-            setIsDraggingCard(false);
-            handleDragEnd(result);
-          }}
-        >
-          {/* SOMENTE essa div tem scroll horizontal */}
+      {/* CONTEÚDO */}
+      <div className="pt-32 pb-6">
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <div
             ref={kanbanRef}
-            className="flex gap-3 sm:gap-6 min-h-[500px] sm:min-h-[600px] overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none px-6"
+            className="flex gap-3 sm:gap-6 min-h-[520px] sm:min-h-[620px] overflow-x-auto overflow-y-hidden select-none px-6 cursor-grab active:cursor-grabbing"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
-            onMouseDown={(e) => {
-              if (e.button !== 0) return;
-              handlePointerDown(e.clientX, e.target);
-            }}
-            onTouchStart={(e) => {
-              const touch = e.touches[0];
-              if (!touch) return;
-              handlePointerDown(touch.clientX, e.target);
-            }}
+            onPointerDown={onPointerDownPan}
+            onPointerMove={onPointerMovePan}
+            onPointerUp={onPointerUpPan}
+            onPointerCancel={onPointerCancelPan}
           >
-            {/* Espaçador inicial para área arrastável */}
+            {/* Espaço inicial arrastável */}
             <div className="flex-shrink-0 w-4 h-full" aria-hidden="true" />
-            {stages.map((stage) => {
+
+            {stages.map((stage: Stage) => {
               const stageLeads = getLeadsByStage(stage.id);
               const filteredLeads = getFilteredLeads(stageLeads);
 
@@ -445,30 +496,30 @@ export default function LeadsKanban() {
                     isMobile ? "w-72" : "w-80"
                   }`}
                 >
-                  {/* Stage Header */}
+                  {/* Header da etapa */}
                   <div className="flex items-center justify-between gap-2 pt-8 pb-4 px-3 min-h-[5rem] rounded-t-lg">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div
-                        className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0 ${stage.color}`}
-                      />
+                      <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${stage.color}`} />
                       <h3 className="font-bold text-white text-base sm:text-lg leading-tight whitespace-nowrap">
                         {stage.name}
                       </h3>
-                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80 flex-shrink-0">
+                      <Badge className="bg-goat-gray-600 text-white text-xs hover:bg-goat-purple/80">
                         {filteredLeads.length}
                       </Badge>
                     </div>
+
                     <ContextMenu>
-                      <ContextMenuTrigger>
+                      <ContextMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white w-7 h-7 sm:w-8 sm:h-8"
-                          onClick={() => handleEditStage(stage)}
+                          data-no-pan
                         >
                           <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                       </ContextMenuTrigger>
+
                       <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
                         <ContextMenuItem
                           onClick={() => handleEditStage(stage)}
@@ -477,6 +528,7 @@ export default function LeadsKanban() {
                           <Edit className="w-4 h-4 mr-2" />
                           Editar Etapa
                         </ContextMenuItem>
+
                         {!stage.is_default && (
                           <ContextMenuItem
                             onClick={() => handleDeleteStage(stage.id)}
@@ -490,7 +542,7 @@ export default function LeadsKanban() {
                     </ContextMenu>
                   </div>
 
-                  {/* Coluna de cards */}
+                  {/* Coluna */}
                   <Droppable droppableId={stage.id}>
                     {(provided, snapshot) => (
                       <div
@@ -506,45 +558,54 @@ export default function LeadsKanban() {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`${
-                                  snapshot.isDragging ? "rotate-2 scale-105" : ""
-                                } transition-transform`}
-                                data-drag-card
+                                className={`transition-transform ${
+                                  snapshot.isDragging ? "rotate-1 scale-[1.02]" : ""
+                                }`}
                               >
                                 <ContextMenu>
-                                  <ContextMenuTrigger>
-                                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 cursor-pointer hover:border-goat-purple/50 transition-all duration-200 shadow-lg">
+                                  <ContextMenuTrigger asChild>
+                                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200">
                                       <div className="space-y-2 sm:space-y-3">
-                                        <div className="flex items-start justify-between">
-                                          <div className="flex-1 min-w-0">
-                                            <h4 className="font-semibold text-white text-sm truncate">
-                                              {lead.name}
-                                            </h4>
-                                            <p className="text-goat-gray-400 text-xs truncate">
-                                              {lead.company}
-                                            </p>
-                                          </div>
+                                         <div className="flex items-center gap-2">
+                                           {/* HANDLE À ESQUERDA */}
+                                           <div
+                                             {...provided.dragHandleProps}
+                                             data-dnd-handle
+                                             className="h-7 w-7 sm:h-8 sm:w-8 grid place-items-center rounded-md text-goat-gray-400 hover:bg-goat-gray-700/60 hover:text-white transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
+                                             title="Arrastar"
+                                           >
+                                             <GripVertical className="w-4 h-4" />
+                                           </div>
+
+                                           {/* TEXTO */}
+                                           <div className="flex-1 min-w-0 pt-1.5">
+                                             <h4 className="font-semibold text-white text-sm truncate">{lead.name}</h4>
+                                             <p className="text-goat-gray-400 text-xs truncate">{lead.company}</p>
+                                           </div>
+
+                                          {/* MENU (3 PONTOS) À DIREITA */}
                                           <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ml-2"
+                                            className="text-goat-gray-400 hover:bg-goat-purple/80 hover:text-white h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0"
                                             onClick={() => handleEditLead(lead)}
+                                            data-no-pan
                                           >
-                                            <MoreVertical className="w-3 h-3" />
+                                            <EllipsisVertical className="w-4 h-4" />
                                           </Button>
                                         </div>
+
                                         {lead.tags && lead.tags.length > 0 && (
                                           <Badge
-                                            className={`text-xs ${getGroupColor(
+                                            className={`text-xs text-white truncate max-w-full ${tagColorClass(
                                               lead.tags[0]
-                                            )} truncate max-w-full`}
+                                            )} hover:opacity-90`}
                                           >
                                             {lead.tags[0]}
                                           </Badge>
                                         )}
 
-                                        {lead.value && (
+                                        {lead.value != null && (
                                           <div className="text-goat-purple font-semibold text-xs sm:text-sm">
                                             R$ {lead.value.toLocaleString("pt-BR")}
                                           </div>
@@ -554,20 +615,19 @@ export default function LeadsKanban() {
                                           <Calendar className="w-3 h-3 flex-shrink-0" />
                                           <span className="truncate">
                                             {isMobile
-                                              ? new Date(
-                                                  lead.updated_at
-                                                ).toLocaleDateString("pt-BR", {
+                                              ? new Date(lead.updated_at).toLocaleDateString("pt-BR", {
                                                   day: "2-digit",
                                                   month: "2-digit",
                                                 })
-                                              : `Atualizado em ${new Date(
-                                                  lead.updated_at
-                                                ).toLocaleDateString("pt-BR")}`}
+                                              : `Atualizado em ${new Date(lead.updated_at).toLocaleDateString(
+                                                  "pt-BR"
+                                                )}`}
                                           </span>
                                         </div>
                                       </div>
                                     </Card>
                                   </ContextMenuTrigger>
+
                                   <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
                                     <ContextMenuItem
                                       onClick={() => handleEditLead(lead)}
@@ -585,13 +645,13 @@ export default function LeadsKanban() {
                                     </ContextMenuItem>
                                   </ContextMenuContent>
                                 </ContextMenu>
-            {/* Espaçador final para área arrastável */}
-            <div className="flex-shrink-0 w-6 h-full" aria-hidden="true" />
-          </div>
+                              </div>
                             )}
                           </Draggable>
                         ))}
+
                         {provided.placeholder}
+
                         {filteredLeads.length === 0 && (
                           <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
                             <p className="text-goat-gray-400 text-xs sm:text-sm">
@@ -605,14 +665,15 @@ export default function LeadsKanban() {
                 </div>
               );
             })}
+
+            {/* Espaço final arrastável */}
+            <div className="flex-shrink-0 w-6 h-full" aria-hidden="true" />
           </div>
         </DragDropContext>
 
         {/* Modais */}
-        <TagsManagementModal
-          open={isTagsModalOpen}
-          onOpenChange={setIsTagsModalOpen}
-        />
+        <TagsManagementModal open={isTagsModalOpen} onOpenChange={setIsTagsModalOpen} />
+
         <EditLeadModal
           open={isEditLeadModalOpen}
           onOpenChange={setIsEditLeadModalOpen}
@@ -621,11 +682,13 @@ export default function LeadsKanban() {
           stages={stages}
           onUpdateLead={handleUpdateLead}
         />
+
         <AddStageModal
           open={isAddStageModalOpen}
           onOpenChange={setIsAddStageModalOpen}
           onAddStage={handleAddStage}
         />
+
         <NewLeadModal
           open={isNewLeadModalOpen}
           onOpenChange={setIsNewLeadModalOpen}
@@ -633,6 +696,7 @@ export default function LeadsKanban() {
           stages={stages}
           onAddLead={handleAddLead}
         />
+
         <EditStageModal
           open={isEditStageModalOpen}
           onOpenChange={setIsEditStageModalOpen}
