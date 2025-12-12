@@ -136,25 +136,6 @@ export default function LeadsKanban() {
     pan.current.raf = requestAnimationFrame(step);
   };
 
-  // ✅ Cancela pan + solta pointer capture (impede “briga” com o DnD)
-  const cancelPan = () => {
-    const container = kanbanRef.current;
-
-    stopInertia();
-
-    if (container && pan.current.pointerId !== -1) {
-      try {
-        container.releasePointerCapture(pan.current.pointerId);
-      } catch {
-        // ignore
-      }
-    }
-
-    pan.current.active = false;
-    pan.current.pointerId = -1;
-    pan.current.v = 0;
-  };
-
   const isInteractiveTarget = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
     return !!target.closest(
@@ -180,10 +161,6 @@ export default function LeadsKanban() {
     const container = kanbanRef.current;
     if (!container) return;
 
-    // ✅ não inicia pan se clicou dentro de um card/draggable
-    const target = e.target as HTMLElement | null;
-    if (target?.closest("[data-kanban-card], [data-rbd-draggable-id]")) return;
-
     if (isInteractiveTarget(e.target)) return;
 
     stopInertia();
@@ -200,8 +177,6 @@ export default function LeadsKanban() {
   };
 
   const onPointerMovePan = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDraggingCard) return; // ✅ não brigar com DnD
-
     const container = kanbanRef.current;
     if (!container) return;
     if (!pan.current.active) return;
@@ -216,7 +191,7 @@ export default function LeadsKanban() {
     const dt = now - pan.current.lastT;
     if (dt > 0) {
       const seg = e.clientX - pan.current.lastX;
-      pan.current.v = seg / dt; // px/ms
+      pan.current.v = seg / dt;
       pan.current.lastX = e.clientX;
       pan.current.lastT = now;
     }
@@ -230,14 +205,12 @@ export default function LeadsKanban() {
   };
 
   const onPointerUpPan = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDraggingCard) return; // ✅
     if (e.pointerType === "touch") return;
     if (e.pointerId !== pan.current.pointerId) return;
     endPan();
   };
 
   const onPointerCancelPan = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isDraggingCard) return; // ✅
     if (e.pointerType === "touch") return;
     if (e.pointerId !== pan.current.pointerId) return;
     endPan();
@@ -369,31 +342,28 @@ export default function LeadsKanban() {
   };
 
   // ===== DnD =====
-  const onDragStart = (_: DragStart) => {
-    cancelPan();
-    setIsDraggingCard(true);
-  };
+  const onDragStart = (_: DragStart) => setIsDraggingCard(true);
 
   const onDragEnd = async (result: DropResult) => {
-    cancelPan();
     setIsDraggingCard(false);
 
     const { source, destination, draggableId } = result;
     if (!destination) return;
 
-    // ✅ reorder dentro da mesma etapa (UI)
+    // ✅ Caso 1: REORDER dentro da mesma etapa (sem backend, só UI)
     if (source.droppableId === destination.droppableId) {
       const stageId = source.droppableId;
 
       const stageLeads = optimisticLeads.filter((l) => l.stage === stageId);
       const reorderedStageLeads = reorder(stageLeads, source.index, destination.index);
+
       const otherLeads = optimisticLeads.filter((l) => l.stage !== stageId);
 
       setOptimisticLeads([...otherLeads, ...reorderedStageLeads]);
       return;
     }
 
-    // ✅ mover de etapa (otimista + rollback)
+    // ✅ Caso 2: Move de etapa (otimista + rollback)
     const leadToMove = optimisticLeads.find((l) => l.id === draggableId);
     if (!leadToMove) return;
 
@@ -430,16 +400,18 @@ export default function LeadsKanban() {
     );
   }
 
+  // ===== Render =====
   return (
     <div className="relative">
-      {/* HEADER FIXO */}
-      <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
+      {/* HEADER FIXO (não interceptar o drag quando estiver arrastando) */}
+      <div
+        className="fixed inset-x-0 top-0 z-30 bg-goat-dark"
+        style={{ pointerEvents: isDraggingCard ? "none" : "auto" }}
+      >
         <div className="px-6 lg:px-10 pt-4 pb-2 space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-                Funil
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Funil</h1>
               <p className="text-goat-gray-400 text-sm sm:text-base">
                 Gerencie seus leads e clientes
               </p>
@@ -475,24 +447,16 @@ export default function LeadsKanban() {
           {/* Filtros */}
           <Card
             className="pr-3 pt-3 pb-3 sm:pr-4 sm:pt-4 sm:pb-4 pl-0"
-            style={{
-              backgroundColor: "#080808",
-              border: "none",
-              boxShadow: "none",
-            }}
+            style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-              <span className="text-white font-medium text-sm sm:text-base">
-                Filtros:
-              </span>
+              <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                    activeFilter === "all"
-                      ? "bg-goat-purple border-goat-purple"
-                      : ""
+                    activeFilter === "all" ? "bg-goat-purple border-goat-purple" : ""
                   }`}
                   onClick={() => setActiveFilter("all")}
                 >
@@ -505,15 +469,11 @@ export default function LeadsKanban() {
                     variant="outline"
                     size="sm"
                     className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                      activeFilter === tag.name
-                        ? "bg-goat-purple border-goat-purple"
-                        : ""
+                      activeFilter === tag.name ? "bg-goat-purple border-goat-purple" : ""
                     }`}
                     onClick={() => setActiveFilter(tag.name)}
                   >
-                    <div
-                      className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`}
-                    />
+                    <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`} />
                     {tag.name}
                   </Button>
                 ))}
@@ -525,7 +485,16 @@ export default function LeadsKanban() {
 
       {/* CONTEÚDO */}
       <div className="pt-32 pb-6">
-        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+        <DragDropContext
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          // ✅ Faz o auto-scroll começar ANTES de chegar no topo (não precisa encostar no header)
+          autoScrollerOptions={{
+            startFromPercentage: 0.4, // 40% da altura
+            maxScrollAtPercentage: 0.15,
+            maxPixelScroll: 28,
+          }}
+        >
           <div
             ref={kanbanRef}
             className="flex gap-3 sm:gap-6 min-h-[520px] sm:min-h-[620px] overflow-x-auto overflow-y-hidden select-none px-6 cursor-grab active:cursor-grabbing"
@@ -539,6 +508,7 @@ export default function LeadsKanban() {
             onPointerUp={onPointerUpPan}
             onPointerCancel={onPointerCancelPan}
           >
+            {/* Espaço inicial arrastável */}
             <div className="flex-shrink-0 w-4 h-full" aria-hidden="true" />
 
             {stages.map((stage: Stage) => {
@@ -555,9 +525,7 @@ export default function LeadsKanban() {
                   {/* Header da etapa */}
                   <div className="flex items-center justify-between gap-2 pt-8 pb-4 px-3 min-h-[5rem] rounded-t-lg">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div
-                        className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${stage.color}`}
-                      />
+                      <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${stage.color}`} />
                       <h3 className="font-bold text-white text-base sm:text-lg leading-tight whitespace-nowrap">
                         {stage.name}
                       </h3>
@@ -611,27 +579,18 @@ export default function LeadsKanban() {
                         }`}
                       >
                         {filteredLeads.map((lead, index) => (
-                          <Draggable
-                            key={lead.id}
-                            draggableId={lead.id}
-                            index={index}
-                          >
+                          <Draggable key={lead.id} draggableId={lead.id} index={index}>
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 className={`transition-transform ${
-                                  snapshot.isDragging
-                                    ? "rotate-1 scale-[1.02]"
-                                    : ""
+                                  snapshot.isDragging ? "rotate-1 scale-[1.02]" : ""
                                 }`}
                               >
                                 <ContextMenu>
                                   <ContextMenuTrigger asChild>
-                                    <Card
-                                      data-kanban-card
-                                      className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200"
-                                    >
+                                    <Card className="bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200">
                                       <div className="space-y-2 sm:space-y-3">
                                         <div className="flex items-center gap-2">
                                           {/* HANDLE À ESQUERDA */}
@@ -678,8 +637,7 @@ export default function LeadsKanban() {
 
                                         {lead.value != null && (
                                           <div className="text-goat-purple font-semibold text-xs sm:text-sm">
-                                            R${" "}
-                                            {lead.value.toLocaleString("pt-BR")}
+                                            R$ {lead.value.toLocaleString("pt-BR")}
                                           </div>
                                         )}
 
@@ -687,9 +645,7 @@ export default function LeadsKanban() {
                                           <Calendar className="w-3 h-3 flex-shrink-0" />
                                           <span className="truncate">
                                             {isMobile
-                                              ? new Date(
-                                                  lead.updated_at
-                                                ).toLocaleDateString("pt-BR", {
+                                              ? new Date(lead.updated_at).toLocaleDateString("pt-BR", {
                                                   day: "2-digit",
                                                   month: "2-digit",
                                                 })
@@ -729,9 +685,7 @@ export default function LeadsKanban() {
                         {filteredLeads.length === 0 && (
                           <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
                             <p className="text-goat-gray-400 text-xs sm:text-sm">
-                              {isMobile
-                                ? "Arraste leads"
-                                : "Arraste leads para cá"}
+                              {isMobile ? "Arraste leads" : "Arraste leads para cá"}
                             </p>
                           </div>
                         )}
@@ -742,15 +696,13 @@ export default function LeadsKanban() {
               );
             })}
 
+            {/* Espaço final arrastável */}
             <div className="flex-shrink-0 w-6 h-full" aria-hidden="true" />
           </div>
         </DragDropContext>
 
         {/* Modais */}
-        <TagsManagementModal
-          open={isTagsModalOpen}
-          onOpenChange={setIsTagsModalOpen}
-        />
+        <TagsManagementModal open={isTagsModalOpen} onOpenChange={setIsTagsModalOpen} />
 
         <EditLeadModal
           open={isEditLeadModalOpen}
