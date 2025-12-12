@@ -15,7 +15,7 @@ import { useLeads, type Lead } from "@/hooks/useLeads";
 import { useTags, type Tag } from "@/hooks/useTags";
 import { useStages, type Stage } from "@/hooks/useStages";
 import { useToast } from "@/hooks/use-toast";
-import { useDraggable } from "react-use-draggable-scroll";
+
 
 export default function LeadsKanban() {
   const isMobile = useIsMobile();
@@ -38,18 +38,97 @@ export default function LeadsKanban() {
   // Estado para saber se está arrastando um card (para desativar o drag-to-scroll)
   const [isDraggingCard, setIsDraggingCard] = useState(false);
 
-  // Sincronizar leads do hook com estado otimista
-  useEffect(() => {
-    setOptimisticLeads(leads);
-  }, [leads]);
+  // ======== DRAG-TO-SCROLL MANUAL COM INÉRCIA =========
+  const kanbanRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingScrollRef = useRef(false);
+  const startXRef = useRef(0);
+  const startScrollLeftRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const velocityRef = useRef(0);
+  const inertiaFrameRef = useRef<number | null>(null);
 
-  // ========== DRAG-TO-SCROLL COM BIBLIOTECA ==============
-  const kanbanRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLDivElement>;
-  
-  const { events } = useDraggable(kanbanRef, {
-    applyRubberBandEffect: true,
-    isMounted: !isDraggingCard, // Desativa quando está arrastando um card
-  });
+  const stopInertia = () => {
+    if (inertiaFrameRef.current !== null) {
+      cancelAnimationFrame(inertiaFrameRef.current);
+      inertiaFrameRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      // Garante que nenhuma animação continue ao desmontar
+      stopInertia();
+    };
+  }, []);
+
+  const startInertia = () => {
+    const DECAY = 0.95;
+    const MIN_VELOCITY = 0.02;
+
+    const step = () => {
+      const container = kanbanRef.current;
+      if (!container) return;
+
+      // Aplica deslocamento baseado na velocidade atual
+      container.scrollLeft -= velocityRef.current * 16; // 16ms ~ 60fps
+      velocityRef.current *= DECAY;
+
+      if (Math.abs(velocityRef.current) > MIN_VELOCITY) {
+        inertiaFrameRef.current = requestAnimationFrame(step);
+      } else {
+        stopInertia();
+      }
+    };
+
+    stopInertia();
+    inertiaFrameRef.current = requestAnimationFrame(step);
+  };
+
+  const shouldIgnoreDrag = (target: EventTarget | null) => {
+    if (!(target instanceof HTMLElement)) return false;
+    return !!target.closest(
+      "[data-drag-card], [data-rbd-drag-handle-draggable-id], button, [role='button'], a, input, textarea, select"
+    );
+  };
+
+  const handlePointerDown = (clientX: number, target: EventTarget | null) => {
+    const container = kanbanRef.current;
+    if (!container || isDraggingCard || shouldIgnoreDrag(target)) return;
+
+    isDraggingScrollRef.current = true;
+    startXRef.current = clientX;
+    startScrollLeftRef.current = container.scrollLeft;
+    lastXRef.current = clientX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
+    stopInertia();
+  };
+
+  const handlePointerMove = (clientX: number) => {
+    const container = kanbanRef.current;
+    if (!container || !isDraggingScrollRef.current) return;
+
+    const dx = clientX - startXRef.current;
+    container.scrollLeft = startScrollLeftRef.current - dx;
+
+    const now = performance.now();
+    const dt = now - lastTimeRef.current;
+    if (dt > 0) {
+      const segmentDx = clientX - lastXRef.current;
+      velocityRef.current = segmentDx / dt;
+      lastXRef.current = clientX;
+      lastTimeRef.current = now;
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (!isDraggingScrollRef.current) return;
+    isDraggingScrollRef.current = false;
+    if (Math.abs(velocityRef.current) > 0.02) {
+      startInertia();
+    }
+  };
 
   // Utility functions
   const getGroupColor = (group: string) => {
@@ -297,7 +376,32 @@ export default function LeadsKanban() {
               msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
-            {...events}
+            onMouseDown={(e) => {
+              if (e.button !== 0) return; // apenas botão esquerdo
+              e.preventDefault();
+              handlePointerDown(e.clientX, e.target);
+            }}
+            onMouseMove={(e) => {
+              if (!isDraggingScrollRef.current) return;
+              e.preventDefault();
+              handlePointerMove(e.clientX);
+            }}
+            onMouseUp={(e) => {
+              e.preventDefault();
+              handlePointerUp();
+            }}
+            onMouseLeave={handlePointerUp}
+            onTouchStart={(e) => {
+              const touch = e.touches[0];
+              if (!touch) return;
+              handlePointerDown(touch.clientX, e.target);
+            }}
+            onTouchMove={(e) => {
+              const touch = e.touches[0];
+              if (!touch) return;
+              handlePointerMove(touch.clientX);
+            }}
+            onTouchEnd={handlePointerUp}
           >
             {stages.map((stage) => {
               const stageLeads = getLeadsByStage(stage.id);
