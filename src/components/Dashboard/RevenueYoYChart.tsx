@@ -48,29 +48,31 @@ export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
 
   const currentYear = today.getFullYear();
 
-  // ✅ Base do faturamento: paid + pending (não vencido)
+  // ✅ Base do faturamento: TODOS os lançamentos (paid + pending, incluindo vencidos)
   const validEntries = (financialEntries || []).filter((e) => {
     if (!e?.due_date || typeof e?.due_date !== "string" || !e.due_date.includes("-")) {
       return false;
     }
 
-    if (e?.status === "paid") return true;
-
-    if (e?.status === "pending") {
-      try {
-        const dueDate = parseLocalDate(e.due_date);
-        dueDate.setHours(0, 0, 0, 0);
-        return dueDate >= today; // só pendentes não vencidos
-      } catch {
-        return false;
-      }
-    }
-
-    return false;
+    // Inclui todos: paid e pending (incluindo vencidos)
+    return e?.status === "paid" || e?.status === "pending";
   });
 
   const paidEntries = validEntries.filter((e) => e?.status === "paid");
-  const pendingNotOverdueEntries = validEntries.filter((e) => e?.status === "pending");
+  // Para KPIs, ainda filtra apenas pendentes não vencidos
+  const pendingNotOverdueEntries = (financialEntries || []).filter((e) => {
+    if (!e?.due_date || typeof e?.due_date !== "string" || !e.due_date.includes("-")) {
+      return false;
+    }
+    if (e?.status !== "pending") return false;
+    try {
+      const dueDate = parseLocalDate(e.due_date);
+      dueDate.setHours(0, 0, 0, 0);
+      return dueDate >= today; // só pendentes não vencidos
+    } catch {
+      return false;
+    }
+  });
 
   // Agrupa por ano/mês
   const byYearMonth = new Map<number, number[]>();
@@ -129,32 +131,21 @@ export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
 
 export function RevenueYoYChart({
   title = "Faturamento (Ano a Ano)",
-  subtitle = "Pago + pendente (não vencido). Exclui pendentes vencidos.",
+  subtitle = "Faturamento total (pago + pendente, incluindo vencidos).",
   financialEntries,
   maxYearsToShow = 4,
 }: RevenueYoYChartProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // ✅ Base do faturamento: paid + pending (não vencido)
+  // ✅ Base do faturamento: TODOS os lançamentos (paid + pending, incluindo vencidos)
   const validEntries = (financialEntries || []).filter((e) => {
     if (!e?.due_date || typeof e?.due_date !== "string" || !e.due_date.includes("-")) {
       return false;
     }
 
-    if (e?.status === "paid") return true;
-
-    if (e?.status === "pending") {
-      try {
-        const dueDate = parseLocalDate(e.due_date);
-        dueDate.setHours(0, 0, 0, 0);
-        return dueDate >= today; // só pendentes não vencidos
-      } catch {
-        return false;
-      }
-    }
-
-    return false;
+    // Inclui todos: paid e pending (incluindo vencidos)
+    return e?.status === "paid" || e?.status === "pending";
   });
 
   // Agrupa por ano/mês

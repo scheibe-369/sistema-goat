@@ -207,6 +207,36 @@ export default function Dashboard() {
       ? ((faturamentoGeralMesAtual - faturamentoGeralMesAnterior) / faturamentoGeralMesAnterior) * 100
       : faturamentoGeralMesAtual > 0 ? 100 : 0;
 
+  // Faturamento do mesmo mês do ano passado (pago + pendente)
+  const faturamentoMesAnoPassado = (financialEntries || []).reduce((sum: number, entry: any) => {
+    if (!entry?.due_date) return sum;
+    try {
+      const d = parseLocalDate(entry.due_date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear - 1) {
+        // Inclui tudo: paid e pending (tudo que deveria ser recebido no mesmo mês do ano passado)
+        return sum + (Number(entry.amount) || 0);
+      }
+    } catch {}
+    return sum;
+  }, 0);
+
+  // Verificar se há dados do mês do ano anterior
+  const hasDataMesAnoPassado = (financialEntries || []).some((entry: any) => {
+    if (!entry?.due_date) return false;
+    try {
+      const d = parseLocalDate(entry.due_date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear - 1;
+    } catch {
+      return false;
+    }
+  });
+
+  // Comparativo mês atual vs mesmo mês do ano passado
+  const variacaoMesAnoPassado =
+    hasDataMesAnoPassado && faturamentoMesAnoPassado > 0
+      ? ((faturamentoGeralMesAtual - faturamentoMesAnoPassado) / faturamentoMesAnoPassado) * 100
+      : null;
+
   // A receber mês atual: pendentes não vencidos do mês corrente
   const aReceberMesAtual = (financialEntries || []).reduce((sum: number, entry: any) => {
     if (!entry?.due_date || entry?.status !== "pending") return sum;
@@ -497,7 +527,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPIs Ano a Ano */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${PAGE_GAP}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 ${PAGE_GAP}`}>
         <Card className={`${CARD} p-4`}>
           <p className="text-goat-gray-400 text-sm mb-1">Total {revenueKPIs.currentYear}</p>
           <p className="text-2xl font-bold text-white">{formatCurrency(revenueKPIs.totalCurrent)}</p>
@@ -528,6 +558,25 @@ export default function Dashboard() {
               : `${revenueKPIs.yoyPct > 0 ? "+" : ""}${revenueKPIs.yoyPct}%`}
           </p>
           <p className="text-xs text-goat-gray-500 mt-1">Ano atual vs ano anterior</p>
+        </Card>
+
+        <Card className={`${CARD} p-4`}>
+          <p className="text-goat-gray-400 text-sm mb-1">Mês atual vs {currentYear - 1}</p>
+          <p className={`text-2xl font-bold ${
+            variacaoMesAnoPassado === null 
+              ? "text-white" 
+              : variacaoMesAnoPassado >= 0 
+                ? "text-green-400" 
+                : "text-red-400"
+          }`}>
+            {variacaoMesAnoPassado === null
+              ? "—"
+              : `${variacaoMesAnoPassado >= 0 ? "+" : ""}${variacaoMesAnoPassado.toFixed(1)}%`}
+          </p>
+          <p className="text-xs text-goat-gray-500 mt-1">
+            {new Date(currentYear, currentMonth, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })} vs{" "}
+            {new Date(currentYear - 1, currentMonth, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+          </p>
         </Card>
       </div>
 
