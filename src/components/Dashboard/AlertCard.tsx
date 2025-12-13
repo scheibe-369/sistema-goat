@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Clock, DollarSign, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface Alert {
+export interface Alert {
   id: string;
   type: 'warning' | 'danger' | 'info';
   title: string;
@@ -15,31 +15,8 @@ interface Alert {
 interface AlertCardProps {
   className?: string;
   limit?: number;
+  alerts?: Alert[];
 }
-
-const mockAlerts: Alert[] = [
-  {
-    id: '1',
-    type: 'danger',
-    title: 'Cliente em atraso',
-    description: 'Empresa XYZ está com fatura vencida há 15 dias',
-    timestamp: '2 horas atrás'
-  },
-  {
-    id: '2',
-    type: 'warning',
-    title: 'Contrato vencendo',
-    description: 'Contrato da Empresa ABC vence em 5 dias',
-    timestamp: '1 dia atrás'
-  },
-  {
-    id: '3',
-    type: 'info',
-    title: 'Lead sem movimentação',
-    description: 'Lead João Silva há 7 dias sem atualização',
-    timestamp: '3 horas atrás'
-  }
-];
 
 const getAlertIcon = (type: Alert['type']) => {
   switch (type) {
@@ -67,8 +44,8 @@ const getAlertColor = (type: Alert['type']) => {
   }
 };
 
-export function AlertCard({ className, limit }: AlertCardProps) {
-  const alertsToShow = typeof limit === 'number' ? mockAlerts.slice(0, limit) : mockAlerts;
+export function AlertCard({ className, limit, alerts = [] }: AlertCardProps) {
+  const alertsToShow = typeof limit === 'number' ? alerts.slice(0, limit) : alerts;
   return (
     <Card className={cn("bg-goat-gray-800 border-goat-gray-700 p-6", className)}>
       <div className="flex items-center gap-2 mb-4">
@@ -76,7 +53,12 @@ export function AlertCard({ className, limit }: AlertCardProps) {
         <h3 className="text-lg font-semibold text-white">Alertas & Notificações</h3>
       </div>
       <div className="space-y-4">
-        {alertsToShow.map((alert) => (
+        {alertsToShow.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-goat-gray-400 text-sm">Nenhum alerta no momento</p>
+          </div>
+        ) : (
+          alertsToShow.map((alert) => (
           <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
             <div className={`p-2 rounded-full ${getAlertColor(alert.type)}`}>{getAlertIcon(alert.type)}</div>
             <div className="flex-1">
@@ -88,7 +70,8 @@ export function AlertCard({ className, limit }: AlertCardProps) {
               {alert.type}
             </Badge>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </Card>
   );

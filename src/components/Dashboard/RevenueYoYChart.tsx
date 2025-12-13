@@ -36,22 +36,19 @@ const formatAxisBRL = (value: number) => {
 };
 
 // YYYY-MM-DD (sem timezone)
-const parseLocalDate = (dateString: string) => {
+export const parseLocalDate = (dateString: string) => {
   const [y, m, d] = dateString.split("-").map(Number);
   return new Date(y, (m || 1) - 1, d || 1);
 };
 
-export function RevenueYoYChart({
-  title = "Faturamento (Ano a Ano)",
-  subtitle = "Pago + pendente (não vencido). Exclui pendentes vencidos.",
-  financialEntries,
-  maxYearsToShow = 4,
-}: RevenueYoYChartProps) {
+// Helper para calcular KPIs do faturamento ano a ano
+export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const currentYear = today.getFullYear();
+
   // ✅ Base do faturamento: paid + pending (não vencido)
-  // ❌ Exclui: pending vencido (não pago)
   const validEntries = (financialEntries || []).filter((e) => {
     if (!e?.due_date || typeof e?.due_date !== "string" || !e.due_date.includes("-")) {
       return false;
@@ -72,11 +69,95 @@ export function RevenueYoYChart({
     return false;
   });
 
-  // Separações úteis (KPIs)
   const paidEntries = validEntries.filter((e) => e?.status === "paid");
   const pendingNotOverdueEntries = validEntries.filter((e) => e?.status === "pending");
 
-  // Agrupa por ano/mês (✅ AGORA usando validEntries)
+  // Agrupa por ano/mês
+  const byYearMonth = new Map<number, number[]>();
+
+  for (const e of validEntries) {
+    try {
+      const d = parseLocalDate(String(e.due_date));
+      if (isNaN(d.getTime())) continue;
+
+      const year = d.getFullYear();
+      const monthIdx = d.getMonth();
+      const amount = Number(e.amount) || 0;
+
+      if (!byYearMonth.has(year)) byYearMonth.set(year, Array(12).fill(0));
+      byYearMonth.get(year)![monthIdx] += amount;
+    } catch {
+      // ignore
+    }
+  }
+
+  const yearTotal = (year: number) =>
+    (byYearMonth.get(year) || Array(12).fill(0)).reduce((a, b) => a + (Number(b) || 0), 0);
+
+  const totalCurrent = yearTotal(currentYear);
+  const prevYear = currentYear - 1;
+  const totalPrev = byYearMonth.has(prevYear) ? yearTotal(prevYear) : null;
+
+  const yoyPct =
+    totalPrev && totalPrev > 0 ? Math.round(((totalCurrent - totalPrev) / totalPrev) * 100) : null;
+
+  const totalPaidCurrentYear = paidEntries.reduce((sum, e) => {
+    try {
+      const d = parseLocalDate(String(e.due_date));
+      if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
+    } catch {}
+    return sum;
+  }, 0);
+
+  const totalPendingNotOverdueCurrentYear = pendingNotOverdueEntries.reduce((sum, e) => {
+    try {
+      const d = parseLocalDate(String(e.due_date));
+      if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
+    } catch {}
+    return sum;
+  }, 0);
+
+  return {
+    totalCurrent,
+    totalPaidCurrentYear,
+    totalPendingNotOverdueCurrentYear,
+    yoyPct,
+    currentYear,
+    prevYear,
+  };
+};
+
+export function RevenueYoYChart({
+  title = "Faturamento (Ano a Ano)",
+  subtitle = "Pago + pendente (não vencido). Exclui pendentes vencidos.",
+  financialEntries,
+  maxYearsToShow = 4,
+}: RevenueYoYChartProps) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // ✅ Base do faturamento: paid + pending (não vencido)
+  const validEntries = (financialEntries || []).filter((e) => {
+    if (!e?.due_date || typeof e?.due_date !== "string" || !e.due_date.includes("-")) {
+      return false;
+    }
+
+    if (e?.status === "paid") return true;
+
+    if (e?.status === "pending") {
+      try {
+        const dueDate = parseLocalDate(e.due_date);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate >= today; // só pendentes não vencidos
+      } catch {
+        return false;
+      }
+    }
+
+    return false;
+  });
+
+  // Agrupa por ano/mês
   const byYearMonth = new Map<number, number[]>();
   const yearsSet = new Set<number>();
 
@@ -119,36 +200,6 @@ export function RevenueYoYChart({
     return row;
   });
 
-  const yearTotal = (year: number) =>
-    (byYearMonth.get(year) || Array(12).fill(0)).reduce((a, b) => a + (Number(b) || 0), 0);
-
-  // Totais do ano atual (✅ pago + pendente não vencido)
-  const totalCurrent = yearTotal(currentYear);
-
-  // YoY (✅ comparando faturamento válido ano a ano)
-  const prevYear = currentYear - 1;
-  const totalPrev = yearsSet.has(prevYear) ? yearTotal(prevYear) : null;
-
-  const yoyPct =
-    totalPrev && totalPrev > 0 ? Math.round(((totalCurrent - totalPrev) / totalPrev) * 100) : null;
-
-  // KPIs extras: recebido e a receber (do ano atual)
-  const totalPaidCurrentYear = paidEntries.reduce((sum, e) => {
-    try {
-      const d = parseLocalDate(String(e.due_date));
-      if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
-    } catch {}
-    return sum;
-  }, 0);
-
-  const totalPendingNotOverdueCurrentYear = pendingNotOverdueEntries.reduce((sum, e) => {
-    try {
-      const d = parseLocalDate(String(e.due_date));
-      if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
-    } catch {}
-    return sum;
-  }, 0);
-
   // Estilo das linhas (mesma cor, opacidade/dash por antiguidade)
   const lineStyleForIndex = (idxFromEnd: number) => {
     const baseOpacity = 0.35 + (idxFromEnd / Math.max(1, yearsToShow.length - 1)) * 0.65;
@@ -167,36 +218,6 @@ export function RevenueYoYChart({
         <div>
           <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
           <p className="text-goat-gray-400 text-sm">{subtitle}</p>
-        </div>
-      </div>
-
-      {/* KPIs (ano atual) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">Total {currentYear}</p>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalCurrent)}</p>
-          <p className="text-xs text-goat-gray-500 mt-1">Pago + pendente (não vencido)</p>
-        </div>
-
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">Recebido {currentYear}</p>
-          <p className="text-2xl font-bold text-white">{formatCurrency(totalPaidCurrentYear)}</p>
-          <p className="text-xs text-goat-gray-500 mt-1">Apenas pagos</p>
-        </div>
-
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">A receber {currentYear}</p>
-          <p className="text-2xl font-bold text-white">
-            {formatCurrency(totalPendingNotOverdueCurrentYear)}
-          </p>
-          <p className="text-xs text-goat-gray-500 mt-1">Pendentes não vencidos</p>
-        </div>
-
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">YoY vs {prevYear}</p>
-          <p className="text-2xl font-bold text-white">
-            {yoyPct === null ? "—" : `${yoyPct > 0 ? "+" : ""}${yoyPct}%`}
-          </p>
         </div>
       </div>
 

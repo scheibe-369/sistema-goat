@@ -1,5 +1,5 @@
 import { StatsCard } from "@/components/Dashboard/StatsCard";
-import { AlertCard } from "@/components/Dashboard/AlertCard";
+import { AlertCard, type Alert } from "@/components/Dashboard/AlertCard";
 import { Card } from "@/components/ui/card";
 import { DollarSign, Users, TrendingUp, Calendar } from "lucide-react";
 
@@ -20,7 +20,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { RevenueYoYChart } from "@/components/Dashboard/RevenueYoYChart";
+import { RevenueYoYChart, calculateRevenueKPIs } from "@/components/Dashboard/RevenueYoYChart";
 
 export default function Dashboard() {
   const { data: clients = [] } = useClients();
@@ -32,11 +32,8 @@ export default function Dashboard() {
 
   // ===== Helpers =====
   const parseLocalDate = (dateString: string) => {
-    const dateParts = dateString.split("-");
-    const year = parseInt(dateParts[0]);
-    const month = parseInt(dateParts[1]) - 1;
-    const day = parseInt(dateParts[2]);
-    return new Date(year, month, day);
+    const [y, m, d] = dateString.split("-").map(Number);
+    return new Date(y, (m || 1) - 1, d || 1);
   };
 
   const formatCurrency = (value: number) =>
@@ -136,24 +133,36 @@ export default function Dashboard() {
 
   const lucroMes = receitasMes - despesasMes;
 
-  const aReceber7d = (financialEntries || []).reduce((sum: number, entry: any) => {
+  // A receber mês atual: pendentes não vencidos do mês corrente
+  const aReceberMesAtual = (financialEntries || []).reduce((sum: number, entry: any) => {
     if (!entry?.due_date || entry?.status !== "pending") return sum;
     try {
       const dueDate = parseLocalDate(entry.due_date);
       dueDate.setHours(0, 0, 0, 0);
-      if (dueDate >= today && dueDate <= in7) {
+      // Deve estar no mês atual e não estar vencido
+      if (
+        dueDate >= today &&
+        dueDate.getMonth() === currentMonth &&
+        dueDate.getFullYear() === currentYear
+      ) {
         return sum + (Number(entry.amount) || 0);
       }
     } catch {}
     return sum;
   }, 0);
 
+  // Vencidos do mês atual: pendentes com due_date anterior a hoje, mas do mês atual
   const vencidos = (financialEntries || []).reduce((sum: number, entry: any) => {
     if (!entry?.due_date || entry?.status !== "pending") return sum;
     try {
       const dueDate = parseLocalDate(entry.due_date);
       dueDate.setHours(0, 0, 0, 0);
-      if (dueDate < today) {
+      // Deve estar vencido (antes de hoje) e no mês atual
+      if (
+        dueDate < today &&
+        dueDate.getMonth() === currentMonth &&
+        dueDate.getFullYear() === currentYear
+      ) {
         return sum + (Number(entry.amount) || 0);
       }
     } catch {}
@@ -183,8 +192,7 @@ export default function Dashboard() {
     return !EXCLUDED_FUNNEL_STAGES.has(name);
   });
 
-  const leadsByStage = (stageId: string) =>
-    leads.filter((lead: any) => lead?.stage === stageId).length;
+  const leadsByStage = (stageId: string) => leads.filter((lead: any) => lead?.stage === stageId).length;
 
   const stagesWithLeads = funnelStagesFiltered
     .map((s: any) => ({ ...s, count: leadsByStage(s.id) }))
@@ -206,262 +214,389 @@ export default function Dashboard() {
     Leads: Number(s?.count || 0),
   }));
 
+  // ===== KPIs Faturamento Ano a Ano =====
+  const revenueKPIs = calculateRevenueKPIs(financialEntries);
+
+  // ===== Alertas Reais =====
+  // Helper para formatar tempo relativo
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 60) return `${diffMins} minuto${diffMins !== 1 ? "s" : ""} atrás`;
+    if (diffHours < 24) return `${diffHours} hora${diffHours !== 1 ? "s" : ""} atrás`;
+    if (diffDays === 1) return "1 dia atrás";
+    return `${diffDays} dias atrás`;
+  };
+
+  // Calcular alertas
+  const alerts: Alert[] = [];
+
+  // 1. Faturas vencidas (danger)
+  const faturasVencidas = (financialEntries || [])
+    .filter((entry: any) => {
+      if (!entry?.due_date || entry?.status !== "pending") return false;
+      try {
+        const dueDate = parseLocalDate(entry.due_date);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate < today;
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, 5); // Limitar a 5 mais recentes
+
+  for (const entry of faturasVencidas) {
+    try {
+      const dueDate = parseLocalDate(entry.due_date);
+      const daysOverdue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
+      const clientName = (entry.clients as any)?.company || "Cliente desconhecido";
+      const amount = formatCurrency(Number(entry.amount) || 0);
+
+      alerts.push({
+        id: `fatura-vencida-${entry.id}`,
+        type: "danger",
+        title: "Fatura vencida",
+        description: `${clientName} - ${amount} vencida há ${daysOverdue} dia${daysOverdue !== 1 ? "s" : ""}`,
+        timestamp: formatRelativeTime(dueDate),
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  // 2. Contratos vencendo em breve (warning) - próximos 30 dias
+  const contratosVencendo = (contracts || []).filter((c: any) => {
+    if (!c || (c.status !== "active" && c.status !== "expiring")) return false;
+    const end = safeParseDate(c.end_date);
+    if (!end) return false;
+
+    const endDay = new Date(end);
+    endDay.setHours(0, 0, 0, 0);
+
+    const limit = new Date(in30);
+    limit.setHours(23, 59, 59, 999);
+
+    return endDay >= today && endDay <= limit;
+  });
+
+  for (const contract of contratosVencendo.slice(0, 5)) {
+    try {
+      const endDate = safeParseDate(contract.end_date);
+      if (!endDate) continue;
+
+      const daysUntilExpiration = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      const clientName = contract.client?.company || "Cliente desconhecido";
+
+      alerts.push({
+        id: `contrato-vencendo-${contract.id}`,
+        type: "warning",
+        title: "Contrato vencendo",
+        description: `${clientName} - Vence em ${daysUntilExpiration} dia${daysUntilExpiration !== 1 ? "s" : ""}`,
+        timestamp: formatRelativeTime(endDate),
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  // 3. Leads sem movimentação (info) - sem atualização há 7+ dias
+  const sevenDaysAgoForAlerts = new Date(today);
+  sevenDaysAgoForAlerts.setDate(sevenDaysAgoForAlerts.getDate() - 7);
+
+  const leadsSemAtualizacao = (leads || []).filter((lead: any) => {
+    if (!lead?.updated_at) return false;
+    const updated = safeParseDate(lead.updated_at);
+    if (!updated) return false;
+    const updatedDay = new Date(updated);
+    updatedDay.setHours(0, 0, 0, 0);
+    return updatedDay < sevenDaysAgoForAlerts;
+  });
+
+  for (const lead of leadsSemAtualizacao.slice(0, 5)) {
+    try {
+      const updated = safeParseDate(lead.updated_at);
+      if (!updated) continue;
+
+      const daysStale = Math.floor((today.getTime() - updated.getTime()) / (1000 * 60 * 60 * 24));
+      const leadName = lead.name || "Lead sem nome";
+
+      alerts.push({
+        id: `lead-sem-atualizacao-${lead.id}`,
+        type: "info",
+        title: "Lead sem movimentação",
+        description: `${leadName} - ${daysStale} dia${daysStale !== 1 ? "s" : ""} sem atualização`,
+        timestamp: formatRelativeTime(updated),
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  // Ordenar alertas por prioridade (danger > warning > info) e depois por timestamp
+  const priorityOrder = { danger: 0, warning: 1, info: 2 };
+  alerts.sort((a, b) => {
+    if (priorityOrder[a.type] !== priorityOrder[b.type]) {
+      return priorityOrder[a.type] - priorityOrder[b.type];
+    }
+    return 0; // Manter ordem original se mesma prioridade
+  });
+
+  // ===== Layout tokens (padronização) =====
+  const PAGE_GAP = "gap-4 md:gap-5";
+  const CARD = "bg-goat-gray-800 border-goat-gray-700 dashboard-glow";
+  const SECTION_PAD = "p-5 md:p-6";
+  const MINI = "bg-goat-gray-900/50 rounded-lg p-4";
+  const MINI_TIGHT = "bg-goat-gray-900/50 rounded-lg p-3";
+
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="-mt-2">
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+    <div className="space-y-6 md:space-y-8 animate-fade-in">
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
         <p className="text-goat-gray-400">Visão geral do seu CRM</p>
       </div>
 
-      <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gridTemplateRows: "repeat(10, 1fr)",
-          gap: "16px",
-        }}
-      >
-        {/* ===== TOP ROW (4 cards) ===== */}
-
-        <div style={{ gridColumn: "1", gridRow: "1" }}>
-          <StatsCard
-            title="MRR (Mensal)"
-            value={formatCurrency(monthlyRevenue)}
-            icon={DollarSign}
-            description="Contratos ativos"
-            className="dashboard-glow p-4"
-          />
-        </div>
-
-        <div style={{ gridColumn: "2", gridRow: "1" }}>
-          <StatsCard
-            title="ARR (Anual)"
-            value={formatCurrency(arr)}
-            icon={TrendingUp}
-            description="MRR × 12"
-            className="dashboard-glow p-4"
-          />
-        </div>
-
-        <div style={{ gridColumn: "3", gridRow: "1" }}>
-          <StatsCard
-            title="Clientes Ativos"
-            value={activeClients.toString()}
-            icon={Users}
-            description="Com tag Ativo"
-            className="dashboard-glow p-4"
-          />
-        </div>
-
-        <div style={{ gridColumn: "4", gridRow: "1" }}>
-          <StatsCard
-            title="A vencer (30 dias)"
-            value={expiringIn30Days.toString()}
-            icon={Calendar}
-            description="Risco de churn"
-            className="dashboard-glow p-4"
-          />
-        </div>
-
-        {/* ===== SAÚDE FINANCEIRA (linha 2-4) ===== */}
-        <div style={{ gridColumn: "1 / 5", gridRow: "2 / 5", display: "flex", flexDirection: "column" }}>
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow h-full relative overflow-hidden">
-            {/* brilho suave */}
-            <div
-              className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl opacity-20"
-              style={{ background: "radial-gradient(circle, #8B5CF6 0%, transparent 60%)" }}
-            />
-
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-goat-purple" />
-              <h2 className="text-lg font-semibold text-white">Saúde Financeira</h2>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">Receitas (mês)</p>
-                <p className="text-xl font-bold text-white">{formatCurrency(receitasMes)}</p>
-              </div>
-
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">Despesas (mês)</p>
-                <p className="text-xl font-bold text-red-400">{formatCurrency(despesasMes)}</p>
-              </div>
-
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">Lucro (mês)</p>
-                <p className={`text-xl font-bold ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {formatCurrency(lucroMes)}
-                </p>
-              </div>
-
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">A receber (7d)</p>
-                <p className="text-xl font-bold text-yellow-400">{formatCurrency(aReceber7d)}</p>
-              </div>
-
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">Vencidos</p>
-                <p className="text-xl font-bold text-red-400">{formatCurrency(vencidos)}</p>
-              </div>
-
-              <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-                <p className="text-goat-gray-400 text-xs mb-1">Contratos a vencer</p>
-                <p className="text-xl font-bold text-white">{expiringIn30Days}</p>
-              </div>
-            </div>
-
-            {/* Novo gráfico Ano a Ano */}
-            <div className="mt-6">
-              <RevenueYoYChart financialEntries={financialEntries as any[]} />
-            </div>
-          </Card>
-        </div>
-
-        {/* ===== ALERTAS (colunas 1-2, linhas 5-7) ===== */}
-        <div style={{ gridColumn: "1 / 3", gridRow: "5 / 8", display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <AlertCard className="dashboard-glow p-4" limit={3} />
-        </div>
-
-        {/* ===== FUNIL (colunas 3-4, linhas 5-7) ===== */}
-        <div style={{ gridColumn: "3 / 5", gridRow: "5 / 8", display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow h-full relative overflow-hidden">
-            <div
-              className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15"
-              style={{ background: "radial-gradient(circle, #8B5CF6 0%, transparent 60%)" }}
-            />
-
-            <div className="flex items-start justify-between gap-4 mb-2">
-              <div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-goat-purple" />
-                  <span className="text-white font-semibold text-base">Funil de Prospecção</span>
-                </div>
-                <p className="text-goat-gray-400 text-sm mt-1">
-                  Acompanhamento operacional (prospecção fria).
-                </p>
-              </div>
-
-              <span className="text-goat-gray-300 text-sm">{totalLeadsInFunnel} lead(s)</span>
-            </div>
-
-            {/* KPIs (operacionais) */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
-              <div className="bg-goat-gray-900/50 p-3 rounded-lg">
-                <p className="text-goat-gray-400 text-xs">Sem atendimento</p>
-                <p className="text-xl font-bold text-white">{semAtendimento}</p>
-              </div>
-              <div className="bg-goat-gray-900/50 p-3 rounded-lg">
-                <p className="text-goat-gray-400 text-xs">Em atendimento</p>
-                <p className="text-xl font-bold text-white">{emAtendimento}</p>
-              </div>
-              <div className="bg-goat-gray-900/50 p-3 rounded-lg">
-                <p className="text-goat-gray-400 text-xs">Reuniões</p>
-                <p className="text-xl font-bold text-white">{reunioesAgendadas}</p>
-              </div>
-              <div className="bg-goat-gray-900/50 p-3 rounded-lg">
-                <p className="text-goat-gray-400 text-xs">Propostas</p>
-                <p className="text-xl font-bold text-white">{propostasEnviadas}</p>
-              </div>
-              <div className="bg-goat-gray-900/50 p-3 rounded-lg">
-                <p className="text-goat-gray-400 text-xs">Follow-up</p>
-                <p className="text-xl font-bold text-white">{followUp}</p>
-              </div>
-            </div>
-
-            {/* Gráfico do funil (sem labels no eixo X, só tooltip) */}
-            <div className="w-full h-[360px]">
-              {funnelChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={funnelChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorFunnel" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
-
-                    <XAxis dataKey="name" hide />
-
-                    <YAxis
-                      stroke="#A3A3A3"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      allowDecimals={false}
-                      width={32}
-                    />
-
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#171717",
-                        borderColor: "#404040",
-                        color: "#FFFFFF",
-                        borderRadius: "0.5rem",
-                      }}
-                      labelStyle={{ color: "#A3A3A3" }}
-                      formatter={(value) => [Number(value), "Leads"]}
-                    />
-
-                    <Area
-                      type="monotone"
-                      dataKey="Leads"
-                      stroke="#8B5CF6"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorFunnel)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-goat-gray-400">Nenhum dado disponível para exibir</p>
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-
-        {/* ===== Clientes Recentes (colunas 1-4, linhas 8-10) ===== */}
-        <div style={{ gridColumn: "1 / 5", gridRow: "8 / 11", display: "flex", flexDirection: "column", minHeight: 0 }}>
-          <Card className="bg-goat-gray-800 border-goat-gray-700 p-4 dashboard-glow animate-slide-up">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="w-5 h-5 text-goat-purple" />
-              <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
-            </div>
-
-            <div className="space-y-3">
-              {clients.slice(0, 4).map((client: any, index: number) => (
-                <div
-                  key={client.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow animate-fade-in"
-                  style={{ animationDelay: `${0.5 + index * 0.1}s` }}
-                >
-                  <div>
-                    <p className="text-white text-sm font-medium">{client.company}</p>
-                    <p className="text-goat-gray-400 text-xs">Responsável: {client.responsible}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-goat-gray-500 text-xs">
-                      {new Date(client.created_at || "").toLocaleDateString("pt-BR")}
-                    </span>
-                    {client.plan && <p className="text-goat-purple text-xs mt-1">{client.plan}</p>}
-                  </div>
-                </div>
-              ))}
-
-              {clients.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-goat-gray-400">Nenhum cliente cadastrado ainda</p>
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
+      {/* TOP KPIs */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${PAGE_GAP}`}>
+        <StatsCard
+          title="MRR (Mensal)"
+          value={formatCurrency(monthlyRevenue)}
+          icon={DollarSign}
+          description="Contratos ativos"
+          className="dashboard-glow p-4"
+        />
+        <StatsCard
+          title="ARR (Anual)"
+          value={formatCurrency(arr)}
+          icon={TrendingUp}
+          description="MRR × 12"
+          className="dashboard-glow p-4"
+        />
+        <StatsCard
+          title="Clientes Ativos"
+          value={activeClients.toString()}
+          icon={Users}
+          description="Com tag Ativo"
+          className="dashboard-glow p-4"
+        />
+        <StatsCard
+          title="Contratos a vencer (30 dias)"
+          value={expiringIn30Days.toString()}
+          icon={Calendar}
+          description="Risco de churn"
+          className="dashboard-glow p-4"
+        />
       </div>
+
+      {/* SAÚDE FINANCEIRA (unidades) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Receitas (mês)</p>
+            <p className="text-xl font-bold text-white">{formatCurrency(receitasMes)}</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Despesas (mês)</p>
+            <p className="text-xl font-bold text-red-400">{formatCurrency(despesasMes)}</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Lucro (mês)</p>
+            <p className={`text-xl font-bold ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {formatCurrency(lucroMes)}
+            </p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">A receber (mês)</p>
+            <p className="text-xl font-bold text-yellow-400">{formatCurrency(aReceberMesAtual)}</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Vencidos (mês)</p>
+            <p className="text-xl font-bold text-red-400">{formatCurrency(vencidos)}</p>
+          </Card>
+      </div>
+
+      {/* KPIs Ano a Ano */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 ${PAGE_GAP}`}>
+        <Card className={`${CARD} p-4`}>
+          <p className="text-goat-gray-400 text-sm mb-1">Total {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white">{formatCurrency(revenueKPIs.totalCurrent)}</p>
+          <p className="text-xs text-goat-gray-500 mt-1">Pago + pendente (não vencido)</p>
+        </Card>
+
+        <Card className={`${CARD} p-4`}>
+          <p className="text-goat-gray-400 text-sm mb-1">Recebido {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white">
+            {formatCurrency(revenueKPIs.totalPaidCurrentYear)}
+          </p>
+          <p className="text-xs text-goat-gray-500 mt-1">Apenas pagos</p>
+        </Card>
+
+        <Card className={`${CARD} p-4`}>
+          <p className="text-goat-gray-400 text-sm mb-1">A receber {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white">
+            {formatCurrency(revenueKPIs.totalPendingNotOverdueCurrentYear)}
+          </p>
+          <p className="text-xs text-goat-gray-500 mt-1">Pendentes não vencidos</p>
+        </Card>
+
+        <Card className={`${CARD} p-4`}>
+          <p className="text-goat-gray-400 text-sm mb-1">YoY vs {revenueKPIs.prevYear}</p>
+          <p className="text-2xl font-bold text-white">
+            {revenueKPIs.yoyPct === null
+              ? "—"
+              : `${revenueKPIs.yoyPct > 0 ? "+" : ""}${revenueKPIs.yoyPct}%`}
+          </p>
+          <p className="text-xs text-goat-gray-500 mt-1">Ano atual vs ano anterior</p>
+        </Card>
+      </div>
+
+      {/* Gráfico Ano a Ano */}
+      <RevenueYoYChart financialEntries={financialEntries as any[]} />
+
+      {/* ALERTAS + FUNIL */}
+      <div className={`grid grid-cols-1 lg:grid-cols-2 ${PAGE_GAP} items-stretch`}>
+        <div className="min-h-[520px]">
+          <AlertCard className="dashboard-glow p-4 h-full" limit={10} alerts={alerts} />
+        </div>
+
+        <Card className={`${CARD} ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
+          <div
+            className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15"
+            style={{ background: "radial-gradient(circle, #8B5CF6 0%, transparent 60%)" }}
+          />
+
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-goat-purple" />
+                <span className="text-white font-semibold text-base">Funil de Prospecção</span>
+              </div>
+              <p className="text-goat-gray-400 text-sm mt-1">
+                Acompanhamento operacional (prospecção fria).
+              </p>
+            </div>
+
+            <span className="text-goat-gray-300 text-sm">{totalLeadsInFunnel} lead(s)</span>
+          </div>
+
+          {/* KPIs operacionais */}
+          <div className={`grid grid-cols-2 md:grid-cols-5 gap-3 mb-3`}>
+            <div className={`${MINI_TIGHT} flex flex-col items-center justify-center text-center`}>
+              <p className="text-goat-gray-400 text-xs mb-1">Sem atendimento</p>
+              <p className="text-xl font-bold text-white">{semAtendimento}</p>
+            </div>
+            <div className={`${MINI_TIGHT} flex flex-col items-center justify-center text-center`}>
+              <p className="text-goat-gray-400 text-xs mb-1">Em atendimento</p>
+              <p className="text-xl font-bold text-white">{emAtendimento}</p>
+            </div>
+            <div className={`${MINI_TIGHT} flex flex-col items-center justify-center text-center`}>
+              <p className="text-goat-gray-400 text-xs mb-1">Reuniões</p>
+              <p className="text-xl font-bold text-white">{reunioesAgendadas}</p>
+            </div>
+            <div className={`${MINI_TIGHT} flex flex-col items-center justify-center text-center`}>
+              <p className="text-goat-gray-400 text-xs mb-1">Propostas</p>
+              <p className="text-xl font-bold text-white">{propostasEnviadas}</p>
+            </div>
+            <div className={`${MINI_TIGHT} flex flex-col items-center justify-center text-center`}>
+              <p className="text-goat-gray-400 text-xs mb-1">Follow-up</p>
+              <p className="text-xl font-bold text-white">{followUp}</p>
+            </div>
+          </div>
+
+          {/* Gráfico */}
+          <div className="w-full h-[380px]">
+            {funnelChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={funnelChartData} margin={{ top: 8, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorFunnel" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
+                  <XAxis dataKey="name" hide />
+
+                  <YAxis
+                    stroke="#A3A3A3"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                    width={32}
+                  />
+
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#171717",
+                      borderColor: "#404040",
+                      color: "#FFFFFF",
+                      borderRadius: "0.5rem",
+                    }}
+                    labelStyle={{ color: "#A3A3A3" }}
+                    formatter={(value) => [Number(value), "Leads"]}
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="Leads"
+                    stroke="#8B5CF6"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorFunnel)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-goat-gray-400">Nenhum dado disponível para exibir</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Clientes Recentes */}
+      <Card className={`${CARD} p-4 md:p-5`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5 text-goat-purple" />
+          <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
+        </div>
+
+        <div className="space-y-3">
+          {clients.slice(0, 4).map((client: any, index: number) => (
+            <div
+              key={client.id}
+              className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow"
+            >
+              <div className="min-w-0">
+                <p className="text-white text-sm font-medium truncate">{client.company}</p>
+                <p className="text-goat-gray-400 text-xs truncate">Responsável: {client.responsible}</p>
+              </div>
+              <div className="text-right shrink-0 pl-4">
+                <span className="text-goat-gray-500 text-xs">
+                  {new Date(client.created_at || "").toLocaleDateString("pt-BR")}
+                </span>
+                {client.plan && <p className="text-goat-purple text-xs mt-1">{client.plan}</p>}
+              </div>
+            </div>
+          ))}
+
+          {clients.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-goat-gray-400">Nenhum cliente cadastrado ainda</p>
+            </div>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }
