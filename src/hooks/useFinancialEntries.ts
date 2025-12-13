@@ -38,6 +38,7 @@ export const useFinancialEntries = () => {
       }
       
       console.log('DEBUG - Lançamentos financeiros encontrados:', data?.length || 0);
+      console.log('DEBUG - Dados dos lançamentos:', data?.map(e => ({ name: e.name, status: e.status, due_date: e.due_date })));
       return data || [];
     },
     enabled: !!user?.id,
