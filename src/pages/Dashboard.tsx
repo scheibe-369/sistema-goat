@@ -189,6 +189,20 @@ export default function Dashboard() {
     return sum;
   }, 0);
 
+  // Receita por hora trabalhada: Faturamento bruto mensal / Horas trabalhadas no mês
+  // Valor padrão: 160 horas/mês (40h/semana × 4 semanas)
+  const horasTrabalhadasMes = 160; // TODO: Adicionar campo configurável no futuro
+  const receitaPorHora =
+    horasTrabalhadasMes > 0 ? faturamentoGeralMesAtual / horasTrabalhadasMes : 0;
+
+  // Lucro líquido baseado em faturamento bruto: Faturamento bruto - Despesas
+  const lucroLiquido = faturamentoGeralMesAtual - despesasMes;
+
+  // Margem de lucro (%): (Lucro líquido / Receita Total) × 100
+  // Receita Total = Faturamento bruto (tudo que foi faturado, não apenas o que foi pago)
+  const margemLucro =
+    faturamentoGeralMesAtual > 0 ? ((lucroLiquido / faturamentoGeralMesAtual) * 100) : 0;
+
   // Faturamento geral do mês anterior (pagos + a pagar + vencidos)
   const faturamentoGeralMesAnterior = (financialEntries || []).reduce((sum: number, entry: any) => {
     if (!entry?.due_date) return sum;
@@ -200,6 +214,41 @@ export default function Dashboard() {
     } catch {}
     return sum;
   }, 0);
+
+  // Concentração de receita: % da receita que vem do maior cliente (baseado em faturamento bruto)
+  const receitaPorCliente = new Map<string, number>();
+  (financialEntries || []).forEach((entry: any) => {
+    if (!entry?.due_date) return; // Inclui todos: paid e pending
+    try {
+      const d = parseLocalDate(entry.due_date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        const clientId = entry.client_id || "unknown";
+        const amount = Number(entry.amount) || 0;
+        receitaPorCliente.set(clientId, (receitaPorCliente.get(clientId) || 0) + amount);
+      }
+    } catch {}
+  });
+
+  let maiorReceitaCliente = 0;
+  let totalReceitasAgrupadas = 0;
+  receitaPorCliente.forEach((receita) => {
+    totalReceitasAgrupadas += receita;
+    if (receita > maiorReceitaCliente) {
+      maiorReceitaCliente = receita;
+    }
+  });
+
+  // DEBUG: Log para verificar o cálculo
+  console.log('🔍 DEBUG Concentração de Receita:', {
+    faturamentoBrutoMes: faturamentoGeralMesAtual,
+    totalReceitasAgrupadas,
+    maiorReceitaCliente,
+    numClientes: receitaPorCliente.size,
+    receitasPorCliente: Array.from(receitaPorCliente.entries()).map(([id, val]) => ({ clientId: id, receita: val }))
+  });
+
+  const concentracaoReceita =
+    faturamentoGeralMesAtual > 0 ? (maiorReceitaCliente / faturamentoGeralMesAtual) * 100 : 0;
 
   // Comparativo mensal: variação percentual do faturamento geral vs mês anterior
   const variacaoComparativoMensal =
@@ -747,21 +796,37 @@ export default function Dashboard() {
           </Card>
 
           <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 4</p>
-            <p className="text-xl font-bold text-white">—</p>
-            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+            <p className="text-goat-gray-400 text-xs mb-1">Margem de lucro</p>
+            <p className={`text-xl font-bold ${
+              margemLucro > 40
+                ? "text-green-400"
+                : margemLucro >= 20 && margemLucro <= 40
+                  ? "text-white"
+                  : "text-red-400"
+            }`}>
+              {margemLucro.toFixed(1)}%
+            </p>
+            <p className="text-goat-gray-500 text-xs mt-1">Meta ideal: 20-40%</p>
           </Card>
 
           <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 5</p>
-            <p className="text-xl font-bold text-white">—</p>
-            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+            <p className="text-goat-gray-400 text-xs mb-1">Receita por hora</p>
+            <p className="text-xl font-bold text-white">{formatCurrency(receitaPorHora)}</p>
+            <p className="text-goat-gray-500 text-xs mt-1">Produtividade mensal ({horasTrabalhadasMes}h)</p>
           </Card>
 
           <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 6</p>
-            <p className="text-xl font-bold text-white">—</p>
-            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+            <p className="text-goat-gray-400 text-xs mb-1">Concentração de receita</p>
+            <p className={`text-xl font-bold ${
+              concentracaoReceita <= 30
+                ? "text-green-400"
+                : "text-red-400"
+            }`}>
+              {concentracaoReceita.toFixed(1)}%
+            </p>
+            <p className="text-goat-gray-500 text-xs mt-1">
+              {concentracaoReceita > 30 ? "Risco alto (>30%)" : "Diversificado (≤30%)"}
+            </p>
           </Card>
         </div>
       </div>
