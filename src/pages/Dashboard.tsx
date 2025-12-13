@@ -177,11 +177,35 @@ export default function Dashboard() {
     return sum;
   }, 0);
 
-  // Comparativo mensal: variação percentual do faturamento bruto vs mês anterior
+  // Faturamento geral do mês atual (pagos + a pagar + vencidos)
+  const faturamentoGeralMesAtual = (financialEntries || []).reduce((sum: number, entry: any) => {
+    if (!entry?.due_date) return sum;
+    try {
+      const d = parseLocalDate(entry.due_date);
+      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+        return sum + (Number(entry.amount) || 0);
+      }
+    } catch {}
+    return sum;
+  }, 0);
+
+  // Faturamento geral do mês anterior (pagos + a pagar + vencidos)
+  const faturamentoGeralMesAnterior = (financialEntries || []).reduce((sum: number, entry: any) => {
+    if (!entry?.due_date) return sum;
+    try {
+      const d = parseLocalDate(entry.due_date);
+      if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
+        return sum + (Number(entry.amount) || 0);
+      }
+    } catch {}
+    return sum;
+  }, 0);
+
+  // Comparativo mensal: variação percentual do faturamento geral vs mês anterior
   const variacaoComparativoMensal =
-    receitasMesAnterior > 0
-      ? ((receitasMes - receitasMesAnterior) / receitasMesAnterior) * 100
-      : receitasMes > 0 ? 100 : 0;
+    faturamentoGeralMesAnterior > 0
+      ? ((faturamentoGeralMesAtual - faturamentoGeralMesAnterior) / faturamentoGeralMesAnterior) * 100
+      : faturamentoGeralMesAtual > 0 ? 100 : 0;
 
   // A receber mês atual: pendentes não vencidos do mês corrente
   const aReceberMesAtual = (financialEntries || []).reduce((sum: number, entry: any) => {
@@ -670,7 +694,7 @@ export default function Dashboard() {
               {variacaoComparativoMensal >= 0 ? "+" : ""}
               {variacaoComparativoMensal.toFixed(1)}%
             </p>
-            <p className="text-goat-gray-500 text-xs mt-1">vs mês anterior (faturamento)</p>
+            <p className="text-goat-gray-500 text-xs mt-1">vs mês anterior (faturamento geral)</p>
           </Card>
 
           <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
