@@ -41,29 +41,55 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
     const endDate = new Date(client.contract_end);
     const paymentDay = client.payment_day || 1;
     
+    // Normalizar as datas para evitar problemas de timezone
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999); // Fim do dia
+    
     const financialEntries = [];
+    
+    // Função auxiliar para definir o dia de pagamento de forma segura
+    const setPaymentDay = (date: Date, day: number) => {
+      const newDate = new Date(date);
+      newDate.setDate(1); // Primeiro dia do mês
+      const lastDay = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0).getDate();
+      const actualDay = Math.min(day, lastDay); // Usa o dia ou o último dia do mês
+      newDate.setDate(actualDay);
+      newDate.setHours(0, 0, 0, 0);
+      return newDate;
+    };
     
     // Começar do mês seguinte ao início do contrato ou do mesmo mês se o dia de pagamento ainda não passou
     let currentDate = new Date(startDate);
     
     // Se o dia de pagamento do mês atual já passou, começar do próximo mês
-    if (startDate.getDate() >= paymentDay) {
+    // CORRIGIDO: Usar > em vez de >= para incluir pagamento quando inicia no mesmo dia
+    if (startDate.getDate() > paymentDay) {
       currentDate.setMonth(currentDate.getMonth() + 1);
     }
     
     // Ajustar para o dia de pagamento
-    currentDate.setDate(paymentDay);
+    currentDate = setPaymentDay(currentDate, paymentDay);
 
     // Gerar lançamentos mensais até o fim do contrato
-    while (currentDate <= endDate) {
-      const entryDate = currentDate.toISOString().split('T')[0];
+    // CORRIGIDO: Parar quando o pagamento seria APÓS a data de término do contrato
+    while (true) {
+      // Criar uma cópia para comparação
+      const paymentDate = new Date(currentDate);
+      paymentDate.setHours(0, 0, 0, 0);
+      
+      // Se o pagamento seria depois do término do contrato, parar
+      if (paymentDate > endDate) {
+        break;
+      }
+      
+      const entryDate = paymentDate.toISOString().split('T')[0];
       
       // Criar referência do mês/ano em português
       const monthNames = [
         'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
         'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
       ];
-      const reference = `${monthNames[currentDate.getMonth()]} de ${currentDate.getFullYear()}`;
+      const reference = `${monthNames[paymentDate.getMonth()]} de ${paymentDate.getFullYear()}`;
       
       financialEntries.push({
         client_id: clientId,
@@ -75,8 +101,10 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
         status: 'pending',
       });
 
-      // Próximo mês
-      currentDate.setMonth(currentDate.getMonth() + 1);
+      // Próximo mês - CORRIGIDO: criar nova data para evitar mutações
+      const nextMonth = new Date(currentDate);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      currentDate = setPaymentDay(nextMonth, paymentDay);
     }
 
     if (financialEntries.length > 0) {

@@ -79,6 +79,24 @@ export default function Dashboard() {
     (client?.tags || []).includes("Ativo")
   ).length;
 
+  // Ticket médio dos contratos ativos
+  const ticketMedioContratosAtivos =
+    activeContracts.length > 0 ? monthlyRevenue / activeContracts.length : 0;
+
+  // Cálculo do Churn (taxa de cancelamento)
+  // Clientes perdidos = clientes inativos/vencidos
+  const lostClients = clients.filter((client: any) => {
+    const tags = client?.tags || [];
+    return tags.includes("Inativo") || tags.includes("Vencido");
+  }).length;
+
+  // Total de clientes no início = clientes ativos + clientes perdidos
+  const totalClientsInitial = activeClients + lostClients;
+
+  // Churn = (Clientes Perdidos / Total de Clientes Iniciais) * 100
+  const churnRate =
+    totalClientsInitial > 0 ? (lostClients / totalClientsInitial) * 100 : 0;
+
   // Contratos a vencer (30 dias)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -132,6 +150,38 @@ export default function Dashboard() {
   }, 0);
 
   const lucroMes = receitasMes - despesasMes;
+
+  // Receitas e despesas do mês anterior
+  const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+  const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+  const receitasMesAnterior = (financialEntries || []).reduce((sum: number, entry: any) => {
+    if (!entry?.due_date || entry?.status !== "paid") return sum;
+    try {
+      const d = parseLocalDate(entry.due_date);
+      if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
+        return sum + (Number(entry.amount) || 0);
+      }
+    } catch {}
+    return sum;
+  }, 0);
+
+  const despesasMesAnterior = (expenses || []).reduce((sum: number, expense: any) => {
+    if (!expense?.date) return sum;
+    try {
+      const d = parseLocalDate(expense.date);
+      if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
+        return sum + (Number(expense.amount) || 0);
+      }
+    } catch {}
+    return sum;
+  }, 0);
+
+  // Comparativo mensal: variação percentual do faturamento bruto vs mês anterior
+  const variacaoComparativoMensal =
+    receitasMesAnterior > 0
+      ? ((receitasMes - receitasMesAnterior) / receitasMesAnterior) * 100
+      : receitasMes > 0 ? 100 : 0;
 
   // A receber mês atual: pendentes não vencidos do mês corrente
   const aReceberMesAtual = (financialEntries || []).reduce((sum: number, entry: any) => {
@@ -475,7 +525,7 @@ export default function Dashboard() {
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-goat-purple" />
+            <TrendingUp className="w-5 h-5 text-goat-purple" />
                 <span className="text-white font-semibold text-base">Funil de Prospecção</span>
               </div>
               <p className="text-goat-gray-400 text-sm mt-1">
@@ -564,39 +614,84 @@ export default function Dashboard() {
         </Card>
       </div>
 
+      {/* Clientes Recentes + Cards Futuros */}
+      <div className={`grid grid-cols-1 lg:grid-cols-2 ${PAGE_GAP}`}>
       {/* Clientes Recentes */}
-      <Card className={`${CARD} p-4 md:p-5`}>
+        <Card className={`${CARD} p-4 md:p-5`}>
         <div className="flex items-center gap-2 mb-4">
           <Calendar className="w-5 h-5 text-goat-purple" />
           <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
         </div>
 
-        <div className="space-y-3">
-          {clients.slice(0, 4).map((client: any, index: number) => (
+          <div className="space-y-3">
+            {clients.slice(0, 4).map((client: any, index: number) => (
             <div
               key={client.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow"
+                className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow"
             >
               <div className="min-w-0">
-                <p className="text-white text-sm font-medium truncate">{client.company}</p>
-                <p className="text-goat-gray-400 text-xs truncate">Responsável: {client.responsible}</p>
+                  <p className="text-white text-sm font-medium truncate">{client.company}</p>
+                  <p className="text-goat-gray-400 text-xs truncate">Responsável: {client.responsible}</p>
               </div>
-              <div className="text-right shrink-0 pl-4">
+                <div className="text-right shrink-0 pl-4">
                 <span className="text-goat-gray-500 text-xs">
-                  {new Date(client.created_at || "").toLocaleDateString("pt-BR")}
+                    {new Date(client.created_at || "").toLocaleDateString("pt-BR")}
                 </span>
-                {client.plan && <p className="text-goat-purple text-xs mt-1">{client.plan}</p>}
+                  {client.plan && <p className="text-goat-purple text-xs mt-1">{client.plan}</p>}
               </div>
             </div>
           ))}
 
           {clients.length === 0 && (
-            <div className="text-center py-8">
+              <div className="text-center py-8">
               <p className="text-goat-gray-400">Nenhum cliente cadastrado ainda</p>
             </div>
           )}
         </div>
       </Card>
+
+        {/* Cards Futuros */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Ticket Médio</p>
+            <p className="text-xl font-bold text-white">{formatCurrency(ticketMedioContratosAtivos)}</p>
+            <p className="text-goat-gray-500 text-xs mt-1">Contratos ativos</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Churn</p>
+            <p className="text-xl font-bold text-white">{churnRate.toFixed(1)}%</p>
+            <p className="text-goat-gray-500 text-xs mt-1">Taxa de cancelamento</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Comparativo mensal</p>
+            <p className={`text-xl font-bold ${variacaoComparativoMensal >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {variacaoComparativoMensal >= 0 ? "+" : ""}
+              {variacaoComparativoMensal.toFixed(1)}%
+            </p>
+            <p className="text-goat-gray-500 text-xs mt-1">vs mês anterior (faturamento)</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 4</p>
+            <p className="text-xl font-bold text-white">—</p>
+            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 5</p>
+            <p className="text-xl font-bold text-white">—</p>
+            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+          </Card>
+
+          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+            <p className="text-goat-gray-400 text-xs mb-1">Card futuro 6</p>
+            <p className="text-xl font-bold text-white">—</p>
+            <p className="text-goat-gray-500 text-xs mt-1">—</p>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
