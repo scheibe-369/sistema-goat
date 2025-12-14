@@ -80,7 +80,7 @@ export default function SdrAgent() {
         { title: "Leads Acionados", value: metrics.totalLeadsContacted, icon: Users, sub: "Total no período" },
         { title: "Taxa de Resposta", value: `${responseRate.toFixed(1)}%`, icon: MessageSquare, sub: "Geral" },
         { title: "Agendamentos", value: scheduled, icon: Calendar, sub: "Bot" },
-        { title: "Pipeline Gerado", value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sdrRevenue), icon: DollarSign, sub: "Estimado" }
+        { title: "MRR Gerado", value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sdrRevenue), icon: DollarSign, sub: "Estimado" }
     ];
 
     return (
