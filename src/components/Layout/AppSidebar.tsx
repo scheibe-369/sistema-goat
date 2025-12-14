@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Home, Filter, FileText, DollarSign, MessageSquare, Users, LogOut } from "lucide-react";
+import { BarChart2, Filter, FileText, DollarSign, MessageSquare, Users, LogOut, Bot } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart2 },
   { title: "Funil", url: "/leads", icon: Filter },
   { title: "Contratos", url: "/contracts", icon: FileText },
   { title: "Financeiro", url: "/financial", icon: DollarSign },
   { title: "Conversas", url: "/conversations", icon: MessageSquare },
   { title: "Clientes", url: "/clients", icon: Users },
+  { title: "Agente SDR", url: "/sdr-agent", icon: Bot },
 ];
 
 export function AppSidebar() {
@@ -58,10 +59,9 @@ export function AppSidebar() {
                   w-10 h-10 rounded-full
                   border border-transparent
                   transition-colors duration-300
-                  ${
-                    isActive
-                      ? "bg-gradient-to-r from-goat-purple to-goat-purple text-white"
-                      : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
+                  ${isActive
+                    ? "bg-gradient-to-r from-goat-purple to-goat-purple text-white"
+                    : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
                   }
                 `}
               >

@@ -285,6 +285,7 @@ export default function LeadsKanban() {
         tags: updatedLead.tags,
         value: updatedLead.value,
         notes: updatedLead.notes,
+        meeting_date: updatedLead.meeting_date,
       });
     } catch (error) {
       console.error("Erro ao atualizar lead:", error);
@@ -486,9 +487,8 @@ export default function LeadsKanban() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                    activeFilter === "all" ? "bg-goat-purple border-goat-purple" : ""
-                  }`}
+                  className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${activeFilter === "all" ? "bg-goat-purple border-goat-purple" : ""
+                    }`}
                   onClick={() => setActiveFilter("all")}
                 >
                   Todos os grupos
@@ -499,9 +499,8 @@ export default function LeadsKanban() {
                     key={tag.id}
                     variant="outline"
                     size="sm"
-                    className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${
-                      activeFilter === tag.name ? "bg-goat-purple border-goat-purple" : ""
-                    }`}
+                    className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${activeFilter === tag.name ? "bg-goat-purple border-goat-purple" : ""
+                      }`}
                     onClick={() => setActiveFilter(tag.name)}
                   >
                     <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`} />
@@ -546,9 +545,8 @@ export default function LeadsKanban() {
               return (
                 <div
                   key={stage.id}
-                  className={`flex-shrink-0 space-y-3 sm:space-y-4 ${
-                    isMobile ? "w-72" : "w-80"
-                  }`}
+                  className={`flex-shrink-0 space-y-3 sm:space-y-4 ${isMobile ? "w-72" : "w-80"
+                    }`}
                 >
                   <div className="flex items-center justify-between gap-2 pt-8 pb-4 px-3 min-h-[5rem] rounded-t-lg">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -600,9 +598,8 @@ export default function LeadsKanban() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${
-                          snapshot.isDraggingOver ? "bg-goat-gray-700/50" : ""
-                        }`}
+                        className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-goat-gray-700/50" : ""
+                          }`}
                       >
                         {filteredLeads.map((lead, index) => (
                           <Draggable key={lead.id} draggableId={lead.id} index={index}>
@@ -616,11 +613,10 @@ export default function LeadsKanban() {
                                 <ContextMenu>
                                   <ContextMenuTrigger asChild>
                                     <Card
-                                      className={`bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200 ${
-                                        snapshot.isDragging
-                                          ? "border-goat-purple/70 shadow-xl"
-                                          : ""
-                                      }`}
+                                      className={`bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200 ${snapshot.isDragging
+                                        ? "border-goat-purple/70 shadow-xl"
+                                        : ""
+                                        }`}
                                     >
                                       <div className="space-y-2 sm:space-y-3">
                                         <div className="flex items-center gap-2">
@@ -671,18 +667,22 @@ export default function LeadsKanban() {
                                           </div>
                                         )}
 
-                                        <div className="flex items-center gap-1 sm:gap-2 text-xs text-goat-gray-500 pt-2 border-t border-goat-gray-700">
-                                          <Calendar className="w-3 h-3 flex-shrink-0" />
-                                          <span className="truncate">
-                                            {isMobile
+                                        <div className="flex items-center justify-between text-xs pt-2 border-t border-goat-gray-700 mt-2">
+                                          <span className="text-goat-gray-500 flex-shrink-0">
+                                            Atualizado: {isMobile
                                               ? new Date(lead.updated_at).toLocaleDateString(
-                                                  "pt-BR",
-                                                  { day: "2-digit", month: "2-digit" }
-                                                )
-                                              : `Atualizado em ${new Date(
-                                                  lead.updated_at
-                                                ).toLocaleDateString("pt-BR")}`}
+                                                "pt-BR",
+                                                { day: "2-digit", month: "2-digit" }
+                                              )
+                                              : new Date(lead.updated_at).toLocaleDateString("pt-BR")}
                                           </span>
+                                          {lead.meeting_date ? (
+                                            <span className="text-goat-purple font-semibold uppercase truncate ml-2">
+                                              Reunião: {new Date(lead.meeting_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                                            </span>
+                                          ) : (
+                                            <span></span>
+                                          )}
                                         </div>
                                       </div>
                                     </Card>

@@ -41,6 +41,7 @@ export function EditLeadModal({
     tags: [] as string[],
     value: "",
     notes: "",
+    meeting_date: "",
   });
 
   useEffect(() => {
@@ -54,17 +55,20 @@ export function EditLeadModal({
         tags: lead.tags || [],
         value: lead.value ? `R$ ${lead.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "",
         notes: lead.notes || "",
+        meeting_date: lead.meeting_date || "",
       });
     }
   }, [lead]);
 
   const handleSave = () => {
-    if (!lead || !formData.name.trim() || !formData.company.trim() || !formData.phone.trim() || !formData.stage) {
+    // Validação básica - apenas Nome e Etapa são obrigatórios
+    if (!lead || !formData.name.trim() || !formData.stage) {
+      console.log('Validation failed:', { lead, name: formData.name, stage: formData.stage });
       return;
     }
 
     // Converter valor monetário
-    const value = formData.value 
+    const value = formData.value
       ? parseFloat(formData.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || null
       : null;
 
@@ -78,6 +82,7 @@ export function EditLeadModal({
       tags: formData.tags.length > 0 ? formData.tags : null,
       value: value,
       notes: formData.notes || null,
+      meeting_date: formData.meeting_date || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -236,6 +241,16 @@ export function EditLeadModal({
               onChange={(e) => handleInputChange("notes", e.target.value)}
               placeholder="Observações sobre o lead"
               className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+            />
+          </div>
+
+          <div>
+            <Label className="text-white">Data da Reunião (Agendamento)</Label>
+            <Input
+              type="date"
+              value={formData.meeting_date}
+              onChange={(e) => handleInputChange("meeting_date", e.target.value)}
+              className="bg-goat-gray-700 border-goat-gray-600 text-white"
             />
           </div>
 

@@ -13,6 +13,7 @@ import Conversations from "./pages/Conversations"
 import Financial from "./pages/Financial"
 import Contracts from "./pages/Contracts"
 import NotFound from "./pages/NotFound"
+import SdrAgent from "./pages/SdrAgent"
 import { CRMLayout } from "./components/Layout/CRMLayout"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { AuthProvider } from "./hooks/useAuth"
@@ -89,6 +90,16 @@ function App() {
                       <ProtectedRoute>
                         <CRMLayout>
                           <Contracts />
+                        </CRMLayout>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/sdr-agent"
+                    element={
+                      <ProtectedRoute>
+                        <CRMLayout>
+                          <SdrAgent />
                         </CRMLayout>
                       </ProtectedRoute>
                     }

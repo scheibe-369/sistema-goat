@@ -15,6 +15,11 @@ export interface Lead {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  sdr_status: string | null;
+  sdr_started_at: string | null;
+  sdr_last_contact_at: string | null;
+  sdr_followup_count: number | null;
+  meeting_date: string | null;
 }
 
 export interface LeadInput {
@@ -26,6 +31,7 @@ export interface LeadInput {
   tags?: string[];
   value?: number;
   notes?: string;
+  meeting_date?: string;
 }
 
 export function useLeads() {
@@ -48,7 +54,7 @@ export function useLeads() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLeads(data || []);
+      setLeads((data as unknown as Lead[]) || []);
     } catch (error) {
       console.error('Erro ao carregar leads:', error);
       toast({
@@ -81,13 +87,14 @@ export function useLeads() {
           tags: leadData.tags || [],
           value: leadData.value || null,
           notes: leadData.notes || null,
+          meeting_date: leadData.meeting_date || null,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setLeads(prev => [data, ...prev]);
+      setLeads(prev => [data as unknown as Lead, ...prev]);
       toast({
         title: 'Sucesso',
         description: 'Lead criado com sucesso',
@@ -116,7 +123,7 @@ export function useLeads() {
 
       if (error) throw error;
 
-      setLeads(prev => prev.map(lead => lead.id === id ? data : lead));
+      setLeads(prev => prev.map(lead => lead.id === id ? (data as unknown as Lead) : lead));
       toast({
         title: 'Sucesso',
         description: 'Lead atualizado com sucesso',
@@ -171,7 +178,7 @@ export function useLeads() {
 
       if (error) throw error;
 
-      setLeads(prev => prev.map(lead => lead.id === id ? data : lead));
+      setLeads(prev => prev.map(lead => lead.id === id ? (data as unknown as Lead) : lead));
       return data;
     } catch (error) {
       console.error('Erro ao atualizar etapa do lead:', error);
@@ -190,7 +197,7 @@ export function useLeads() {
 
     const setupSubscription = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         const channel = supabase
           .channel('leads-changes')
@@ -216,7 +223,7 @@ export function useLeads() {
     };
 
     const subscription = setupSubscription();
-    
+
     return () => {
       subscription.then(cleanup => cleanup && cleanup());
     };
