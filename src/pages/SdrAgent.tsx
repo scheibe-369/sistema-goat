@@ -77,7 +77,7 @@ export default function SdrAgent() {
     } = metrics;
 
     const kpis = [
-        { title: "Leads Acionados", value: metrics.totalLeadsContacted, icon: Users, sub: "Total no período" },
+        { title: "Leads", value: metrics.totalLeadsContacted, icon: Users, sub: "Total no período" },
         { title: "Taxa de Resposta", value: `${responseRate.toFixed(1)}%`, icon: MessageSquare, sub: "Geral" },
         { title: "Agendamentos", value: scheduled, icon: Calendar, sub: "Bot" },
         { title: "MRR Gerado", value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sdrRevenue), icon: DollarSign, sub: "Estimado" }
@@ -254,31 +254,31 @@ export default function SdrAgent() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-6 mb-10 pl-2">
-                        {/* KPI 1 */}
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-2">
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        {/* Mini-card 1: Tempo 1ª Resp */}
+                        <div className="bg-goat-gray-900/40 rounded-xl p-4 border border-goat-gray-700/30 hover:border-goat-purple/30 transition-all">
+                            <div className="flex items-center gap-2 mb-3">
                                 <div className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]"></div>
                                 <p className="text-xs text-goat-gray-400 font-medium uppercase tracking-wider">Tempo 1ª Resp</p>
                             </div>
                             <div className="flex items-baseline gap-1">
                                 <p className="text-3xl font-bold text-white tracking-tight">{avgResponseTimeMinutes}</p>
-                                <span className="text-xs text-goat-gray-500 font-medium">min</span>
+                                <span className="text-sm text-goat-gray-500 font-medium">min</span>
                             </div>
                         </div>
 
-                        {/* KPI 2 */}
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-2">
+                        {/* Mini-card 2: Opt-out */}
+                        <div className="bg-goat-gray-900/40 rounded-xl p-4 border border-goat-gray-700/30 hover:border-goat-purple/30 transition-all">
+                            <div className="flex items-center gap-2 mb-3">
                                 <div className="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.5)]"></div>
-                                <p className="text-xs text-goat-gray-400 font-medium uppercase tracking-wider">Opt-out</p>
+                                <p className="text-xs text-goat-gray-400 font-medium uppercase tracking-wider">Recusas</p>
                             </div>
                             <p className="text-3xl font-bold text-white tracking-tight">{optOutRate.toFixed(1)}%</p>
                         </div>
 
-                        {/* KPI 3 */}
-                        <div className="relative">
-                            <div className="flex items-center gap-2 mb-2">
+                        {/* Mini-card 3: Qualificação */}
+                        <div className="bg-goat-gray-900/40 rounded-xl p-4 border border-goat-gray-700/30 hover:border-goat-purple/30 transition-all">
+                            <div className="flex items-center gap-2 mb-3">
                                 <div className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]"></div>
                                 <p className="text-xs text-goat-gray-400 font-medium uppercase tracking-wider">Qualificação</p>
                             </div>
