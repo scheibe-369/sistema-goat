@@ -133,14 +133,133 @@ export default function SdrAgent() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                {/* 1. Entrega e Volume */}
-                {/* 1. Entrega e Volume */}
-                <Card className="bg-goat-gray-800 border-b border-r border-goat-gray-700 shadow-lg dashboard-glow p-6 transition-all hover:bg-goat-gray-800/90 group rounded-xl">
-                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-goat-gray-700/50">
-                        <div className="p-3 bg-goat-purple/10 rounded-xl group-hover:bg-goat-purple/20 transition-colors">
-                            <TrendingUp className="w-6 h-6 text-goat-purple" />
+                {/* Coluna Esquerda: Drop-off por Etapa e Impacto no Negócio */}
+                <div className="space-y-6">
+                    <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-6">
+                        <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-semibold text-white">Drop-off por Etapa</h3>
                         </div>
+                        <p className="text-sm text-gray-400 mb-6">% de leads que não avançaram dentro do SLA configurado</p>
+
+                        <div className="space-y-5">
+                            {dropoffSteps.map((step: any, idx: number) => (
+                                <div key={idx} className="relative">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-white">{step.stage}</span>
+                                            <span className="text-[10px] bg-goat-gray-900 border border-goat-gray-700 px-1.5 py-0.5 rounded text-gray-400">
+                                                SLA: {step.slaLabel}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        {/* Progress Bar Container */}
+                                        <div className="flex-1 h-3 bg-goat-gray-900 rounded-full overflow-hidden relative">
+                                            {/* Background track */}
+                                            <div className="absolute inset-0 bg-goat-gray-900" />
+
+                                            {/* Fill bar */}
+                                            {step.reached > 0 && step.rate > 0 && (
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-red-500/70 to-red-500 rounded-full transition-all duration-500"
+                                                    style={{ width: `${Math.min(step.rate, 100)}%` }}
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Value Label */}
+                                        <div className="w-24 text-right">
+                                            {step.reached > 0 ? (
+                                                <div className="flex flex-col items-end leading-none">
+                                                    <span className="text-sm font-bold text-red-300">{step.rate}%</span>
+                                                    <span className="text-[10px] text-gray-500 mt-0.5">({step.notAdvanced}/{step.reached})</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-600">0% (0/0)</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-gray-600 mt-1 pl-1">Próxima: {step.nextStage}</p>
+                                </div>
+                            ))}
+
+                            {dropoffSteps.length === 0 && (
+                                <div className="text-center py-8 text-gray-500 text-sm">
+                                    Nenhum dado de drop-off disponível para o período.
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+
+                    {/* Impacto no Negócio */}
+                    <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-6">
+                        <div className="flex items-center gap-2 mb-6">
+                            <h3 className="text-lg font-semibold text-white">Impacto no Negócio</h3>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-4 flex flex-col">
+                                <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 h-[90px] flex flex-col justify-between">
+                                    <span className="text-gray-400 text-xs block">Conversão Real</span>
+                                    <div>
+                                        <p className="text-xl font-bold text-white">{inAttendanceToCustomerRate.toFixed(1)}%</p>
+                                        <p className="text-[10px] text-gray-500 mt-1">Em Atend. → Cliente</p>
+                                    </div>
+                                </div>
+                                <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 h-[90px] flex flex-col justify-between">
+                                    <span className="text-gray-400 text-xs block">Qualidade do Lead</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex">
+                                            {[1, 2, 3, 4, 5].map(i => (
+                                                <Star
+                                                    key={i}
+                                                    className={`w-3 h-3 text-yellow-400 ${i <= qualityScore ? 'fill-yellow-400' : ''}`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-lg font-bold text-white">{qualityScore.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 flex flex-col">
+                                <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 h-[90px] flex flex-col justify-between">
+                                    <span className="text-gray-400 text-xs block">Receita Atribuída</span>
+                                    <div>
+                                        <p className="text-xl font-bold text-white">
+                                            {new Intl.NumberFormat('pt-BR', { 
+                                                style: 'currency', 
+                                                currency: 'BRL',
+                                                maximumFractionDigits: 0
+                                            }).format(sdrRevenue)}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 mt-1">MRR (Bot SDR)</p>
+                                    </div>
+                                </div>
+                                <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 h-[90px] flex flex-col justify-between">
+                                    <span className="text-gray-400 text-xs block">Receita Atribuída</span>
+                                    <div>
+                                        <p className="text-xl font-bold text-white">
+                                            {new Intl.NumberFormat('pt-BR', { 
+                                                style: 'currency', 
+                                                currency: 'BRL',
+                                                maximumFractionDigits: 0
+                                            }).format(sdrRevenue * 12)}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 mt-1">ARR (Bot SDR)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Coluna Direita: Entrega e Volume, Engajamento Inicial, Agendamento & Show Rate */}
+                <div className="space-y-6 flex flex-col">
+                    {/* 1. Entrega e Volume */}
+                    <Card className="bg-goat-gray-800 border-b border-r border-goat-gray-700 shadow-lg dashboard-glow p-6 pb-8 transition-all hover:bg-goat-gray-800/90 group rounded-xl flex-1">
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-goat-gray-700/50">
                         <div>
                             <h3 className="text-xl font-bold text-white leading-tight">Entrega e Volume</h3>
                             <p className="text-sm text-goat-gray-400">Fluxo de mensagens e novos leads</p>
@@ -148,7 +267,7 @@ export default function SdrAgent() {
                     </div>
 
                     {/* KPIs Compactos */}
-                    <div className="grid grid-cols-3 gap-4 mb-8">
+                    <div className="grid grid-cols-3 gap-4 mb-3">
                         {/* KPI 1 */}
                         <div className="bg-goat-gray-900/40 p-4 rounded-xl border border-goat-gray-800 hover:border-goat-purple/30 transition-all group/kpi">
                             <p className="text-3xl font-bold text-white tracking-tight mb-1 group-hover/kpi:text-goat-purple-light transition-colors">
@@ -176,7 +295,7 @@ export default function SdrAgent() {
                         </div>
                     </div>
 
-                    <div className="h-[280px] w-full mt-auto relative">
+                    <div className="h-[200px] w-full relative">
                         {volumeData.length === 0 || volumeData.every((d: any) => d.sent === 0 && d.leads === 0) ? (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-goat-gray-900/20 rounded-xl border border-dashed border-goat-gray-800">
                                 <div className="p-4 bg-goat-gray-900 rounded-full mb-4 shadow-inner">
@@ -189,7 +308,7 @@ export default function SdrAgent() {
                             </div>
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={volumeData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                                <BarChart data={volumeData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                                     <XAxis
                                         dataKey="date"
@@ -233,22 +352,18 @@ export default function SdrAgent() {
                             </ResponsiveContainer>
                         )}
                     </div>
-                </Card>
+                    </Card>
 
-                {/* 2. Engajamento Inicial */}
-                {/* 2. Engajamento Inicial */}
-                <Card className="bg-goat-gray-800 border-b border-r border-goat-gray-700 shadow-lg dashboard-glow p-6 transition-all hover:bg-goat-gray-800/90 group rounded-xl">
+                    {/* 2. Engajamento Inicial */}
+                    <Card className="bg-goat-gray-800 border-b border-r border-goat-gray-700 shadow-lg dashboard-glow p-6 transition-all hover:bg-goat-gray-800/90 group rounded-xl flex-1">
                     <div className="flex items-center gap-4 mb-6 pb-4 border-b border-goat-gray-700/50">
-                        <div className="p-3 bg-goat-purple/10 rounded-xl group-hover:bg-goat-purple/20 transition-colors">
-                            <Zap className="w-6 h-6 text-goat-purple" />
-                        </div>
                         <div>
                             <h3 className="text-xl font-bold text-white leading-tight">Engajamento Inicial</h3>
                             <p className="text-sm text-goat-gray-400">Tempo de resposta e qualificação</p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="grid grid-cols-3 gap-4 mb-3">
                         {/* Mini-card 1: Tempo 1ª Resp */}
                         <div className="bg-goat-gray-900/40 rounded-xl p-4 border border-goat-gray-700/30 hover:border-goat-purple/30 transition-all">
                             <div className="flex items-center gap-2 mb-3">
@@ -280,7 +395,7 @@ export default function SdrAgent() {
                         </div>
                     </div>
 
-                    <div className="h-[260px] w-full mt-auto relative">
+                    <div className="h-[200px] w-full relative">
                         {funnelData.length === 0 || funnelData.every((d: any) => d.value === 0) ? (
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-goat-gray-900/20 rounded-xl border border-dashed border-goat-gray-800">
                                 <div className="p-4 bg-goat-gray-900 rounded-full mb-4 shadow-inner">
@@ -296,8 +411,8 @@ export default function SdrAgent() {
                                 <BarChart
                                     data={funnelData}
                                     layout="vertical"
-                                    margin={{ left: 0, right: 40, top: 0, bottom: 0 }}
-                                    barCategoryGap={20}
+                                    margin={{ left: 0, right: 20, top: 0, bottom: 0 }}
+                                    barCategoryGap={15}
                                 >
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" horizontal={false} />
                                     <XAxis type="number" hide />
@@ -321,91 +436,31 @@ export default function SdrAgent() {
                             </ResponsiveContainer>
                         )}
                     </div>
-                </Card>
+                    </Card>
 
-                {/* 3. Drop-off por Etapa (SLA Funnel) */}
-                <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                        <XCircle className="w-5 h-5 text-red-400" />
-                        <h3 className="text-lg font-semibold text-white">Drop-off por Etapa</h3>
-                    </div>
-                    <p className="text-sm text-gray-400 mb-6">% de leads que não avançaram dentro do SLA configurado</p>
-
-                    <div className="space-y-5">
-                        {dropoffSteps.map((step: any, idx: number) => (
-                            <div key={idx} className="relative">
-                                <div className="flex justify-between items-center mb-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium text-white">{step.stage}</span>
-                                        <span className="text-[10px] bg-goat-gray-900 border border-goat-gray-700 px-1.5 py-0.5 rounded text-gray-400">
-                                            SLA: {step.slaLabel}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    {/* Progress Bar Container */}
-                                    <div className="flex-1 h-3 bg-goat-gray-900 rounded-full overflow-hidden relative">
-                                        {/* Background track */}
-                                        <div className="absolute inset-0 bg-goat-gray-900" />
-
-                                        {/* Fill bar */}
-                                        {step.reached > 0 && step.rate > 0 && (
-                                            <div
-                                                className="h-full bg-gradient-to-r from-red-500/70 to-red-500 rounded-full transition-all duration-500"
-                                                style={{ width: `${Math.min(step.rate, 100)}%` }}
-                                            />
-                                        )}
-                                    </div>
-
-                                    {/* Value Label */}
-                                    <div className="w-24 text-right">
-                                        {step.reached > 0 ? (
-                                            <div className="flex flex-col items-end leading-none">
-                                                <span className="text-sm font-bold text-red-300">{step.rate}%</span>
-                                                <span className="text-[10px] text-gray-500 mt-0.5">({step.notAdvanced}/{step.reached})</span>
-                                            </div>
-                                        ) : (
-                                            <span className="text-xs text-gray-600">0% (0/0)</span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-gray-600 mt-1 pl-1">Próxima: {step.nextStage}</p>
-                            </div>
-                        ))}
-
-                        {dropoffSteps.length === 0 && (
-                            <div className="text-center py-8 text-gray-500 text-sm">
-                                Nenhum dado de drop-off disponível para o período.
-                            </div>
-                        )}
-                    </div>
-                </Card>
-
-                {/* 4. Agendamento & Show Rate */}
-                <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-6">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Calendar className="w-5 h-5 text-goat-purple" />
+                    {/* 4. Agendamento & Show Rate */}
+                    <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-5 pb-4">
+                    <div className="flex items-center gap-2 mb-4">
                         <h3 className="text-lg font-semibold text-white">Agendamento & Show Rate</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-4">
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-3">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[60px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Taxa de Agend.</span>
                                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{metrics.totalLeadsContacted > 0 ? (scheduled / metrics.totalLeadsContacted * 100).toFixed(1) : 0}%</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[60px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Reagendamentos</span>
                                     <Clock className="w-4 h-4 text-yellow-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{rescheduledRate.toFixed(1)}%</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[60px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Cancelamento</span>
                                     <XCircle className="w-4 h-4 text-gray-500" />
@@ -414,15 +469,15 @@ export default function SdrAgent() {
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
+                        <div className="space-y-3">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[60px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Show Rate</span>
                                     <Users className="w-4 h-4 text-blue-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{showRate.toFixed(0)}%</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[60px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">No-Show</span>
                                     <XCircle className="w-4 h-4 text-red-500" />
@@ -432,48 +487,13 @@ export default function SdrAgent() {
                         </div>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-goat-gray-700 flex justify-between items-center">
+                    <div className="mt-3 pt-2 border-t border-goat-gray-700 flex justify-between items-center">
                         <span className="text-sm text-gray-400">Tempo até agendar:</span>
                         <span className="font-mono text-white">{timeToScheduleStr} (média)</span>
                     </div>
-                </Card>
+                    </Card>
+                </div>
             </div>
-
-            {/* 5. Conversão e Impacto no Negócio */}
-            <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-6">
-                <div className="flex items-center gap-2 mb-6">
-                    <Target className="w-5 h-5 text-goat-purple" />
-                    <h3 className="text-lg font-semibold text-white">Impacto no Negócio</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-goat-gray-700">
-                    <div className="px-4">
-                        <p className="text-gray-400 text-sm mb-2">Conversão Real (Em Atend. → Cliente)</p>
-                        <p className="text-3xl font-bold text-white">{inAttendanceToCustomerRate.toFixed(1)}%</p>
-                        <p className="text-xs text-goat-gray-500 mt-1">SDR % fechamento</p>
-                    </div>
-                    <div className="px-4 pt-4 md:pt-0">
-                        <p className="text-gray-400 text-sm mb-2">Receita Atribuída (MRR)</p>
-                        <p className="text-3xl font-bold text-white">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(sdrRevenue)}</p>
-                        <p className="text-xs text-goat-gray-500 mt-1">Origem: Bot SDR</p>
-                    </div>
-                    <div className="px-4 pt-4 md:pt-0">
-                        <p className="text-gray-400 text-sm mb-2">Qualidade do Lead</p>
-                        <div className="flex items-center justify-center gap-2">
-                            <div className="flex">
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <Star
-                                        key={i}
-                                        className={`w-4 h-4 text-yellow-400 ${i <= qualityScore ? 'fill-yellow-400' : ''}`}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-xl font-bold text-white">{qualityScore.toFixed(1)}</span>
-                        </div>
-                        <p className="text-xs text-goat-gray-500 mt-1">Score médio (Fit + Engajamento)</p>
-                    </div>
-                </div>
-            </Card>
 
         </div>
     );
