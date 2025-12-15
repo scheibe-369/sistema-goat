@@ -13,8 +13,7 @@ import {
     DollarSign,
     Star,
     Bot,
-    Zap,
-    HelpCircle
+    Zap
 } from "lucide-react";
 import {
     BarChart,
@@ -33,12 +32,6 @@ import {
 import { useSdrMetrics, DashboardFilter } from "@/hooks/useSdrMetrics";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Removed unused imports
 import { Button } from "@/components/ui/button";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export default function SdrAgent() {
     const [period, setPeriod] = useState<DashboardFilter['period']>('month');
@@ -335,23 +328,6 @@ export default function SdrAgent() {
                     <div className="flex items-center gap-2 mb-2">
                         <XCircle className="w-5 h-5 text-red-400" />
                         <h3 className="text-lg font-semibold text-white">Drop-off por Etapa</h3>
-                        <TooltipProvider>
-                            <Tooltip delayDuration={300}>
-                                <TooltipTrigger>
-                                    <HelpCircle className="w-4 h-4 text-gray-500 hover:text-gray-300" />
-                                </TooltipTrigger>
-                                <TooltipContent className="bg-goat-gray-900 border-goat-gray-700 max-w-xs">
-                                    <p className="font-semibold mb-2">Como é calculado?</p>
-                                    <p className="text-xs text-gray-300">
-                                        Monitoramos quantos leads entram em cada etapa e quantos <strong>não avançam</strong> dentro do prazo estipulado (SLA).
-                                    </p>
-                                    <div className="mt-2 space-y-1">
-                                        <p className="text-xs text-gray-400"><span className="text-red-400">●</span> <strong>Drop-off:</strong> Leads estagnados além do SLA.</p>
-                                        <p className="text-xs text-gray-400"><span className="text-gray-400">●</span> <strong>Agendamento:</strong> Verifica leads pós-reunião sem proposta em 24h.</p>
-                                    </div>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
                     </div>
                     <p className="text-sm text-gray-400 mb-6">% de leads que não avançaram dentro do SLA configurado</p>
 
@@ -415,21 +391,21 @@ export default function SdrAgent() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-4">
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Taxa de Agend.</span>
                                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{metrics.totalLeadsContacted > 0 ? (scheduled / metrics.totalLeadsContacted * 100).toFixed(1) : 0}%</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Reagendamentos</span>
                                     <Clock className="w-4 h-4 text-yellow-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{rescheduledRate.toFixed(1)}%</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Cancelamento</span>
                                     <XCircle className="w-4 h-4 text-gray-500" />
@@ -439,15 +415,14 @@ export default function SdrAgent() {
                         </div>
 
                         <div className="space-y-4">
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">Show Rate</span>
                                     <Users className="w-4 h-4 text-blue-500" />
                                 </div>
                                 <p className="text-xl font-bold text-white">{showRate.toFixed(0)}%</p>
-                                <p className="text-[10px] text-gray-500">Comparecimento</p>
                             </div>
-                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700">
+                            <div className="bg-goat-gray-900/30 p-3 rounded-lg border border-goat-gray-700 min-h-[80px]">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-gray-400 text-xs">No-Show</span>
                                     <XCircle className="w-4 h-4 text-red-500" />
