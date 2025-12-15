@@ -58,6 +58,19 @@ export function useSdrMetrics(filter: DashboardFilter = { period: 'month' }) {
     });
 
     const metrics = data?.metrics || {};
+    // dropoffSteps está no nível raiz de data, não dentro de metrics
+    // A RPC agora retorna todos os campos necessários (stage, nextStage, reached, advanced, notAdvanced, rate, slaLabel)
+    const dropoffStepsFromRpc = (data?.dropoffSteps || []).map((step: any) => ({
+        stage: step.stage || '',
+        nextStage: step.nextStage || 'N/A',
+        entered: step.reached || 0,
+        dropped: step.notAdvanced || 0,
+        reached: step.reached || 0,
+        advanced: step.advanced || 0,
+        notAdvanced: step.notAdvanced || 0,
+        rate: step.rate || 0,
+        slaLabel: step.slaLabel || ''
+    }));
 
     // Ensure defaults for all fields to prevent null crashes
     const safeMetrics = {
@@ -85,8 +98,7 @@ export function useSdrMetrics(filter: DashboardFilter = { period: 'month' }) {
         stepRates: metrics.stepRates || [],
         funnelData: metrics.funnelData || [],
         inAttendanceToCustomerRate: metrics.inAttendanceToCustomerRate || 0,
-        dropoffSteps: (metrics.dropoffSteps || []) as DropoffStep[],
-        // Removed legacy/granular drop-off fields
+        dropoffSteps: (dropoffStepsFromRpc || []) as DropoffStep[],
     };
 
     return {

@@ -99,28 +99,28 @@ export default function SdrAgent() {
                         className={`${period === 'day' ? 'bg-goat-purple text-white hover:bg-goat-purple/90' : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-800'}`}
                         size="sm"
                     >
-                        24h
+                        Hoje
                     </Button>
                     <Button
                         onClick={() => setPeriod('week')}
                         className={`${period === 'week' ? 'bg-goat-purple text-white hover:bg-goat-purple/90' : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-800'}`}
                         size="sm"
                     >
-                        7 dias
+                        Semana
                     </Button>
                     <Button
                         onClick={() => setPeriod('month')}
                         className={`${period === 'month' ? 'bg-goat-purple text-white hover:bg-goat-purple/90' : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-800'}`}
                         size="sm"
                     >
-                        30 dias
+                        Mês
                     </Button>
                     <Button
                         onClick={() => setPeriod('all_time')}
                         className={`${period === 'all_time' ? 'bg-goat-purple text-white hover:bg-goat-purple/90' : 'bg-transparent text-white border border-goat-gray-600 hover:bg-goat-gray-800'}`}
                         size="sm"
                     >
-                        Todo período
+                        Total
                     </Button>
                 </div>
             </div>
