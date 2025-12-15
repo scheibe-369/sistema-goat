@@ -26,7 +26,8 @@ import {
     ResponsiveContainer,
     LineChart,
     Line,
-    Cell
+    Cell,
+    LabelList
 } from "recharts";
 
 import { useSdrMetrics, DashboardFilter } from "@/hooks/useSdrMetrics";
@@ -160,7 +161,7 @@ export default function SdrAgent() {
                             <p className="text-3xl font-bold text-white tracking-tight mb-1 group-hover/kpi:text-goat-purple-light transition-colors">
                                 {metrics.scheduled > 0 ? Math.round(outboundCount / metrics.scheduled) : (metrics.totalLeadsContacted > 0 ? "—" : 0)}
                             </p>
-                            <p className="text-xs text-goat-gray-500 font-medium uppercase tracking-wider">Msgs / Meeting</p>
+                            <p className="text-xs text-goat-gray-500 font-medium uppercase tracking-wider">Mensagens/Reunião</p>
                         </div>
 
                         {/* KPI 2 */}
@@ -168,7 +169,7 @@ export default function SdrAgent() {
                             <p className="text-3xl font-bold text-white tracking-tight mb-1 group-hover/kpi:text-goat-purple-light transition-colors">
                                 {new Intl.NumberFormat('pt-BR', { notation: "compact", maximumFractionDigits: 1 }).format(outboundCount)}
                             </p>
-                            <p className="text-xs text-goat-gray-500 font-medium uppercase tracking-wider">Total Msgs</p>
+                            <p className="text-xs text-goat-gray-500 font-medium uppercase tracking-wider">Total Mensagens</p>
                         </div>
 
                         {/* KPI 3 (Novo: Leads Novos) */}
@@ -310,18 +311,15 @@ export default function SdrAgent() {
                                     <YAxis
                                         dataKey="name"
                                         type="category"
-                                        stroke="#A3A3A3"
+                                        stroke="#D4D4D4"
                                         fontSize={12}
                                         fontWeight={600}
                                         tickLine={false}
                                         axisLine={false}
                                         width={110}
                                     />
-                                    <RechartsTooltip
-                                        cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                                        contentStyle={{ backgroundColor: '#171717', border: '1px solid #404040', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
-                                    />
                                     <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={36} animationDuration={1000}>
+                                        <LabelList dataKey="value" position="right" fill="#ffffff" fontSize={13} fontWeight={600} />
                                         {funnelData.map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} strokeWidth={0} />
                                         ))}
