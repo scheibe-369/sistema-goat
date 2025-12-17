@@ -29,16 +29,39 @@ export function SalesFunnelHorizontalChart({
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const data = useMemo<FunnelRow[]>(() => {
-    const counts = new Map<string, number>();
-    for (const l of leads) counts.set(l.stage, (counts.get(l.stage) ?? 0) + 1);
+    const normalize = (name: string) =>
+      name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+    const compact = (name: string) => normalize(name).replace(/[^a-z0-9]/g, "");
 
-    const isFollowUp = (name: string) => {
-      const n = name.toLowerCase().replace(/\s/g, "");
-      return n.startsWith("follow-up") || n.startsWith("followup");
+    const isExcludedName = (name: string) => {
+      const n = compact(name);
+      return n.includes("equipe") || n.includes("ignorar");
     };
 
-    const followStages = stages.filter((s) => isFollowUp(s.name));
-    const mainStages = stages.filter((s) => !isFollowUp(s.name));
+    const stageNameById = new Map(stages.map((s) => [s.id, s.name || ""]));
+    const excludedIds = new Set(
+      stages.filter((s) => isExcludedName(s.name)).map((s) => s.id)
+    );
+
+    const counts = new Map<string, number>();
+    for (const l of leads) {
+      if (excludedIds.has(l.stage)) continue;
+      const stageName = stageNameById.get(l.stage) || "";
+      if (isExcludedName(stageName)) continue; // ignora Equipe e Ignorar
+      counts.set(l.stage, (counts.get(l.stage) ?? 0) + 1);
+    }
+
+    const isFollowUp = (name: string) => {
+      const n = compact(name);
+      return n.startsWith("followup") || n.startsWith("follow-up");
+    };
+
+    const visibleStages = stages.filter(
+      (s) => !excludedIds.has(s.id) && !isExcludedName(s.name)
+    );
+
+    const followStages = visibleStages.filter((s) => isFollowUp(s.name));
+    const mainStages = visibleStages.filter((s) => !isFollowUp(s.name));
 
     const rows: FunnelRow[] = mainStages.map((s) => ({
       id: s.id,
@@ -51,8 +74,10 @@ export function SalesFunnelHorizontalChart({
       rows.push({ id: "followup-group", name: "Follow-up", value: followCount });
     }
 
-    // só etapas com leads (igual você comentou no print)
-    return rows.filter((r) => r.value > 0);
+    // só etapas com leads (igual você comentou no print) e não excluídas
+    return rows.filter(
+      (r) => r.value > 0 && !excludedIds.has(r.id) && !isExcludedName(r.name)
+    );
   }, [stages, leads]);
 
   const totalLeads = useMemo(() => data.reduce((a, b) => a + b.value, 0), [data]);

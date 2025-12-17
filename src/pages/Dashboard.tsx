@@ -323,7 +323,13 @@ export default function Dashboard() {
   }, 0);
 
   // ===== Funil de Prospecção (operacional) =====
-  const EXCLUDED_FUNNEL_STAGES = new Set(["mentorado", "cliente", "geladeira"]);
+  const EXCLUDED_FUNNEL_STAGES = new Set([
+    "mentorado",
+    "cliente",
+    "geladeira",
+    "equipe",
+    "ignorar",
+  ]);
 
   const getStageCountByName = (names: string[]): number => {
     const normalizedNames = names.map((n) => norm(n));
