@@ -644,12 +644,7 @@ export default function Dashboard() {
           <AlertCard className="dashboard-glow p-4 h-full" limit={10} alerts={alerts} />
         </div>
 
-        <Card className={`${CARD} ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
-          <div
-            className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl opacity-15"
-            style={{ background: "radial-gradient(circle, #8B5CF6 0%, transparent 60%)" }}
-          />
-
+        <Card className={`bg-goat-gray-800 border-goat-gray-700 ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <div className="flex items-center gap-2">
