@@ -7,6 +7,9 @@ import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
 import { useContracts, useUpdateContract } from "@/hooks/useContracts";
+import { useUpdateClient } from "@/hooks/useClients";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Contract {
   id: string;
@@ -22,6 +25,8 @@ interface Contract {
 export default function Contracts() {
   const { data: contractsData = [], isLoading, error } = useContracts();
   const updateContractMutation = useUpdateContract();
+  const updateClientMutation = useUpdateClient();
+  const queryClient = useQueryClient();
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [deletingContract, setDeletingContract] = useState<Contract | null>(null);
 
@@ -80,7 +85,46 @@ export default function Contracts() {
   const handleConfirmCancel = async () => {
     if (deletingContract) {
       try {
+        // Atualizar status do contrato para inactive
         await updateContractMutation.mutateAsync({ id: deletingContract.id, status: 'inactive' });
+        
+        // Atualizar tag do cliente para "Inativo" e deletar faturas pendentes se houver client_id
+        if (deletingContract.client_id) {
+          try {
+            // Atualizar tag do cliente
+            await updateClientMutation.mutateAsync({ 
+              id: deletingContract.client_id, 
+              tags: ['Inativo'] 
+            });
+            console.log('Tag do cliente atualizada para Inativo');
+            
+            // Invalidar query de clientes para atualizar a UI
+            queryClient.invalidateQueries({ queryKey: ['clients'] });
+            
+            // Deletar todas as faturas pendentes (não pagas) do cliente
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const { error: deleteError } = await supabase
+                .from('financial_entries')
+                .delete()
+                .eq('client_id', deletingContract.client_id)
+                .eq('user_id', user.id)
+                .eq('status', 'pending');
+              
+              if (deleteError) {
+                console.error('Erro ao deletar faturas pendentes:', deleteError);
+              } else {
+                console.log('Faturas pendentes deletadas com sucesso');
+                // Invalidar queries de faturas para atualizar a UI
+                queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
+              }
+            }
+          } catch (clientError) {
+            console.error('Erro ao atualizar tag do cliente ou deletar faturas:', clientError);
+            // Não falhar o cancelamento do contrato se a atualização do cliente falhar
+          }
+        }
+        
         setDeletingContract(null);
       } catch (error) {
         console.error('Error updating contract:', error);

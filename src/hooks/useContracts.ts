@@ -16,6 +16,15 @@ export const useContracts = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Atualizar tags de clientes baseado no vencimento dos contratos
+      // Isso garante que as tags estejam sempre atualizadas
+      try {
+        await supabase.rpc('update_client_tags_from_contracts');
+      } catch (rpcError) {
+        // Não falhar a query se a atualização de tags falhar
+        console.warn('Erro ao atualizar tags de clientes:', rpcError);
+      }
+
       const { data, error } = await supabase
         .from('contracts')
         .select(`
