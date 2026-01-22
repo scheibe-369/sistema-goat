@@ -6,7 +6,7 @@ import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
-import { useContracts, useUpdateContract } from "@/hooks/useContracts";
+import { useContracts, useUpdateContract, useRenewContract } from "@/hooks/useContracts";
 import { useUpdateClient } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,6 +25,7 @@ interface Contract {
 export default function Contracts() {
   const { data: contractsData = [], isLoading, error } = useContracts();
   const updateContractMutation = useUpdateContract();
+  const renewContractMutation = useRenewContract();
   const updateClientMutation = useUpdateClient();
   const queryClient = useQueryClient();
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
@@ -203,36 +204,49 @@ export default function Contracts() {
 
       {/* Expiring Contracts Alert */}
       {expiringContracts.length > 0 && (
-        <Card className="bg-yellow-900/20 border-yellow-600">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-white" />
-              <h3 className="text-lg font-semibold text-white">Contratos A Vencer</h3>
-            </div>
-            <div className="space-y-4">
-              {expiringContracts.map((contract) => (
-                <div key={contract.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-yellow-900/10 rounded-lg border border-yellow-800">
+        <Card className="bg-yellow-950 border-yellow-700">
+          <div className="p-6 flex items-center gap-2">
+            <AlertTriangle className="w-6 h-6 text-yellow-400" />
+            <h3 className="text-lg font-semibold text-yellow-200">Contratos A Vencer</h3>
+          </div>
+          <div className="p-6 pt-0">
+            {expiringContracts.map((contract) => (
+              <div key={contract.id} className="flex items-center justify-between p-4 rounded-lg bg-yellow-900/50 border border-yellow-700 mb-4">
+                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
                   <div>
-                    <p className="text-white font-medium">{contract.client}</p>
-                    <p className="text-white text-sm opacity-80">{contract.type}</p>
+                    <h4 className="text-white font-medium mb-1">{contract.client}</h4>
+                    <div className="mt-1">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-yellow-600 text-white">A vencer</span>
+                    </div>
+                    <p className="text-yellow-200 text-xs mt-1">{contract.type}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-300 text-sm">Valor</p>
-                    <p className="text-red-400 font-semibold">{formatCurrency(contract.monthlyValue)}</p>
+                    <p className="text-yellow-200 text-sm">Valor</p>
+                    <p className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-300 text-sm">Data de vencimento</p>
+                    <p className="text-yellow-200 text-sm">Vencimento</p>
                     <p className="text-white">{formatDate(contract.endDate)}</p>
                   </div>
                   <div className="text-center">
+                    <p className="text-yellow-200 text-sm">Dias restantes</p>
                     <p className="text-white font-semibold">
                       {getDaysUntilExpiration(contract.endDate)} dias
                     </p>
-                    <p className="text-white text-sm opacity-80">Restantes</p>
+                  </div>
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={() => renewContractMutation.mutate(contract.id)}
+                      disabled={renewContractMutation.isPending}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                    >
+                      {renewContractMutation.isPending ? 'Renovando...' : 'Renovar'}
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </Card>
       )}
