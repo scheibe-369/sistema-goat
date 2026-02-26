@@ -107,7 +107,7 @@ export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
     try {
       const d = parseLocalDate(String(e.due_date));
       if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -115,7 +115,7 @@ export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
     try {
       const d = parseLocalDate(String(e.due_date));
       if (d.getFullYear() === currentYear) return sum + (Number(e.amount) || 0);
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -130,8 +130,8 @@ export const calculateRevenueKPIs = (financialEntries: FinancialEntry[]) => {
 };
 
 export function RevenueYoYChart({
-  title = "Faturamento (Ano a Ano)",
-  subtitle = "Faturamento total (pago + pendente, incluindo vencidos).",
+  title = "Crescimento de Receita (YoY)",
+  subtitle = "Comparação de receita total entre anos.",
   financialEntries,
   maxYearsToShow = 4,
 }: RevenueYoYChartProps) {
@@ -191,44 +191,46 @@ export function RevenueYoYChart({
     return row;
   });
 
-  // Estilo das linhas (mesma cor, opacidade/dash por antiguidade)
-  const lineStyleForIndex = (idxFromEnd: number) => {
-    const baseOpacity = 0.35 + (idxFromEnd / Math.max(1, yearsToShow.length - 1)) * 0.65;
-    const isMostRecent = idxFromEnd === yearsToShow.length - 1;
+  // Estilo das linhas (cores distintas para facilitar a leitura)
+  const lineStyleForIndex = (idxFromEnd: number, total: number) => {
+    const isMostRecent = idxFromEnd === total - 1;
+
+    // Cores: Roxo vibrante para o atual, Azul/Indigo para o anterior, Cinza para os mais antigos
+    const colors = ["#4B5563", "#3B82F6", "#8B5CF6"];
+    const color = colors[Math.min(idxFromEnd, colors.length - 1)];
+
     return {
-      stroke: "#8B5CF6",
-      strokeWidth: isMostRecent ? 2.5 : 2,
-      strokeOpacity: baseOpacity,
-      strokeDasharray: isMostRecent ? "0" : "6 6",
+      stroke: isMostRecent ? "#8B5CF6" : (idxFromEnd === total - 2 ? "#3B82F6" : "#4B5563"),
+      strokeWidth: isMostRecent ? 3 : 2,
+      strokeOpacity: isMostRecent ? 1 : 0.6,
+      strokeDasharray: isMostRecent ? "0" : "5 5",
     };
   };
-
   return (
-    <Card className="bg-goat-gray-800 border-goat-gray-700 p-6 dashboard-glow">
-      <div className="flex items-start justify-between gap-4 mb-4">
+    <Card className="glass-effect border-white/[0.05] p-6 dashboard-glow">
+      <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
-          <p className="text-goat-gray-400 text-sm">{subtitle}</p>
+          <h3 className="text-sm font-bold text-white uppercase tracking-widest">{title}</h3>
+          <p className="text-white/30 text-xs mt-1">{subtitle}</p>
         </div>
       </div>
 
-      {/* Gráfico */}
       <div className="w-full h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 18, left: 6, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.08)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
 
             <XAxis
               dataKey="month"
-              stroke="#A3A3A3"
-              fontSize={12}
+              stroke="rgba(255,255,255,0.3)"
+              fontSize={10}
               tickLine={false}
               axisLine={false}
             />
 
             <YAxis
-              stroke="#A3A3A3"
-              fontSize={12}
+              stroke="rgba(255,255,255,0.3)"
+              fontSize={10}
               tickLine={false}
               axisLine={false}
               tickFormatter={formatAxisBRL}
@@ -237,32 +239,43 @@ export function RevenueYoYChart({
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "#171717",
-                borderColor: "#404040",
+                backgroundColor: "rgba(10, 10, 10, 0.95)",
+                backdropFilter: "blur(20px)",
+                borderColor: "rgba(255,255,255,0.1)",
                 color: "#FFFFFF",
-                borderRadius: "0.5rem",
+                borderRadius: "1rem",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+                border: "1px solid rgba(255,255,255,0.1)",
               }}
-              labelStyle={{ color: "#A3A3A3" }}
+              labelStyle={{ color: "rgba(255,255,255,0.5)", fontWeight: "bold", fontSize: "11px", marginBottom: "4px" }}
+              itemStyle={{ fontSize: "13px", color: "#fff", padding: "2px 0" }}
               formatter={(value: any, name: any) => [
                 formatCurrency(Number(value) || 0),
-                `Ano ${name}`,
+                name,
               ]}
             />
 
-            <Legend wrapperStyle={{ color: "#A3A3A3", fontSize: 12 }} iconType="plainline" />
+            <Legend
+              wrapperStyle={{ color: "rgba(255,255,255,0.4)", fontSize: 10, paddingTop: 20 }}
+              iconType="circle"
+              iconSize={8}
+            />
 
             {yearsToShow.map((y, i) => {
-              const style = lineStyleForIndex(i);
+              const style = lineStyleForIndex(i, yearsToShow.length);
+              const isCurrent = y === currentYear;
               return (
                 <Line
                   key={y}
                   type="monotone"
                   dataKey={String(y)}
+                  name={isCurrent ? `Ano Atual (${y})` : `Ano (${y})`}
                   dot={false}
                   stroke={style.stroke}
                   strokeWidth={style.strokeWidth}
                   strokeOpacity={style.strokeOpacity}
                   strokeDasharray={style.strokeDasharray}
+                  animationDuration={1500}
                 />
               );
             })}

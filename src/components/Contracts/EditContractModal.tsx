@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUpdateClient } from '@/hooks/useClients';
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface Contract {
   id: string;
@@ -55,8 +57,8 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
     e.preventDefault();
     if (formData.status === 'inactive' && formData.client_id) {
       // Update client tags to reflect inactive status
-      await updateClient.mutateAsync({ 
-        id: formData.client_id, 
+      await updateClient.mutateAsync({
+        id: formData.client_id,
         tags: ['Inativo']
       });
     }
@@ -76,7 +78,7 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
         <DialogHeader>
           <DialogTitle className="text-white">Editar Contrato</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="client" className="text-white">Cliente</Label>
@@ -114,26 +116,26 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate" className="text-white">Data de Início</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-                required
+              <Label className="text-white">Data de Início</Label>
+              <DatePicker
+                date={formData.startDate ? parseISO(formData.startDate) : undefined}
+                setDate={(newDate) => {
+                  if (newDate) {
+                    handleInputChange('startDate', format(newDate, "yyyy-MM-dd"));
+                  }
+                }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDate" className="text-white">Data de Término</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
-                className="bg-goat-gray-700 border-goat-gray-600 text-white"
-                required
+              <Label className="text-white">Data de Término</Label>
+              <DatePicker
+                date={formData.endDate ? parseISO(formData.endDate) : undefined}
+                setDate={(newDate) => {
+                  if (newDate) {
+                    handleInputChange('endDate', format(newDate, "yyyy-MM-dd"));
+                  }
+                }}
               />
             </div>
           </div>
@@ -153,15 +155,15 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={onClose}
               className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
             >
               Cancelar
             </Button>
-            <Button 
+            <Button
               type="submit"
               className="bg-goat-purple hover:bg-goat-purple/90 text-white"
             >

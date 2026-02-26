@@ -438,40 +438,38 @@ export default function LeadsKanban() {
   return (
     <div className="relative">
       <div
-        className="fixed inset-x-0 top-0 z-30 bg-goat-dark"
+        className="fixed inset-x-0 top-0 z-30"
         style={{ pointerEvents: isDraggingCard ? "none" : "auto" }}
       >
-        <div className="px-6 lg:px-10 pt-4 pb-2 space-y-3 sm:space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Funil</h1>
-              <p className="text-goat-gray-400 text-sm sm:text-base">
-                Gerencie seus leads e clientes
-              </p>
+        <div className="max-w-[1600px] mx-auto w-full pl-4 lg:pl-6 pr-6 lg:pr-10 pt-6 pb-4 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <h1 className="text-4xl font-bold text-white tracking-tight">Pipeline</h1>
+              <p className="text-white/40 text-sm">Gerencie seus fluxos de vendas com facilidade</p>
             </div>
 
-            <div className="flex flex-row flex-wrap sm:flex-nowrap gap-2">
+            <div className="flex flex-row items-center gap-3">
               <Button
-                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                className="glass-effect hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                 onClick={() => setIsTagsModalOpen(true)}
               >
-                <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <Settings className="w-4 h-4 mr-2" />
                 {isMobile ? "Tags" : "Gerenciar Tags"}
               </Button>
 
               <Button
-                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                className="glass-effect hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                 onClick={() => setIsAddStageModalOpen(true)}
               >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <Plus className="w-4 h-4 mr-2" />
                 {isMobile ? "Etapa" : "Nova Etapa"}
               </Button>
 
               <Button
-                className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
+                className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
                 onClick={() => setIsNewLeadModalOpen(true)}
               >
-                <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <Plus className="w-4 h-4 mr-2" />
                 {isMobile ? "Lead" : "Novo Lead"}
               </Button>
             </div>
@@ -525,7 +523,7 @@ export default function LeadsKanban() {
         >
           <div
             ref={kanbanRef}
-            className="flex gap-3 sm:gap-6 min-h-[520px] sm:min-h-[620px] overflow-x-auto overflow-y-hidden select-none px-6 cursor-grab active:cursor-grabbing"
+            className="flex gap-3 sm:gap-6 min-h-[520px] sm:min-h-[620px] overflow-x-auto overflow-y-hidden select-none cursor-grab active:cursor-grabbing"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -536,7 +534,6 @@ export default function LeadsKanban() {
             onPointerUp={onPointerUpPan}
             onPointerCancel={onPointerCancelPan}
           >
-            <div className="flex-shrink-0 w-4 h-full" aria-hidden="true" />
 
             {stages.map((stage: Stage) => {
               const stageLeads = getLeadsByStage(stage.id);
@@ -571,7 +568,7 @@ export default function LeadsKanban() {
                         </Button>
                       </ContextMenuTrigger>
 
-                      <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                      <ContextMenuContent className="glass-effect border-white/[0.05]">
                         <ContextMenuItem
                           onClick={() => handleEditStage(stage)}
                           className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
@@ -598,7 +595,7 @@ export default function LeadsKanban() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`space-y-2 min-h-[300px] sm:min-h-[400px] p-2 rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-goat-gray-700/50" : ""
+                        className={`space-y-4 min-h-[300px] sm:min-h-[400px] p-2 rounded-2xl transition-colors ${snapshot.isDraggingOver ? "bg-white/[0.02]" : ""
                           }`}
                       >
                         {filteredLeads.map((lead, index) => (
@@ -613,8 +610,8 @@ export default function LeadsKanban() {
                                 <ContextMenu>
                                   <ContextMenuTrigger asChild>
                                     <Card
-                                      className={`bg-goat-gray-800 border-goat-gray-700 p-3 sm:p-4 shadow-lg hover:border-goat-purple/50 transition-all duration-200 ${snapshot.isDragging
-                                        ? "border-goat-purple/70 shadow-xl"
+                                      className={`glass-effect border-white/[0.05] p-3 sm:p-5 rounded-2xl dashboard-glow relative group ${snapshot.isDragging
+                                        ? "border-primary/50 shadow-2xl scale-[1.02]"
                                         : ""
                                         }`}
                                     >
@@ -688,7 +685,7 @@ export default function LeadsKanban() {
                                     </Card>
                                   </ContextMenuTrigger>
 
-                                  <ContextMenuContent className="bg-goat-gray-800 border-goat-gray-700">
+                                  <ContextMenuContent className="glass-effect border-white/[0.05]">
                                     <ContextMenuItem
                                       onClick={() => handleEditLead(lead)}
                                       className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
@@ -698,7 +695,7 @@ export default function LeadsKanban() {
                                     </ContextMenuItem>
                                     <ContextMenuItem
                                       onClick={() => handleDeleteLead(lead.id)}
-                                      className="text-red-400 data-[highlighted]:bg-goat-gray-700 data-[highlighted]:text-red-400"
+                                      className="text-red-400 data-[highlighted]:bg-white/[0.05] data-[highlighted]:text-red-400"
                                     >
                                       <Trash2 className="w-4 h-4 mr-2" />
                                       Excluir Lead
@@ -713,7 +710,7 @@ export default function LeadsKanban() {
                         {provided.placeholder}
 
                         {filteredLeads.length === 0 && (
-                          <div className="border-2 border-dashed border-goat-gray-700 rounded-lg p-4 sm:p-6 text-center">
+                          <div className="border-2 border-dashed border-white/[0.05] rounded-2xl p-4 sm:p-6 text-center">
                             <p className="text-goat-gray-400 text-xs sm:text-sm">
                               {isMobile ? "Arraste leads" : "Arraste leads para cá"}
                             </p>
@@ -763,6 +760,6 @@ export default function LeadsKanban() {
           onUpdateStage={handleUpdateStage}
         />
       </div>
-    </div>
+    </div >
   );
 }

@@ -6,15 +6,23 @@ interface CRMLayoutProps {
 
 export function CRMLayout({ children }: CRMLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#080808]">
-      <div className="flex min-h-screen w-full">
+    <div className="min-h-screen bg-[#080808] relative overflow-hidden">
+      {/* Liquid Background Blobs */}
+      <div className="liquid-container">
+        <div className="liquid-blob blob-1" />
+        <div className="liquid-blob blob-2" />
+      </div>
+
+      <div className="flex min-h-screen w-full relative z-10">
         <AppSidebar />
 
         {/* ✅ min-w-0 aqui é CRÍTICO */}
         <div className="flex-1 min-w-0 flex flex-col">
           {/* ✅ min-w-0 aqui também ajuda */}
-          <main className="flex-1 min-w-0 w-full px-6 lg:px-10 py-6 overflow-y-auto overflow-x-hidden bg-[#080808]">
-            {children}
+          <main className="flex-1 min-w-0 w-full py-6 overflow-y-auto overflow-x-hidden">
+            <div className="max-w-[1600px] mx-auto w-full pl-4 lg:pl-6 pr-6 lg:pr-10">
+              {children}
+            </div>
           </main>
         </div>
       </div>

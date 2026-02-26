@@ -38,7 +38,7 @@ export default function Financial() {
     const day = dateParts[2];
     const month = dateParts[1];
     const year = dateParts[0];
-    
+
     return `${day}/${month}/${year}`;
   };
 
@@ -48,7 +48,7 @@ export default function Financial() {
     const year = parseInt(dateParts[0]);
     const month = parseInt(dateParts[1]) - 1; // JavaScript months are 0-indexed
     const day = parseInt(dateParts[2]);
-    
+
     return new Date(year, month, day);
   };
 
@@ -112,7 +112,7 @@ export default function Financial() {
 
   const handleAddExpense = (expenseData: any) => {
     console.log('DEBUG - Dados recebidos para despesa:', expenseData);
-    
+
     if (!expenseData.description || !expenseData.amount || isNaN(expenseData.amount) || expenseData.amount <= 0 || !expenseData.category || !expenseData.date) {
       console.error('Dados inválidos para despesa:', expenseData);
       return;
@@ -128,7 +128,7 @@ export default function Financial() {
       is_recurring: expenseData.is_recurring || false,
       recurrence_type: expenseData.recurrence_type
     };
-    
+
     console.log('DEBUG - Criando despesa:', expense);
     createExpense(expense);
   };
@@ -173,7 +173,7 @@ export default function Financial() {
 
   // Filtros de status
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid' | 'currentMonth'>('currentMonth');
-  
+
   // Filtro de despesas
   const [expenseFilter, setExpenseFilter] = useState<'all' | 'currentMonth'>('currentMonth');
 
@@ -222,7 +222,7 @@ export default function Financial() {
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Reset time for comparison
     dueDate.setHours(0, 0, 0, 0);
-    
+
     if (entry.status === 'pending' && dueDate < now) {
       return { label: 'Em atraso', color: 'bg-red-600' };
     }
@@ -247,14 +247,14 @@ export default function Financial() {
       return entry.status === 'paid' && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
     .reduce((sum, entry) => sum + Number(entry.amount), 0);
-    
+
   const despesasMes = expenses
     .filter(e => {
       const d = parseLocalDate(e.date);
       return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     })
     .reduce((sum, e) => sum + Number(e.amount), 0);
-    
+
   const lucroMes = receitasMes - despesasMes;
 
   useEffect(() => {
@@ -270,9 +270,9 @@ export default function Financial() {
   return (
     <div className="space-y-6 animate-fade-in">
       <FinancialHeader onNewTransaction={() => setIsExpenseModalOpen(true)} />
-      
-      <ExpenseModal 
-        onAddExpense={handleAddExpense} 
+
+      <ExpenseModal
+        onAddExpense={handleAddExpense}
         open={isExpenseModalOpen}
         onOpenChange={setIsExpenseModalOpen}
       />
@@ -464,7 +464,7 @@ export default function Financial() {
                             {expense.recurrence_type === 'yearly' && 'Anual'}
                             {expense.recurrence_type === 'quarterly' && 'Trimestral'}
                             {expense.recurrence_type === 'semesterly' && 'Semestral'}
-                            {!['monthly','yearly','quarterly','semesterly'].includes(expense.recurrence_type) && expense.recurrence_type?.charAt(0).toUpperCase() + expense.recurrence_type?.slice(1)}
+                            {!['monthly', 'yearly', 'quarterly', 'semesterly'].includes(expense.recurrence_type) && expense.recurrence_type?.charAt(0).toUpperCase() + expense.recurrence_type?.slice(1)}
                           </Badge>
                         ) : null}
                       </div>

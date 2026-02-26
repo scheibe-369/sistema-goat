@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -63,33 +62,35 @@
 /* GOAT CRM Theme - Dark Mode with Purple Accents */
 @layer base {
   :root {
-    --background: 8 8 8; /* #080808 */
-    --foreground: 255 255 255;
+    --background: 0 0% 0%;
+    /* #000000 */
+    --foreground: 0 0% 100%;
 
-    --card: 23 23 23;
-    --card-foreground: 255 255 255;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 23 23 23;
-    --popover-foreground: 255 255 255;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 83 21 203; /* #6829c0 */
-    --primary-foreground: 255 255 255;
+    --primary: 265 65% 46%;
+    /* #6829c0 (Official Standard Purple) */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 38 38;
-    --secondary-foreground: 255 255 255;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 38 38 38;
-    --muted-foreground: 163 163 163;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 64 64 64;
-    --accent-foreground: 255 255 255;
+    --accent: 0 0% 25%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 64 64 64;
-    --input: 38 38 38;
-    --ring: 83 21 203;
+    --border: 0 0% 25%;
+    --input: 0 0% 15%;
+    --ring: 265 65% 46%;
 
     --radius: 0.75rem;
   }
@@ -99,16 +100,23 @@
   }
 
   html {
-    font-size: 16px; /* padrão */
+    font-size: 16px;
+    /* padrão */
   }
 
   body {
     @apply bg-goat-dark text-white font-sans;
     font-family: 'Founders Grotesk', sans-serif;
-    overflow-x: hidden; /* Remove o scroll horizontal global */
+    overflow-x: hidden;
+    /* Remove o scroll horizontal global */
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold;
   }
 
@@ -117,11 +125,68 @@
   }
 
   .glass-effect {
-    @apply bg-black/20 backdrop-blur-md border border-white/10;
+    background: rgba(15, 15, 15, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .glass-premium {
+    background: rgba(10, 10, 10, 0.98);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .liquid-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: #000000;
+  }
+
+  .liquid-blob {
+    display: none;
+    /* Desativando os blobs que causavam o tom marrom */
+  }
+
+  .blob-1 {
+    top: -100px;
+    right: -100px;
+    animation-duration: 25s;
+  }
+
+  .blob-2 {
+    bottom: -150px;
+    left: -100px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 70%);
+    animation-duration: 30s;
+    animation-delay: -5s;
+  }
+
+  @keyframes liquid-move {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+      transform: translate(100px, 50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-50px, 100px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
   }
 
   .glow-purple {
-    box-shadow: 0 0 20px rgba(83, 21, 203, 0.3);
+    box-shadow: 0 0 30px rgba(83, 21, 203, 0.2);
   }
 
   /* Focus border roxo */
@@ -130,13 +195,7 @@
   }
 
   *:focus-visible {
-    outline: 2px solid #6829c0;
-    outline-offset: 2px;
-  }
-
-  button:focus-visible {
-    outline: 2px solid #6829c0;
-    outline-offset: 2px;
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
 
   /* Hide scrollbar for kanban horizontal scroll */
@@ -145,7 +204,7 @@
     width: 0 !important;
     height: 0 !important;
   }
-  
+
   .flex.overflow-x-auto {
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
@@ -169,41 +228,41 @@
   /* Purple badge hover fix for "Pendente" - only for badges, not messages */
   .badge.bg-goat-purple:hover,
   .bg-goat-purple:hover:not(.message-bubble) {
-    background-color: #4c1d95 !important; /* Darker purple for hover */
+    background-color: #4c1d95 !important;
+    /* Darker purple for hover */
   }
-  
+
   /* Disable hover effects for all message bubbles - keep original colors */
   .message-bubble.bg-goat-purple:hover,
   div.message-bubble.bg-goat-purple:hover {
-    background-color: #6829c0 !important; /* Original purple color */
+    background-color: #6829c0 !important;
+    /* Original purple color */
   }
-  
+
   .message-bubble.bg-goat-gray-700:hover,
   div.message-bubble.bg-goat-gray-700:hover {
-    background-color: #404040 !important; /* Original gray-700 color */
+    background-color: #404040 !important;
+    /* Original gray-700 color */
   }
 
   /* Yellow badge hover fix for "Pendente" status */
   .bg-yellow-600:hover {
-    background-color: #b45309 !important; /* Darker yellow for hover */
+    background-color: #b45309 !important;
+    /* Darker yellow for hover */
   }
 
   /* ===============================================
      DASHBOARD CARD HOVER ANIMATION
      =============================================== */
   .dashboard-glow {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-500 ease-in-out;
     position: relative;
     overflow: hidden;
   }
 
   .dashboard-glow:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 10px 25px rgba(0, 0, 0, 0.3),
-      0 0 20px rgba(83, 21, 203, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    border-color: rgba(83, 21, 203, 0.3);
+    transform: translateY(-4px);
+    @apply shadow-2xl border-primary/30 bg-white/[0.05];
   }
 
   /* Enhanced animation for stats cards */
@@ -212,10 +271,13 @@
   }
 
   @keyframes pulse-soft {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
       transform: scale(1);
     }
+
     50% {
       opacity: 0.9;
       transform: scale(1.02);
@@ -231,6 +293,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -254,7 +317,8 @@
 
   .btn-outline-danger {
     @apply text-red-400 border-red-800 transition-all duration-150;
-    color: #f87171 !important; /* Vermelho */
+    color: #f87171 !important;
+    /* Vermelho */
   }
 
   .btn-outline-danger:hover {
@@ -310,13 +374,15 @@
    Agora usando as novas cores padronizadas
 =============================== */
 [data-radix-select-content-wrapper],
-[data-state="open"] > div[data-radix-popper-content-wrapper],
+[data-state="open"]>div[data-radix-popper-content-wrapper],
 .SelectContent,
 .SelectItem,
 [role="option"],
 [data-radix-dropdown-menu-content] {
-  background-color: #404040 !important; /* Nova cor padrão */
-  border-color: #525252 !important; /* Nova cor de borda */
+  background-color: #404040 !important;
+  /* Nova cor padrão */
+  border-color: #525252 !important;
+  /* Nova cor de borda */
   color: white !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 }
@@ -329,7 +395,8 @@
 .SelectItem:hover,
 [role="option"]:hover,
 [data-radix-dropdown-menu-item]:hover {
-  background-color: #525252 !important; /* Nova cor de hover */
+  background-color: #525252 !important;
+  /* Nova cor de hover */
 }
 
 /* ===============================================
@@ -375,25 +442,31 @@
   outline: 2px solid #6829c0 !important;
   outline-offset: -2px;
 }
+
 /* Barra de rolagem para Chrome, Edge e Safari */
 ::-webkit-scrollbar {
   width: 8px;
-  background: #171717; /* Fundo do track */
+  background: #171717;
+  /* Fundo do track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6829c0;   /* Roxo GOAT */
+  background: #6829c0;
+  /* Roxo GOAT */
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C3AED; /* Roxo mais claro ao hover */
+  background: #7C3AED;
+  /* Roxo mais claro ao hover */
 }
 
 /* Firefox */
 * {
-  scrollbar-width: thin;           /* "auto" ou "thin" */
-  scrollbar-color: #6829c0 #171717; /* thumb, track */
+  scrollbar-width: thin;
+  /* "auto" ou "thin" */
+  scrollbar-color: #6829c0 #171717;
+  /* thumb, track */
 }
 
 /* ===============================================
@@ -402,27 +475,28 @@
    =============================================== */
 
 /* Toast/Notificações genéricas */
-.toast, 
-.toast-success, 
-.notification, 
-.notification-success, 
-.alert-success, 
-.alert, 
+.toast,
+.toast-success,
+.notification,
+.notification-success,
+.alert-success,
+.alert,
 .system-message,
-[data-state="success"], 
-[data-state="open"], 
-[data-type="success"], 
+[data-state="success"],
+[data-state="open"],
+[data-type="success"],
 .Toastify__toast--success,
 .Toastify__toast,
 [data-sonner-toast],
 [data-sonner-toast][data-type="success"] {
-  color: #ffffff !important;                 /* Texto branco */
+  color: #ffffff !important;
+  /* Texto branco */
   box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Para texto dentro de toasts */
-.toast *, 
-.notification *, 
+.toast *,
+.notification *,
 .alert *,
 [data-sonner-toast] *,
 .Toastify__toast * {
@@ -461,3 +535,67 @@
   color: #6829c0 !important;
 }
 
+/* ===============================================
+   ✅ CALENDAR (React Day Picker) - PREMIUM GOAT THEME
+   =============================================== */
+.rdp {
+  --rdp-cell-size: 38px;
+  --rdp-accent-color: #6829c0;
+  --rdp-background-color: transparent !important;
+  margin: 0;
+  color: white !important;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+  background-color: #6829c0 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 15px rgba(104, 41, 192, 0.4) !important;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: rgba(104, 41, 192, 0.2) !important;
+  color: white !important;
+  border-radius: 10px !important;
+}
+
+/* Force text white for all days */
+.rdp-day,
+.rdp-day_outside,
+.rdp-day_today {
+  color: white !important;
+}
+
+.rdp-day_today {
+  font-weight: bold !important;
+  text-decoration: underline !important;
+  text-decoration-color: #6829c0 !important;
+}
+
+.rdp-head_cell {
+  color: #9ca3af !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+}
+
+/* Force text white for selection */
+[aria-selected="true"] {
+  color: white !important;
+}
+
+/* Clean navigation buttons without yellow outlines */
+.rdp-nav_button,
+.rdp-button {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.rdp-nav_button:focus,
+.rdp-nav_button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(104, 41, 192, 0.4) !important;
+  border-color: #6829c0 !important;
+}

@@ -7,8 +7,8 @@ interface ConversationsHeaderProps {
 
 export function ConversationsHeader({ onNewConversation }: ConversationsHeaderProps) {
   return (
-    <div className="fixed inset-x-0 top-0 z-30 bg-goat-dark">
-      <div className="px-6 lg:px-10 pt-4 pb-2 space-y-3 sm:space-y-4">
+    <div className="fixed inset-x-0 top-0 z-30 bg-transparent">
+      <div className="max-w-[1600px] mx-auto w-full pl-4 lg:pl-6 pr-6 lg:pr-10 pt-6 pb-2 space-y-3 sm:space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Conversas WhatsApp</h1>
@@ -16,8 +16,8 @@ export function ConversationsHeader({ onNewConversation }: ConversationsHeaderPr
               Central de mensagens via Evolution API
             </p>
           </div>
-          
-          <Button 
+
+          <Button
             className="btn-primary h-10 px-3 sm:px-4 text-xs sm:text-sm"
             onClick={onNewConversation}
           >

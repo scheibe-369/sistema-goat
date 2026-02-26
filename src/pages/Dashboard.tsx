@@ -134,7 +134,7 @@ export default function Dashboard() {
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -145,7 +145,7 @@ export default function Dashboard() {
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         return sum + (Number(expense.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -162,7 +162,7 @@ export default function Dashboard() {
       if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -173,7 +173,7 @@ export default function Dashboard() {
       if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
         return sum + (Number(expense.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -185,7 +185,7 @@ export default function Dashboard() {
       if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -211,7 +211,7 @@ export default function Dashboard() {
       if (d.getMonth() === previousMonth && d.getFullYear() === previousYear) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -226,7 +226,7 @@ export default function Dashboard() {
         const amount = Number(entry.amount) || 0;
         receitaPorCliente.set(clientId, (receitaPorCliente.get(clientId) || 0) + amount);
       }
-    } catch {}
+    } catch { }
   });
 
   let maiorReceitaCliente = 0;
@@ -265,7 +265,7 @@ export default function Dashboard() {
         // Inclui tudo: paid e pending (tudo que deveria ser recebido no mesmo mês do ano passado)
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -300,7 +300,7 @@ export default function Dashboard() {
       ) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -318,7 +318,7 @@ export default function Dashboard() {
       ) {
         return sum + (Number(entry.amount) || 0);
       }
-    } catch {}
+    } catch { }
     return sum;
   }, 0);
 
@@ -506,17 +506,19 @@ export default function Dashboard() {
 
   // ===== Layout tokens (padronização) =====
   const PAGE_GAP = "gap-4 md:gap-5";
-  const CARD = "bg-goat-gray-800 border-goat-gray-700 dashboard-glow";
+  const CARD = "glass-effect border-white/[0.05] dashboard-glow";
   const SECTION_PAD = "p-5 md:p-6";
-  const MINI = "bg-goat-gray-900/50 rounded-lg p-4";
-  const MINI_TIGHT = "bg-goat-gray-900/50 rounded-lg p-3";
+  const MINI = "bg-black/50 backdrop-blur-md border border-white/5 rounded-2xl p-4";
+  const MINI_TIGHT = "bg-black/50 backdrop-blur-md border border-white/5 rounded-xl p-3";
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="text-goat-gray-400">Visão geral do seu CRM</p>
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold text-white tracking-tight">Dashboard</h1>
+          <p className="text-white/40 text-sm">Bem-vindo de volta ao Lead Goat Flow</p>
+        </div>
       </div>
 
       {/* TOP KPIs */}
@@ -552,85 +554,76 @@ export default function Dashboard() {
       </div>
 
       {/* SAÚDE FINANCEIRA (unidades) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-5">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Receitas (mês)</p>
-            <p className="text-xl font-bold text-white">{formatCurrency(receitasMes)}</p>
-          </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Receita (Mês)</p>
+          <p className="text-2xl font-bold text-white tracking-tight">{formatCurrency(receitasMes)}</p>
+        </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Despesas (mês)</p>
-            <p className="text-xl font-bold text-red-400">{formatCurrency(despesasMes)}</p>
-          </Card>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Despesas (Mês)</p>
+          <p className="text-2xl font-bold text-red-400 tracking-tight">{formatCurrency(despesasMes)}</p>
+        </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Lucro (mês)</p>
-            <p className={`text-xl font-bold ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
-              {formatCurrency(lucroMes)}
-            </p>
-          </Card>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Lucro (Mês)</p>
+          <p className={`text-2xl font-bold tracking-tight ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
+            {formatCurrency(lucroMes)}
+          </p>
+        </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">A receber (mês)</p>
-            <p className="text-xl font-bold text-yellow-400">{formatCurrency(aReceberMesAtual)}</p>
-          </Card>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">A Receber</p>
+          <p className="text-2xl font-bold text-amber-400 tracking-tight">{formatCurrency(aReceberMesAtual)}</p>
+        </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
-            <p className="text-goat-gray-400 text-xs mb-1">Vencidos (mês)</p>
-            <p className="text-xl font-bold text-red-400">{formatCurrency(vencidos)}</p>
-          </Card>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Vencidos</p>
+          <p className="text-2xl font-bold text-red-500 tracking-tight">{formatCurrency(vencidos)}</p>
+        </Card>
       </div>
 
       {/* KPIs Ano a Ano */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 ${PAGE_GAP}`}>
-        <Card className={`${CARD} p-4`}>
-          <p className="text-goat-gray-400 text-sm mb-1">Total {revenueKPIs.currentYear}</p>
-          <p className="text-2xl font-bold text-white">{formatCurrency(revenueKPIs.totalCurrent)}</p>
-          <p className="text-xs text-goat-gray-500 mt-1">Pago + pendente (não vencido)</p>
+      <div className={`grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4`}>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Total {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white tracking-tight">{formatCurrency(revenueKPIs.totalCurrent)}</p>
         </Card>
 
-        <Card className={`${CARD} p-4`}>
-          <p className="text-goat-gray-400 text-sm mb-1">Recebido {revenueKPIs.currentYear}</p>
-          <p className="text-2xl font-bold text-white">
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Recebido {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white tracking-tight">
             {formatCurrency(revenueKPIs.totalPaidCurrentYear)}
           </p>
-          <p className="text-xs text-goat-gray-500 mt-1">Apenas pagos</p>
         </Card>
 
-        <Card className={`${CARD} p-4`}>
-          <p className="text-goat-gray-400 text-sm mb-1">A receber {revenueKPIs.currentYear}</p>
-          <p className="text-2xl font-bold text-white">
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">A Receber {revenueKPIs.currentYear}</p>
+          <p className="text-2xl font-bold text-white tracking-tight">
             {formatCurrency(revenueKPIs.totalPendingNotOverdueCurrentYear)}
           </p>
-          <p className="text-xs text-goat-gray-500 mt-1">Pendentes não vencidos</p>
         </Card>
 
-        <Card className={`${CARD} p-4`}>
-          <p className="text-goat-gray-400 text-sm mb-1">YoY vs {revenueKPIs.prevYear}</p>
-          <p className="text-2xl font-bold text-white">
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Crescimento YoY</p>
+          <p className="text-2xl font-bold text-white tracking-tight">
             {revenueKPIs.yoyPct === null
               ? "—"
               : `${revenueKPIs.yoyPct > 0 ? "+" : ""}${revenueKPIs.yoyPct}%`}
           </p>
-          <p className="text-xs text-goat-gray-500 mt-1">Ano atual vs ano anterior</p>
         </Card>
 
-        <Card className={`${CARD} p-4`}>
-          <p className="text-goat-gray-400 text-sm mb-1">Mês atual vs {currentYear - 1}</p>
-          <p className={`text-2xl font-bold ${
-            variacaoMesAnoPassado === null 
-              ? "text-white" 
-              : variacaoMesAnoPassado >= 0 
-                ? "text-green-400" 
-                : "text-red-400"
-          }`}>
+        <Card className="glass-effect border-white/[0.05] p-5">
+          <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Mensal vs Ano Anterior</p>
+          <p className={`text-2xl font-bold tracking-tight ${variacaoMesAnoPassado === null
+            ? "text-white"
+            : variacaoMesAnoPassado >= 0
+              ? "text-green-400"
+              : "text-red-400"
+            }`}>
             {variacaoMesAnoPassado === null
               ? "—"
               : `${variacaoMesAnoPassado >= 0 ? "+" : ""}${variacaoMesAnoPassado.toFixed(1)}%`}
-          </p>
-          <p className="text-xs text-goat-gray-500 mt-1">
-            {new Date(currentYear, currentMonth, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })} vs{" "}
-            {new Date(currentYear - 1, currentMonth, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
           </p>
         </Card>
       </div>
@@ -644,11 +637,11 @@ export default function Dashboard() {
           <AlertCard className="dashboard-glow p-4 h-full" limit={10} alerts={alerts} />
         </div>
 
-        <Card className={`bg-goat-gray-800 border-goat-gray-700 ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
+        <Card className={`glass-effect border-white/[0.05] ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-goat-purple" />
+                <TrendingUp className="w-5 h-5 text-goat-purple" />
                 <span className="text-white font-semibold text-base">Funil de Prospecção</span>
               </div>
               <p className="text-goat-gray-400 text-sm mt-1">
@@ -739,55 +732,55 @@ export default function Dashboard() {
 
       {/* Clientes Recentes + Cards Futuros */}
       <div className={`grid grid-cols-1 lg:grid-cols-2 ${PAGE_GAP}`}>
-      {/* Clientes Recentes */}
+        {/* Clientes Recentes */}
         <Card className={`${CARD} p-4 md:p-5`}>
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-5 h-5 text-goat-purple" />
-          <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
-        </div>
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="w-5 h-5 text-goat-purple" />
+            <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
+          </div>
 
           <div className="space-y-3">
             {clients.slice(0, 4).map((client: any, index: number) => (
-            <div
-              key={client.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-goat-gray-900/30 border border-goat-gray-700 dashboard-glow"
-            >
-              <div className="min-w-0">
+              <div
+                key={client.id}
+                className="flex items-center justify-between p-3 rounded-lg glass-effect border-white/[0.05] dashboard-glow"
+              >
+                <div className="min-w-0">
                   <p className="text-white text-sm font-medium truncate">{client.company}</p>
                   <p className="text-goat-gray-400 text-xs truncate">Responsável: {client.responsible}</p>
-              </div>
+                </div>
                 <div className="text-right shrink-0 pl-4">
-                <span className="text-goat-gray-500 text-xs">
+                  <span className="text-goat-gray-500 text-xs">
                     {new Date(client.created_at || "").toLocaleDateString("pt-BR")}
-                </span>
+                  </span>
                   {client.plan && <p className="text-goat-purple text-xs mt-1">{client.plan}</p>}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {clients.length === 0 && (
+            {clients.length === 0 && (
               <div className="text-center py-8">
-              <p className="text-goat-gray-400">Nenhum cliente cadastrado ainda</p>
-            </div>
-          )}
-        </div>
-      </Card>
+                <p className="text-goat-gray-400">Nenhum cliente cadastrado ainda</p>
+              </div>
+            )}
+          </div>
+        </Card>
 
         {/* Cards Futuros */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Ticket Médio</p>
             <p className="text-xl font-bold text-white">{formatCurrency(ticketMedioContratosAtivos)}</p>
             <p className="text-goat-gray-500 text-xs mt-1">Contratos ativos</p>
           </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Churn</p>
             <p className="text-xl font-bold text-white">{churnRate.toFixed(1)}%</p>
             <p className="text-goat-gray-500 text-xs mt-1">Taxa de cancelamento</p>
           </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Comparativo mensal</p>
             <p className={`text-xl font-bold ${variacaoComparativoMensal >= 0 ? "text-green-400" : "text-red-400"}`}>
               {variacaoComparativoMensal >= 0 ? "+" : ""}
@@ -796,33 +789,31 @@ export default function Dashboard() {
             <p className="text-goat-gray-500 text-xs mt-1">vs mês anterior (faturamento geral)</p>
           </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Margem de lucro</p>
-            <p className={`text-xl font-bold ${
-              margemLucro > 40
-                ? "text-green-400"
-                : margemLucro >= 20 && margemLucro <= 40
-                  ? "text-white"
-                  : "text-red-400"
-            }`}>
+            <p className={`text-xl font-bold ${margemLucro > 40
+              ? "text-green-400"
+              : margemLucro >= 20 && margemLucro <= 40
+                ? "text-white"
+                : "text-red-400"
+              }`}>
               {margemLucro.toFixed(1)}%
             </p>
             <p className="text-goat-gray-500 text-xs mt-1">Meta ideal: 20-40%</p>
           </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Receita por hora</p>
             <p className="text-xl font-bold text-white">{formatCurrency(receitaPorHora)}</p>
             <p className="text-goat-gray-500 text-xs mt-1">Produtividade mensal ({horasTrabalhadasMes}h)</p>
           </Card>
 
-          <Card className="bg-goat-gray-800 border-goat-gray-700 dashboard-glow p-4">
+          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Concentração de receita</p>
-            <p className={`text-xl font-bold ${
-              concentracaoReceita <= 30
-                ? "text-green-400"
-                : "text-red-400"
-            }`}>
+            <p className={`text-xl font-bold ${concentracaoReceita <= 30
+              ? "text-green-400"
+              : "text-red-400"
+              }`}>
               {concentracaoReceita.toFixed(1)}%
             </p>
             <p className="text-goat-gray-500 text-xs mt-1">

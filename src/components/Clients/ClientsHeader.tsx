@@ -8,13 +8,13 @@ interface ClientsHeaderProps {
 
 export function ClientsHeader({ onNewClient }: ClientsHeaderProps) {
   return (
-    <div className="flex items-center justify-between -mt-2">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Clientes</h1>
-        <p className="text-goat-gray-400">Gerencie seu cadastro de clientes</p>
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="space-y-1">
+        <h1 className="text-4xl font-bold text-white tracking-tight">Clientes</h1>
+        <p className="text-white/40 text-sm">Gestão completa da base de clientes</p>
       </div>
-      <Button 
-        className="btn-primary h-10 px-4"
+      <Button
+        className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
         onClick={onNewClient}
       >
         <Plus className="w-4 h-4 mr-2" />

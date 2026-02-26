@@ -35,16 +35,17 @@ export function AppSidebar() {
         className={`
           fixed left-4 top-4 bottom-4 z-50
           flex flex-col items-center
-          bg-[#080808] rounded-3xl shadow-lg
-          px-1.5 py-6
-          transition-transform duration-300 ease-in-out
-          ${open ? "translate-x-0" : "-translate-x-[180%]"}
+          glass-premium rounded-[2rem]
+          px-2 py-8
+          transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
+          ${open ? "translate-x-0 opacity-100" : "-translate-x-[150%] opacity-0"}
         `}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
       >
+
         {/* Ícones no topo */}
-        <div className="flex flex-col items-center gap-6 w-full">
+        <div className="flex flex-col items-center gap-4 w-full px-1">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.url;
             const Icon = item.icon;
@@ -55,17 +56,17 @@ export function AppSidebar() {
                 to={item.url}
                 title={item.title}
                 className={`
+                  relative group
                   flex items-center justify-center
-                  w-10 h-10 rounded-full
-                  border border-transparent
-                  transition-colors duration-300
+                  w-12 h-12 rounded-2xl
+                  transition-all duration-300
                   ${isActive
-                    ? "bg-gradient-to-r from-goat-purple to-goat-purple text-white"
-                    : "bg-black/90 text-white hover:bg-goat-purple/20 hover:text-white"
+                    ? "bg-primary text-white shadow-[0_0_20px_rgba(104,41,192,0.4)]"
+                    : "text-white/40 hover:text-white hover:bg-white/5"
                   }
                 `}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
               </Link>
             );
           })}
@@ -80,15 +81,13 @@ export function AppSidebar() {
           title="Sair"
           onClick={handleLogout}
           className="
-            mb-2
             flex items-center justify-center
-            w-10 h-10 rounded-full
-            bg-red-600/90 text-white hover:bg-red-700
-            border border-transparent
-            transition-colors duration-300
+            w-12 h-12 rounded-2xl
+            text-white/40 hover:text-red-400 hover:bg-red-400/10
+            transition-all duration-300
           "
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </>

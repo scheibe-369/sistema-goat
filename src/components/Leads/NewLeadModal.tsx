@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Calendar } from "lucide-react";
 import { Tag } from "@/hooks/useTags";
+import { DatePicker } from "@/components/ui/date-picker";
+import { format, parseISO } from "date-fns";
 
 interface Stage {
   id: string;
@@ -27,6 +29,7 @@ interface NewLeadModalProps {
     stage: string;
     tags?: string[];
     value?: number;
+    meeting_date?: string;
   }) => void;
 }
 
@@ -45,6 +48,7 @@ export function NewLeadModal({
     stage: "",
     tags: [] as string[],
     value: "",
+    meeting_date: "",
   });
 
   const handleSubmit = () => {
@@ -53,7 +57,7 @@ export function NewLeadModal({
     }
 
     // Converter valor monetário
-    const value = formData.value 
+    const value = formData.value
       ? parseFloat(formData.value.replace(/[^\d,.-]/g, '').replace(',', '.')) || undefined
       : undefined;
 
@@ -65,6 +69,7 @@ export function NewLeadModal({
       stage: formData.stage,
       tags: formData.tags.length > 0 ? formData.tags : undefined,
       value: value,
+      meeting_date: formData.meeting_date || undefined,
     });
 
     // Reset form
@@ -76,6 +81,7 @@ export function NewLeadModal({
       stage: "",
       tags: [],
       value: "",
+      meeting_date: "",
     });
     onOpenChange(false);
   };
@@ -222,6 +228,16 @@ export function NewLeadModal({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label className="text-white">Data da Reunião (Opcional)</Label>
+            <DatePicker
+              date={formData.meeting_date ? parseISO(formData.meeting_date) : undefined}
+              setDate={(newDate) => {
+                setFormData(prev => ({ ...prev, meeting_date: newDate ? format(newDate, "yyyy-MM-dd") : "" }));
+              }}
+            />
           </div>
 
           <div className="flex gap-3 pt-4">

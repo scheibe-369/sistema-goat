@@ -21,6 +21,8 @@ import { Plus, X, ChevronDown } from "lucide-react";
 import { ColorPicker } from "./ColorPicker";
 import { usePlansContext } from "@/contexts/PlansContext";
 import ReactDOM from "react-dom";
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface NewClientModalProps {
   isOpen: boolean;
@@ -76,10 +78,10 @@ export function NewClientModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Convert monthlyValue from Brazilian format to number
     const monthlyValueNumber = parseFloat(formData.monthly_value.replace(',', '.')) || 0;
-    
+
     // Convert empty strings to null for date fields and ensure proper date format
     const formatDateForDatabase = (dateString: string) => {
       if (!dateString || dateString.trim() === '') return null;
@@ -88,10 +90,10 @@ export function NewClientModal({
       if (isNaN(date.getTime())) return null;
       return date.toISOString().split('T')[0];
     };
-    
+
     const contractEnd = formatDateForDatabase(formData.contract_end);
     const startDate = formatDateForDatabase(formData.start_date);
-    
+
     const clientData = {
       company: formData.company,
       cnpj: formData.cnpj,
@@ -107,7 +109,7 @@ export function NewClientModal({
       address: formData.address,
       tags: formData.tags,
     };
-    
+
     console.log('DEBUG - Dados do cliente sendo enviados:', clientData);
     console.log('DEBUG - Tipos dos dados:', {
       contract_end: typeof clientData.contract_end,
@@ -121,7 +123,7 @@ export function NewClientModal({
       monthly_value: clientData.monthly_value,
       payment_day: clientData.payment_day
     });
-    
+
     onSave(clientData);
     setFormData({
       company: "",
@@ -146,12 +148,12 @@ export function NewClientModal({
 
   const handleMonthlyValueBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
+
     if (value === '' || value === '0' || value === '0,') {
       handleChange("monthly_value", "0,00");
       return;
     }
-    
+
     if (!value.includes(',')) {
       value = value + ',00';
     } else {
@@ -162,40 +164,40 @@ export function NewClientModal({
         value = parts[0] + ',' + parts[1] + '0';
       }
     }
-    
+
     handleChange("monthly_value", value);
   };
 
   const handleMonthlyValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
+
     value = value.replace(/[^\d,]/g, '');
-    
+
     const parts = value.split(',');
     if (parts.length > 2) {
       value = parts[0] + ',' + parts.slice(1).join('');
     }
-    
+
     if (parts[1] && parts[1].length > 2) {
       value = parts[0] + ',' + parts[1].substring(0, 2);
     }
-    
+
     handleChange("monthly_value", value);
   };
 
   const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
+
     value = value.replace(/\D/g, '');
-    
+
     const numValue = parseInt(value);
-    
+
     if (numValue > 31) {
       value = '31';
     } else if (numValue < 1 && value !== '') {
       value = '1';
     }
-    
+
     handleChange("payment_day", value);
   };
 
@@ -206,9 +208,9 @@ export function NewClientModal({
           name: newPlanName.trim(),
           color: newPlanColor,
         });
-        
+
         setFormData((prev) => ({ ...prev, plan: newPlanName.trim() }));
-        
+
         setNewPlanName("");
         setNewPlanColor("bg-purple-600 text-white hover:bg-purple-700");
         setShowAddPlan(false);
@@ -232,12 +234,12 @@ export function NewClientModal({
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div 
+    <div
       style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
       className="flex items-center justify-center animate-fade-in"
       onClick={handleOverlayClick}
     >
-      <div 
+      <div
         className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] border border-goat-gray-700 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -345,7 +347,7 @@ export function NewClientModal({
               display: none !important;
             }
           `}</style>
-          
+
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
             {/* Informações Básicas */}
             <div className="space-y-6">
@@ -460,13 +462,13 @@ export function NewClientModal({
                           onKeyPress={(e) => e.key === "Enter" && handleAddCustomPlan()}
                         />
                       </div>
-                      
+
                       <ColorPicker
                         selectedColor={newPlanColor}
                         onColorChange={setNewPlanColor}
                         label="Cor do Plano"
                       />
-                      
+
                       <div className="flex gap-2">
                         <Button
                           type="button"
@@ -596,24 +598,22 @@ export function NewClientModal({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="start_date" className="text-white">Data de Início</Label>
-                  <Input
-                    id="start_date"
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => handleChange("start_date", e.target.value)}
-                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  <Label className="text-white">Data de Início</Label>
+                  <DatePicker
+                    date={formData.start_date ? parseISO(formData.start_date) : undefined}
+                    setDate={(newDate) => {
+                      handleChange("start_date", newDate ? format(newDate, "yyyy-MM-dd") : "");
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contract_end" className="text-white">Fim do Contrato</Label>
-                  <Input
-                    id="contract_end"
-                    type="date"
-                    value={formData.contract_end}
-                    onChange={(e) => handleChange("contract_end", e.target.value)}
-                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  <Label className="text-white">Fim do Contrato</Label>
+                  <DatePicker
+                    date={formData.contract_end ? parseISO(formData.contract_end) : undefined}
+                    setDate={(newDate) => {
+                      handleChange("contract_end", newDate ? format(newDate, "yyyy-MM-dd") : "");
+                    }}
                   />
                 </div>
 

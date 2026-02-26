@@ -17,27 +17,25 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon: Icon, trend, description, className }: StatsCardProps) {
   return (
-    <Card className={cn("bg-goat-gray-800 border-goat-gray-700 p-6 hover:border-goat-purple/50 transition-all duration-200", className)}>
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-goat-gray-400 text-sm font-medium">{title}</p>
-          <p className="text-2xl font-bold text-white mt-2">{value}</p>
+    <Card className={cn("glass-effect p-6 dashboard-glow border-white/[0.05]", className)}>
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-white/50 text-xs font-medium uppercase tracking-wider">{title}</p>
+          <p className="text-3xl font-bold text-white">{value}</p>
           {description && (
-            <p className="text-goat-gray-400 text-xs mt-1">{description}</p>
+            <p className="text-white/30 text-[10px] mt-1">{description}</p>
           )}
           {trend && (
             <div className="flex items-center mt-2">
-              <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+              <span className={`text-xs font-medium ${trend.isPositive ? 'text-green-400' : 'text-danger'}`}>
                 {trend.isPositive ? '+' : ''}{trend.value}%
               </span>
-              <span className="text-goat-gray-400 text-sm ml-2">vs mês anterior</span>
+              <span className="text-white/20 text-[10px] ml-2">vs mês anterior</span>
             </div>
           )}
         </div>
-        <div className="ml-4">
-          <div className="w-12 h-12 bg-goat-purple/20 rounded-lg flex items-center justify-center">
-            <Icon className="w-6 h-6 text-goat-purple" />
-          </div>
+        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+          <Icon className="w-5 h-5 text-primary" />
         </div>
       </div>
     </Card>

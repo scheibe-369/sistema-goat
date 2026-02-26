@@ -20,6 +20,8 @@ import { useState, useEffect } from "react";
 import { X, ChevronDown, Edit } from "lucide-react";
 import { usePlansContext } from "@/contexts/PlansContext";
 import ReactDOM from "react-dom";
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface Client {
   id: string;
@@ -73,7 +75,7 @@ export function EditClientModal({
 }: EditClientModalProps) {
   const { getPlanNames } = usePlansContext();
   const planOptions = getPlanNames();
-  
+
   const [formData, setFormData] = useState<Client>({
     id: "",
     company: "",
@@ -99,10 +101,10 @@ export function EditClientModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Convert monthlyValue from string to number for the callback
     const monthlyValueNumber = parseFloat(formData.monthlyValue?.replace(',', '.') || '0');
-    
+
     // Convert empty strings to null for date fields and ensure proper date format
     const formatDateForDatabase = (dateString: string) => {
       if (!dateString || dateString.trim() === '') return null;
@@ -111,10 +113,10 @@ export function EditClientModal({
       if (isNaN(date.getTime())) return null;
       return date.toISOString().split('T')[0];
     };
-    
+
     const contractEnd = formatDateForDatabase(formData.contractEnd || '');
     const startDate = formatDateForDatabase(formData.startDate || '');
-    
+
     const clientData: ClientData = {
       company: formData.company,
       cnpj: formData.cnpj,
@@ -130,7 +132,7 @@ export function EditClientModal({
       startDate: startDate || '',
       monthlyValue: monthlyValueNumber,
     };
-    
+
     console.log('DEBUG - Dados do cliente sendo enviados para edição:', clientData);
     console.log('DEBUG - Tipos dos dados:', {
       contractEnd: typeof clientData.contractEnd,
@@ -144,7 +146,7 @@ export function EditClientModal({
       monthlyValue: clientData.monthlyValue,
       paymentDay: clientData.paymentDay
     });
-    
+
     onSave(clientData);
   };
 
@@ -154,17 +156,17 @@ export function EditClientModal({
 
   const handlePaymentDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    
+
     value = value.replace(/\D/g, '');
-    
+
     const numValue = parseInt(value);
-    
+
     if (numValue > 31) {
       value = '31';
     } else if (numValue < 1 && value !== '') {
       value = '1';
     }
-    
+
     handleChange("paymentDay", value === '' ? 1 : parseInt(value));
   };
 
@@ -209,12 +211,12 @@ export function EditClientModal({
   };
 
   return ReactDOM.createPortal(
-    <div 
+    <div
       style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
       className="flex items-center justify-center animate-fade-in"
       onClick={handleOverlayClick}
     >
-      <div 
+      <div
         className="relative bg-goat-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] border border-goat-gray-700 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -514,24 +516,22 @@ export function EditClientModal({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-white">Data de Início</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={formData.startDate || ""}
-                    onChange={(e) => handleChange("startDate", e.target.value)}
-                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  <Label className="text-white">Data de Início</Label>
+                  <DatePicker
+                    date={formData.startDate ? parseISO(formData.startDate) : undefined}
+                    setDate={(newDate) => {
+                      handleChange("startDate", newDate ? format(newDate, "yyyy-MM-dd") : "");
+                    }}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contractEnd" className="text-white">Fim do Contrato</Label>
-                  <Input
-                    id="contractEnd"
-                    type="date"
-                    value={formData.contractEnd}
-                    onChange={(e) => handleChange("contractEnd", e.target.value)}
-                    className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                  <Label className="text-white">Fim do Contrato</Label>
+                  <DatePicker
+                    date={formData.contractEnd ? parseISO(formData.contractEnd) : undefined}
+                    setDate={(newDate) => {
+                      handleChange("contractEnd", newDate ? format(newDate, "yyyy-MM-dd") : "");
+                    }}
                   />
                 </div>
 

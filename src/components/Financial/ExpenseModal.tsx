@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface ExpenseModalProps {
   onAddExpense: (expense: any) => void;
@@ -33,15 +35,15 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     console.log('DEBUG - Dados do formulário:', formData);
-    
+
     if (!formData.description || !formData.value || !formData.category || !formData.date) {
-      console.error('Campos obrigatórios não preenchidos:', { 
-        description: formData.description, 
-        value: formData.value, 
-        category: formData.category, 
-        date: formData.date 
+      console.error('Campos obrigatórios não preenchidos:', {
+        description: formData.description,
+        value: formData.value,
+        category: formData.category,
+        date: formData.date
       });
       alert('Preencha todos os campos obrigatórios');
       return;
@@ -49,9 +51,9 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
 
     // Convert value from string to number
     const numericValue = parseFloat(formData.value.replace(',', '.'));
-    
+
     console.log('DEBUG - Valor convertido:', numericValue);
-    
+
     if (isNaN(numericValue) || numericValue <= 0) {
       console.error('Valor inválido:', numericValue);
       alert('Valor deve ser um número válido maior que zero');
@@ -72,7 +74,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
     console.log('DEBUG - Despesa a ser criada:', expense);
     onAddExpense(expense);
     setOpen(false);
-    
+
     // Reset form
     setFormData({
       description: '',
@@ -110,7 +112,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="value" className="text-white">Valor (R$) *</Label>
             <Input
@@ -123,7 +125,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
               required
             />
           </div>
-          
+
           <div>
             <Label htmlFor="category" className="text-white">Categoria *</Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
@@ -140,19 +142,19 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
-            <Label htmlFor="date" className="text-white">Data *</Label>
-            <Input
-              id="date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
-              required
+            <Label className="text-white mb-2 block">Data *</Label>
+            <DatePicker
+              date={formData.date ? parseISO(formData.date) : undefined}
+              setDate={(newDate) => {
+                if (newDate) {
+                  setFormData({ ...formData, date: format(newDate, "yyyy-MM-dd") });
+                }
+              }}
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Checkbox
               id="isRecurring"
@@ -161,7 +163,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
             />
             <Label htmlFor="isRecurring" className="text-white">Despesa recorrente</Label>
           </div>
-          
+
           {formData.isRecurring && (
             <div>
               <Label htmlFor="recurrence" className="text-white">Recorrência</Label>
@@ -178,7 +180,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
               </Select>
             </div>
           )}
-          
+
           <div className="flex gap-2 pt-4">
             <Button
               type="button"
@@ -187,8 +189,8 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1 bg-goat-purple hover:bg-goat-purple/90 text-white"
             >
               Adicionar Despesa

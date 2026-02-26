@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, X } from "lucide-react";
 import { Lead } from "@/hooks/useLeads";
 import { Tag } from "@/hooks/useTags";
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface Stage {
   id: string;
@@ -246,11 +248,11 @@ export function EditLeadModal({
 
           <div>
             <Label className="text-white">Data da Reunião (Agendamento)</Label>
-            <Input
-              type="date"
-              value={formData.meeting_date}
-              onChange={(e) => handleInputChange("meeting_date", e.target.value)}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+            <DatePicker
+              date={formData.meeting_date ? parseISO(formData.meeting_date) : undefined}
+              setDate={(newDate) => {
+                handleInputChange("meeting_date", newDate ? format(newDate, "yyyy-MM-dd") : "");
+              }}
             />
           </div>
 

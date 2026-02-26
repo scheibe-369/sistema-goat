@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react"; 
+import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
@@ -88,20 +88,20 @@ export default function Contracts() {
       try {
         // Atualizar status do contrato para inactive
         await updateContractMutation.mutateAsync({ id: deletingContract.id, status: 'inactive' });
-        
+
         // Atualizar tag do cliente para "Inativo" e deletar faturas pendentes se houver client_id
         if (deletingContract.client_id) {
           try {
             // Atualizar tag do cliente
-            await updateClientMutation.mutateAsync({ 
-              id: deletingContract.client_id, 
-              tags: ['Inativo'] 
+            await updateClientMutation.mutateAsync({
+              id: deletingContract.client_id,
+              tags: ['Inativo']
             });
             console.log('Tag do cliente atualizada para Inativo');
-            
+
             // Invalidar query de clientes para atualizar a UI
             queryClient.invalidateQueries({ queryKey: ['clients'] });
-            
+
             // Deletar todas as faturas pendentes (não pagas) do cliente
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
@@ -111,7 +111,7 @@ export default function Contracts() {
                 .eq('client_id', deletingContract.client_id)
                 .eq('user_id', user.id)
                 .eq('status', 'pending');
-              
+
               if (deleteError) {
                 console.error('Erro ao deletar faturas pendentes:', deleteError);
               } else {
@@ -125,7 +125,7 @@ export default function Contracts() {
             // Não falhar o cancelamento do contrato se a atualização do cliente falhar
           }
         }
-        
+
         setDeletingContract(null);
       } catch (error) {
         console.error('Error updating contract:', error);
@@ -257,7 +257,7 @@ export default function Contracts() {
           <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
           <p className="text-goat-gray-400 text-sm mt-1">Status sincronizado automaticamente com os clientes</p>
         </div>
-        
+
         {contracts.length === 0 ? (
           <div className="p-12 text-center">
             <FileText className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
@@ -310,7 +310,7 @@ export default function Contracts() {
       </Card>
 
       {/* Modals */}
-      <EditContractModal 
+      <EditContractModal
         isOpen={!!editingContract}
         contract={editingContract}
         onClose={() => setEditingContract(null)}

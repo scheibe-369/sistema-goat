@@ -9,6 +9,8 @@ import { useState, useEffect } from "react";
 import { X, Filter } from "lucide-react";
 import { usePlansContext } from "@/contexts/PlansContext";
 import ReactDOM from "react-dom";
+import { DatePicker } from "@/components/ui/date-picker";
+import { parseISO, format } from "date-fns";
 
 interface FilterState {
   status: string[];
@@ -38,7 +40,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
   const handleStatusChange = (status: string, checked: boolean) => {
     setLocalFilters(prev => ({
       ...prev,
-      status: checked 
+      status: checked
         ? [...prev.status, status]
         : prev.status.filter(s => s !== status)
     }));
@@ -47,7 +49,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
   const handlePlanChange = (plan: string, checked: boolean) => {
     setLocalFilters(prev => ({
       ...prev,
-      plan: checked 
+      plan: checked
         ? [...prev.plan, plan]
         : prev.plan.filter(p => p !== plan)
     }));
@@ -74,14 +76,14 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
   return ReactDOM.createPortal(
     <>
       {/* Custom Overlay with blur */}
-      <div 
+      <div
         style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
-      
+
       {/* Filters Panel - Slide from right */}
       <div className="fixed inset-y-0 right-0 z-[1000000] w-full max-w-md animate-slide-in-right">
-        <div 
+        <div
           className="h-full bg-goat-gray-800 shadow-2xl border-l border-goat-gray-700 flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
@@ -153,14 +155,14 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 animation: slide-in-right 0.3s ease-out;
               }
             `}</style>
-            
+
             <div className="p-6 space-y-8">
               {/* Nome da Empresa */}
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
                   Empresa
                 </h3>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="companyName" className="text-white">Nome da Empresa</Label>
                   <Input
@@ -178,7 +180,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
                   Status
                 </h3>
-                
+
                 <div className="space-y-3">
                   {statusOptions.map((status) => (
                     <div key={status} className="flex items-center space-x-3">
@@ -188,8 +190,8 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                         onCheckedChange={(checked) => handleStatusChange(status, checked as boolean)}
                         className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
                       />
-                      <Label 
-                        htmlFor={`status-${status}`} 
+                      <Label
+                        htmlFor={`status-${status}`}
                         className="text-white cursor-pointer hover:text-goat-purple transition-colors"
                       >
                         {status}
@@ -204,7 +206,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
                   Tipo de Plano
                 </h3>
-                
+
                 {plansLoading ? (
                   <div className="text-white/70">Carregando planos...</div>
                 ) : (
@@ -217,8 +219,8 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                           onCheckedChange={(checked) => handlePlanChange(plan, checked as boolean)}
                           className="border-goat-gray-600 data-[state=checked]:bg-goat-purple data-[state=checked]:border-goat-purple"
                         />
-                        <Label 
-                          htmlFor={`plan-${plan}`} 
+                        <Label
+                          htmlFor={`plan-${plan}`}
                           className="text-white cursor-pointer hover:text-goat-purple transition-colors"
                         >
                           {plan}
@@ -234,33 +236,35 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
                   Período do Fim de Contrato
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="contractStart" className="text-white">De</Label>
-                    <Input
-                      id="contractStart"
-                      type="date"
-                      value={localFilters.contractPeriod.start}
-                      onChange={(e) => setLocalFilters(prev => ({
-                        ...prev,
-                        contractPeriod: { ...prev.contractPeriod, start: e.target.value }
-                      }))}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                    <Label className="text-white">De</Label>
+                    <DatePicker
+                      date={localFilters.contractPeriod.start ? parseISO(localFilters.contractPeriod.start) : undefined}
+                      setDate={(newDate) => {
+                        if (newDate) {
+                          setLocalFilters(prev => ({
+                            ...prev,
+                            contractPeriod: { ...prev.contractPeriod, start: format(newDate, "yyyy-MM-dd") }
+                          }));
+                        }
+                      }}
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="contractEnd" className="text-white">Até</Label>
-                    <Input
-                      id="contractEnd"
-                      type="date"
-                      value={localFilters.contractPeriod.end}
-                      onChange={(e) => setLocalFilters(prev => ({
-                        ...prev,
-                        contractPeriod: { ...prev.contractPeriod, end: e.target.value }
-                      }))}
-                      className="bg-goat-gray-700 border-goat-gray-600 text-white focus:border-goat-purple focus:ring-goat-purple/20"
+                    <Label className="text-white">Até</Label>
+                    <DatePicker
+                      date={localFilters.contractPeriod.end ? parseISO(localFilters.contractPeriod.end) : undefined}
+                      setDate={(newDate) => {
+                        if (newDate) {
+                          setLocalFilters(prev => ({
+                            ...prev,
+                            contractPeriod: { ...prev.contractPeriod, end: format(newDate, "yyyy-MM-dd") }
+                          }));
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -271,7 +275,7 @@ export function ClientFilters({ isOpen, onClose, filters, onFiltersChange }: Cli
                 <h3 className="text-lg font-semibold text-white border-b border-goat-gray-700 pb-2">
                   Cidade/Localização
                 </h3>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-white">Cidade/Localização</Label>
                   <Input
