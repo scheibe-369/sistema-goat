@@ -47,12 +47,12 @@ const getAlertColor = (type: Alert['type']) => {
 export function AlertCard({ className, limit, alerts = [] }: AlertCardProps) {
   const alertsToShow = typeof limit === 'number' ? alerts.slice(0, limit) : alerts;
   return (
-    <Card className={cn("glass-effect border-white/[0.05] p-6 h-full", className)}>
+    <Card className={cn("premium-card p-6 h-full animate-premium-in", className)}>
       <div className="flex items-center gap-2 mb-6">
         <AlertTriangle className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Alertas & Notificações</h3>
       </div>
-      <div className="space-y-3 overflow-y-auto pr-1">
+      <div className="space-y-3 overflow-y-auto overflow-x-hidden pr-1">
         {alertsToShow.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 opacity-30">
             <AlertTriangle className="w-12 h-12 mb-2" />
@@ -60,7 +60,7 @@ export function AlertCard({ className, limit, alerts = [] }: AlertCardProps) {
           </div>
         ) : (
           alertsToShow.map((alert) => (
-            <div key={alert.id} className="flex items-start gap-3 p-4 rounded-2xl glass-effect border-white/[0.03] dashboard-glow">
+            <div key={alert.id} className="flex items-start gap-3 p-4 rounded-2xl premium-glass border-white/[0.03] dashboard-glow transition-all duration-300 hover:bg-white/[0.02]">
               <div className={`p-2.5 rounded-xl border ${getAlertColor(alert.type)}`}>{getAlertIcon(alert.type)}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">

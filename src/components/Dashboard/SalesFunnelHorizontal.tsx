@@ -132,33 +132,33 @@ export function SalesFunnelHorizontalChart({
   const hideTip = () => setTip((p) => ({ ...p, show: false }));
 
   return (
-    <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
+    <Card className="premium-card p-6 animate-premium-in">
       <div className="flex items-start justify-between gap-4 mb-2">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-5 h-5 text-goat-purple" />
+            <TrendingUp className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-semibold text-white">{title}</h3>
           </div>
-          <p className="text-goat-gray-400 text-sm">{description}</p>
+          <p className="text-goat-gray-400 text-sm leading-relaxed">{description}</p>
         </div>
-        <div className="text-goat-gray-400 text-sm whitespace-nowrap">
-          <span className="text-white font-semibold">{totalLeads}</span> lead(s)
+        <div className="bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+          <span className="text-white text-xs font-bold">{totalLeads} lead(s)</span>
         </div>
       </div>
 
       {/* KPIs (mesmo padrão do ProjectionChart) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">Leads no funil</p>
-          <p className="text-2xl font-bold text-white">{totalLeads}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 mt-2">
+        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
+          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Leads no funil</p>
+          <p className="text-2xl font-bold text-white tabular-nums">{totalLeads}</p>
         </div>
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">Etapas com leads</p>
-          <p className="text-2xl font-bold text-white">{stagesWithLeads}</p>
+        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
+          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Etapas com leads</p>
+          <p className="text-2xl font-bold text-white tabular-nums">{stagesWithLeads}</p>
         </div>
-        <div className="bg-goat-gray-900/50 p-4 rounded-lg">
-          <p className="text-goat-gray-400 text-sm">Conversão (1ª → última)</p>
-          <p className="text-2xl font-bold text-white">{formatPct(conversion)}</p>
+        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
+          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Conversão (1ª → última)</p>
+          <p className="text-2xl font-bold text-white tabular-nums">{formatPct(conversion)}</p>
         </div>
       </div>
 

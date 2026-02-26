@@ -92,7 +92,16 @@
     --input: 0 0% 15%;
     --ring: 265 65% 46%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
+
+    /* Premium UI Tokens */
+    --glass-bg: rgba(10, 10, 10, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: 16px;
+
+    --premium-purple: 265 65% 46%;
+    --premium-purple-light: 265 65% 55%;
+    --premium-glow: 265 100% 70%;
   }
 
   * {
