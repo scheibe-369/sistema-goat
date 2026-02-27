@@ -37,9 +37,6 @@ export function StatsCard({ title, value, icon: Icon, trend, description, classN
             </div>
           )}
         </div>
-        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20 shadow-[0_0_15px_-5px_rgba(104,41,192,0.3)]">
-          <Icon className="w-5 h-5 text-primary" />
-        </div>
       </div>
     </Card>
   );

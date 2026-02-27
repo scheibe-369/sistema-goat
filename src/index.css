@@ -62,15 +62,16 @@
 /* GOAT CRM Theme - Dark Mode with Purple Accents */
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    /* #000000 */
-    --foreground: 0 0% 100%;
+    --background: 240 6% 7%;
+    /* #121212 approximation or direct hex in HSL */
+    --foreground: 0 0% 88%;
+    /* #e1e1e1 */
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
+    --card: 240 6% 7%;
+    --card-foreground: 0 0% 88%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 240 6% 7%;
+    --popover-foreground: 0 0% 88%;
 
     --primary: 265 65% 46%;
     /* #6829c0 (Official Standard Purple) */
@@ -95,7 +96,7 @@
     --radius: 1rem;
 
     /* Premium UI Tokens */
-    --glass-bg: rgba(10, 10, 10, 0.7);
+    --glass-bg: rgba(18, 18, 18, 0.7);
     --glass-border: rgba(255, 255, 255, 0.08);
     --glass-blur: 16px;
 
@@ -114,10 +115,10 @@
   }
 
   body {
-    @apply bg-goat-dark text-white font-sans;
+    background-color: #121212 !important;
+    color: #e1e1e1 !important;
     font-family: 'Founders Grotesk', sans-serif;
     overflow-x: hidden;
-    /* Remove o scroll horizontal global */
   }
 
   h1,
@@ -126,6 +127,7 @@
   h4,
   h5,
   h6 {
+    color: #eaeaea !important;
     @apply font-bold;
   }
 
@@ -134,9 +136,9 @@
   }
 
   .glass-effect {
-    background: rgba(15, 15, 15, 0.95) !important;
+    background: rgba(18, 18, 18, 0.95) !important;
     backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
   }
 
   .glass-premium {
@@ -149,19 +151,14 @@
   .liquid-glass {
     position: relative;
     overflow: hidden;
-    /* Silkier blur and slight brightness for the glass feel */
-    backdrop-filter: blur(24px) brightness(1.1) url(#liquid-glass-filter) !important;
-    -webkit-backdrop-filter: blur(24px) brightness(1.1) url(#liquid-glass-filter) !important;
-
-    /* Subtle border + iPhone "Rim Light" effect at the top */
+    background: rgba(18, 18, 18, 0.7) !important;
+    backdrop-filter: blur(20px) brightness(1.1) url(#liquid-glass-filter) !important;
+    -webkit-backdrop-filter: blur(20px) brightness(1.1) url(#liquid-glass-filter) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-
-    /* Deep, soft shadow */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
-
-    /* Semi-transparent background to allow blur to work */
-    background: rgba(10, 10, 10, 0.8) !important;
+    border-radius: 1rem;
+    box-shadow: none !important;
+    /* Removendo sombra que "gruda" os elementos */
   }
 
 
@@ -173,7 +170,7 @@
     height: 100%;
     z-index: -1;
     overflow: hidden;
-    background: #000000;
+    background: #121212 !important;
   }
 
   .liquid-blob {
@@ -285,12 +282,15 @@
   .dashboard-glow {
     @apply transition-all duration-500 ease-in-out;
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; -> Removido para evitar que o bloco suma ao subir no hover */
+    margin-bottom: 2px;
+    isolation: isolate;
   }
 
   .dashboard-glow:hover {
     transform: translateY(-4px);
-    @apply shadow-2xl border-primary/30 bg-white/[0.05];
+    @apply shadow-[0_20px_40px_-15px_#000000b3] border-primary/30 bg-white/[0.05];
+    z-index: 10;
   }
 
   /* Enhanced animation for stats cards */

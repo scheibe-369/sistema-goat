@@ -3,6 +3,7 @@ import { AlertCard, type Alert } from "@/components/Dashboard/AlertCard";
 import { Card } from "@/components/ui/card";
 import { DollarSign, Users, TrendingUp, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Component as EtherealShadow } from "@/components/ui/etheral-shadow";
 
 import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
@@ -510,41 +511,10 @@ export default function Dashboard() {
   const PAGE_GAP = "gap-4 md:gap-5";
   const CARD = "liquid-glass dashboard-glow border-white/[0.05]";
   const SECTION_PAD = "p-5 md:p-6";
-  const MINI = "bg-black/50 backdrop-blur-md border border-white/5 rounded-2xl p-4";
-  const MINI_TIGHT = "bg-black/50 backdrop-blur-md border border-white/5 rounded-xl p-3";
-
-  const LiquidGlassFilter = () => (
-    <svg style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}>
-      <defs>
-        <filter id="liquid-glass-filter">
-          <feTurbulence
-            type="turbulence"
-            baseFrequency="0.008"
-            numOctaves="2"
-            result="turbulence"
-          >
-            <animate
-              attributeName="baseFrequency"
-              dur="80s"
-              values="0.008;0.012;0.008"
-              repeatCount="indefinite"
-            />
-          </feTurbulence>
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="turbulence"
-            scale="12"
-            xChannelSelector="R"
-            yChannelSelector="G"
-          />
-        </filter>
-      </defs>
-    </svg>
-  );
-
+  const MINI = "bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-4";
+  const MINI_TIGHT = "bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] rounded-xl p-3";
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in relative">
-      <LiquidGlassFilter />
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -595,12 +565,12 @@ export default function Dashboard() {
 
         <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Despesas (Mês)</p>
-          <p className="text-2xl font-bold text-red-400 tracking-tight">{formatCurrency(despesasMes)}</p>
+          <p className="text-2xl font-bold text-red-500 tracking-tight">{formatCurrency(despesasMes)}</p>
         </Card>
 
         <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Lucro (Mês)</p>
-          <p className={`text-2xl font-bold tracking-tight ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
+          <p className={`text-2xl font-bold tracking-tight ${lucroMes >= 0 ? "text-green-400" : "text-red-500"}`}>
             {formatCurrency(lucroMes)}
           </p>
         </Card>
@@ -670,11 +640,10 @@ export default function Dashboard() {
           <AlertCard className={cn(CARD, "p-4 h-full")} limit={10} alerts={alerts} />
         </div>
 
-        <Card className={`liquid-glass ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
+        <Card className={`liquid-glass ${SECTION_PAD} relative min-h-[520px]`}>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-goat-purple" />
                 <span className="text-white font-semibold text-base">Funil de Prospecção</span>
               </div>
               <p className="text-goat-gray-400 text-sm mt-1">
@@ -768,7 +737,6 @@ export default function Dashboard() {
         {/* Clientes Recentes */}
         <Card className={`${CARD} p-4 md:p-5`}>
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="w-5 h-5 text-goat-purple" />
             <h3 className="text-lg font-semibold text-white">Clientes Recentes</h3>
           </div>
 
@@ -776,7 +744,7 @@ export default function Dashboard() {
             {clients.slice(0, 4).map((client: any, index: number) => (
               <div
                 key={client.id}
-                className="flex items-center justify-between p-3 rounded-lg glass-effect border-white/[0.05] dashboard-glow"
+                className="flex items-center justify-between p-3 rounded-lg liquid-glass border-white/[0.05] dashboard-glow"
               >
                 <div className="min-w-0">
                   <p className="text-white text-sm font-medium truncate">{client.company}</p>
@@ -801,51 +769,51 @@ export default function Dashboard() {
 
         {/* Cards Futuros */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Ticket Médio</p>
             <p className="text-xl font-bold text-white">{formatCurrency(ticketMedioContratosAtivos)}</p>
             <p className="text-goat-gray-500 text-xs mt-1">Contratos ativos</p>
           </Card>
 
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Churn</p>
             <p className="text-xl font-bold text-white">{churnRate.toFixed(1)}%</p>
             <p className="text-goat-gray-500 text-xs mt-1">Taxa de cancelamento</p>
           </Card>
 
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Comparativo mensal</p>
-            <p className={`text-xl font-bold ${variacaoComparativoMensal >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <p className={`text-xl font-bold ${variacaoComparativoMensal >= 0 ? "text-green-400" : "text-red-500"}`}>
               {variacaoComparativoMensal >= 0 ? "+" : ""}
               {variacaoComparativoMensal.toFixed(1)}%
             </p>
             <p className="text-goat-gray-500 text-xs mt-1">vs mês anterior (faturamento geral)</p>
           </Card>
 
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Margem de lucro</p>
             <p className={`text-xl font-bold ${margemLucro > 40
               ? "text-green-400"
               : margemLucro >= 20 && margemLucro <= 40
                 ? "text-white"
-                : "text-red-400"
+                : "text-red-500"
               }`}>
               {margemLucro.toFixed(1)}%
             </p>
             <p className="text-goat-gray-500 text-xs mt-1">Meta ideal: 20-40%</p>
           </Card>
 
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Receita por hora</p>
             <p className="text-xl font-bold text-white">{formatCurrency(receitaPorHora)}</p>
             <p className="text-goat-gray-500 text-xs mt-1">Produtividade mensal ({horasTrabalhadasMes}h)</p>
           </Card>
 
-          <Card className="glass-effect border-white/[0.05] dashboard-glow p-4">
+          <Card className="liquid-glass border-white/[0.05] dashboard-glow p-4">
             <p className="text-goat-gray-400 text-xs mb-1">Concentração de receita</p>
             <p className={`text-xl font-bold ${concentracaoReceita <= 30
               ? "text-green-400"
-              : "text-red-400"
+              : "text-red-500"
               }`}>
               {concentracaoReceita.toFixed(1)}%
             </p>
@@ -855,6 +823,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

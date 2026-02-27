@@ -450,7 +450,7 @@ export default function LeadsKanban() {
 
             <div className="flex flex-row items-center gap-3">
               <Button
-                className="glass-effect hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
+                className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                 onClick={() => setIsTagsModalOpen(true)}
               >
                 <Settings className="w-4 h-4 mr-2" />
@@ -458,7 +458,7 @@ export default function LeadsKanban() {
               </Button>
 
               <Button
-                className="glass-effect hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
+                className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                 onClick={() => setIsAddStageModalOpen(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -568,7 +568,7 @@ export default function LeadsKanban() {
                         </Button>
                       </ContextMenuTrigger>
 
-                      <ContextMenuContent className="glass-effect border-white/[0.05]">
+                      <ContextMenuContent className="liquid-glass border-white/[0.05]">
                         <ContextMenuItem
                           onClick={() => handleEditStage(stage)}
                           className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"
@@ -610,7 +610,7 @@ export default function LeadsKanban() {
                                 <ContextMenu>
                                   <ContextMenuTrigger asChild>
                                     <Card
-                                      className={`glass-effect border-white/[0.05] p-3 sm:p-5 rounded-2xl dashboard-glow relative group ${snapshot.isDragging
+                                      className={`liquid-glass border-white/[0.05] p-3 sm:p-5 rounded-2xl dashboard-glow relative group ${snapshot.isDragging
                                         ? "border-primary/50 shadow-2xl scale-[1.02]"
                                         : ""
                                         }`}
@@ -685,7 +685,7 @@ export default function LeadsKanban() {
                                     </Card>
                                   </ContextMenuTrigger>
 
-                                  <ContextMenuContent className="glass-effect border-white/[0.05]">
+                                  <ContextMenuContent className="liquid-glass border-white/[0.05]">
                                     <ContextMenuItem
                                       onClick={() => handleEditLead(lead)}
                                       className="text-white data-[highlighted]:bg-goat-purple/80 data-[highlighted]:text-white"

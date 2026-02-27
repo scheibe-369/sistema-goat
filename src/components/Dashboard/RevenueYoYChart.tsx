@@ -207,7 +207,7 @@ export function RevenueYoYChart({
     };
   };
   return (
-    <Card className="glass-effect border-white/[0.05] p-6 dashboard-glow">
+    <Card className="liquid-glass border-white/[0.05] p-6 dashboard-glow">
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h3 className="text-sm font-bold text-white uppercase tracking-widest">{title}</h3>

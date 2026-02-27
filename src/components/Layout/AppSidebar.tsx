@@ -35,7 +35,7 @@ export function AppSidebar() {
         className={`
           fixed left-4 top-4 bottom-4 z-50
           flex flex-col items-center
-          glass-premium rounded-[2rem]
+          liquid-glass rounded-[2rem]
           px-2 py-8
           transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
           ${open ? "translate-x-0 opacity-100" : "-translate-x-[150%] opacity-0"}

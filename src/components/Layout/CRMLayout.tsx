@@ -6,7 +6,35 @@ interface CRMLayoutProps {
 
 export function CRMLayout({ children }: CRMLayoutProps) {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-[#121212] relative overflow-hidden">
+      {/* Global SVG Filter for Liquid Glass Effect */}
+      <svg style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}>
+        <defs>
+          <filter id="liquid-glass-filter">
+            <feTurbulence
+              type="turbulence"
+              baseFrequency="0.008"
+              numOctaves="2"
+              result="turbulence"
+            >
+              <animate
+                attributeName="baseFrequency"
+                dur="80s"
+                values="0.008;0.012;0.008"
+                repeatCount="indefinite"
+              />
+            </feTurbulence>
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="turbulence"
+              scale="12"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
       <div className="flex min-h-screen w-full relative z-10">
         <AppSidebar />
 
