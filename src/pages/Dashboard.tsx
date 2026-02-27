@@ -2,6 +2,7 @@ import { StatsCard } from "@/components/Dashboard/StatsCard";
 import { AlertCard, type Alert } from "@/components/Dashboard/AlertCard";
 import { Card } from "@/components/ui/card";
 import { DollarSign, Users, TrendingUp, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
@@ -21,6 +22,7 @@ import {
 } from "recharts";
 
 import { RevenueYoYChart, calculateRevenueKPIs } from "@/components/Dashboard/RevenueYoYChart";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const { data: clients = [] } = useClients();
@@ -506,13 +508,44 @@ export default function Dashboard() {
 
   // ===== Layout tokens (padronização) =====
   const PAGE_GAP = "gap-4 md:gap-5";
-  const CARD = "glass-effect border-white/[0.05] dashboard-glow";
+  const CARD = "liquid-glass dashboard-glow border-white/[0.05]";
   const SECTION_PAD = "p-5 md:p-6";
   const MINI = "bg-black/50 backdrop-blur-md border border-white/5 rounded-2xl p-4";
   const MINI_TIGHT = "bg-black/50 backdrop-blur-md border border-white/5 rounded-xl p-3";
 
+  const LiquidGlassFilter = () => (
+    <svg style={{ position: "absolute", width: 0, height: 0, pointerEvents: "none" }}>
+      <defs>
+        <filter id="liquid-glass-filter">
+          <feTurbulence
+            type="turbulence"
+            baseFrequency="0.008"
+            numOctaves="2"
+            result="turbulence"
+          >
+            <animate
+              attributeName="baseFrequency"
+              dur="80s"
+              values="0.008;0.012;0.008"
+              repeatCount="indefinite"
+            />
+          </feTurbulence>
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="turbulence"
+            scale="12"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
+
   return (
-    <div className="space-y-6 md:space-y-8 animate-fade-in">
+    <div className="space-y-6 md:space-y-8 animate-fade-in relative">
+      <LiquidGlassFilter />
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div className="space-y-1">
@@ -528,56 +561,56 @@ export default function Dashboard() {
           value={formatCurrency(monthlyRevenue)}
           icon={DollarSign}
           description="Contratos ativos"
-          className="dashboard-glow p-4"
+          className={cn(CARD, "p-4")}
         />
         <StatsCard
           title="ARR (Anual)"
           value={formatCurrency(arr)}
           icon={TrendingUp}
           description="MRR × 12"
-          className="dashboard-glow p-4"
+          className={cn(CARD, "p-4")}
         />
         <StatsCard
           title="Clientes Ativos"
           value={activeClients.toString()}
           icon={Users}
           description="Com tag Ativo"
-          className="dashboard-glow p-4"
+          className={cn(CARD, "p-4")}
         />
         <StatsCard
           title="Contratos a vencer (30 dias)"
           value={expiringIn30Days.toString()}
           icon={Calendar}
           description="Risco de churn"
-          className="dashboard-glow p-4"
+          className={cn(CARD, "p-4")}
         />
       </div>
 
       {/* SAÚDE FINANCEIRA (unidades) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Receita (Mês)</p>
           <p className="text-2xl font-bold text-white tracking-tight">{formatCurrency(receitasMes)}</p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Despesas (Mês)</p>
           <p className="text-2xl font-bold text-red-400 tracking-tight">{formatCurrency(despesasMes)}</p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Lucro (Mês)</p>
           <p className={`text-2xl font-bold tracking-tight ${lucroMes >= 0 ? "text-green-400" : "text-red-400"}`}>
             {formatCurrency(lucroMes)}
           </p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">A Receber</p>
           <p className="text-2xl font-bold text-amber-400 tracking-tight">{formatCurrency(aReceberMesAtual)}</p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Vencidos</p>
           <p className="text-2xl font-bold text-red-500 tracking-tight">{formatCurrency(vencidos)}</p>
         </Card>
@@ -585,26 +618,26 @@ export default function Dashboard() {
 
       {/* KPIs Ano a Ano */}
       <div className={`grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4`}>
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Total {revenueKPIs.currentYear}</p>
           <p className="text-2xl font-bold text-white tracking-tight">{formatCurrency(revenueKPIs.totalCurrent)}</p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Recebido {revenueKPIs.currentYear}</p>
           <p className="text-2xl font-bold text-white tracking-tight">
             {formatCurrency(revenueKPIs.totalPaidCurrentYear)}
           </p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">A Receber {revenueKPIs.currentYear}</p>
           <p className="text-2xl font-bold text-white tracking-tight">
             {formatCurrency(revenueKPIs.totalPendingNotOverdueCurrentYear)}
           </p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Crescimento YoY</p>
           <p className="text-2xl font-bold text-white tracking-tight">
             {revenueKPIs.yoyPct === null
@@ -613,7 +646,7 @@ export default function Dashboard() {
           </p>
         </Card>
 
-        <Card className="glass-effect border-white/[0.05] p-5">
+        <Card className="liquid-glass p-5">
           <p className="text-white/40 text-[10px] uppercase tracking-wider mb-2">Mensal vs Ano Anterior</p>
           <p className={`text-2xl font-bold tracking-tight ${variacaoMesAnoPassado === null
             ? "text-white"
@@ -634,10 +667,10 @@ export default function Dashboard() {
       {/* ALERTAS + FUNIL */}
       <div className={`grid grid-cols-1 lg:grid-cols-2 ${PAGE_GAP} items-stretch`}>
         <div className="min-h-[520px]">
-          <AlertCard className="dashboard-glow p-4 h-full" limit={10} alerts={alerts} />
+          <AlertCard className={cn(CARD, "p-4 h-full")} limit={10} alerts={alerts} />
         </div>
 
-        <Card className={`glass-effect border-white/[0.05] ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
+        <Card className={`liquid-glass ${SECTION_PAD} relative overflow-hidden min-h-[520px]`}>
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <div className="flex items-center gap-2">

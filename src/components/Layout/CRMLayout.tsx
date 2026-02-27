@@ -6,13 +6,7 @@ interface CRMLayoutProps {
 
 export function CRMLayout({ children }: CRMLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#080808] relative overflow-hidden">
-      {/* Liquid Background Blobs */}
-      <div className="liquid-container">
-        <div className="liquid-blob blob-1" />
-        <div className="liquid-blob blob-2" />
-      </div>
-
+    <div className="min-h-screen bg-black relative overflow-hidden">
       <div className="flex min-h-screen w-full relative z-10">
         <AppSidebar />
 

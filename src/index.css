@@ -146,6 +146,25 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
+  .liquid-glass {
+    position: relative;
+    overflow: hidden;
+    /* Silkier blur and slight brightness for the glass feel */
+    backdrop-filter: blur(24px) brightness(1.1) url(#liquid-glass-filter) !important;
+    -webkit-backdrop-filter: blur(24px) brightness(1.1) url(#liquid-glass-filter) !important;
+
+    /* Subtle border + iPhone "Rim Light" effect at the top */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+
+    /* Deep, soft shadow */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+
+    /* Semi-transparent background to allow blur to work */
+    background: rgba(10, 10, 10, 0.8) !important;
+  }
+
+
   .liquid-container {
     position: fixed;
     top: 0;
