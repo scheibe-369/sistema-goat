@@ -29,16 +29,16 @@ export function DatePicker({ date, setDate, className, placeholder = "Selecione 
                     type="button"
                     variant={"outline"}
                     className={cn(
-                        "w-full justify-start text-left font-normal bg-goat-gray-700 border-goat-gray-600 text-white hover:bg-goat-gray-600 hover:text-white transition-all rounded-xl h-10",
-                        !date && "text-white/40",
+                        "w-full justify-start text-left font-normal bg-white/[0.03] border-white/[0.05] text-white/70 hover:bg-white/[0.06] hover:border-white/[0.1] hover:text-white transition-all rounded-xl h-11 px-4",
+                        !date && "text-white/30",
                         className
                     )}
                 >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-goat-purple" />
+                    <CalendarIcon className="mr-2 h-4 w-4 text-primary opacity-60" />
                     {date && isValid(date) ? format(date, "PPP", { locale: ptBR }) : <span>{placeholder}</span>}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-goat-gray-800 border-goat-gray-700 z-[9999999]" align="start">
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 liquid-glass border-white/[0.1] z-[9999999] shadow-2xl backdrop-blur-3xl" align="start">
                 <Calendar
                     mode="single"
                     selected={date}

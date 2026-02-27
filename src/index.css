@@ -410,8 +410,8 @@
   color: white !important;
   border-radius: 1.5rem !important;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5) !important;
-  padding: 10px !important;
-  overflow: hidden;
+  padding: 10px 12px !important;
+  overflow: visible !important;
 }
 
 .SelectItem,
@@ -422,7 +422,7 @@
   color: white !important;
   background: transparent !important;
   border-radius: 1rem !important;
-  margin: 4px 6px !important;
+  margin: 4px 0 !important;
   padding: 12px 14px !important;
   position: relative;
   /* Transição mais orgânica e rápida - estilo mola */
@@ -452,9 +452,9 @@
     0 8px 20px rgba(0, 0, 0, 0.3),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   color: white !important;
-  transform: scale(1.03) !important;
+  transform: scale(1.02) !important;
   outline: none !important;
-  z-index: 2;
+  z-index: 10;
 }
 
 .SelectItem[data-state="checked"] {

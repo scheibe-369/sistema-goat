@@ -97,7 +97,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
         </DialogHeader>
         <div className="space-y-6 pt-2">
           {/* Create New Tag */}
-          <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-5 space-y-4">
+          <div className="liquid-glass border-white/[0.05] rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-white">Nova Tag</h4>
               {!isCreating && (
@@ -166,7 +166,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
           </div>
 
           {/* Existing Tags */}
-          <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-5">
+          <div className="liquid-glass border-white/[0.05] rounded-2xl p-5">
             <h4 className="font-semibold text-white mb-4">Tags Existentes</h4>
             {tags.length === 0 ? (
               <div className="py-8 text-center bg-white/[0.01] border border-dashed border-white/[0.05] rounded-xl">
@@ -175,7 +175,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
             ) : (
               <div className="grid grid-cols-1 gap-3">
                 {tags.map((tag) => (
-                  <div key={tag.id} className="group flex items-center justify-between p-4 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] rounded-2xl transition-all">
+                  <div key={tag.id} className="group flex items-center justify-between p-4 liquid-glass hover:bg-white/[0.02] border border-white/[0.05] rounded-2xl transition-all">
                     {editingTag?.id === tag.id ? (
                       <div className="flex flex-col gap-4 w-full">
                         <div className="flex items-center gap-3">
@@ -219,25 +219,29 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
                           <div className={`w-3 h-3 rounded-full ${tag.color}`} />
                           <span className="font-semibold text-white/90">{tag.name}</span>
                         </div>
-                        <div className="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            onClick={() => handleEditTag(tag)}
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-3 rounded-xl hover:bg-primary/20 hover:text-primary transition-colors font-semibold"
-                          >
-                            <Edit className="w-3.5 h-3.5 mr-1.5" />
-                            Editar
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteTag(tag.id)}
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-3 rounded-xl hover:bg-red-500/20 hover:text-red-400 transition-colors font-semibold"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-1.5 text-red-400" />
-                            Excluir
-                          </Button>
+                        <div className="flex gap-2 transition-opacity">
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              onClick={() => handleEditTag(tag)}
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-3 rounded-xl font-semibold text-white/80 hover:bg-transparent hover:text-white/80"
+                            >
+                              <Edit className="w-3.5 h-3.5 mr-1.5 opacity-70" />
+                              Editar
+                            </Button>
+                          </motion.div>
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              onClick={() => handleDeleteTag(tag.id)}
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 px-3 rounded-xl font-semibold text-red-500/80 hover:bg-transparent hover:text-red-500/80"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-1.5 text-red-500/80" />
+                              Excluir
+                            </Button>
+                          </motion.div>
                         </div>
                       </>
                     )}

@@ -74,7 +74,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-80 min-w-[10rem] overflow-hidden rounded-2xl border border-white/[0.1] bg-[#121212]/80 text-white shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-4 data-[side=left]:slide-in-from-right-4 data-[side=right]:slide-in-from-left-4 data-[side=top]:slide-in-from-bottom-4",
+        "relative z-50 max-h-80 min-w-[10rem] rounded-2xl border border-white/[0.1] bg-[#121212]/80 text-white shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-4 data-[side=left]:slide-in-from-right-4 data-[side=right]:slide-in-from-left-4 data-[side=top]:slide-in-from-bottom-4",
         position === "popper" &&
         "data-[side=bottom]:translate-y-2 data-[side=left]:-translate-x-2 data-[side=right]:translate-x-2 data-[side=top]:-translate-y-2",
         className
@@ -84,7 +84,7 @@ const SelectContent = React.forwardRef<
     >
       <SelectPrimitive.Viewport
         className={cn(
-          "p-2 overflow-y-auto custom-scrollbar",
+          "p-3 overflow-y-auto custom-scrollbar",
           position === "popper" &&
           "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
@@ -115,7 +115,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-xl py-3 pl-4 pr-3 text-sm text-white/70 outline-none transition-all duration-200 focus:bg-white/[0.08] focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-white/[0.08] hover:text-white/100 scale-[0.98] hover:scale-100",
+      "relative flex w-full cursor-default select-none items-center rounded-xl py-3 pl-4 pr-3 text-sm text-white/70 outline-none transition-all duration-200 focus:bg-white/[0.08] focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-white/[0.08] hover:text-white/100",
       className
     )}
     {...props}
