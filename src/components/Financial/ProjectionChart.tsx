@@ -127,75 +127,85 @@ export function ProjectionChart({ contracts = [], activeContractsCount }: Projec
   // --- FIM DA LÓGICA ---
 
   return (
-    <Card className="premium-card p-6 animate-premium-in">
-      <h3 className="text-lg font-semibold text-white mb-1">Projeção de Faturamento Anual</h3>
-      <p className="text-goat-gray-400 text-sm mb-8 leading-relaxed">Previsão de receita com base nos contratos atuais para os próximos 12 meses.</p>
+    <Card className="liquid-glass dashboard-glow border-white/5 p-8 animate-premium-in">
+      <h3 className="text-xl font-bold text-white tracking-tight mb-1">Projeção de Faturamento Anual</h3>
+      <p className="text-white/30 text-sm mb-8 leading-relaxed">Previsão de receita com base nos contratos atuais para os próximos 12 meses.</p>
 
       {/* KPIs do Gráfico */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 mt-2">
-        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Projeção Total (12 meses)</p>
-          <p className="text-2xl font-bold text-white tabular-nums">{formatCurrency(totalProjection)}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 overflow-hidden">
+        <div className="liquid-glass p-5 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all">
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-2">Projeção Total (12 meses)</p>
+          <p className="text-3xl font-black text-white tabular-nums tracking-tighter">{formatCurrency(totalProjection)}</p>
         </div>
-        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Média Mensal</p>
-          <p className="text-2xl font-bold text-white tabular-nums">{formatCurrency(monthlyAverage)}</p>
+        <div className="liquid-glass p-5 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all">
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-2">Média Mensal</p>
+          <p className="text-3xl font-black text-white tabular-nums tracking-tighter">{formatCurrency(monthlyAverage)}</p>
         </div>
-        <div className="premium-glass p-4 rounded-xl border-white/[0.03] hover:border-primary/20 transition-colors">
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mb-1">Contratos Ativos (Hoje)</p>
-          <p className="text-2xl font-bold text-white tabular-nums">{activeContractsNow}</p>
+        <div className="liquid-glass p-5 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all">
+          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mb-2">Contratos Ativos</p>
+          <p className="text-3xl font-black text-white tabular-nums tracking-tighter">{activeContractsNow}</p>
         </div>
       </div>
 
       {/* Gráfico */}
-      <div className="w-full h-[350px]">
+      <div className="w-full h-[400px]">
         {data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorProjection" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4} />
+                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.2} />
                   <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" vertical={false} />
               <XAxis
                 dataKey="name"
-                stroke="#A3A3A3"
-                fontSize={12}
+                stroke="rgba(255, 255, 255, 0.2)"
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
+                dy={15}
               />
               <YAxis
-                stroke="#A3A3A3"
-                fontSize={12}
+                stroke="rgba(255, 255, 255, 0.2)"
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => `R$${Number(value) / 1000}k`}
+                dx={-10}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#171717', // bg-neutral-900
-                  borderColor: '#404040', // border-neutral-700
+                  backgroundColor: 'rgba(23, 23, 23, 0.8)',
+                  backdropFilter: 'blur(16px)',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
                   color: '#FFFFFF',
-                  borderRadius: '0.5rem'
+                  borderRadius: '1rem',
+                  borderWidth: '1px',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
                 }}
-                labelStyle={{ color: '#A3A3A3' }} // text-neutral-400
+                itemStyle={{ color: '#FFFFFF', fontWeight: 'bold' }}
+                labelStyle={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                 formatter={(value) => [formatCurrency(Number(value)), 'Faturamento']}
               />
               <Area
                 type="monotone"
                 dataKey="Projeção"
-                stroke="#8B5CF6" // Cor da linha (roxo)
-                strokeWidth={2}
+                stroke="#8B5CF6"
+                strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#colorProjection)"
+                animationDuration={2000}
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-goat-gray-400">Nenhum dado disponível para exibir</p>
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center opacity-20">
+              <TrendingUp className="w-8 h-8 text-white" />
+            </div>
+            <p className="text-white/20 text-sm font-medium">Nenhum dado disponível para exibir</p>
           </div>
         )}
       </div>

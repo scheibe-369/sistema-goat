@@ -12,6 +12,8 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { useFinancialEntries } from "@/hooks/useFinancialEntries";
 import { DeleteExpenseDialog } from "@/components/Financial/DeleteExpenseDialog";
 import { useState, useMemo, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export default function Financial() {
   const { data: clients = [] } = useClients();
@@ -286,42 +288,47 @@ export default function Financial() {
 
       {/* Pagamentos em Atraso */}
       {overdueEntries.length > 0 && (
-        <Card className="bg-red-950 border-red-700 mb-6">
-          <div className="p-6 flex items-center gap-2">
-            <AlertCircle className="text-red-400 mr-2" />
-            <h3 className="text-lg font-semibold text-red-200">Pagamentos em Atraso</h3>
+        <Card className="liquid-glass border-red-500/20 shadow-[0_20px_50px_rgba(239,68,68,0.1)] overflow-hidden">
+          <div className="p-6 flex items-center gap-3 border-b border-red-500/10 bg-red-500/[0.02]">
+            <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/10">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <h3 className="text-xl font-bold text-red-200 tracking-tight">Pagamentos em Atraso</h3>
           </div>
-          <div className="p-6 pt-0">
+          <div className="p-6 space-y-4">
             {overdueEntries.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-red-900/50 border border-red-700 mb-4">
-                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+              <div key={entry.id} className="flex items-center justify-between p-5 rounded-2xl liquid-glass border border-white/5 hover:bg-white/[0.04] transition-all">
+                <div className="flex-1 grid grid-cols-5 gap-6 items-center">
                   <div>
-                    <h4 className="text-white font-medium mb-1">{entry.name}</h4>
-                    <div className="mt-1">
-                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-600 text-white">Em atraso</span>
-                    </div>
+                    <h4 className="text-white font-bold mb-1 tracking-tight">{entry.name}</h4>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-200 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(Number(entry.amount))}</p>
+                    <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Valor</p>
+                    <p className="text-white font-bold text-lg">{formatCurrency(Number(entry.amount))}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-200 text-sm">Referência</p>
-                    <p className="text-white">{entry.reference}</p>
+                    <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Referência</p>
+                    <p className="text-white/80 font-medium">{entry.reference}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-red-200 text-sm">Vencimento</p>
-                    <p className="text-white">{formatDateBR(entry.due_date)}</p>
+                    <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Vencimento</p>
+                    <p className="text-white/80 font-medium">{formatDateBR(entry.due_date)}</p>
                   </div>
                   <div className="flex justify-center">
-                    <Button
-                      onClick={() => handleMarkAsPaid(entry.id)}
-                      disabled={isMarkingAsPaid}
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                      size="sm"
+                    <motion.div
+                      whileHover={{ scale: 1.05, translateY: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     >
-                      Confirmar
-                    </Button>
+                      <Button
+                        onClick={() => handleMarkAsPaid(entry.id)}
+                        disabled={isMarkingAsPaid}
+                        className="liquid-glass text-green-500 hover:bg-white/10 border border-white/5 rounded-xl h-11 px-8 font-bold transition-all"
+                        size="sm"
+                      >
+                        Confirmar
+                      </Button>
+                    </motion.div>
                   </div>
                 </div>
               </div>
@@ -331,17 +338,40 @@ export default function Financial() {
       )}
 
       {/* Lançamentos Financeiros */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700">
-        <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
+      <Card className="liquid-glass border-white/5 dashboard-glow overflow-hidden">
+        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">Lançamentos Financeiros</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Todos os lançamentos do sistema</p>
+            <h3 className="text-xl font-bold text-white tracking-tight">Lançamentos Financeiros</h3>
+            <p className="text-white/30 text-sm mt-1">Todos os lançamentos do sistema</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setStatusFilter('all')} className={`${statusFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setStatusFilter('pending')} className={`${statusFilter === 'pending' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Em Aberto</Button>
-            <Button onClick={() => setStatusFilter('paid')} className={`${statusFilter === 'paid' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Pagos</Button>
-            <Button onClick={() => setStatusFilter('currentMonth')} className={`${statusFilter === 'currentMonth' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Mês Atual</Button>
+          <div className="flex flex-wrap gap-2">
+            {/* Filter buttons */}
+            {[
+              { id: 'all', label: 'Todos' },
+              { id: 'pending', label: 'Em Aberto' },
+              { id: 'paid', label: 'Pagos' },
+              { id: 'currentMonth', label: 'Mês Atual' }
+            ].map((btn) => (
+              <motion.div
+                key={btn.id}
+                whileHover={{ scale: 1.05, translateY: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button
+                  onClick={() => setStatusFilter(btn.id as any)}
+                  className={cn(
+                    "h-10 px-5 rounded-xl transition-all font-bold text-xs tracking-tight w-full",
+                    statusFilter === btn.id
+                      ? "liquid-glass text-primary border-primary/20 shadow-[0_0_15px_rgba(104,41,192,0.1)]"
+                      : "liquid-glass text-white/40 hover:text-white hover:bg-white/5 border-white/5"
+                  )}
+                  size="sm"
+                >
+                  {btn.label}
+                </Button>
+              </motion.div>
+            ))}
           </div>
         </div>
         <div className="p-6">
@@ -360,40 +390,41 @@ export default function Financial() {
               {normalEntries.map((entry) => {
                 const statusTag = getStatusTag(entry);
                 return (
-                  <div key={entry.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                    <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                  <div key={entry.id} className="flex items-center justify-between p-5 rounded-2xl liquid-glass border border-white/5 hover:bg-white/[0.04] transition-all group">
+                    <div className="flex-1 grid grid-cols-5 gap-6 items-center">
                       <div>
-                        <h4 className="text-white font-medium mb-1">{entry.name}</h4>
-                        <div className="mt-1">
-                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${statusTag.color} text-white`}>
-                            {statusTag.label}
-                          </span>
-                        </div>
+                        <h4 className="text-white font-bold mb-1 tracking-tight">{entry.name}</h4>
                       </div>
                       <div className="text-center">
-                        <p className="text-goat-gray-400 text-sm">Valor</p>
-                        <p className="text-white font-semibold">{formatCurrency(Number(entry.amount))}</p>
+                        <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Valor</p>
+                        <p className="text-white font-bold text-lg">{formatCurrency(Number(entry.amount))}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-goat-gray-400 text-sm">Referência</p>
-                        <p className="text-white">{entry.reference}</p>
+                        <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Referência</p>
+                        <p className="text-white/80 font-medium">{entry.reference}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-goat-gray-400 text-sm">Vencimento</p>
-                        <p className="text-white">{formatDateBR(entry.due_date)}</p>
+                        <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Vencimento</p>
+                        <p className="text-white/80 font-medium">{formatDateBR(entry.due_date)}</p>
                       </div>
                       <div className="flex justify-center">
                         {entry.status === 'pending' ? (
-                          <Button
-                            onClick={() => handleMarkAsPaid(entry.id)}
-                            disabled={isMarkingAsPaid}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                            size="sm"
+                          <motion.div
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
                           >
-                            Confirmar
-                          </Button>
+                            <Button
+                              onClick={() => handleMarkAsPaid(entry.id)}
+                              disabled={isMarkingAsPaid}
+                              className="liquid-glass text-green-500 hover:bg-white/10 border border-white/5 rounded-xl h-11 px-8 font-bold transition-all"
+                              size="sm"
+                            >
+                              Confirmar
+                            </Button>
+                          </motion.div>
                         ) : (
-                          <Button disabled className="bg-green-800 text-white" size="sm">Pago</Button>
+                          <span className="text-green-500/50 font-bold text-sm tracking-tight">Pago</span>
                         )}
                       </div>
                     </div>
@@ -406,16 +437,38 @@ export default function Financial() {
       </Card>
 
       {/* Despesas Section */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700">
-        <div className="p-6 border-b border-goat-gray-700 flex items-center justify-between">
+      <Card className="liquid-glass border-white/5 dashboard-glow overflow-hidden">
+        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-white">Despesas</h3>
-            <p className="text-goat-gray-400 text-sm mt-1">Todas as despesas do sistema</p>
+            <h3 className="text-xl font-bold text-white tracking-tight">Despesas</h3>
+            <p className="text-white/30 text-sm mt-1">Todas as despesas do sistema</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setExpenseFilter('all')} className={`${expenseFilter === 'all' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Todos</Button>
-            <Button onClick={() => setExpenseFilter('currentMonth')} className={`${expenseFilter === 'currentMonth' ? 'bg-goat-purple text-white' : 'bg-transparent text-white border border-goat-gray-600'}`} size="sm">Mês Atual</Button>
-            <ExpenseModal onAddExpense={handleAddExpense} />
+          <div className="flex flex-wrap gap-2">
+            {/* Filter buttons */}
+            {[
+              { id: 'all', label: 'Todos' },
+              { id: 'currentMonth', label: 'Mês Atual' }
+            ].map((btn) => (
+              <motion.div
+                key={btn.id}
+                whileHover={{ scale: 1.05, translateY: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button
+                  onClick={() => setExpenseFilter(btn.id as any)}
+                  className={cn(
+                    "h-10 px-5 rounded-xl transition-all font-bold text-xs tracking-tight w-full",
+                    expenseFilter === btn.id
+                      ? "liquid-glass text-primary border-primary/20 shadow-[0_0_15px_rgba(104,41,192,0.1)]"
+                      : "liquid-glass text-white/40 hover:text-white hover:bg-white/5 border-white/5"
+                  )}
+                  size="sm"
+                >
+                  {btn.label}
+                </Button>
+              </motion.div>
+            ))}
           </div>
         </div>
         <div className="p-6">
@@ -445,21 +498,21 @@ export default function Financial() {
             }
 
             return (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredExpenses.map((expense) => (
-                  <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-goat-gray-900/50 border border-goat-gray-700">
-                    <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+                  <div key={expense.id} className="flex items-center justify-between p-5 rounded-2xl liquid-glass border border-white/5 hover:bg-white/[0.04] transition-all group">
+                    <div className="flex-1 grid grid-cols-5 gap-6 items-center">
                       <div>
-                        <h4 className="text-white font-medium mb-1">{expense.description}</h4>
-                        <p className="text-goat-gray-400 text-sm">{expense.category}</p>
+                        <h4 className="text-white font-bold mb-1 tracking-tight">{expense.description}</h4>
+                        <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">{expense.category}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-goat-gray-400 text-xs">Data</p>
-                        <p className="text-white text-base">{formatDateBR(expense.date)}</p>
+                        <p className="text-white/30 text-[10px] uppercase font-black tracking-widest mb-1">Data</p>
+                        <p className="text-white font-medium">{formatDateBR(expense.date)}</p>
                       </div>
                       <div className="text-center">
                         {expense.is_recurring ? (
-                          <Badge className="bg-goat-purple text-white rounded-md">
+                          <Badge className="bg-white/5 text-white/60 border border-white/10 rounded-lg py-1 px-3">
                             {expense.recurrence_type === 'monthly' && 'Mensal'}
                             {expense.recurrence_type === 'yearly' && 'Anual'}
                             {expense.recurrence_type === 'quarterly' && 'Trimestral'}
@@ -469,41 +522,48 @@ export default function Financial() {
                         ) : null}
                       </div>
                       <div className="text-center">
-                        <p className="text-white font-semibold text-lg">{formatCurrency(Number(expense.amount))}</p>
-                        <div className="mt-1">
-                          <Badge className={`${expense.status === 'paid' ? 'bg-green-600' : 'bg-yellow-600'} text-white rounded-md`}>
-                            {expense.status === 'paid' ? 'Pago' : 'Pendente'}
-                          </Badge>
-                        </div>
+                        <p className="text-white font-bold text-xl tracking-tight">{formatCurrency(Number(expense.amount))}</p>
                       </div>
-                      <div className="flex justify-center gap-2">
+                      <div className="flex justify-center gap-3">
                         {expense.status === 'pending' ? (
+                          <motion.div
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          >
+                            <Button
+                              onClick={() => handlePayExpense(expense.id)}
+                              disabled={isPaying}
+                              className="liquid-glass text-green-500 hover:bg-white/10 border border-white/5 rounded-xl h-11 px-6 font-bold transition-all"
+                              size="sm"
+                            >
+                              Pagar
+                            </Button>
+                          </motion.div>
+                        ) : (
+                          <span className="text-green-500/50 font-bold text-sm tracking-tight">Pago</span>
+                        )}
+                        <motion.div
+                          whileHover={{ scale: 1.05, translateY: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
                           <Button
-                            onClick={() => handlePayExpense(expense.id)}
-                            disabled={isPaying}
-                            className="bg-green-600 hover:bg-green-700 text-white rounded-md px-6 py-2"
+                            onClick={() => handleDeleteExpense(expense.id, expense.description)}
+                            disabled={isDeleting}
+                            className="liquid-glass text-red-500 hover:bg-white/10 border border-white/5 rounded-xl h-11 px-6 font-bold transition-all"
                             size="sm"
                           >
-                            {isPaying ? 'Pagando...' : 'Pagar'}
+                            Excluir
                           </Button>
-                        ) : (
-                          <Button disabled className="bg-green-800 text-white rounded-md px-6 py-2" size="sm">Pago</Button>
-                        )}
-                        <Button
-                          onClick={() => handleDeleteExpense(expense.id, expense.description)}
-                          disabled={isDeleting}
-                          className="bg-red-600 hover:bg-red-700 text-white rounded-md px-6 py-2"
-                          size="sm"
-                        >
-                          {isDeleting ? 'Excluindo...' : 'Excluir'}
-                        </Button>
+                        </motion.div>
                       </div>
                     </div>
                   </div>
                 ))}
-                <div className="flex justify-between items-center mt-6">
-                  <span className="text-goat-gray-400 font-normal text-lg">Total de Despesas Pendentes:</span>
-                  <span className="text-white font-normal text-lg">{formatCurrency(filteredExpenses.filter(e => e.status === 'pending').reduce((acc, e) => acc + Number(e.amount), 0))}</span>
+                <div className="flex justify-between items-center mt-6 p-6 rounded-2xl liquid-glass border border-white/5">
+                  <span className="text-white/40 font-bold uppercase tracking-widest text-xs">Total de Despesas Pendentes:</span>
+                  <span className="text-white font-black text-2xl tracking-tighter">{formatCurrency(filteredExpenses.filter(e => e.status === 'pending').reduce((acc, e) => acc + Number(e.amount), 0))}</span>
                 </div>
               </div>
             );
