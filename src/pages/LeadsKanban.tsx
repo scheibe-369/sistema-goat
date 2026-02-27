@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -445,65 +446,76 @@ export default function LeadsKanban() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="space-y-1">
               <h1 className="text-4xl font-bold text-white tracking-tight">Pipeline</h1>
-              <p className="text-white/40 text-sm">Gerencie seus fluxos de vendas com facilidade</p>
             </div>
 
             <div className="flex flex-row items-center gap-3">
-              <Button
-                className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
-                onClick={() => setIsTagsModalOpen(true)}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                {isMobile ? "Tags" : "Gerenciar Tags"}
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
+                  onClick={() => setIsTagsModalOpen(true)}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  {isMobile ? "Tags" : "Gerenciar Tags"}
+                </Button>
+              </motion.div>
 
-              <Button
-                className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
-                onClick={() => setIsAddStageModalOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {isMobile ? "Etapa" : "Nova Etapa"}
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
+                  onClick={() => setIsAddStageModalOpen(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {isMobile ? "Etapa" : "Nova Etapa"}
+                </Button>
+              </motion.div>
 
-              <Button
-                className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
-                onClick={() => setIsNewLeadModalOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {isMobile ? "Lead" : "Novo Lead"}
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
+                  onClick={() => setIsNewLeadModalOpen(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {isMobile ? "Lead" : "Novo Lead"}
+                </Button>
+              </motion.div>
             </div>
           </div>
 
           <Card
-            className="pr-3 pt-3 pb-3 sm:pr-4 sm:pt-4 sm:pb-4 pl-0"
-            style={{ backgroundColor: "#080808", border: "none", boxShadow: "none" }}
+            className="liquid-glass border-white/[0.05] px-4 py-3 sm:px-6 shadow-2xl"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-              <span className="text-white font-medium text-sm sm:text-base">Filtros:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+              <span className="text-white/60 font-semibold text-xs sm:text-sm uppercase tracking-wider">Filtros:</span>
               <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${activeFilter === "all" ? "bg-goat-purple border-goat-purple" : ""
-                    }`}
-                  onClick={() => setActiveFilter("all")}
-                >
-                  Todos os grupos
-                </Button>
-
-                {tags.map((tag: Tag) => (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
-                    key={tag.id}
                     variant="outline"
                     size="sm"
-                    className={`text-xs sm:text-sm text-white border-goat-gray-600 hover:bg-goat-purple/80 hover:text-white focus:text-white ${activeFilter === tag.name ? "bg-goat-purple border-goat-purple" : ""
+                    className={`h-9 px-4 rounded-xl text-xs sm:text-sm transition-all duration-300 border-white/5 ${activeFilter === "all"
+                      ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)]"
+                      : "bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white"
                       }`}
-                    onClick={() => setActiveFilter(tag.name)}
+                    onClick={() => setActiveFilter("all")}
                   >
-                    <div className={`w-2 h-2 rounded-full ${tag.color} mr-1 sm:mr-2`} />
-                    {tag.name}
+                    Todos os grupos
                   </Button>
+                </motion.div>
+
+                {tags.map((tag: Tag) => (
+                  <motion.div key={tag.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`h-9 px-4 rounded-xl text-xs sm:text-sm transition-all duration-300 border-white/5 ${activeFilter === tag.name
+                        ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)]"
+                        : "bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white"
+                        }`}
+                      onClick={() => setActiveFilter(tag.name)}
+                    >
+                      <div className={`w-2 h-2 rounded-full ${tag.color} mr-2 shadow-[0_0_8px_currentColor]`} />
+                      {tag.name}
+                    </Button>
+                  </motion.div>
                 ))}
               </div>
             </div>
