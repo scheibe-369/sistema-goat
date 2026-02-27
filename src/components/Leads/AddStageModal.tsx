@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface AddStageModalProps {
   open: boolean;
@@ -52,17 +53,17 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">Adicionar Nova Etapa</DialogTitle>
-          <DialogDescription className="text-goat-gray-400">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-white">Adicionar Nova Etapa</DialogTitle>
+          <DialogDescription className="text-white/40">
             Crie uma nova etapa para organizar seus leads
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="stage-name" className="text-white">
+        <form onSubmit={handleSubmit} className="space-y-6 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="stage-name" className="text-white/70 text-sm font-medium">
               Nome da Etapa *
             </Label>
             <Input
@@ -70,15 +71,15 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
               value={stageName}
               onChange={(e) => setStageName(e.target.value)}
               placeholder="Ex: Negociação, Fechamento..."
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
               required
             />
           </div>
 
-          <div>
-            <Label className="text-white">Cor da Etapa</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Cor da Etapa</Label>
             <Select value={selectedColor} onValueChange={setSelectedColor}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white/[0.03] border-white/[0.05] h-11 rounded-xl text-white/70">
                 <SelectValue>
                   {getColorSelected()}
                 </SelectValue>
@@ -86,7 +87,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
               <SelectContent>
                 {colorOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-3 font-medium">
                       <span className={`w-3 h-3 rounded-full ${option.dot}`} />
                       {option.name}
                     </span>
@@ -96,20 +97,24 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
             </Select>
           </div>
 
-          <DialogFooter className="gap-2 pt-2 flex-row-reverse flex">
-            <Button
-              type="submit"
-              className="flex-1 bg-goat-purple hover:bg-goat-purple/80 text-white text-lg font-semibold h-12 border-0"
-            >
-              Adicionar
-            </Button>
-            <Button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold h-12 border-0"
-            >
-              Cancelar
-            </Button>
+          <DialogFooter className="gap-3 pt-2 flex-row-reverse flex">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90 text-white w-full h-12 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] font-bold text-base"
+              >
+                Adicionar
+              </Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="bg-white/[0.05] hover:bg-white/10 text-white/70 w-full h-12 rounded-2xl border border-white/5 font-medium transition-all text-base"
+              >
+                Cancelar
+              </Button>
+            </motion.div>
           </DialogFooter>
         </form>
       </DialogContent>

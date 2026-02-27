@@ -358,25 +358,22 @@
      ✅ DROPDOWN E SELECT STYLING - NOVA SEÇÃO
      =============================================== */
   .dropdown-content {
-    background-color: #404040 !important;
-    border-color: #525252 !important;
+    @apply liquid-glass;
     min-width: var(--radix-dropdown-menu-trigger-width) !important;
     width: var(--radix-dropdown-menu-trigger-width) !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-    position: relative !important;
-    left: 0 !important;
-    right: auto !important;
-    margin: 4px 0 0 0 !important;
-    transform: none !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+    padding: 6px !important;
   }
 
   .dropdown-item {
     color: white !important;
     background-color: transparent !important;
+    border-radius: 0.75rem !important;
+    transition: all 0.2s ease !important;
   }
 
   .dropdown-item:hover {
-    background-color: #525252 !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
   }
 
 
@@ -404,42 +401,65 @@
 [data-radix-select-content-wrapper],
 [data-state="open"]>div[data-radix-popper-content-wrapper],
 .SelectContent,
-.SelectItem,
-[role="option"],
 [data-radix-dropdown-menu-content] {
-  background-color: #404040 !important;
-  /* Nova cor padrão */
-  border-color: #525252 !important;
-  /* Nova cor de borda */
+  background: rgba(18, 18, 18, 0.7) !important;
+  backdrop-filter: blur(25px) brightness(1.2) !important;
+  -webkit-backdrop-filter: blur(25px) brightness(1.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: white !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5) !important;
+  padding: 10px !important;
+  overflow: hidden;
 }
 
-[data-state="checked"] svg,
-[data-state="checked"] {
+.SelectItem,
+[role="option"],
+[data-radix-dropdown-menu-item],
+.dropdown-menu-item,
+.select-item {
   color: white !important;
+  background: transparent !important;
+  border-radius: 1rem !important;
+  margin: 4px 6px !important;
+  padding: 12px 14px !important;
+  position: relative;
+  /* Transição mais orgânica e rápida - estilo mola */
+  transition:
+    background 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1.1),
+    border 0.2s ease !important;
+  cursor: pointer;
+  transform: scale(0.98);
 }
 
 .SelectItem:hover,
+.SelectItem:focus,
+.SelectItem[data-state="checked"],
 [role="option"]:hover,
-[data-radix-dropdown-menu-item]:hover {
-  background-color: #525252 !important;
-  /* Nova cor de hover */
+[role="option"]:focus,
+[data-radix-dropdown-menu-item]:hover,
+[data-radix-dropdown-menu-item]:focus,
+.dropdown-menu-item:hover,
+.select-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  color: white !important;
+  transform: scale(1.03) !important;
+  outline: none !important;
+  z-index: 2;
 }
 
-/* ===============================================
-   ✅ SELETORES ADICIONAIS PARA DROPDOWNS/SELECTS
-   Garantindo cobertura completa para diferentes componentes
-   =============================================== */
-/* Para dropdowns do Radix UI */
-[data-radix-dropdown-menu-content],
-[data-radix-select-content],
-.dropdown-menu,
-.select-content {
-  background-color: #404040 !important;
-  border: 1px solid #525252 !important;
-  color: white !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+.SelectItem[data-state="checked"] {
+  background: rgba(104, 41, 192, 0.15) !important;
+  border: 1px solid rgba(104, 41, 192, 0.3) !important;
 }
 
 /* Para itens de dropdown/select */
@@ -461,15 +481,7 @@
   color: white !important;
 }
 
-/* Focus state para acessibilidade */
-[data-radix-dropdown-menu-item]:focus,
-[data-radix-select-item]:focus,
-.dropdown-menu-item:focus,
-.select-item:focus {
-  background-color: #525252 !important;
-  outline: 2px solid #6829c0 !important;
-  outline-offset: -2px;
-}
+/* Focus state removido para evitar borda roxa indesejada */
 
 /* Barra de rolagem para Chrome, Edge e Safari */
 ::-webkit-scrollbar {

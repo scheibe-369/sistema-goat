@@ -18,14 +18,14 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-11 w-full items-center justify-between rounded-lg border border-goat-gray-600 bg-goat-gray-700 px-4 py-2 text-sm text-white placeholder:text-goat-gray-400 focus:outline-none focus:ring-2 focus:ring-goat-purple focus:ring-offset-2 focus:ring-offset-goat-gray-800 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 hover:border-goat-gray-500 [&>span]:line-clamp-1",
+      "flex h-11 w-full items-center justify-between rounded-xl border border-white/[0.05] bg-white/[0.03] px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300 hover:bg-white/[0.06] hover:border-white/[0.1] [&>span]:line-clamp-1",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-70 transition-transform duration-200" />
+      <ChevronDown className="h-4 w-4 opacity-40 transition-transform duration-300 group-data-[state=open]:rotate-180" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -74,25 +74,23 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border border-goat-gray-600 bg-goat-gray-700 text-white shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "relative z-50 max-h-80 min-w-[10rem] overflow-hidden rounded-2xl border border-white/[0.1] bg-[#121212]/80 text-white shadow-2xl backdrop-blur-2xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-4 data-[side=left]:slide-in-from-right-4 data-[side=right]:slide-in-from-left-4 data-[side=top]:slide-in-from-bottom-4",
         position === "popper" &&
-          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+        "data-[side=bottom]:translate-y-2 data-[side=left]:-translate-x-2 data-[side=right]:translate-x-2 data-[side=top]:-translate-y-2",
         className
       )}
       position={position}
       {...props}
     >
-      <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1",
+          "p-2 overflow-y-auto custom-scrollbar",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))
@@ -117,7 +115,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-md py-2.5 pl-3 pr-2 text-sm text-white outline-none transition-colors duration-150 focus:bg-goat-gray-600 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-goat-gray-600",
+      "relative flex w-full cursor-default select-none items-center rounded-xl py-3 pl-4 pr-3 text-sm text-white/70 outline-none transition-all duration-200 focus:bg-white/[0.08] focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-white/[0.08] hover:text-white/100 scale-[0.98] hover:scale-100",
       className
     )}
     {...props}

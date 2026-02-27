@@ -1,11 +1,12 @@
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Save, X } from "lucide-react";
+import { Plus, Edit, Save, X, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useTags, type Tag } from "@/hooks/useTags";
 
@@ -16,7 +17,7 @@ interface TagsManagementModalProps {
 
 const defaultColors = [
   "bg-purple-600",
-  "bg-blue-600", 
+  "bg-blue-600",
   "bg-green-600",
   "bg-yellow-600",
   "bg-red-600",
@@ -34,7 +35,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
 
   const handleCreateTag = async () => {
     if (!newTagName.trim()) return;
-    
+
     try {
       await createTag({
         name: newTagName.trim(),
@@ -52,7 +53,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
 
   const handleSaveEdit = async () => {
     if (!editingTag || !editingTag.name.trim()) return;
-    
+
     try {
       await updateTag(editingTag.id, {
         name: editingTag.name.trim(),
@@ -75,9 +76,10 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-2xl">
-          <div className="flex items-center justify-center py-8">
-            <div className="text-white">Carregando tags...</div>
+        <DialogContent className="liquid-glass border-white/[0.05] text-white max-w-2xl min-h-[400px] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <div className="text-white/50 font-medium">Carregando tags...</div>
           </div>
         </DialogContent>
       </Dialog>
@@ -86,133 +88,154 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-2xl">
+      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Gerenciar Tags</DialogTitle>
-          <DialogDescription className="text-goat-gray-400">
+          <DialogTitle className="text-2xl font-bold tracking-tight text-white">Gerenciar Tags</DialogTitle>
+          <DialogDescription className="text-white/40">
             Crie, edite ou remova tags para categorizar seus leads
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-6">
+        <div className="space-y-6 pt-2">
           {/* Create New Tag */}
-          <Card className="bg-goat-gray-700 border-goat-gray-600 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-white">Nova Tag</h4>
+          <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-white">Nova Tag</h4>
               {!isCreating && (
-                <Button 
-                  size="sm"
-                  onClick={() => setIsCreating(true)}
-                  className="btn-primary h-8 px-4 font-semibold"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsCreating(true)}
+                    className="bg-primary hover:bg-primary/90 text-white h-9 px-5 rounded-xl font-bold transition-all shadow-lg shadow-primary/20"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar
+                  </Button>
+                </motion.div>
               )}
             </div>
             {isCreating && (
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-white">Nome da Tag</Label>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label className="text-white/70 text-sm font-medium">Nome da Tag</Label>
                   <Input
                     value={newTagName}
                     onChange={(e) => setNewTagName(e.target.value)}
                     placeholder="Ex: Cliente VIP"
-                    className="bg-goat-gray-600 border-goat-gray-500 text-white placeholder:text-white"
+                    className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
                   />
                 </div>
-                <div>
-                  <Label className="text-white">Cor</Label>
-                  <div className="flex gap-2 mt-2">
+                <div className="space-y-2">
+                  <Label className="text-white/70 text-sm font-medium">Escolha uma Cor</Label>
+                  <div className="flex flex-wrap gap-3 mt-1">
                     {defaultColors.map((color) => (
                       <button
                         key={color}
                         type="button"
                         onClick={() => setNewTagColor(color)}
-                        className={`w-8 h-8 rounded-full ${color} ${
-                          newTagColor === color ? 'ring-2 ring-white' : ''
-                        }`}
+                        className={`w-9 h-9 rounded-full ${color} transition-all ${newTagColor === color
+                          ? 'ring-2 ring-white ring-offset-2 ring-offset-black scale-110 shadow-lg'
+                          : 'opacity-60 hover:opacity-100 hover:scale-105'
+                          }`}
                       />
                     ))}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleCreateTag} size="sm" className="btn-primary h-8 px-4 font-semibold">
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      setIsCreating(false);
-                      setNewTagName("");
-                      setNewTagColor(defaultColors[0]);
-                    }} 
-                    size="sm" 
-                    className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancelar
-                  </Button>
+                <div className="flex gap-3 pt-2">
+                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button onClick={handleCreateTag} className="bg-primary hover:bg-primary/90 text-white w-full h-11 rounded-xl font-bold">
+                      <Save className="w-4 h-4 mr-2" />
+                      Salvar Tag
+                    </Button>
+                  </motion.div>
+                  <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      onClick={() => {
+                        setIsCreating(false);
+                        setNewTagName("");
+                        setNewTagColor(defaultColors[0]);
+                      }}
+                      className="bg-white/[0.05] hover:bg-white/10 text-white/70 w-full h-11 rounded-xl border border-white/5 font-medium"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancelar
+                    </Button>
+                  </motion.div>
                 </div>
               </div>
             )}
-          </Card>
+          </div>
 
           {/* Existing Tags */}
-          <Card className="bg-goat-gray-700 border-goat-gray-600 p-4">
-            <h4 className="font-medium text-white mb-3">Tags Existentes</h4>
+          <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-5">
+            <h4 className="font-semibold text-white mb-4">Tags Existentes</h4>
             {tags.length === 0 ? (
-              <p className="text-goat-gray-400 text-sm">Nenhuma tag criada ainda</p>
+              <div className="py-8 text-center bg-white/[0.01] border border-dashed border-white/[0.05] rounded-xl">
+                <p className="text-white/30 text-sm">Nenhuma tag criada ainda</p>
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-3">
                 {tags.map((tag) => (
-                  <div key={tag.id} className="flex items-center justify-between p-3 bg-goat-gray-600 rounded-lg">
+                  <div key={tag.id} className="group flex items-center justify-between p-4 bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] rounded-2xl transition-all">
                     {editingTag?.id === tag.id ? (
-                      <div className="flex items-center gap-3 flex-1">
-                        <Input
-                          value={editingTag.name}
-                          onChange={(e) => setEditingTag({ ...editingTag, name: e.target.value })}
-                          className="bg-goat-gray-500 border-goat-gray-400 text-white placeholder:text-white"
-                          placeholder="Editar nome da Tag"
-                        />
-                        <div className="flex gap-1">
+                      <div className="flex flex-col gap-4 w-full">
+                        <div className="flex items-center gap-3">
+                          <Input
+                            value={editingTag.name}
+                            onChange={(e) => setEditingTag({ ...editingTag, name: e.target.value })}
+                            className="bg-white/[0.05] border-white/[0.1] text-white h-10 rounded-xl"
+                            placeholder="Editar nome"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-2">
                           {defaultColors.map((color) => (
                             <button
                               key={color}
                               type="button"
                               onClick={() => setEditingTag({ ...editingTag, color })}
-                              className={`w-6 h-6 rounded-full ${color} ${editingTag.color === color ? 'ring-2 ring-white' : ''}`}
+                              className={`w-7 h-7 rounded-full ${color} transition-all ${editingTag.color === color
+                                ? 'ring-2 ring-white ring-offset-1 ring-offset-black scale-110'
+                                : 'opacity-50 hover:opacity-100'
+                                }`}
                             />
                           ))}
                         </div>
-                        <div className="flex gap-1">
-                          <Button onClick={handleSaveEdit} size="sm" className="btn-primary h-8 px-4 font-semibold">
-                            <Save className="w-4 h-4" />
+                        <div className="flex gap-2 justify-end pt-2 border-t border-white/5">
+                          <Button onClick={handleSaveEdit} className="bg-primary hover:bg-primary/90 text-white h-9 px-4 rounded-xl font-bold">
+                            <Save className="w-4 h-4 mr-2" />
+                            Salvar
                           </Button>
-                          <Button 
-                            onClick={() => setEditingTag(null)} 
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
+                          <Button
+                            onClick={() => setEditingTag(null)}
+                            className="bg-white/[0.05] hover:bg-white/10 text-white/70 h-9 px-4 rounded-xl border border-white/5"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-4 h-4 mr-2" />
+                            Sair
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <>
-                        <Badge className={`${tag.color} text-white hover:${tag.color}`}>{tag.name}</Badge>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full ${tag.color}`} />
+                          <span className="font-semibold text-white/90">{tag.name}</span>
+                        </div>
+                        <div className="flex gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                           <Button
                             onClick={() => handleEditTag(tag)}
                             size="sm"
-                            className="btn-primary h-8 px-4 font-semibold"
+                            variant="ghost"
+                            className="h-8 px-3 rounded-xl hover:bg-primary/20 hover:text-primary transition-colors font-semibold"
                           >
+                            <Edit className="w-3.5 h-3.5 mr-1.5" />
                             Editar
                           </Button>
                           <Button
                             onClick={() => handleDeleteTag(tag.id)}
                             size="sm"
-                            className="bg-red-600 hover:bg-red-700 text-white h-8 px-4 font-semibold"
+                            variant="ghost"
+                            className="h-8 px-3 rounded-xl hover:bg-red-500/20 hover:text-red-400 transition-colors font-semibold"
                           >
+                            <Trash2 className="w-3.5 h-3.5 mr-1.5 text-red-400" />
                             Excluir
                           </Button>
                         </div>
@@ -222,7 +245,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
                 ))}
               </div>
             )}
-          </Card>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

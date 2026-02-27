@@ -449,7 +449,11 @@ export default function LeadsKanban() {
             </div>
 
             <div className="flex flex-row items-center gap-3">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05, translateY: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <Button
                   className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                   onClick={() => setIsTagsModalOpen(true)}
@@ -459,7 +463,11 @@ export default function LeadsKanban() {
                 </Button>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05, translateY: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <Button
                   className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-6 rounded-2xl transition-all"
                   onClick={() => setIsAddStageModalOpen(true)}
@@ -469,7 +477,11 @@ export default function LeadsKanban() {
                 </Button>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05, translateY: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <Button
                   className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
                   onClick={() => setIsNewLeadModalOpen(true)}
@@ -487,13 +499,17 @@ export default function LeadsKanban() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
               <span className="text-white/60 font-semibold text-xs sm:text-sm uppercase tracking-wider">Filtros:</span>
               <div className="flex flex-wrap gap-2">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05, translateY: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                >
                   <Button
                     variant="outline"
                     size="sm"
                     className={`h-9 px-4 rounded-xl text-xs sm:text-sm transition-all duration-300 border-white/5 ${activeFilter === "all"
-                      ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)]"
-                      : "bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white"
+                      ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)] hover:bg-primary hover:text-white"
+                      : "bg-white/[0.03] text-white/60 hover:bg-white/[0.03] hover:text-white/60"
                       }`}
                     onClick={() => setActiveFilter("all")}
                   >
@@ -502,17 +518,22 @@ export default function LeadsKanban() {
                 </motion.div>
 
                 {tags.map((tag: Tag) => (
-                  <motion.div key={tag.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <motion.div
+                    key={tag.id}
+                    whileHover={{ scale: 1.05, translateY: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
                     <Button
                       variant="outline"
                       size="sm"
                       className={`h-9 px-4 rounded-xl text-xs sm:text-sm transition-all duration-300 border-white/5 ${activeFilter === tag.name
-                        ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)]"
-                        : "bg-white/[0.03] text-white/60 hover:bg-white/[0.08] hover:text-white"
+                        ? "bg-primary text-white border-primary shadow-[0_0_15px_rgba(104,41,192,0.4)] hover:bg-primary hover:text-white"
+                        : "bg-white/[0.03] text-white/60 hover:bg-white/[0.03] hover:text-white/60"
                         }`}
                       onClick={() => setActiveFilter(tag.name)}
                     >
-                      <div className={`w-2 h-2 rounded-full ${tag.color} mr-2 shadow-[0_0_8px_currentColor]`} />
+                      <div className={`w-2 h-2 rounded-full ${tag.color} mr-2`} />
                       {tag.name}
                     </Button>
                   </motion.div>

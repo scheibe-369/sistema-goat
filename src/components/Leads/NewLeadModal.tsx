@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,56 +119,56 @@ export function NewLeadModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Novo Lead</DialogTitle>
-          <DialogDescription className="text-goat-gray-400">
+          <DialogTitle className="text-2xl font-bold tracking-tight">Novo Lead</DialogTitle>
+          <DialogDescription className="text-white/40">
             Adicione um novo lead ao funil
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div>
-            <Label className="text-white">Nome *</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Nome *</Label>
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
               placeholder="Nome do lead"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
             />
           </div>
 
-          <div>
-            <Label className="text-white">Empresa *</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Empresa *</Label>
             <Input
               value={formData.company}
               onChange={(e) => handleInputChange("company", e.target.value)}
               placeholder="Nome da empresa"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
             />
           </div>
 
-          <div>
-            <Label className="text-white">Telefone *</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Telefone *</Label>
             <Input
               value={formData.phone}
               onChange={(e) => handleInputChange("phone", e.target.value)}
               placeholder="(11) 99999-9999"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
             />
           </div>
 
-          <div>
-            <Label className="text-white">Etapa *</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Etapa *</Label>
             <Select value={formData.stage} onValueChange={(value) => handleInputChange("stage", value)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white/[0.03] border-white/[0.05] h-11 rounded-xl text-white/70">
                 <SelectValue>{getStageSelected()}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {stages.map((stage) => (
                   <SelectItem key={stage.id} value={stage.id}>
-                    <span className="flex items-center gap-2">
-                      <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
+                    <span className="flex items-center gap-3 font-medium">
+                      <span className={`w-3 h-3 rounded-full ${stage.color}`} />
                       {stage.name}
                     </span>
                   </SelectItem>
@@ -176,41 +177,41 @@ export function NewLeadModal({
             </Select>
           </div>
 
-          <div>
-            <Label className="text-white">Email (Opcional)</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Email (Opcional)</Label>
             <Input
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="email@exemplo.com"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
             />
           </div>
 
-          <div>
-            <Label className="text-white">Valor (Opcional)</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Valor (Opcional)</Label>
             <Input
               value={formData.value}
               onChange={(e) => handleValueChange(e.target.value)}
               placeholder="R$ 0,00"
-              className="bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-white"
+              className="bg-white/[0.03] border-white/[0.05] focus:border-primary/50 text-white placeholder:text-white/20 h-11 rounded-xl transition-all"
               inputMode="decimal"
             />
           </div>
 
-          <div>
-            <Label className="text-white">Tag (Opcional)</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Tag (Opcional)</Label>
             <Select
               value={formData.tags[0] || ""}
               onValueChange={value => setFormData(prev => ({ ...prev, tags: value ? [value] : [] }))}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white/[0.03] border-white/[0.05] h-11 rounded-xl text-white/70">
                 <SelectValue>
                   {(() => {
                     const selected = tags.find(t => t.name === formData.tags[0]);
-                    if (!selected) return <span className="text-white">Selecione uma tag</span>;
+                    if (!selected) return <span className="text-white/30">Selecione uma tag</span>;
                     return (
-                      <span className="flex items-center gap-2">
-                        <span className={`w-3 h-3 rounded-full ${selected.color}`} />
+                      <span className="flex items-center gap-2 font-medium">
+                        <span className={`w-2.5 h-2.5 rounded-full ${selected.color}`} />
                         {selected.name}
                       </span>
                     );
@@ -220,7 +221,7 @@ export function NewLeadModal({
               <SelectContent>
                 {tags.map(tag => (
                   <SelectItem key={tag.id} value={tag.name}>
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-3 font-medium">
                       <span className={`w-3 h-3 rounded-full ${tag.color}`} />
                       {tag.name}
                     </span>
@@ -230,8 +231,8 @@ export function NewLeadModal({
             </Select>
           </div>
 
-          <div>
-            <Label className="text-white">Data da Reunião (Opcional)</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium">Data da Reunião (Opcional)</Label>
             <DatePicker
               date={formData.meeting_date ? parseISO(formData.meeting_date) : undefined}
               setDate={(newDate) => {
@@ -240,18 +241,22 @@ export function NewLeadModal({
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button onClick={handleSubmit} className="btn-primary flex-1">
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Lead
-            </Button>
-            <Button
-              onClick={() => onOpenChange(false)}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white transition-colors duration-200"
-            >
-              <X className="w-4 h-4 mr-2" />
-              Cancelar
-            </Button>
+          <div className="flex gap-3 pt-6">
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button onClick={handleSubmit} className="bg-primary hover:bg-primary/90 text-white w-full h-12 rounded-2xl shadow-[0_0_20px_rgba(104,41,192,0.3)] font-bold">
+                <Plus className="w-5 h-5 mr-2" />
+                Criar Lead
+              </Button>
+            </motion.div>
+            <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={() => onOpenChange(false)}
+                className="bg-white/[0.05] hover:bg-white/10 text-white/70 w-full h-12 rounded-2xl border border-white/5 font-medium transition-all"
+              >
+                <X className="w-5 h-5 mr-2" />
+                Cancelar
+              </Button>
+            </motion.div>
           </div>
         </div>
       </DialogContent>
