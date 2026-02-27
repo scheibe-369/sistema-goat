@@ -16,32 +16,32 @@ interface DeleteExpenseDialogProps {
   expenseDescription: string;
 }
 
-export function DeleteExpenseDialog({ 
-  open, 
-  onOpenChange, 
-  onConfirm, 
-  expenseDescription 
+export function DeleteExpenseDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  expenseDescription
 }: DeleteExpenseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-sm">
+      <DialogContent className="liquid-glass border-white/5 text-white max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300 outline-none">
         <DialogHeader>
-          <DialogTitle className="text-white">Excluir Despesa</DialogTitle>
-          <DialogDescription className="text-goat-gray-300">
-            Tem certeza que deseja excluir a despesa "{expenseDescription}"? Essa ação não poderá ser desfeita.
+          <DialogTitle className="text-xl font-bold text-white tracking-tight">Excluir Despesa</DialogTitle>
+          <DialogDescription className="text-white/60 text-sm leading-relaxed mt-2">
+            Tem certeza que deseja excluir a despesa <span className="text-white font-bold">"{expenseDescription}"</span>? Essa ação não poderá ser desfeita e os dados serão removidos permanentemente.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2">
-          <Button 
+        <DialogFooter className="grid grid-cols-2 gap-3 pt-4">
+          <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="bg-goat-gray-600 hover:bg-goat-gray-500 text-white border-0 hover:text-white"
+            className="liquid-glass hover:bg-white/10 text-white/60 h-12 rounded-xl font-bold transition-all border border-white/5"
           >
             Cancelar
           </Button>
-          <Button 
+          <Button
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white h-12 rounded-xl font-bold shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all"
           >
             Excluir
           </Button>

@@ -25,12 +25,22 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
     category: '',
     date: new Date().toISOString().split('T')[0],
     isRecurring: false,
-    recurrence: 'monthly'
+    recurrence: ''
   });
 
+  const formatCurrencyLocal = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (!numbers) return "";
+    const amount = parseInt(numbers) / 100;
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount);
+  };
+
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9,]/g, '');
-    setFormData({ ...formData, value });
+    const formatted = formatCurrencyLocal(e.target.value);
+    setFormData({ ...formData, value: formatted });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,8 +59,8 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
       return;
     }
 
-    // Convert value from string to number
-    const numericValue = parseFloat(formData.value.replace(',', '.'));
+    // Convert value from formatted string to number
+    const numericValue = parseFloat(formData.value.replace(/[^\d,.-]/g, '').replace(',', '.'));
 
     console.log('DEBUG - Valor convertido:', numericValue);
 
@@ -96,43 +106,46 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+      <DialogContent className="liquid-glass border-white/5 text-white max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300 outline-none">
         <DialogHeader>
-          <DialogTitle className="text-white">Nova Despesa</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-white tracking-tight">Nova Despesa</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="description" className="text-white">Descrição *</Label>
+        <form onSubmit={handleSubmit} className="space-y-5 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-white/70 text-sm font-medium ml-1">Descrição *</Label>
             <Input
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white !placeholder-white"
+              className="bg-white/[0.03] border-white/[0.05] text-white placeholder:text-white/20 h-12 rounded-xl focus:border-primary/50 transition-all shadow-inner"
               placeholder="Ex: Aluguel escritório"
               required
             />
           </div>
 
-          <div>
-            <Label htmlFor="value" className="text-white">Valor (R$) *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="value" className="text-white/70 text-sm font-medium ml-1">Valor (R$) *</Label>
             <Input
               id="value"
               type="text"
               value={formData.value}
               onChange={handleValueChange}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white !placeholder-white"
-              placeholder="0,00"
+              className="bg-white/[0.03] border-white/[0.05] text-white placeholder:text-white/20 h-12 rounded-xl focus:border-primary/50 transition-all shadow-inner"
+              placeholder="R$ 0,00"
+              inputMode="decimal"
               required
             />
           </div>
 
-          <div>
-            <Label htmlFor="category" className="text-white">Categoria *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-white/70 text-sm font-medium ml-1">Categoria *</Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
-                <SelectValue placeholder="Selecione uma categoria" />
+              <SelectTrigger className="bg-white/[0.03] border-white/[0.05] h-12 rounded-xl focus:border-primary/50 transition-all shadow-inner">
+                <SelectValue placeholder={<span className="text-white/30">Selecione uma categoria</span>}>
+                  {formData.category && <span className="text-white/80">{formData.category}</span>}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+              <SelectContent className="bg-[#1a1a1a]/95 backdrop-blur-xl border-white/10 text-white rounded-xl">
                 <SelectItem value="Infraestrutura">Infraestrutura</SelectItem>
                 <SelectItem value="Tecnologia">Tecnologia</SelectItem>
                 <SelectItem value="Marketing">Marketing</SelectItem>
@@ -143,8 +156,8 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
             </Select>
           </div>
 
-          <div>
-            <Label className="text-white mb-2 block">Data *</Label>
+          <div className="space-y-2">
+            <Label className="text-white/70 text-sm font-medium ml-1">Data *</Label>
             <DatePicker
               date={formData.date ? parseISO(formData.date) : undefined}
               setDate={(newDate) => {
@@ -155,23 +168,33 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
             />
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
             <Checkbox
               id="isRecurring"
               checked={formData.isRecurring}
               onCheckedChange={(checked) => setFormData({ ...formData, isRecurring: checked as boolean })}
+              className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
-            <Label htmlFor="isRecurring" className="text-white">Despesa recorrente</Label>
+            <Label htmlFor="isRecurring" className="text-sm font-medium text-white/70 cursor-pointer">Despesa recorrente</Label>
           </div>
 
           {formData.isRecurring && (
-            <div>
-              <Label htmlFor="recurrence" className="text-white">Recorrência</Label>
+            <div className="space-y-2 animate-fade-in">
+              <Label htmlFor="recurrence" className="text-white/70 text-sm font-medium ml-1">Recorrência</Label>
               <Select value={formData.recurrence} onValueChange={(value) => setFormData({ ...formData, recurrence: value })}>
-                <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
-                  <SelectValue />
+                <SelectTrigger className="bg-white/[0.03] border-white/[0.05] h-12 rounded-xl focus:border-primary/50 transition-all shadow-inner">
+                  <SelectValue placeholder={<span className="text-white/30">Selecione a recorrência</span>}>
+                    {formData.recurrence && (
+                      <span className="text-white/80">
+                        {formData.recurrence === 'weekly' && 'Semanal'}
+                        {formData.recurrence === 'monthly' && 'Mensal'}
+                        {formData.recurrence === 'quarterly' && 'Trimestral'}
+                        {formData.recurrence === 'yearly' && 'Anual'}
+                      </span>
+                    )}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
+                <SelectContent className="bg-[#1a1a1a]/95 backdrop-blur-xl border-white/10 text-white rounded-xl">
                   <SelectItem value="weekly">Semanal</SelectItem>
                   <SelectItem value="monthly">Mensal</SelectItem>
                   <SelectItem value="quarterly">Trimestral</SelectItem>
@@ -181,17 +204,17 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
             </div>
           )}
 
-          <div className="flex gap-2 pt-4">
+          <div className="grid grid-cols-2 gap-3 pt-4">
             <Button
               type="button"
               onClick={() => setOpen(false)}
-              className="bg-goat-gray-600 hover:bg-goat-gray-500 text-white"
+              className="liquid-glass hover:bg-white/10 text-white/60 h-12 rounded-xl font-bold transition-all border border-white/5"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-goat-purple hover:bg-goat-purple/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-white h-12 rounded-xl font-bold shadow-[0_0_20px_rgba(104,41,192,0.3)] transition-all"
             >
               Adicionar Despesa
             </Button>
