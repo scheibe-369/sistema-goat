@@ -74,49 +74,49 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-goat-gray-800 border-goat-gray-700 text-white max-w-md">
+      <DialogContent className="liquid-glass border-white/5 text-white max-w-md backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         <DialogHeader>
-          <DialogTitle className="text-white">Editar Contrato</DialogTitle>
+          <DialogTitle className="text-white text-2xl tracking-tight">Editar Contrato</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="client" className="text-white">Cliente</Label>
+            <Label htmlFor="client" className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Cliente</Label>
             <Input
               id="client"
               value={formData.client}
               onChange={(e) => handleInputChange('client', e.target.value)}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-white/5 border-white/10 text-white rounded-xl h-11 focus:border-white/20 transition-all"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-white">Tipo de Serviço</Label>
+            <Label htmlFor="type" className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Tipo de Serviço</Label>
             <Input
               id="type"
               value={formData.type}
               onChange={(e) => handleInputChange('type', e.target.value)}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-white/5 border-white/10 text-white rounded-xl h-11 focus:border-white/20 transition-all"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="monthlyValue" className="text-white">Valor Mensal (R$)</Label>
+            <Label htmlFor="monthlyValue" className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Valor Mensal (R$)</Label>
             <Input
               id="monthlyValue"
               type="number"
               value={formData.monthlyValue}
               onChange={(e) => handleInputChange('monthlyValue', parseFloat(e.target.value))}
-              className="bg-goat-gray-700 border-goat-gray-600 text-white"
+              className="bg-white/5 border-white/10 text-white rounded-xl h-11 focus:border-white/20 transition-all"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-white">Data de Início</Label>
+              <Label className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Início</Label>
               <DatePicker
                 date={formData.startDate ? parseISO(formData.startDate) : undefined}
                 setDate={(newDate) => {
@@ -128,7 +128,7 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
             </div>
 
             <div className="space-y-2">
-              <Label className="text-white">Data de Término</Label>
+              <Label className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Término</Label>
               <DatePicker
                 date={formData.endDate ? parseISO(formData.endDate) : undefined}
                 setDate={(newDate) => {
@@ -141,31 +141,31 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status" className="text-white">Status</Label>
+            <Label htmlFor="status" className="text-white/40 text-[10px] font-black uppercase tracking-widest ml-1">Status</Label>
             <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-              <SelectTrigger className="bg-goat-gray-700 border-goat-gray-600 text-white">
+              <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl h-11">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-goat-gray-700 border-goat-gray-600">
-                <SelectItem value="active" className="text-white">Ativo</SelectItem>
-                <SelectItem value="expiring" className="text-white">A vencer</SelectItem>
-                <SelectItem value="inactive" className="text-white">Inativo</SelectItem>
+              <SelectContent className="liquid-glass border-white/10">
+                <SelectItem value="active" className="text-white focus:bg-white/10 rounded-lg">Ativo</SelectItem>
+                <SelectItem value="expiring" className="text-white focus:bg-white/10 rounded-lg">A vencer</SelectItem>
+                <SelectItem value="inactive" className="text-white focus:bg-white/10 rounded-lg">Inativo</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-6">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={onClose}
-              className="text-white border-goat-gray-600 hover:bg-goat-gray-700"
+              className="text-white/40 hover:text-white hover:bg-white/5 rounded-xl h-11 px-6 font-bold"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="bg-goat-purple hover:bg-goat-purple/90 text-white"
+              className="bg-white text-black hover:bg-white/90 rounded-xl h-11 px-8 font-bold transition-all shadow-[0_10px_20px_rgba(255,255,255,0.1)]"
             >
               Salvar Alterações
             </Button>

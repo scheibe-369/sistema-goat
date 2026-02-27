@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Calendar, DollarSign, AlertTriangle } from "lucide-react";
+import { FileText, Calendar, DollarSign, AlertTriangle, Settings } from "lucide-react";
 import { ContractsHeader } from "@/components/Contracts/ContractsHeader";
 import { EditContractModal } from "@/components/Contracts/EditContractModal";
 import { DeleteContractDialog } from "@/components/Contracts/DeleteContractDialog";
@@ -10,6 +11,7 @@ import { useContracts, useUpdateContract, useRenewContract } from "@/hooks/useCo
 import { useUpdateClient } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 
 interface Contract {
   id: string;
@@ -46,13 +48,13 @@ export default function Contracts() {
   const getStatusBadge = (status: Contract['status']) => {
     switch (status) {
       case 'active':
-        return <Badge className="bg-green-600 text-white hover:bg-green-700">Ativo</Badge>;
+        return <Badge className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 transition-all font-semibold">Ativo</Badge>;
       case 'expiring':
-        return <Badge className="bg-yellow-600 text-white hover:bg-yellow-700">A vencer</Badge>;
+        return <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20 transition-all font-semibold">A vencer</Badge>;
       case 'inactive':
-        return <Badge className="bg-red-600 text-white hover:bg-red-700">Inativo</Badge>;
+        return <Badge className="bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20 transition-all font-semibold">Inativo</Badge>;
       default:
-        return <Badge className="bg-goat-gray-600 text-white">Desconhecido</Badge>;
+        return <Badge className="bg-white/5 text-white/50 border-white/10 font-semibold">Desconhecido</Badge>;
     }
   };
 
@@ -166,150 +168,188 @@ export default function Contracts() {
       <ContractsHeader />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{activeContracts.length}</p>
-              <p className="text-goat-gray-400 text-sm">Contratos Ativos</p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div whileHover={{ translateY: -4 }} className="liquid-glass border-white/5 p-5 flex flex-col justify-center h-28 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+            <FileText className="w-16 h-16 text-white" />
           </div>
-        </Card>
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{expiringContracts.length}</p>
-              <p className="text-goat-gray-400 text-sm">A Vencer</p>
-            </div>
+          <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.1em] mb-1">Total de Contratos</p>
+          <p className="text-3xl font-bold text-white tracking-tight">{contracts.length}</p>
+        </motion.div>
+
+        <motion.div whileHover={{ translateY: -4 }} className="liquid-glass border-green-500/10 p-5 flex flex-col justify-center h-28 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.1] group-hover:opacity-[0.2] transition-opacity">
+            <FileText className="w-16 h-16" style={{ stroke: "#22c55e" }} />
           </div>
-        </Card>
-        <Card className="bg-goat-gray-800 border-goat-gray-700 p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-600/20 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-red-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{inactiveContracts.length}</p>
-              <p className="text-goat-gray-400 text-sm">Inativos</p>
-            </div>
+          <p className="text-green-400/50 text-[10px] font-bold uppercase tracking-[0.1em] mb-1">Contratos Ativos</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-bold text-white tracking-tight">{activeContracts.length}</p>
           </div>
-        </Card>
+        </motion.div>
+
+        <motion.div whileHover={{ translateY: -4 }} className="liquid-glass border-yellow-500/30 p-5 flex flex-col justify-center h-28 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.15] group-hover:opacity-[0.25] transition-opacity">
+            <AlertTriangle className="w-16 h-16" style={{ stroke: "#eab308" }} />
+          </div>
+          <p className="text-yellow-400/50 text-[10px] font-bold uppercase tracking-[0.1em] mb-1">A Vencer</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-bold text-white tracking-tight">{expiringContracts.length}</p>
+          </div>
+        </motion.div>
+
+        <motion.div whileHover={{ translateY: -4 }} className="liquid-glass border-red-500/10 p-5 flex flex-col justify-center h-28 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-[0.1] group-hover:opacity-[0.2] transition-opacity">
+            <FileText className="w-16 h-16" style={{ stroke: "#ef4444" }} />
+          </div>
+          <p className="text-red-400/50 text-[10px] font-bold uppercase tracking-[0.1em] mb-1">Inativos</p>
+          <p className="text-3xl font-bold text-white tracking-tight">{inactiveContracts.length}</p>
+        </motion.div>
       </div>
 
       {/* Expiring Contracts Alert */}
       {expiringContracts.length > 0 && (
-        <Card className="bg-yellow-950 border-yellow-700">
-          <div className="p-6 flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6 text-yellow-400" />
-            <h3 className="text-lg font-semibold text-yellow-200">Contratos A Vencer</h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-1">
+            <AlertTriangle className="w-4 h-4 text-yellow-500" />
+            <span className="text-xs font-bold text-white/60 uppercase tracking-widest">Atenção Prioritária</span>
           </div>
-          <div className="p-6 pt-0">
+          <div className="grid grid-cols-1 gap-3">
             {expiringContracts.map((contract) => (
-              <div key={contract.id} className="flex items-center justify-between p-4 rounded-lg bg-yellow-900/50 border border-yellow-700 mb-4">
-                <div className="flex-1 grid grid-cols-5 gap-4 items-center">
+              <motion.div
+                key={contract.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="liquid-glass border-yellow-500/20 bg-yellow-500/[0.02] p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/10 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                    <Calendar className="w-5 h-5 text-yellow-500" />
+                  </div>
                   <div>
-                    <h4 className="text-white font-medium mb-1">{contract.client}</h4>
-                    <div className="mt-1">
-                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded bg-yellow-600 text-white">A vencer</span>
-                    </div>
-                    <p className="text-yellow-200 text-xs mt-1">{contract.type}</p>
+                    <h4 className="text-white font-bold">{contract.client}</h4>
+                    <p className="text-white/40 text-xs">{contract.type} • Vence em {formatDate(contract.endDate)}</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-yellow-200 text-sm">Valor</p>
-                    <p className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</p>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <p className="text-xs text-yellow-500/60 font-bold uppercase tracking-wider">Restam</p>
+                    <p className="text-white font-black">{getDaysUntilExpiration(contract.endDate)} dias</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-yellow-200 text-sm">Vencimento</p>
-                    <p className="text-white">{formatDate(contract.endDate)}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-yellow-200 text-sm">Dias restantes</p>
-                    <p className="text-white font-semibold">
-                      {getDaysUntilExpiration(contract.endDate)} dias
-                    </p>
-                  </div>
-                  <div className="flex justify-center">
+                  <motion.div whileHover={{ scale: 1.05, translateY: -1 }} whileTap={{ scale: 0.95 }}>
                     <Button
                       onClick={() => renewContractMutation.mutate(contract.id)}
                       disabled={renewContractMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      size="sm"
+                      className="liquid-glass hover:bg-white/10 text-white/70 border-white/5 h-11 px-8 rounded-2xl transition-all"
                     >
-                      {renewContractMutation.isPending ? 'Renovando...' : 'Renovar'}
+                      {renewContractMutation.isPending ? 'RENOVANDO...' : 'Renovar Agora'}
                     </Button>
-                  </div>
+                  </motion.div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Contracts List */}
-      <Card className="bg-goat-gray-800 border-goat-gray-700">
-        <div className="p-6 border-b border-goat-gray-700">
-          <h3 className="text-lg font-semibold text-white">Todos os Contratos</h3>
-          <p className="text-goat-gray-400 text-sm mt-1">Status sincronizado automaticamente com os clientes</p>
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-white/40" />
+          <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest">Lista de Contratos</h3>
         </div>
+        <p className="text-[10px] text-white/20 font-medium">Sincronizado automaticamente</p>
+      </div>
 
-        {contracts.length === 0 ? (
-          <div className="p-12 text-center">
-            <FileText className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">Nenhum contrato encontrado</h3>
-            <p className="text-goat-gray-400">Contratos são criados automaticamente quando você cadastra clientes com valores mensais.</p>
+      {contracts.length === 0 ? (
+        <div className="liquid-glass border-white/5 p-20 text-center">
+          <div className="w-20 h-20 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 border border-white/5">
+            <FileText className="w-10 h-10 text-white/10" />
           </div>
-        ) : (
-          <div className="divide-y divide-goat-gray-700">
-            {contracts.map((contract) => (
-              <div key={contract.id} className="p-6 hover:bg-goat-gray-900/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h4 className="text-lg font-semibold text-white">{contract.client}</h4>
-                      {getStatusBadge(contract.status)}
-                    </div>
-                    <p className="text-goat-gray-400 mb-3">{contract.type}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Valor mensal:</span>
-                        <span className="text-white font-semibold">{formatCurrency(contract.monthlyValue)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Início:</span>
-                        <span className="text-white">{formatDate(contract.startDate)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-goat-purple" />
-                        <span className="text-goat-gray-400">Término:</span>
-                        <span className="text-white">{formatDate(contract.endDate)}</span>
-                      </div>
+          <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Vazio por aqui</h3>
+          <p className="text-white/30 text-sm max-w-xs mx-auto">Novos contratos aparecerão automaticamente ao fechar negócios com valores mensais.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 pb-10">
+          {contracts.map((contract) => (
+            <motion.div
+              key={contract.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              whileHover={{ scale: 1.005, translateY: -2 }}
+              className="liquid-glass border-white/5 p-5 flex items-center justify-between group transition-shadow hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] min-h-[100px]"
+            >
+              <div className="flex items-center gap-6 flex-1">
+                <div className={cn(
+                  "w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center transition-all duration-500",
+                  contract.status === 'active' && "group-hover:bg-green-500/10 group-hover:border-green-500/20",
+                  contract.status === 'expiring' && "group-hover:bg-yellow-500/10 group-hover:border-yellow-500/20",
+                  contract.status === 'inactive' && "group-hover:bg-red-500/10 group-hover:border-red-500/20"
+                )}>
+                  <FileText className={cn(
+                    "w-6 h-6 text-white/20 transition-colors duration-500",
+                    contract.status === 'active' && "group-hover:text-green-400",
+                    contract.status === 'expiring' && "group-hover:text-yellow-400",
+                    contract.status === 'inactive' && "group-hover:text-red-400"
+                  )} />
+                </div>
+                <div className="grid grid-cols-4 gap-8 flex-1 items-center">
+                  <div>
+                    <h4 className={cn(
+                      "text-white font-bold text-lg mb-1 tracking-tight transition-colors",
+                      contract.status === 'active' && "group-hover:text-green-400",
+                      contract.status === 'expiring' && "group-hover:text-yellow-400",
+                      contract.status === 'inactive' && "group-hover:text-red-400"
+                    )}>{contract.client}</h4>
+                    {getStatusBadge(contract.status)}
+                  </div>
+                  <div>
+                    <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">Assinatura</p>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className={cn(
+                        "w-3.5 h-3.5 opacity-50",
+                        contract.status === 'active' && "text-green-500",
+                        contract.status === 'expiring' && "text-yellow-500",
+                        contract.status === 'inactive' && "text-red-500"
+                      )} />
+                      <span className="text-white font-bold">{formatCurrency(contract.monthlyValue)}</span>
+                      <span className="text-white/20 text-xs">/mês</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-6">
-                    <Button
-                      size="sm"
-                      onClick={() => setDeletingContract(contract)}
-                      className="bg-red-600 text-white hover:bg-red-700 transition-all duration-200"
-                    >
-                      Cancelar
-                    </Button>
+                  <div>
+                    <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">Vigência</p>
+                    <div className="flex items-center gap-2 text-white/80 font-medium">
+                      <Calendar className="w-3.5 h-3.5 opacity-30" />
+                      <span>{formatDate(contract.startDate)}</span>
+                      <span className="opacity-20">→</span>
+                      <span>{formatDate(contract.endDate)}</span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">Plano</p>
+                    <p className="text-white/60 font-medium truncate">{contract.type}</p>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </Card>
 
-      {/* Modals */}
+              <div className="flex items-center gap-3 ml-12 pr-2">
+                <motion.div
+                  whileHover={{ scale: 1.05, translateY: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setDeletingContract(contract)}
+                    className="liquid-glass text-red-500 hover:bg-white/10 hover:text-red-400 border border-white/5 rounded-2xl px-8 h-11 font-bold transition-all"
+                  >
+                    Cancelar
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
       <EditContractModal
         isOpen={!!editingContract}
         contract={editingContract}
