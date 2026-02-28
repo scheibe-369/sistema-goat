@@ -74,7 +74,7 @@ export function EditContractModal({ isOpen, contract, onClose, onSave }: EditCon
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="liquid-glass border-white/5 text-white max-w-md backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <DialogContent className="border-white/5 text-white max-w-md backdrop-blur-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         <DialogHeader>
           <DialogTitle className="text-white text-2xl tracking-tight">Editar Contrato</DialogTitle>
         </DialogHeader>

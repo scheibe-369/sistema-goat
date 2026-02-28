@@ -119,7 +119,7 @@ export function NewLeadModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="border-white/[0.05] shadow-2xl text-white w-full max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold tracking-tight">Novo Lead</DialogTitle>
           <DialogDescription className="text-white/40">

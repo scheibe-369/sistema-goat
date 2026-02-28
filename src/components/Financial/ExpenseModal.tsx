@@ -106,7 +106,7 @@ export function ExpenseModal({ onAddExpense, open: externalOpen, onOpenChange: e
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="liquid-glass border-white/5 text-white max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300 outline-none">
+      <DialogContent className="border-white/5 text-white max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300 outline-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white tracking-tight">Nova Despesa</DialogTitle>
         </DialogHeader>

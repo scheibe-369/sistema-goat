@@ -76,7 +76,7 @@ export function EditStageModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white max-w-md">
+      <DialogContent className="border-white/[0.05] shadow-2xl text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold tracking-tight text-white">Editar Etapa</DialogTitle>
         </DialogHeader>

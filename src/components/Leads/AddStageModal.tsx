@@ -53,7 +53,7 @@ export function AddStageModal({ open, onOpenChange, onAddStage }: AddStageModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white max-w-md">
+      <DialogContent className="border-white/[0.05] shadow-2xl text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold tracking-tight text-white">Adicionar Nova Etapa</DialogTitle>
           <DialogDescription className="text-white/40">

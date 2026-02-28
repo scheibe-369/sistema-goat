@@ -76,7 +76,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="liquid-glass border-white/[0.05] text-white max-w-2xl min-h-[400px] flex items-center justify-center">
+        <DialogContent className="border-white/[0.05] text-white max-w-2xl min-h-[400px] flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             <div className="text-white/50 font-medium">Carregando tags...</div>
@@ -88,7 +88,7 @@ export function TagsManagementModal({ open, onOpenChange }: TagsManagementModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="liquid-glass border-white/[0.05] shadow-2xl text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="border-white/[0.05] shadow-2xl text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold tracking-tight text-white">Gerenciar Tags</DialogTitle>
           <DialogDescription className="text-white/40">
