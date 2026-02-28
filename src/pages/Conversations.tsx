@@ -10,6 +10,7 @@ import { MessageMedia } from "@/components/Conversations/MessageMedia";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationsHeader } from "@/components/Conversations/ConversationsHeader";
 import { NewConversationModal } from "@/components/Conversations/NewConversationModal";
+import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { useConversations, useMessages, useCreateConversation, type Conversation } from "@/hooks/useConversations";
 import { useSendMessage } from "@/hooks/useSendMessage";
 import { useStages } from "@/hooks/useStages";
@@ -187,38 +188,36 @@ export default function Conversations() {
     return (
       <div className="relative">
         <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
-        <div className="pt-24 pb-6">
+        <div className="pt-[122px] w-full pb-6">
           <div className="flex items-center justify-center h-64">
-            <div className="text-goat-gray-400">Carregando conversas...</div>
+            <div className="text-white/40">Carregando conversas...</div>
           </div>
         </div>
       </div>
     );
   }
 
-  const cardHeightClasses = "min-h-[520px] h-[calc(100vh-240px)] max-h-[calc(100vh-180px)]";
+  const cardHeightClasses = "h-full";
 
   return (
     <div className="relative">
       {/* HEADER FIXO - div totalmente separada do conteúdo */}
-      <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)} />
-
-      {/* CONTEÚDO DA PÁGINA - começa depois do header fixo */}
-      <div className="pt-24 pb-4 space-y-4">
-        {/* Busca e Filtros */}
+      <ConversationsHeader onNewConversation={() => setIsNewConversationModalOpen(true)}>
+        {/* Busca e Filtros integrados ao Header para simetria perfeita com o Kanban! */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-goat-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
             <Input
               placeholder="Buscar conversas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-goat-gray-800 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
+              className="pl-10 h-11 bg-white/[0.03] border-white/[0.05] text-white placeholder:text-white/30 rounded-xl transition-all hover:bg-white/[0.05] focus:bg-white/[0.05] focus:border-primary/50"
             />
           </div>
           <Button
             onClick={() => setIsFiltersOpen(true)}
-            className="btn-primary"
+            variant="outline"
+            className="h-11 bg-white/[0.03] border-white/[0.05] text-white hover:bg-white/[0.05] hover:text-white rounded-xl transition-all"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filtros
@@ -229,178 +228,189 @@ export default function Conversations() {
             )}
           </Button>
         </div>
+      </ConversationsHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* CONTEÚDO DA PÁGINA (Grid de conversas e chat) */}
+      <div
+        className="w-full flex flex-col"
+        style={{ marginTop: '112px', height: 'calc(100vh - 160px)' }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 relative">
           {/* Lista de Conversas */}
-          <div className="lg:col-span-1">
-            <Card className={`bg-goat-gray-800 border-goat-gray-700 p-4 flex flex-col ${cardHeightClasses}`}>
-              <div className="flex items-center gap-2 mb-4 flex-shrink-0">
-                <MessageSquare className="w-5 h-5 text-goat-purple" />
-                <h3 className="text-lg font-semibold text-white">Conversas ({filteredConversations.length})</h3>
-              </div>
-
-              {filteredConversations.length === 0 ? (
-                <div className="text-center py-8 flex-1 flex items-center justify-center">
-                  <div>
-                    <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-                    <p className="text-goat-gray-400 mb-4">Nenhuma conversa encontrada</p>
-                    <Button
-                      onClick={() => setIsNewConversationModalOpen(true)}
-                      className="btn-primary"
-                    >
-                      Iniciar Nova Conversa
-                    </Button>
-                  </div>
+          <div className="lg:col-span-1 relative">
+            <LiquidGlass className={`border-white/[0.05] rounded-xl shadow-2xl absolute inset-0`}>
+              <div className="absolute inset-0 p-4 flex flex-col min-h-0">
+                <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+                  <MessageSquare className="w-5 h-5 text-white/80" />
+                  <h3 className="text-lg font-bold text-white tracking-tight">Conversas ({filteredConversations.length})</h3>
                 </div>
-              ) : (
-                <div className="space-y-3 flex-1 overflow-y-auto">
-                  {filteredConversations.map((conversation) => (
-                    <div
-                      key={conversation.id}
-                      onClick={() => handleSelectConversation(conversation)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedConversation?.id === conversation.id
-                        ? 'bg-goat-purple/20 border-goat-purple/50'
-                        : 'bg-goat-gray-900/50 border-goat-gray-700 hover:border-goat-purple/50'
-                        }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-white font-medium text-sm truncate">
-                            {conversation.contact_name || conversation.phone}
-                          </h4>
-                          <p className="text-goat-gray-400 text-xs flex items-center gap-1">
-                            <Phone className="w-3 h-3 flex-shrink-0" />
-                            {conversation.phone}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                          <Badge
-                            variant={conversation.tag === "Cliente" ? "default" : "secondary"}
-                            className={`text-xs ${conversation.tag === "Cliente"
-                              ? "bg-goat-purple text-white"
-                              : "bg-goat-gray-700 text-goat-gray-300"
-                              }`}
-                          >
-                            {conversation.tag || "Lead"}
-                          </Badge>
-                          {(conversation.unread_count || 0) > 0 && (
-                            <Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
-                              {conversation.unread_count}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-goat-gray-300 text-sm mb-2 line-clamp-2">
-                        {conversation.last_message || "Sem mensagens"}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <span className="text-goat-gray-500 text-xs">
-                            {formatTime(conversation.updated_at)}
-                          </span>
-                          <Badge className="bg-goat-gray-600 text-goat-gray-300 text-xs">
-                            {getStageName(conversation.stage)}
-                          </Badge>
-                        </div>
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"
-                          }`} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
 
-          {/* Chat */}
-          <div className="lg:col-span-2">
-            <Card className={`bg-goat-gray-800 border-goat-gray-700 p-4 flex flex-col ${cardHeightClasses}`}>
-              {selectedConversation ? (
-                <>
-                  <div className="border-b border-goat-gray-700 pb-4 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-goat-purple rounded-full flex items-center justify-center">
-                        <MessageCircle className="w-5 h-5 text-white" />
+                {filteredConversations.length === 0 ? (
+                  <div className="text-center py-8 flex-1 flex items-center justify-center">
+                    <div>
+                      <div className="w-16 h-16 bg-white/[0.03] flex items-center justify-center rounded-2xl mx-auto mb-4 border border-white/5">
+                        <MessageSquare className="w-8 h-8 text-white/20" />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">
-                          {selectedConversation.contact_name || selectedConversation.phone}
-                        </h3>
-                        <p className="text-goat-gray-400 text-sm">{selectedConversation.phone}</p>
-                      </div>
+                      <p className="text-white/40 mb-4">Nenhuma conversa encontrada</p>
+                      <Button
+                        onClick={() => setIsNewConversationModalOpen(true)}
+                        className="h-11 px-6 text-sm bg-primary hover:bg-primary/90 text-white shadow-[0_0_15px_rgba(104,41,192,0.4)] rounded-xl transition-all font-bold"
+                      >
+                        Iniciar Nova Conversa
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-                    {messages.map((message) => (
-                      <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                        <div className={`message-bubble p-2 rounded-2xl w-auto ${message.media_type && message.media_type.startsWith('audio/')
-                          ? ''
-                          : ''
-                          } ${isUserMessage(message)
-                            ? "bg-goat-purple text-white rounded-br-md"
-                            : "bg-goat-gray-700 text-white rounded-bl-md"
+                ) : (
+                  <div className="space-y-3 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {filteredConversations.map((conversation) => (
+                      <div
+                        key={conversation.id}
+                        onClick={() => handleSelectConversation(conversation)}
+                        className={`p-3 rounded-xl border cursor-pointer transition-all ${selectedConversation?.id === conversation.id
+                          ? 'bg-primary/20 border-primary/50 shadow-[0_0_15px_rgba(104,41,192,0.2)]'
+                          : 'bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04]'
                           }`}
-                          style={{
-                            minWidth: 48,
-                            ...(message.media_type && message.media_type.startsWith('audio/')
-                              ? { maxWidth: '50%' }
-                              : { maxWidth: 320 })
-                          }}
-                        >
-                          {(message.text || message.mensagem) &&
-                            !(message.media_type && message.media_url) && (
-                              <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white font-medium text-sm truncate">
+                              {conversation.contact_name || conversation.phone}
+                            </h4>
+                            <p className="text-goat-gray-400 text-xs flex items-center gap-1">
+                              <Phone className="w-3 h-3 flex-shrink-0" />
+                              {conversation.phone}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                            <Badge
+                              variant={conversation.tag === "Cliente" ? "default" : "outline"}
+                              className={`text-[10px] px-2 py-0 h-5 font-medium border ${conversation.tag === "Cliente"
+                                ? "bg-primary/20 text-white border-primary/30"
+                                : "bg-white/[0.03] text-white/40 border-white/5"
+                                }`}
+                            >
+                              {conversation.tag || "Lead"}
+                            </Badge>
+                            {(conversation.unread_count || 0) > 0 && (
+                              <Badge className="bg-red-500 text-white text-xs min-w-[20px] h-5 flex items-center justify-center">
+                                {conversation.unread_count}
+                              </Badge>
                             )}
-
-                          {/* Renderizar mídia se existir */}
-                          {message.media_type && message.media_url && (
-                            <MessageMedia
-                              mediaType={message.media_type}
-                              mediaUrl={message.media_url}
-                              mediaFilename={message.media_filename || undefined}
-                              mediaSize={message.media_size || undefined}
-                              isUserMessage={isUserMessage(message)}
-                            />
-                          )}
-
-                          <span className={`text-xs block mt-2 ${isUserMessage(message)
-                            ? "text-purple-200"
-                            : "text-goat-gray-400"
-                            }`}>
-                            {formatTime(message.data_hora || message.created_at)}
-                          </span>
+                          </div>
+                        </div>
+                        <p className="text-white/60 text-sm mb-2 line-clamp-2 pr-4 leading-relaxed">
+                          {conversation.last_message || "Sem mensagens"}
+                        </p>
+                        <div className="flex justify-between items-center mt-auto">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/30 text-xs font-medium">
+                              {formatTime(conversation.updated_at)}
+                            </span>
+                            <Badge className="bg-white/[0.03] text-white/50 text-[10px] px-2 h-5 border border-white/5 whitespace-nowrap">
+                              {getStageName(conversation.stage)}
+                            </Badge>
+                          </div>
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${conversation.direction === "inbound" ? "bg-green-400" : "bg-blue-400"
+                            }`} />
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Digite sua mensagem..."
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      className="flex-1 bg-goat-gray-700 border-goat-gray-600 text-white placeholder:text-goat-gray-400"
-                      disabled={sendMessageMutation.isPending}
-                    />
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={!newMessage.trim() || sendMessageMutation.isPending}
-                      className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Send className="w-4 h-4" />
-                    </Button>
+                )}
+              </div>
+            </LiquidGlass>
+          </div>
+
+          {/* Chat */}
+          <div className="lg:col-span-2 relative">
+            <LiquidGlass className={`border-white/[0.05] rounded-xl shadow-2xl absolute inset-0`}>
+              <div className="absolute inset-0 p-4 flex flex-col min-h-0">
+                {selectedConversation ? (
+                  <>
+                    <div className="border-b border-white/[0.05] pb-4 mb-4 flex-shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h3 className="text-lg font-bold text-white tracking-tight">
+                            {selectedConversation.contact_name || selectedConversation.phone}
+                          </h3>
+                          <p className="text-white/40 text-sm">{selectedConversation.phone}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+                      {messages.map((message) => (
+                        <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
+                          <div className={`message-bubble p-2 rounded-2xl w-auto ${message.media_type && message.media_type.startsWith('audio/')
+                            ? ''
+                            : ''
+                            } ${isUserMessage(message)
+                              ? "bg-primary text-white rounded-br-none shadow-[0_0_15px_rgba(104,41,192,0.3)]"
+                              : "bg-white/[0.05] border border-white/5 text-white rounded-bl-none"
+                            }`}
+                            style={{
+                              minWidth: 48,
+                              ...(message.media_type && message.media_type.startsWith('audio/')
+                                ? { maxWidth: '50%' }
+                                : { maxWidth: 320 })
+                            }}
+                          >
+                            {(message.text || message.mensagem) &&
+                              !(message.media_type && message.media_url) && (
+                                <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
+                              )}
+
+                            {/* Renderizar mídia se existir */}
+                            {message.media_type && message.media_url && (
+                              <MessageMedia
+                                mediaType={message.media_type}
+                                mediaUrl={message.media_url}
+                                mediaFilename={message.media_filename || undefined}
+                                mediaSize={message.media_size || undefined}
+                                isUserMessage={isUserMessage(message)}
+                              />
+                            )}
+
+                            <span className={`text-[10px] block mt-1 text-right opacity-60 font-medium ${isUserMessage(message)
+                              ? "text-white"
+                              : "text-white/40"
+                              }`}>
+                              {formatTime(message.data_hora || message.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Input
+                        placeholder="Digite sua mensagem..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                        className="flex-1 h-12 rounded-xl bg-white/[0.03] border-white/[0.05] text-white placeholder:text-white/30 hover:bg-white/[0.05] focus:bg-white/[0.05] focus:border-primary/50 transition-all"
+                        disabled={sendMessageMutation.isPending}
+                      />
+                      <Button
+                        onClick={handleSendMessage}
+                        disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                        className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_15px_rgba(104,41,192,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-white/[0.03] flex items-center justify-center rounded-2xl mx-auto mb-6 border border-white/5">
+                        <MessageSquare className="w-10 h-10 text-white/20" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white tracking-tight mb-2">Selecione uma conversa</h3>
+                      <p className="text-white/40 text-sm">Escolha uma conversa da lista para iniciar e visualizar o chat</p>
+                    </div>
                   </div>
-                </>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <MessageSquare className="w-16 h-16 text-goat-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-white mb-2">Selecione uma conversa</h3>
-                    <p className="text-goat-gray-400">Escolha uma conversa da lista para começar a conversar</p>
-                  </div>
-                </div>
-              )}
-            </Card>
+                )}
+              </div>
+            </LiquidGlass>
           </div>
         </div>
 

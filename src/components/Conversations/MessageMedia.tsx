@@ -46,8 +46,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     return (
       <div className="mt-2">
         <div className="relative group">
-          <img 
-            src={mediaUrl} 
+          <img
+            src={mediaUrl}
             alt="Imagem compartilhada"
             className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
             onClick={openInNewTab}
@@ -64,25 +64,21 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               }
             }}
           />
-          
+
           {/* Fallback caso a imagem não carregue */}
-          <div 
-            className={`hidden items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${
-              isUserMessage ? 'border-purple-400 bg-purple-600/20' : 'border-gray-400 bg-gray-600'
-            }`}
+          <div
+            className={`hidden items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${isUserMessage ? 'border-primary/40 bg-primary/20' : 'border-white/20 bg-white/[0.03]'
+              }`}
           >
             <div className="text-center">
-              <ImageIcon className={`w-8 h-8 mx-auto mb-2 ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`} />
-              <p className={`text-sm ${
-                isUserMessage ? 'text-purple-200' : 'text-gray-300'
-              }`}>
+              <ImageIcon className={`w-8 h-8 mx-auto mb-2 ${isUserMessage ? 'text-white' : 'text-white/40'
+                }`} />
+              <p className={`text-sm ${isUserMessage ? 'text-white' : 'text-white/60'
+                }`}>
                 Imagem criptografada
               </p>
-              <p className={`text-xs mt-1 ${
-                isUserMessage ? 'text-purple-200/80' : 'text-gray-400'
-              }`}>
+              <p className={`text-xs mt-1 ${isUserMessage ? 'text-white/80' : 'text-white/30'
+                }`}>
                 Requer chave de descriptografia
               </p>
             </div>
@@ -196,11 +192,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
     return (
       <div className="mt-2">
-        <div className={`message-bubble flex items-center gap-2 px-3 py-2 rounded-full min-w-[280px] max-w-[65%] w-full ${
-          isUserMessage 
-            ? 'bg-goat-purple' 
-            : 'bg-goat-gray-700'
-        }`} style={{ position: 'relative', maxWidth: '65%' }}>
+        <div className={`message-bubble flex items-center gap-2 px-3 py-2 rounded-full min-w-[280px] max-w-[65%] w-full ${isUserMessage
+            ? 'bg-primary shadow-[0_0_15px_rgba(104,41,192,0.3)]'
+            : 'bg-white/[0.05] border border-white/5'
+          }`} style={{ position: 'relative', maxWidth: '65%' }}>
           <button
             onClick={togglePlay}
             className="w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0 opacity-100 hover:opacity-90 transition-opacity"
@@ -209,12 +204,12 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
           >
             {isPlaying ? (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="white"/>
-                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="white"/>
+                <rect x="6" y="4" width="2.5" height="12" rx="1" fill="white" />
+                <rect x="11.5" y="4" width="2.5" height="12" rx="1" fill="white" />
               </svg>
             ) : (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <polygon points="7,5 15,10 7,15" fill="white"/>
+                <polygon points="7,5 15,10 7,15" fill="white" />
               </svg>
             )}
           </button>
@@ -228,7 +223,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
                 transform: 'translate(-50%, -50%)',
                 width: 8,
                 height: 8,
-                background: isUserMessage ? '#ffffff' : '#6829c0',
+                background: isUserMessage ? '#ffffff' : '#A855F7',
                 borderRadius: '50%',
                 boxShadow: '0 0 8px rgba(255, 255, 255, 0.5)',
                 zIndex: 10,
@@ -237,9 +232,8 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
               }}
             />
           </div>
-          <span className={`text-xs w-8 text-right tabular-nums select-none ${
-            isUserMessage ? 'text-white' : 'text-white'
-          }`} style={{ opacity: 1 }}>
+          <span className={`text-xs w-8 text-right tabular-nums select-none ${isUserMessage ? 'text-white' : 'text-white'
+            }`} style={{ opacity: 1 }}>
             {formatTime(Math.max(0, duration - currentTime))}
           </span>
         </div>
@@ -252,15 +246,15 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     return (
       <div className="mt-2">
         <div className="relative group max-w-xs">
-          <video 
-            controls 
+          <video
+            controls
             className="w-full rounded-lg shadow-md"
             preload="metadata"
           >
             <source src={mediaUrl} type={mediaType} />
             Seu navegador não suporta o elemento de vídeo.
           </video>
-          
+
           <Button
             size="sm"
             variant="secondary"
@@ -286,19 +280,18 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
 
   return (
     <div className="mt-2">
-      <div className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-opacity ${
-        isUserMessage 
-          ? 'bg-purple-600/20 border-purple-400/30' 
-          : 'bg-goat-gray-600 border-goat-gray-500'
-      }`}
-      onClick={openInNewTab}
+      <div className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-opacity ${isUserMessage
+          ? 'bg-primary/20 border-primary/30 shadow-[0_0_15px_rgba(104,41,192,0.1)]'
+          : 'bg-white/[0.03] border-white/5'
+        }`}
+        onClick={openInNewTab}
       >
-        <FileIcon className={`w-6 h-6 ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-300'}`} />
+        <FileIcon className={`w-6 h-6 ${isUserMessage ? 'text-white' : 'text-white/60'}`} />
         <div className="flex-1 min-w-0">
-          <p className={`text-sm font-medium truncate ${isUserMessage ? 'text-white' : 'text-goat-gray-200'}`}>
+          <p className={`text-sm font-medium truncate ${isUserMessage ? 'text-white' : 'text-white/80'}`}>
             {mediaFilename || 'Arquivo'}
           </p>
-          <p className={`text-xs ${isUserMessage ? 'text-purple-200' : 'text-goat-gray-400'}`}>
+          <p className={`text-xs ${isUserMessage ? 'text-white/70' : 'text-white/40'}`}>
             {mediaType} {mediaSize && `• ${formatFileSize(mediaSize)}`}
           </p>
         </div>
@@ -309,7 +302,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
             e.stopPropagation();
             handleDownload();
           }}
-          className={`${isUserMessage ? 'text-purple-200 hover:text-white' : 'text-goat-gray-300 hover:text-white'}`}
+          className={`h-8 w-8 p-0 hover:bg-white/10 ${isUserMessage ? 'text-white' : 'text-white/60'}`}
         >
           <Download className="w-4 h-4" />
         </Button>
