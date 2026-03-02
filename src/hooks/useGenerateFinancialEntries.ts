@@ -24,29 +24,26 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       return;
     }
 
-    // Verificar se já existem lançamentos para este cliente
+    // Verificar lançamentos existentes para este cliente para não duplicar
     const { data: existingEntries } = await supabase
       .from('financial_entries')
-      .select('id')
+      .select('due_date')
       .eq('client_id', clientId)
       .eq('user_id', userId);
 
-    if (existingEntries && existingEntries.length > 0) {
-      console.log('DEBUG - Lançamentos já existem para este cliente');
-      return;
-    }
+    const existingDates = new Set((existingEntries || []).map(e => e.due_date));
 
     // Gerar todos os lançamentos futuros
     const startDate = new Date(client.start_date || new Date());
     const endDate = new Date(client.contract_end);
     const paymentDay = client.payment_day || 1;
-    
+
     // Normalizar as datas para evitar problemas de timezone
     startDate.setHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999); // Fim do dia
-    
+
     const financialEntries = [];
-    
+
     // Função auxiliar para definir o dia de pagamento de forma segura
     const setPaymentDay = (date: Date, day: number) => {
       const newDate = new Date(date);
@@ -57,51 +54,52 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
       newDate.setHours(0, 0, 0, 0);
       return newDate;
     };
-    
+
     // Começar do mês seguinte ao início do contrato ou do mesmo mês se o dia de pagamento ainda não passou
     let currentDate = new Date(startDate);
-    
-    // Se o dia de pagamento do mês atual já passou, começar do próximo mês
-    // CORRIGIDO: Usar > em vez de >= para incluir pagamento quando inicia no mesmo dia
+
     if (startDate.getDate() > paymentDay) {
       currentDate.setMonth(currentDate.getMonth() + 1);
     }
-    
+
     // Ajustar para o dia de pagamento
     currentDate = setPaymentDay(currentDate, paymentDay);
 
-    // Gerar lançamentos mensais até o fim do contrato
-    // CORRIGIDO: Parar quando o pagamento seria APÓS a data de término do contrato
     while (true) {
-      // Criar uma cópia para comparação
       const paymentDate = new Date(currentDate);
       paymentDate.setHours(0, 0, 0, 0);
-      
+
       // Se o pagamento seria depois do término do contrato, parar
       if (paymentDate > endDate) {
         break;
       }
-      
-      const entryDate = paymentDate.toISOString().split('T')[0];
-      
-      // Criar referência do mês/ano em português
-      const monthNames = [
-        'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-        'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
-      ];
-      const reference = `${monthNames[paymentDate.getMonth()]} de ${paymentDate.getFullYear()}`;
-      
-      financialEntries.push({
-        client_id: clientId,
-        user_id: userId,
-        name: client.company,
-        amount: client.monthly_value,
-        due_date: entryDate,
-        reference: reference,
-        status: 'pending',
-      });
 
-      // Próximo mês - CORRIGIDO: criar nova data para evitar mutações
+      // Ajuste de timezone resolvido cortando UTC string na unha
+      const year = paymentDate.getFullYear();
+      const monthStr = String(paymentDate.getMonth() + 1).padStart(2, '0');
+      const dayStr = String(paymentDate.getDate()).padStart(2, '0');
+      const entryDate = `${year}-${monthStr}-${dayStr}`;
+
+      // Só adicionar se ainda não existir um lançamento (pago ou pendente) neste dia
+      if (!existingDates.has(entryDate)) {
+        const monthNames = [
+          'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+        ];
+        const reference = `${monthNames[paymentDate.getMonth()]} de ${paymentDate.getFullYear()}`;
+
+        financialEntries.push({
+          client_id: clientId,
+          user_id: userId,
+          name: client.company,
+          amount: client.monthly_value,
+          due_date: entryDate,
+          reference: reference,
+          status: 'pending',
+        });
+      }
+
+      // Próximo mês
       const nextMonth = new Date(currentDate);
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       currentDate = setPaymentDay(nextMonth, paymentDay);
@@ -109,7 +107,7 @@ export const generateFinancialEntriesForClient = async (clientId: string, userId
 
     if (financialEntries.length > 0) {
       console.log(`DEBUG - Criando ${financialEntries.length} lançamentos financeiros`);
-      
+
       const { error: insertError } = await supabase
         .from('financial_entries')
         .insert(financialEntries);

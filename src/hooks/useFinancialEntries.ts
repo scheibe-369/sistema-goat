@@ -15,9 +15,9 @@ export const useFinancialEntries = () => {
     queryKey: ['financial-entries', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       console.log('DEBUG - Buscando lançamentos financeiros para usuário:', user.id);
-      
+
       const { data, error } = await supabase
         .from('financial_entries')
         .select(`
@@ -31,12 +31,12 @@ export const useFinancialEntries = () => {
         `)
         .eq('user_id', user.id)
         .order('due_date', { ascending: true });
-      
+
       if (error) {
         console.error('Erro ao buscar lançamentos financeiros:', error);
         throw error;
       }
-      
+
       console.log('DEBUG - Lançamentos financeiros encontrados:', data?.length || 0);
       console.log('DEBUG - Dados dos lançamentos:', data?.map(e => ({ name: e.name, status: e.status, due_date: e.due_date })));
       return data || [];
@@ -50,10 +50,10 @@ export const useFinancialEntries = () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       console.log('DEBUG - Marcando lançamento como pago:', entryId);
-      
+
       const { data: updatedEntry, error } = await supabase
         .from('financial_entries')
-        .update({ 
+        .update({
           status: 'paid',
           updated_at: new Date().toISOString()
         })
@@ -66,13 +66,13 @@ export const useFinancialEntries = () => {
         console.error('Erro ao marcar como pago:', error);
         throw error;
       }
-      
+
       return updatedEntry;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
       refetch();
-      
+
       toast({
         title: "Sucesso",
         description: "Pagamento registrado com sucesso!",
@@ -94,7 +94,7 @@ export const useFinancialEntries = () => {
       if (!user?.id) throw new Error('User not authenticated');
 
       console.log('DEBUG - Verificando clientes sem lançamentos financeiros');
-      
+
       // Buscar todos os clientes do usuário
       const { data: clients, error: clientsError } = await supabase
         .from('clients')
@@ -107,25 +107,16 @@ export const useFinancialEntries = () => {
       }
 
       let generatedCount = 0;
-      
+
       for (const client of clients || []) {
         // Verificar se o cliente tem dados necessários
         if (client.monthly_value && client.contract_end && client.payment_day) {
-          // Verificar se já tem lançamentos financeiros
-          const { data: existingEntries } = await supabase
-            .from('financial_entries')
-            .select('id')
-            .eq('client_id', client.id)
-            .eq('user_id', user.id);
-
-          if (!existingEntries || existingEntries.length === 0) {
-            console.log(`DEBUG - Gerando lançamentos para cliente: ${client.company}`);
-            try {
-              await generateFinancialEntriesForClient(client.id, user.id);
-              generatedCount++;
-            } catch (error) {
-              console.error(`Erro ao gerar lançamentos para ${client.company}:`, error);
-            }
+          console.log(`DEBUG - Processando lançamentos para cliente: ${client.company}`);
+          try {
+            await generateFinancialEntriesForClient(client.id, user.id);
+            generatedCount++;
+          } catch (error) {
+            console.error(`Erro ao processar lançamentos para ${client.company}:`, error);
           }
         }
       }
@@ -135,7 +126,7 @@ export const useFinancialEntries = () => {
     onSuccess: (generatedCount) => {
       queryClient.invalidateQueries({ queryKey: ['financial-entries'] });
       refetch();
-      
+
       toast({
         title: "Sucesso",
         description: `${generatedCount} lançamentos financeiros foram gerados!`,

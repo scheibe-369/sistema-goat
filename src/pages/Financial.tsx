@@ -184,36 +184,6 @@ export default function Financial() {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  // Filtro para lançamentos financeiros de clientes com contratos ativos/a vencer e dentro da vigência
-  const financialEntriesElegiveis = financialEntries.filter(entry => {
-    // Encontrar todos os contratos ativos/a vencer para o cliente deste lançamento
-    const contratosElegiveis = contracts.filter(contract =>
-      contract.client_id === entry.client_id &&
-      (contract.status === 'active' || contract.status === 'expiring')
-    );
-
-    // Se não houver contrato elegível, não exibe o lançamento
-    if (contratosElegiveis.length === 0) return false;
-
-    // Verifica se a data de vencimento do lançamento está dentro do período de algum contrato elegível
-    const dueDate = parseLocalDate(entry.due_date);
-    return contratosElegiveis.some(contract => {
-      const start = parseLocalDate(contract.start_date);
-      const end = parseLocalDate(contract.end_date);
-      return dueDate >= start && dueDate <= end;
-    });
-  });
-
-  // Usar esse array filtrado para exibir os lançamentos financeiros
-  const filteredFinancialEntries = financialEntriesElegiveis.filter((entry: any) => {
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'currentMonth') {
-      const d = parseLocalDate(entry.due_date);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    }
-    return entry.status === statusFilter;
-  });
-
   // Função para determinar status visual
   const getStatusTag = (entry: any) => {
     if (entry.status === 'paid') {
@@ -221,19 +191,20 @@ export default function Financial() {
     }
     // Se está pendente e a data de vencimento é anterior ao dia atual, está em atraso
     const dueDate = parseLocalDate(entry.due_date);
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // Reset time for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for comparison
     dueDate.setHours(0, 0, 0, 0);
 
-    if (entry.status === 'pending' && dueDate < now) {
+    if (entry.status === 'pending' && dueDate < today) {
       return { label: 'Em atraso', color: 'bg-red-600' };
     }
     return { label: 'Em aberto', color: 'bg-yellow-600' };
   };
 
-  // Separar lançamentos em atraso dos demais
-  const overdueEntries = financialEntriesElegiveis.filter((entry: any) => getStatusTag(entry).label === 'Em atraso');
-  const normalEntries = financialEntriesElegiveis.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso').filter((entry: any) => {
+  // Separar lançamentos em atraso dos demais (sem esconder lançamentos legítimos do banco)
+  const overdueEntries = financialEntries.filter((entry: any) => getStatusTag(entry).label === 'Em atraso');
+
+  const normalEntries = financialEntries.filter((entry: any) => getStatusTag(entry).label !== 'Em atraso').filter((entry: any) => {
     if (statusFilter === 'all') return true;
     if (statusFilter === 'currentMonth') {
       const d = parseLocalDate(entry.due_date);
@@ -271,7 +242,11 @@ export default function Financial() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <FinancialHeader onNewTransaction={() => setIsExpenseModalOpen(true)} />
+      <FinancialHeader
+        onNewTransaction={() => setIsExpenseModalOpen(true)}
+        onSync={() => generateMissingEntries()}
+        isSyncing={isGeneratingEntries}
+      />
 
       <ExpenseModal
         onAddExpense={handleAddExpense}
