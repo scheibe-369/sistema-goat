@@ -41,48 +41,38 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     window.open(mediaUrl, '_blank');
   };
 
+  const [imageError, setImageError] = useState(false);
+
   // Renderizar imagens com preview inline
   if (mediaType?.startsWith('image/') || mediaType === 'imageMessage') {
     return (
-      <div className="mt-2">
-        <div className="relative group">
-          <img
-            src={mediaUrl}
-            alt="Imagem compartilhada"
-            className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
-            onClick={openInNewTab}
-            onError={(e) => {
-              console.error('Erro ao carregar imagem:', mediaUrl);
-              console.error('Media type:', mediaType);
-              console.error('Filename:', mediaFilename);
-              // Fallback para mostrar um ícone se a imagem não carregar
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              const fallbackDiv = target.nextElementSibling as HTMLElement;
-              if (fallbackDiv) {
-                fallbackDiv.style.display = 'flex';
-              }
-            }}
-          />
-
-          {/* Fallback caso a imagem não carregue */}
-          <div
-            className={`hidden items-center justify-center w-full h-32 rounded-xl border-2 border-dashed ${isUserMessage ? 'border-primary/40 bg-primary/20' : 'border-white/20 bg-white/[0.03]'
-              }`}
-          >
-            <div className="text-center">
-              <ImageIcon className={`w-8 h-8 mx-auto mb-2 ${isUserMessage ? 'text-white' : 'text-white/40'
+      <div className="mt-1">
+        <div className="relative group w-full">
+          {(!mediaUrl || imageError) ? (
+            <div
+              className={`flex flex-col items-center justify-center w-[200px] h-32 rounded-xl border-2 border-dashed ${isUserMessage ? 'border-primary/40 bg-primary/20' : 'border-white/20 bg-white/[0.03]'
+                }`}
+            >
+              <ImageIcon className={`w-8 h-8 mb-2 ${isUserMessage ? 'text-white' : 'text-white/40'
                 }`} />
-              <p className={`text-sm ${isUserMessage ? 'text-white' : 'text-white/60'
+              <p className={`text-sm font-medium ${isUserMessage ? 'text-white' : 'text-white/60'
                 }`}>
-                Imagem criptografada
+                Foto arquivada
               </p>
-              <p className={`text-xs mt-1 ${isUserMessage ? 'text-white/80' : 'text-white/30'
+              <p className={`text-[10px] mt-1 text-center px-4 ${isUserMessage ? 'text-white/80' : 'text-white/30'
                 }`}>
-                Requer chave de descriptografia
+                Indisponível no servidor
               </p>
             </div>
-          </div>
+          ) : (
+            <img
+              src={mediaUrl}
+              alt="Imagem compartilhada"
+              className="max-w-[280px] rounded-xl cursor-pointer hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
+              onClick={openInNewTab}
+              onError={() => setImageError(true)}
+            />
+          )}
         </div>
       </div>
     );
@@ -100,73 +90,71 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     const [waveWidth, setWaveWidth] = useState(0);
 
     useEffect(() => {
-      let resizeObserver: ResizeObserver | null = null;
-      let lastCanvas: HTMLCanvasElement | null = null;
+      if (!mediaUrl) return;
+
       if (waveRef.current && !waveSurferRef.current) {
-        waveSurferRef.current = WaveSurfer.create({
+        const audioEl = new window.Audio();
+        audioEl.crossOrigin = 'anonymous';
+        audioEl.src = mediaUrl;
+        audioEl.preload = 'metadata';
+
+        const ws = WaveSurfer.create({
           container: waveRef.current,
-          waveColor: 'rgba(163, 163, 163, 0.6)', // parte não reproduzida (cinza)
-          progressColor: 'rgba(255, 255, 255, 0.9)', // parte já reproduzida (branca)
+          waveColor: 'rgba(163, 163, 163, 0.6)',
+          progressColor: 'white',
           barWidth: 2,
+          barGap: 2,
           barRadius: 2,
           height: 32,
-          cursorWidth: 0, // Esconde a barra
-          interact: true,
-          hideScrollbar: true,
+          cursorWidth: 0,
+          media: audioEl,
         });
-        waveSurferRef.current.load(mediaUrl);
-        const observeCanvas = () => {
-          const canvas = waveRef.current?.querySelector('canvas');
-          if (canvas && canvas !== lastCanvas) {
-            setWaveWidth(canvas.offsetWidth);
-            if (resizeObserver) resizeObserver.disconnect();
-            if ('ResizeObserver' in window) {
-              resizeObserver = new ResizeObserver(() => {
-                setWaveWidth(canvas.offsetWidth);
-              });
-              resizeObserver.observe(canvas);
-              lastCanvas = canvas;
-            }
+
+        waveSurferRef.current = ws;
+
+        ws.on('ready', () => {
+          setDuration(ws.getDuration() || 0);
+          // Atualiza a largura para a bolinha baseada no container do react
+          if (waveRef.current) {
+            setWaveWidth(waveRef.current.offsetWidth);
           }
-        };
-        waveSurferRef.current.on('ready', () => {
-          setDuration(waveSurferRef.current?.getDuration() || 0);
-          observeCanvas();
         });
-        waveSurferRef.current.on('play', () => {
-          setIsPlaying(true);
+
+        ws.on('play', () => setIsPlaying(true));
+        ws.on('pause', () => setIsPlaying(false));
+
+        ws.on('audioprocess', () => {
+          setCurrentTime(ws.getCurrentTime() || 0);
         });
-        waveSurferRef.current.on('pause', () => {
-          setIsPlaying(false);
+
+        ws.on('interaction', () => {
+          setCurrentTime(ws.getCurrentTime() || 0);
         });
-        waveSurferRef.current.on('audioprocess', () => {
-          setCurrentTime(waveSurferRef.current?.getCurrentTime() || 0);
-          observeCanvas();
-        });
-        waveSurferRef.current.on('interaction', () => {
-          setCurrentTime(waveSurferRef.current?.getCurrentTime() || 0);
-          observeCanvas();
-        });
-        waveSurferRef.current.on('finish', () => {
+
+        ws.on('finish', () => {
           setIsPlaying(false);
           setCurrentTime(0);
-          if (waveSurferRef.current) {
-            waveSurferRef.current.seekTo(0);
-            waveSurferRef.current.pause();
-          }
+          ws.seekTo(0);
+        });
+
+        ws.on('error', (err) => {
+          console.error("WaveSurfer Error: ", err);
         });
       }
-      // Atualiza largura da onda ao redimensionar janela
+
       const handleResize = () => {
-        const canvas = waveRef.current?.querySelector('canvas');
-        if (canvas) setWaveWidth(canvas.offsetWidth);
+        if (waveRef.current) {
+          setWaveWidth(waveRef.current.offsetWidth);
+        }
       };
+
       window.addEventListener('resize', handleResize);
       return () => {
-        waveSurferRef.current?.destroy();
-        waveSurferRef.current = null;
+        if (waveSurferRef.current) {
+          waveSurferRef.current.destroy();
+          waveSurferRef.current = null;
+        }
         window.removeEventListener('resize', handleResize);
-        if (resizeObserver) resizeObserver.disconnect();
       };
     }, [mediaUrl]);
 
@@ -191,15 +179,11 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
     console.log('AUDIO DEBUG:', { duration, waveWidth, currentTime });
 
     return (
-      <div className="mt-2">
-        <div className={`message-bubble flex items-center gap-2 px-3 py-2 rounded-full min-w-[280px] max-w-[65%] w-full ${isUserMessage
-            ? 'bg-primary shadow-[0_0_15px_rgba(104,41,192,0.3)]'
-            : 'bg-white/[0.05] border border-white/5'
-          }`} style={{ position: 'relative', maxWidth: '65%' }}>
+      <div className="mt-1">
+        <div className="flex items-center gap-3 px-2 py-1 w-full" style={{ position: 'relative' }}>
           <button
-            onClick={togglePlay}
-            className="w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0 opacity-100 hover:opacity-90 transition-opacity"
-            style={{ opacity: 1 }}
+            onClick={mediaUrl ? togglePlay : undefined}
+            className={`w-8 h-8 flex items-center justify-center bg-transparent focus:outline-none flex-shrink-0 transition-opacity ${!mediaUrl ? 'opacity-50 cursor-not-allowed' : 'opacity-100 hover:opacity-90'}`}
             aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
           >
             {isPlaying ? (
@@ -244,7 +228,7 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   // Renderizar vídeos
   if (mediaType?.startsWith('video/')) {
     return (
-      <div className="mt-2">
+      <div className="mt-1">
         <div className="relative group max-w-xs">
           <video
             controls
@@ -279,10 +263,10 @@ export const MessageMedia: React.FC<MessageMediaProps> = ({
   const FileIcon = getFileIcon(mediaType);
 
   return (
-    <div className="mt-2">
+    <div className="mt-1">
       <div className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-opacity ${isUserMessage
-          ? 'bg-primary/20 border-primary/30 shadow-[0_0_15px_rgba(104,41,192,0.1)]'
-          : 'bg-white/[0.03] border-white/5'
+        ? 'bg-transparent border-white/20'
+        : 'bg-transparent border-white/10'
         }`}
         onClick={openInNewTab}
       >

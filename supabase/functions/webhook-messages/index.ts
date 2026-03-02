@@ -10,13 +10,13 @@ const corsHeaders = {
 // Função para descriptografar mídia do WhatsApp
 async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: string): Promise<Uint8Array> {
   const mediaKey = Uint8Array.from(atob(mediaKeyBase64), (c) => c.charCodeAt(0));
-  
+
   // Para áudio: usar 'WhatsApp Audio Keys'
   // Para imagem: usar 'WhatsApp Image Keys'
   // Para video: usar 'WhatsApp Video Keys'
   const info = new TextEncoder().encode('WhatsApp Audio Keys');
   const salt = new Uint8Array(32);
-  
+
   const hkdfKey = await crypto.subtle.importKey('raw', mediaKey, 'HKDF', false, ['deriveBits']);
   const expandedKey = await crypto.subtle.deriveBits({
     name: 'HKDF',
@@ -24,25 +24,25 @@ async function decryptWhatsAppMedia(encryptedData: ArrayBuffer, mediaKeyBase64: 
     salt,
     info
   }, hkdfKey, 112 * 8);
-  
+
   const expandedKeyBytes = new Uint8Array(expandedKey);
   const iv = expandedKeyBytes.slice(0, 16);
   const cipherKey = expandedKeyBytes.slice(16, 48);
-  
+
   const cryptoKey = await crypto.subtle.importKey('raw', cipherKey, {
     name: 'AES-CBC'
   }, false, ['decrypt']);
-  
+
   // Para áudio WhatsApp, cortar apenas os últimos 10 bytes (MAC)
   const encryptedArray = new Uint8Array(encryptedData);
   const ciphertext = encryptedArray.slice(0, encryptedArray.length - 10);
-  
+
   // Descriptografar o payload
   const decryptedData = await crypto.subtle.decrypt({
     name: 'AES-CBC',
     iv
   }, cryptoKey, ciphertext.buffer);
-  
+
   return new Uint8Array(decryptedData);
 }
 
@@ -55,7 +55,7 @@ async function downloadAndDecryptMedia(params: {
   supabaseClient: any;
 }) {
   const { mediaUrl, mediaKey, mediaType, filename, supabaseClient } = params;
-  
+
   console.log('===> Tentando baixar mídia:', mediaUrl);
 
   try {
@@ -79,7 +79,7 @@ async function downloadAndDecryptMedia(params: {
     console.log('===> Tamanho arquivo criptografado:', dataArr.length, 'bytes');
     console.log('===> Primeiros 16 bytes do arquivo:', Array.from(dataArr.slice(0, 16)));
     console.log('===> mediaKey base64:', mediaKey);
-    
+
     const keyBytes = Uint8Array.from(atob(mediaKey), c => c.charCodeAt(0));
     console.log('===> Tamanho da mediaKey em bytes:', keyBytes.length);
 
@@ -92,11 +92,11 @@ async function downloadAndDecryptMedia(params: {
     // Upload para o Supabase Storage
     const uniqueFilename = `${Date.now()}_${filename}${getFileExtension(mediaType)}`;
     const filePath = `media/${uniqueFilename}`;
-    
+
     const { error: uploadError } = await supabaseClient.storage
       .from('whatsapp-media')
       .upload(filePath, decryptedArr, { contentType: mediaType });
-      
+
     if (uploadError) {
       console.error('Erro no upload:', uploadError);
       return { success: false, error: uploadError.message };
@@ -110,7 +110,7 @@ async function downloadAndDecryptMedia(params: {
       filename: uniqueFilename,
       size: decryptedArr.length
     };
-    
+
   } catch (error: unknown) {
     const err = error as Error;
     console.error('===> ERRO DE DESCRIPTOGRAFIA:', err.message || 'Unknown error');
@@ -120,16 +120,37 @@ async function downloadAndDecryptMedia(params: {
 
 // Função para obter extensão do arquivo baseada no tipo MIME
 function getFileExtension(mimeType: string): string {
+  if (!mimeType) return '.bin';
+
   const extensions: { [key: string]: string } = {
     'image/jpeg': '.jpg',
     'image/png': '.png',
     'image/webp': '.webp',
     'audio/mpeg': '.mp3',
     'audio/ogg': '.ogg',
+    'audio/ogg; codecs=opus': '.ogg',
+    'audio/mp4': '.m4a',
+    'audio/amr': '.m4a',
     'video/mp4': '.mp4',
     'application/pdf': '.pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'application/msword': '.doc',
+    'application/vnd.ms-excel': '.xls',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+    'text/plain': '.txt',
+    'application/zip': '.zip',
+    'application/vnd.ms-powerpoint': '.ppt',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
   };
-  return extensions[mimeType] || '';
+
+  // Limpar charset e outras diretivas extras do mimetype (ex: "audio/ogg; codecs=opus" -> "audio/ogg")
+  // Mas vamos buscar no map primeiro caso tenha match exato
+  if (extensions[mimeType]) {
+    return extensions[mimeType];
+  }
+
+  const cleanMime = mimeType.split(';')[0].trim();
+  return extensions[cleanMime] || '';
 }
 
 serve(async (req) => {
@@ -142,12 +163,11 @@ serve(async (req) => {
 
   try {
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '', 
+      Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-    
+
     const requestBody = await req.json();
-    console.log('📨 Dados recebidos:', JSON.stringify(requestBody, null, 2));
 
     // Verificar dados obrigatórios
     if (!requestBody.p_numero || !requestBody.p_user_id) {
@@ -178,24 +198,66 @@ serve(async (req) => {
     let finalMediaSize = requestBody.p_media_size;
     let finalMediaType = requestBody.p_media_type;
 
-    // Mapear tipos de mídia do WhatsApp para MIME types
+    // Mapear tipos de mídia da Evolution API para MIME types mais genéricos se necessário
     const mimeTypeMap: { [key: string]: string } = {
       'imageMessage': 'image/jpeg',
       'videoMessage': 'video/mp4',
       'audioMessage': 'audio/ogg', // WhatsApp usa OGG para áudio
-      'documentMessage': 'application/octet-stream'
+      'pttMessage': 'audio/ogg', // PTT = Push To Talk (Áudio gravado na hora)
+      'documentMessage': 'application/octet-stream', // Fallback genérico, mas vamos tentar pegar o mime real
+      'documentWithCaptionMessage': 'application/octet-stream'
     };
 
     if (finalMediaType && mimeTypeMap[finalMediaType]) {
       finalMediaType = mimeTypeMap[finalMediaType];
     }
 
-    // Baixar e descriptografar mídia se disponível
-    if (requestBody.p_media_url && requestBody.p_media_key) {
-      console.log('📱 Processando mídia...');
+    // Se a API mandou o mimetype exato (ex: application/pdf), ele sobrepõe o genérico
+    if (requestBody.p_media_mime) {
+      finalMediaType = requestBody.p_media_mime.split(';')[0].trim();
+    }
+
+    // Preferir base64 direto enviado pela Evolution API (Evita baixar/descriptografar novamente)
+    if (requestBody.p_media_base64) {
+      console.log('📱 Processando mídia nativa via Base64 enviado no Webhook...');
+      try {
+        const uniqueFilename = `${Date.now()}_media${getFileExtension(finalMediaType)}`;
+        const filePath = `media/${uniqueFilename}`;
+
+        // Decodificar Base64
+        const binaryData = Uint8Array.from(atob(requestBody.p_media_base64), c => c.charCodeAt(0));
+
+        const { error: uploadError } = await supabaseClient.storage
+          .from('whatsapp-media')
+          .upload(filePath, binaryData, { contentType: finalMediaType });
+
+        if (!uploadError) {
+          const { data: urlData } = supabaseClient.storage.from('whatsapp-media').getPublicUrl(filePath);
+          finalMediaUrl = urlData.publicUrl;
+          finalMediaFilename = uniqueFilename;
+          finalMediaSize = binaryData.length;
+          console.log('✅ Mídia Base64 salva com sucesso:', finalMediaUrl);
+        } else {
+          console.warn('⚠️ Falha no upload Storage:', uploadError);
+        }
+      } catch (err: any) {
+        console.warn('⚠️ Erro ao decodificar Base64:', err.message);
+      }
+    }
+    // Fallback: Baixar e descriptografar mídia se base64 não estiver disponível
+    else if (requestBody.p_media_url && requestBody.p_media_key) {
+      console.log('📱 Processando mídia via URL...');
+
+      // Ajustar tipo da chave, caso venha como objeto ao invés de string
+      let mediaKeyStr = requestBody.p_media_key;
+      if (typeof mediaKeyStr === 'object' && mediaKeyStr !== null) {
+        const keyArray = Object.values(mediaKeyStr) as number[];
+        mediaKeyStr = btoa(String.fromCharCode.apply(null, keyArray));
+      }
+
       const mediaResult = await downloadAndDecryptMedia({
         mediaUrl: requestBody.p_media_url,
-        mediaKey: requestBody.p_media_key,
+        mediaKey: mediaKeyStr,
         mediaType: finalMediaType,
         filename: requestBody.p_media_filename || `media_${Date.now()}`,
         supabaseClient
@@ -205,10 +267,9 @@ serve(async (req) => {
         finalMediaUrl = mediaResult.publicUrl;
         finalMediaFilename = mediaResult.filename;
         finalMediaSize = mediaResult.size;
-        console.log('✅ Mídia processada com sucesso:', finalMediaUrl);
+        console.log('✅ Mídia (Decrypt) processada com sucesso:', finalMediaUrl);
       } else {
-        console.warn('⚠️ Falha no processamento de mídia:', mediaResult.error);
-        // Continua sem a mídia, não falha completamente
+        console.warn('⚠️ Falha no processamento (Decrypt):', mediaResult.error);
       }
     }
 
@@ -231,7 +292,7 @@ serve(async (req) => {
 
     // Chamar a função do banco de dados
     const { data, error } = await supabaseClient.rpc('process_webhook_message', functionParams);
-    
+
     if (error) {
       console.error('❌ Erro na função do banco:', error);
       throw error;
@@ -239,8 +300,8 @@ serve(async (req) => {
 
     console.log('✅ Mensagem processada com sucesso. ID:', data);
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    return new Response(JSON.stringify({
+      success: true,
       message_id: data,
       processed_media: !!finalMediaUrl
     }), {
@@ -251,7 +312,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     const err = error as Error;
     console.error('💥 Erro no webhook:', err);
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       success: false,
       error: err.message || 'Unknown error',
       timestamp: new Date().toISOString()

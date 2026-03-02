@@ -340,40 +340,40 @@ export default function Conversations() {
                     <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
                       {messages.map((message) => (
                         <div key={message.id} className={`flex ${isUserMessage(message) ? "justify-end" : "justify-start"}`}>
-                          <div className={`message-bubble p-2 rounded-2xl w-auto ${message.media_type && message.media_type.startsWith('audio/')
-                            ? ''
-                            : ''
+                          <div className={`message-bubble flex flex-col relative rounded-2xl w-auto ${message.media_type
+                            ? 'p-1.5'
+                            : 'px-5 py-3.5'
                             } ${isUserMessage(message)
-                              ? "bg-primary text-white rounded-br-none shadow-[0_0_15px_rgba(104,41,192,0.3)]"
-                              : "bg-white/[0.05] border border-white/5 text-white rounded-bl-none"
+                              ? "bg-gradient-to-br from-primary to-purple-700 text-white rounded-br-sm shadow-[0_5px_25px_rgba(104,41,192,0.3)] border border-primary/40"
+                              : "bg-white/[0.08] backdrop-blur-md border border-white/10 text-white rounded-bl-sm shadow-[0_8px_32px_rgba(0,0,0,0.15)]"
                             }`}
                             style={{
-                              minWidth: 48,
-                              ...(message.media_type && message.media_type.startsWith('audio/')
-                                ? { maxWidth: '50%' }
-                                : { maxWidth: 320 })
+                              minWidth: '80px',
+                              maxWidth: message.media_type && message.media_type.startsWith('audio/') ? '340px' : '75%'
                             }}
                           >
                             {(message.text || message.mensagem) &&
-                              !(message.media_type && message.media_url) && (
-                                <p className="text-sm break-words whitespace-pre-line">{message.text || message.mensagem}</p>
+                              !["Mídia enviada", "Mensagem de voz", "Audio Message", "Video Message", "Image Message"].includes(message.text || message.mensagem || "") && (
+                                <p className={`text-[15px] break-words whitespace-pre-line leading-relaxed ${message.media_type ? 'px-2 pb-1 pt-2' : ''}`}>
+                                  {message.text || message.mensagem}
+                                </p>
                               )}
 
                             {/* Renderizar mídia se existir */}
-                            {message.media_type && message.media_url && (
+                            {message.media_type && (
                               <MessageMedia
                                 mediaType={message.media_type}
-                                mediaUrl={message.media_url}
+                                mediaUrl={message.media_url || ""}
                                 mediaFilename={message.media_filename || undefined}
                                 mediaSize={message.media_size || undefined}
                                 isUserMessage={isUserMessage(message)}
                               />
                             )}
 
-                            <span className={`text-[10px] block mt-1 text-right opacity-60 font-medium ${isUserMessage(message)
-                              ? "text-white"
-                              : "text-white/40"
-                              }`}>
+                            <span className={`text-[10.5px] block text-right font-medium tracking-wide ${isUserMessage(message)
+                              ? "text-white/80"
+                              : "text-white/50"
+                              } ${message.media_type ? 'pr-2 pb-1' : 'mt-1'}`}>
                               {formatTime(message.data_hora || message.created_at)}
                             </span>
                           </div>
