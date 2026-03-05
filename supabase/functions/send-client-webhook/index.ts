@@ -16,9 +16,12 @@ serve(async (req) => {
     console.log('=== WEBHOOK CLIENT - INÍCIO ===');
     console.log('Dados recebidos do cliente:', JSON.stringify(clientData, null, 2));
 
-    // Webhook URL
-    const webhookUrl = 'https://webhook.gabrielporceli.com.br/webhook/recebedadosclientenovo';
-    console.log('URL do webhook:', webhookUrl);
+    // Webhook URL - lida de variável de ambiente (configurar no Supabase: Project > Settings > Edge Functions > Secrets)
+    const webhookUrl = Deno.env.get('WEBHOOK_CLIENT_URL');
+    if (!webhookUrl) {
+      throw new Error('Variável de ambiente WEBHOOK_CLIENT_URL não está configurada nos secrets da Edge Function.');
+    }
+    console.log('URL do webhook configurada via env');
 
     // Preparar payload com dados do cliente
     const payload = {
@@ -31,7 +34,7 @@ serve(async (req) => {
 
     // Enviar para o webhook com timeout
     console.log('Iniciando envio para o webhook...');
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
 
@@ -53,17 +56,17 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('Erro no webhook - Status:', response.status);
       console.error('Erro no webhook - Text:', errorText);
-      
+
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: `Webhook failed: ${response.status} ${response.statusText}`,
           details: errorText,
           url: webhookUrl
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -74,8 +77,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ success: true, response: responseData, url: webhookUrl }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -85,21 +88,20 @@ serve(async (req) => {
     console.error('Tipo do erro:', err.constructor?.name || 'Unknown');
     console.error('Mensagem do erro:', err.message || 'Unknown error');
     console.error('Stack trace:', err.stack || 'No stack trace');
-    
+
     if (err.name === 'AbortError') {
       console.error('Timeout na requisição do webhook');
     }
-    
+
     return new Response(
-      JSON.stringify({ 
-        success: false, 
+      JSON.stringify({
+        success: false,
         error: `Erro crítico: ${err.message || 'Unknown error'}`,
-        errorType: err.constructor?.name || 'Unknown',
-        url: 'https://webhook.gabrielporceli.com.br/webhook/recebedadosclientenovo'
+        errorType: err.constructor?.name || 'Unknown'
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
