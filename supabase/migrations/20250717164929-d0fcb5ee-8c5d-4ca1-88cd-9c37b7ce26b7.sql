@@ -114,7 +114,7 @@ BEGIN
   -- Testar a função
   SELECT public.process_webhook_message(
     test_user_id,
-    '5511999999999',
+    '5500000000000',
     'Mensagem de teste',
     false,
     NOW(),
