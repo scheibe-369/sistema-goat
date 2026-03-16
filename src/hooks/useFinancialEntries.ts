@@ -14,6 +14,68 @@ export const useFinancialEntries = () => {
   const { data: financialEntries = [], isLoading: financialEntriesLoading, refetch } = useQuery({
     queryKey: ['financial-entries', user?.id],
     queryFn: async () => {
+      // For local development with mock user, return mock data
+      if (user?.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock financial entries data');
+        const now = new Date();
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 10);
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 10);
+        
+        return [
+          {
+            id: 'entry-1',
+            name: 'Pagamento Alpha - Jan',
+            amount: 1500.00,
+            due_date: lastMonth.toISOString().split('T')[0],
+            status: 'paid',
+            reference: '01/2025',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            clients: {
+              company: 'Empresa Alpha',
+              cnpj: '12.345.678/0001-90',
+              email: 'contato@alpha.com',
+              phone: '(11) 98888-7777'
+            }
+          },
+          {
+            id: 'entry-2',
+            name: 'Pagamento Alpha - Fev',
+            amount: 1500.00,
+            due_date: now.toISOString().split('T')[0],
+            status: 'pending',
+            reference: '02/2025',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            clients: {
+              company: 'Empresa Alpha',
+              cnpj: '12.345.678/0001-90',
+              email: 'contato@alpha.com',
+              phone: '(11) 98888-7777'
+            }
+          },
+          {
+            id: 'entry-3',
+            name: 'Pagamento Beta - Mar',
+            amount: 850.00,
+            due_date: nextMonth.toISOString().split('T')[0],
+            status: 'pending',
+            reference: '03/2025',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            clients: {
+              company: 'Consultoria Beta',
+              cnpj: '98.765.432/0001-21',
+              email: 'mariana@beta.com',
+              phone: '(21) 97777-6666'
+            }
+          }
+        ];
+      }
+
       if (!user?.id) return [];
 
       console.log('DEBUG - Buscando lançamentos financeiros para usuário:', user.id);

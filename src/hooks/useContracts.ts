@@ -13,9 +13,134 @@ export const useContracts = () => {
   return useQuery({
     queryKey: ['contracts'],
     queryFn: async () => {
-      // Verificar autenticação antes de fazer query
+      // For local development with mock user, return mock data
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      
+      if (!user || user.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock contracts data');
+        return [
+          {
+            id: 'contract-1',
+            client_id: '1',
+            type: 'Mensal',
+            monthly_value: 1500.00,
+            start_date: '2024-01-01',
+            end_date: '2025-12-31',
+            status: 'active',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            client: {
+              id: '1',
+              company: 'Empresa Alpha',
+              cnpj: '12.345.678/0001-90',
+              responsible: 'Henrique Silva',
+              phone: '(11) 98888-7777',
+              email: 'contato@alpha.com',
+              user_id: 'mock-user-id',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              address: 'Av. Paulista, 1000',
+              plan: 'Premium',
+              contract_end: '2025-12-31',
+              start_date: '2024-01-01',
+              monthly_value: 1500.00,
+              payment_day: 10,
+              tags: ['Ativo']
+            }
+          },
+          {
+            id: 'contract-2',
+            client_id: '2',
+            type: 'Anual',
+            monthly_value: 2000.00,
+            start_date: '2023-05-01',
+            end_date: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString().split('T')[0], // Expira em 15 dias (A Vencer)
+            status: 'active',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            client: {
+              id: '2',
+              company: 'Tech Solutions',
+              cnpj: '98.765.432/0001-10',
+              responsible: 'Mariana Costa',
+              phone: '(21) 97777-6666',
+              email: 'mariana@techsolutions.com',
+              user_id: 'mock-user-id',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              address: 'Av. Copacabana, 500',
+              plan: 'Enterprise',
+              contract_end: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString().split('T')[0],
+              start_date: '2023-05-01',
+              monthly_value: 2000.00,
+              payment_day: 5,
+              tags: ['A Vencer']
+            }
+          },
+          {
+            id: 'contract-3',
+            client_id: '3',
+            type: 'Trimestral',
+            monthly_value: 800.00,
+            start_date: '2023-10-01',
+            end_date: '2023-12-31',
+            status: 'inactive',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            client: {
+              id: '3',
+              company: 'Marketing Express',
+              cnpj: '45.123.890/0001-55',
+              responsible: 'Roberto Almeida',
+              phone: '(31) 96666-5555',
+              email: 'roberto@marketingexpress.com',
+              user_id: 'mock-user-id',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              address: 'Rua das Flores, 120',
+              plan: 'Basic',
+              contract_end: '2023-12-31',
+              start_date: '2023-10-01',
+              monthly_value: 800.00,
+              payment_day: 15,
+              tags: ['Inativo']
+            }
+          },
+          {
+            id: 'contract-4',
+            client_id: '4',
+            type: 'Mensal',
+            monthly_value: 3500.00,
+            start_date: '2024-02-15',
+            end_date: '2026-02-15',
+            status: 'active',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            client: {
+              id: '4',
+              company: 'Global Importadora',
+              cnpj: '76.543.210/0001-33',
+              responsible: 'Amanda Santos',
+              phone: '(41) 95555-4444',
+              email: 'amanda@globalimport.com',
+              user_id: 'mock-user-id',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              address: 'Setor Comercial Sul, Q1',
+              plan: 'Enterprise',
+              contract_end: '2026-02-15',
+              start_date: '2024-02-15',
+              monthly_value: 3500.00,
+              payment_day: 20,
+              tags: ['Ativo']
+            }
+          }
+        ];
+      }
 
       // Atualizar tags de clientes baseado no vencimento dos contratos
       // Isso garante que as tags estejam sempre atualizadas

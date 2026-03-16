@@ -16,85 +16,45 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // --- MOCK AUTH FOR LOCAL DEVELOPMENT ---
+  const mockUser: User = {
+    id: 'mock-user-id',
+    email: 'helimonteiro@mgial.com',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  };
+
+  const mockSession: Session = {
+    access_token: 'mock-token',
+    refresh_token: 'mock-refresh-token',
+    expires_in: 3600,
+    token_type: 'bearer',
+    user: mockUser,
+  };
+
+  const [user, setUser] = useState<User | null>(mockUser);
+  const [session, setSession] = useState<Session | null>(mockSession);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session);
-        
-        // Tratamento específico para evento de logout
-        if (event === 'SIGNED_OUT') {
-          console.log('User signed out, clearing session');
-          setSession(null);
-          setUser(null);
-          setIsLoading(false);
-          return;
-        }
-        
-        // Tratamento para token refresh
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed');
-        }
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    // We disable the real Supabase listener for now to avoid redirects
+    console.log('Auth bypass active: Using mock session');
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('Login error:', error);
-        toast.error('Erro ao fazer login: ' + error.message);
-        return false;
-      }
-
-      if (data.user) {
-        console.log('Login successful:', data.user);
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Login exception:', error);
-      toast.error('Erro inesperado ao fazer login');
-      return false;
-    }
+    console.log('Mock login called with:', email);
+    setUser(mockUser);
+    setSession(mockSession);
+    return true;
   };
 
   const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Logout error:', error);
-        toast.error('Erro ao fazer logout');
-      } else {
-        toast.success('Logout realizado com sucesso');
-      }
-    } catch (error) {
-      console.error('Logout exception:', error);
-      toast.error('Erro inesperado ao fazer logout');
-    }
+    console.log('Mock logout called');
+    setUser(null);
+    setSession(null);
+    toast.success('Logout (Mock) realizado');
   };
 
   const value = {

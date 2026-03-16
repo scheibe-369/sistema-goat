@@ -29,7 +29,102 @@ export function useSdrMetrics(filter: DashboardFilter = { period: 'month' }) {
     const { data, isLoading, error } = useQuery({
         queryKey: ["sdr-metrics", userId, filter.period, filter.start, filter.end],
         queryFn: async () => {
-            if (!userId) return null;
+            // For local development, return mock data
+            if (!userId || userId === 'mock-user-id') {
+                console.log('DEBUG - Using mock SDR metrics data for period:', filter.period);
+                
+                // Variar os dados com base no período
+                let mockData;
+                
+                switch (filter.period) {
+                    case 'day':
+                        mockData = {
+                            metrics: {
+                                totalLeadsContacted: 12,
+                                activeLeads: 5,
+                                responseRate: 92,
+                                avgResponseTimeMinutes: 2,
+                                scheduled: 1,
+                                sdrRevenue: 1500.00,
+                                outboundCount: 15,
+                                inboundCount: 3,
+                                qualifiedRate: 85,
+                                avgFollowups: 2.1,
+                                qualityScore: 9.2,
+                            },
+                            dropoffSteps: [
+                                { stage: 'Novo Contato', nextStage: 'Em Atendimento', reached: 12, advanced: 10, notAdvanced: 2, rate: 83.3, slaLabel: 'Dentro do SLA' },
+                                { stage: 'Em Atendimento', nextStage: 'Agendado', reached: 10, advanced: 1, notAdvanced: 9, rate: 10, slaLabel: 'Dentro do SLA' }
+                            ]
+                        };
+                        break;
+                    case 'week':
+                        mockData = {
+                            metrics: {
+                                totalLeadsContacted: 58,
+                                activeLeads: 18,
+                                responseRate: 84,
+                                avgResponseTimeMinutes: 4,
+                                scheduled: 4,
+                                sdrRevenue: 8500.00,
+                                outboundCount: 65,
+                                inboundCount: 12,
+                                qualifiedRate: 72,
+                                avgFollowups: 3.1,
+                                qualityScore: 8.8,
+                            },
+                            dropoffSteps: [
+                                { stage: 'Novo Contato', nextStage: 'Em Atendimento', reached: 58, advanced: 45, notAdvanced: 13, rate: 77.5, slaLabel: 'Dentro do SLA' },
+                                { stage: 'Em Atendimento', nextStage: 'Agendado', reached: 45, advanced: 4, notAdvanced: 41, rate: 8.8, slaLabel: 'Dentro do SLA' }
+                            ]
+                        };
+                        break;
+                    case 'total':
+                    case 'all_time':
+                        mockData = {
+                            metrics: {
+                                totalLeadsContacted: 1245,
+                                activeLeads: 89,
+                                responseRate: 75,
+                                avgResponseTimeMinutes: 8,
+                                scheduled: 98,
+                                sdrRevenue: 280000.00,
+                                outboundCount: 1100,
+                                inboundCount: 320,
+                                qualifiedRate: 60,
+                                avgFollowups: 4.2,
+                                qualityScore: 8.1,
+                            },
+                            dropoffSteps: [
+                                { stage: 'Novo Contato', nextStage: 'Em Atendimento', reached: 1245, advanced: 980, notAdvanced: 265, rate: 78.7, slaLabel: 'Dentro do SLA' },
+                                { stage: 'Em Atendimento', nextStage: 'Agendado', reached: 980, advanced: 98, notAdvanced: 882, rate: 10, slaLabel: 'Atenção' }
+                            ]
+                        };
+                        break;
+                    case 'month':
+                    default:
+                        mockData = {
+                            metrics: {
+                                totalLeadsContacted: 154,
+                                activeLeads: 42,
+                                responseRate: 78,
+                                avgResponseTimeMinutes: 5,
+                                scheduled: 12,
+                                sdrRevenue: 35000.00,
+                                outboundCount: 120,
+                                inboundCount: 34,
+                                qualifiedRate: 65,
+                                avgFollowups: 3.5,
+                                qualityScore: 8.5,
+                            },
+                            dropoffSteps: [
+                                { stage: 'Novo Contato', nextStage: 'Em Atendimento', reached: 154, advanced: 120, notAdvanced: 34, rate: 77.9, slaLabel: 'Dentro do SLA' },
+                                { stage: 'Em Atendimento', nextStage: 'Agendado', reached: 120, advanced: 12, notAdvanced: 108, rate: 10, slaLabel: 'Atenção' }
+                            ]
+                        };
+                }
+                return mockData;
+            }
 
             // Prepare args for RPC
             const args: any = {

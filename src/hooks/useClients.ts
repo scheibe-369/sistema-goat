@@ -12,7 +12,106 @@ export const useClients = () => {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
+      // For local development with mock user, return mock data
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // If no user from supabase or explicit mock ID, use mock data
+      if (!user || user.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock clients data');
+        return [
+          {
+            id: '1',
+            company: 'Empresa Alpha',
+            cnpj: '12.345.678/0001-90',
+            responsible: 'Henrique Silva',
+            phone: '(11) 98888-7777',
+            email: 'contato@alpha.com',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            address: 'Av. Paulista, 1000',
+            plan: 'Premium',
+            contract_end: '2025-12-31',
+            start_date: '2024-01-01',
+            monthly_value: 1500.00,
+            payment_day: 10,
+            tags: ['Ativo']
+          },
+          {
+            id: '2',
+            company: 'Consultoria Beta',
+            cnpj: '98.765.432/0001-21',
+            responsible: 'Mariana Costa',
+            phone: '(21) 97777-6666',
+            email: 'mariana@beta.com',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            address: 'Rua Augusta, 500',
+            plan: 'Gold',
+            contract_end: '2025-06-30',
+            start_date: '2024-06-01',
+            monthly_value: 850.00,
+            payment_day: 5,
+            tags: ['A vencer']
+          },
+          {
+            id: '3',
+            company: 'Marketing Express',
+            cnpj: '45.123.890/0001-55',
+            responsible: 'Roberto Almeida',
+            phone: '(31) 96666-5555',
+            email: 'roberto@marketingexpress.com',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            address: 'Rua das Flores, 120',
+            plan: 'Basic',
+            contract_end: '2023-12-31',
+            start_date: '2023-10-01',
+            monthly_value: 800.00,
+            payment_day: 15,
+            tags: ['Inativo']
+          },
+          {
+            id: '4',
+            company: 'Global Importadora',
+            cnpj: '76.543.210/0001-33',
+            responsible: 'Amanda Santos',
+            phone: '(41) 95555-4444',
+            email: 'amanda@globalimport.com',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            address: 'Setor Comercial Sul, Q1',
+            plan: 'Enterprise',
+            contract_end: '2026-02-15',
+            start_date: '2024-02-15',
+            monthly_value: 3500.00,
+            payment_day: 20,
+            tags: ['Ativo']
+          },
+          {
+            id: '5',
+            company: 'Tech Solutions',
+            cnpj: '98.765.432/0001-10',
+            responsible: 'José Carlos',
+            phone: '(21) 97777-6666',
+            email: 'jose@techsolutions.com',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            address: 'Av. Copacabana, 500',
+            plan: 'Enterprise',
+            contract_end: new Date(new Date().setDate(new Date().getDate() + 15)).toISOString().split('T')[0],
+            start_date: '2023-05-01',
+            monthly_value: 2000.00,
+            payment_day: 5,
+            tags: ['A Vencer']
+          }
+        ] as Client[];
+      }
+
       if (!user) throw new Error('User not authenticated');
 
       // Atualizar tags de clientes baseado no vencimento dos contratos

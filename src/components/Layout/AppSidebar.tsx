@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { BarChart2, Filter, FileText, DollarSign, MessageSquare, Users, LogOut, Bot } from "lucide-react";
+import { BarChart2, Filter, FileText, DollarSign, MessageSquare, Users, LogOut, Bot, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
+  { title: "Início", url: "/", icon: Home },
   { title: "Dashboard", url: "/dashboard", icon: BarChart2 },
   { title: "Funil", url: "/leads", icon: Filter },
   { title: "Contratos", url: "/contracts", icon: FileText },
@@ -38,7 +39,7 @@ export function AppSidebar() {
           liquid-glass rounded-[2rem]
           px-2 py-8
           transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1)
-          ${open ? "translate-x-0 opacity-100" : "-translate-x-[150%] opacity-0"}
+          ${open ? "translate-x-0 opacity-100" : "translate-x-[-80%] opacity-100 hover:translate-x-0"}
         `}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}

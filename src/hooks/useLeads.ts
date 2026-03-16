@@ -43,6 +43,197 @@ export function useLeads() {
   const fetchLeads = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // For local development with mock user, return mock data
+      if (!user || user?.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock leads data');
+        const mockLeads: Lead[] = [
+          {
+            id: 'lead-1',
+            name: 'Carlos Oliveira',
+            company: 'Oliveira Tech',
+            phone: '(11) 91234-5678',
+            email: 'carlos@oliveira.tech',
+            stage: 'stage-1', // Novo Contato
+            tags: ['Quente'],
+            value: 5000,
+            notes: 'Interessado no plano Premium',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: '2025-03-20'
+          },
+          {
+            id: 'lead-2',
+            name: 'Ana Souza',
+            company: 'Souza Design',
+            phone: '(21) 92345-6789',
+            email: 'ana@souzadesign.com',
+            stage: 'stage-2', // Em Negociação
+            tags: ['Frio'],
+            value: 2000,
+            notes: 'Precisa de um orçamento detalhado',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-3',
+            name: 'Marcos Silva',
+            company: 'MS Consultoria',
+            phone: '(31) 99888-7777',
+            email: 'marcos@msconsultoria.com.br',
+            stage: 'stage-1', // Novo Contato
+            tags: ['Quente'],
+            value: 12000,
+            notes: 'Quer projeto de reestruturação de RH',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-4',
+            name: 'Juliana Costa',
+            company: 'JC Eventos',
+            phone: '(41) 98888-6666',
+            email: 'contato@jceventos.com',
+            stage: 'stage-3', // Fechado
+            tags: ['Ativo'],
+            value: 8500,
+            notes: 'Contrato anual assinado',
+            created_at: new Date(Date.now() - 86400000).toISOString(),
+            updated_at: new Date(Date.now() - 86400000).toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-5',
+            name: 'Roberto Almeida',
+            company: 'Almeida Imports',
+            phone: '(51) 97777-5555',
+            email: 'roberto@almeidaimports.com',
+            stage: 'stage-2', // Em Negociação
+            tags: ['A vencer'],
+            value: 3000,
+            notes: 'Aguardando aprovação da diretoria',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: '2026-03-15'
+          },
+          {
+            id: 'lead-6',
+            name: 'Felipe Santos',
+            company: 'Santos Logística',
+            phone: '(61) 96666-4444',
+            email: 'felipe@santoslog.com',
+            stage: 'stage-4', // Sem Atendimento
+            tags: ['Novo'],
+            value: 4500,
+            notes: 'Veio da campanha de Facebook Ads',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-7',
+            name: 'Patrícia Lima',
+            company: 'Lima Odontologia',
+            phone: '(71) 95555-3333',
+            email: 'patricia@limaodonto.com.br',
+            stage: 'stage-5', // Em Atendimento
+            tags: ['Quente'],
+            value: 1500,
+            notes: 'Dúvidas sobre o funcionamento do CRM',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-8',
+            name: 'Eduardo Gomes',
+            company: 'EG Start',
+            phone: '(81) 94444-2222',
+            email: 'eduardo@egstart.tech',
+            stage: 'stage-6', // Reunião Agendada
+            tags: ['Quente'],
+            value: 6000,
+            notes: 'Apresentação agendada para sexta',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString()
+          },
+          {
+            id: 'lead-9',
+            name: 'Renata Castro',
+            company: 'RC Estética',
+            phone: '(91) 93333-1111',
+            email: 'renata@rcestetica.com',
+            stage: 'stage-7', // Proposta Enviada
+            tags: ['Fio'],
+            value: 2500,
+            notes: 'Aguardando avaliação da proposta',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 0,
+            meeting_date: null
+          },
+          {
+            id: 'lead-10',
+            name: 'Marcelo Pires',
+            company: 'Pires Transportes',
+            phone: '(51) 92222-0000',
+            email: 'marcelo@pirestransportes.com',
+            stage: 'stage-8', // Follow-up
+            tags: ['Frio'],
+            value: 8000,
+            notes: 'Ligar semana que vem',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sdr_status: null,
+            sdr_started_at: null,
+            sdr_last_contact_at: null,
+            sdr_followup_count: 1,
+            meeting_date: null
+          }
+        ];
+        setLeads(mockLeads);
+        setIsLoading(false);
+        return;
+      }
+
       if (!user) {
         throw new Error('Usuário não autenticado');
       }
@@ -169,6 +360,14 @@ export function useLeads() {
   // Atualizar etapa do lead (para drag and drop)
   const updateLeadStage = async (id: string, newStage: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Se for usuário mockado localmente, atualizamos o state no mock e encerramos para evitar erro de banco
+      if (!user || user.id === 'mock-user-id') {
+        setLeads(prev => prev.map(lead => lead.id === id ? { ...lead, stage: newStage } : lead));
+        return { id, stage: newStage };
+      }
+
       const { data, error } = await supabase
         .from('leads')
         .update({ stage: newStage })

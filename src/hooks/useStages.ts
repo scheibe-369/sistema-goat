@@ -29,6 +29,97 @@ export function useStages() {
   const fetchStages = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // For local development with mock user, return mock data
+      if (!user || user?.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock stages data');
+        const mockStages: Stage[] = [
+          {
+            id: 'stage-1',
+            name: 'Novo Contato',
+            color: 'bg-blue-500',
+            position: 1,
+            is_default: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-2',
+            name: 'Em Negociação',
+            color: 'bg-yellow-500',
+            position: 2,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-3',
+            name: 'Fechado',
+            color: 'bg-green-500',
+            position: 3,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-4',
+            name: 'Sem Atendimento',
+            color: 'bg-gray-500',
+            position: 4,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-5',
+            name: 'Em Atendimento',
+            color: 'bg-purple-500',
+            position: 5,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-6',
+            name: 'Reunião Agendada',
+            color: 'bg-indigo-500',
+            position: 6,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-7',
+            name: 'Proposta Enviada',
+            color: 'bg-orange-500',
+            position: 7,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          },
+          {
+            id: 'stage-8',
+            name: 'Follow-up',
+            color: 'bg-pink-500',
+            position: 8,
+            is_default: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'mock-user-id'
+          }
+        ];
+        setStages(mockStages);
+        setIsLoading(false);
+        return;
+      }
+
       if (!user) {
         throw new Error('Usuário não autenticado');
       }

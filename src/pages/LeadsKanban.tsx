@@ -637,6 +637,7 @@ export default function LeadsKanban() {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
+                                {...provided.dragHandleProps}
                                 className={snapshot.isDragging ? "" : ""}
                                 style={provided.draggableProps.style}
                               >
@@ -651,11 +652,10 @@ export default function LeadsKanban() {
                                       <div className="space-y-2 sm:space-y-3">
                                         <div className="flex items-center gap-2">
                                           <div
-                                            {...provided.dragHandleProps}
                                             data-dnd-handle
                                             // ✅ garante que o browser não tente “interpretar gesto” e travar eixo
                                             style={{ touchAction: "none" }}
-                                            className="touch-none h-7 w-7 sm:h-8 sm:w-8 grid place-items-center rounded-md text-goat-gray-400 hover:bg-goat-gray-700/60 hover:text-white transition-colors cursor-grab active:cursor-grabbing flex-shrink-0"
+                                            className="touch-none h-7 w-7 sm:h-8 sm:w-8 grid place-items-center rounded-md text-goat-gray-400 hover:bg-goat-gray-700/60 hover:text-white transition-colors cursor-pointer flex-shrink-0"
                                             title="Arrastar"
                                           >
                                             <GripVertical className="w-4 h-4" />

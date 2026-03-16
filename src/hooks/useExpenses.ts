@@ -27,6 +27,45 @@ export const useExpenses = () => {
   const { data: expenses = [], isLoading } = useQuery({
     queryKey: ['expenses'],
     queryFn: async () => {
+      // For local development with mock user, return mock data
+      if (user?.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock expenses data');
+        const now = new Date();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        
+        return [
+          {
+            id: 'exp-1',
+            description: 'Servidor AWS',
+            amount: 250.00,
+            category: 'Infraestrutura',
+            date: now.toISOString().split('T')[0],
+            status: 'pending',
+            type: 'expense',
+            is_recurring: true,
+            recurrence_type: 'monthly',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'exp-2',
+            description: 'Internet Fibra',
+            amount: 120.00,
+            category: 'Operacional',
+            date: yesterday.toISOString().split('T')[0],
+            status: 'paid',
+            type: 'expense',
+            is_recurring: true,
+            recurrence_type: 'monthly',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ] as Expense[];
+      }
+
       if (!user?.id) return [];
       
       const { data, error } = await supabase

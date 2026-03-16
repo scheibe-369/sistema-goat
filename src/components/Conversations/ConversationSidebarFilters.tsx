@@ -203,8 +203,8 @@ export function ConversationSidebarFilters({ isOpen, onClose, filters, onFilters
                       <div key={stage.id} className="flex items-center space-x-3">
                         <Checkbox
                           id={`stage-${stage.id}`}
-                          checked={localFilters.stages.includes(stage.name)}
-                          onCheckedChange={(checked) => handleStageChange(stage.name, checked as boolean)}
+                          checked={localFilters.stages.includes(stage.id)}
+                          onCheckedChange={(checked) => handleStageChange(stage.id, checked as boolean)}
                           className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
                         <Label

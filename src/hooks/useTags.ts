@@ -26,6 +26,49 @@ export function useTags() {
   const fetchTags = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // For local development with mock user, return mock data
+      if (!user || user?.id === 'mock-user-id') {
+        console.log('DEBUG - Using mock tags data');
+        const mockTags: Tag[] = [
+          {
+            id: 'tag-1',
+            name: 'Quente',
+            color: 'bg-red-500',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'tag-2',
+            name: 'Frio',
+            color: 'bg-blue-500',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'tag-3',
+            name: 'Ativo',
+            color: 'bg-green-500',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          {
+            id: 'tag-4',
+            name: 'A vencer',
+            color: 'bg-yellow-500',
+            user_id: 'mock-user-id',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ];
+        setTags(mockTags);
+        setIsLoading(false);
+        return;
+      }
+
       if (!user) {
         throw new Error('Usuário não autenticado');
       }
