@@ -241,7 +241,7 @@ const Index = () => {
           className="mt-16 text-center"
         >
            <p className="text-white/20 text-xs font-medium tracking-widest uppercase">
-             Powered by Goat AI Ecosystem
+             Powered by Growth Hub AI Ecosystem
            </p>
         </motion.div>
       </div>
